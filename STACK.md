@@ -35,6 +35,9 @@ Siempre activas:
 - daisyui
 - astro-icon
 - @iconify-json/heroicons
+- @supabase/supabase-js
+- @astrojs/mdx
+
 
 ## Notas de configuracion
 - **Modo de renderizado (Astro):** Dado que el sitio mezcla contenido público 100% estático y rutas privadas que requieren validación de usuario (Buscador, Oficinas, Cubics), el archivo `astro.config.mjs` debe configurarse con **`output: 'hybrid'`** (o `server`). Esto permite mantener la velocidad estática para la documentación, pero habilitar el Server-Side Rendering (SSR) necesario para chequear las cookies de sesión de Supabase en las rutas protegidas.
