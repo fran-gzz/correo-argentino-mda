@@ -1,2 +1,47 @@
 @import "tailwindcss";
-@plugin "daisyui";
+
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+
+  --color-base-100: oklch(0.9850 0.0000 89.88);
+  --color-base-200: oklch(0.9612 0.0000 89.88);
+  --color-base-300: oklch(0.9300 0.0000 89.88);
+  --color-base-content: oklch(0.2400 0.0000 89.88);
+
+  --color-primary: oklch(0.9168 0.1915 101.41);
+  --color-primary-content: oklch(0.2600 0.0200 89.88);
+
+  --color-secondary: oklch(0.4228 0.1390 254.94);
+  --color-secondary-content: oklch(0.9800 0.0100 89.88);
+
+  --color-accent: oklch(0.6769 0.1411 233.68);
+  --color-accent-content: oklch(0.9800 0.0100 89.88);
+
+  --color-neutral: oklch(0.9612 0.0000 89.88);
+  --color-neutral-content: oklch(0.2600 0.0000 89.88);
+
+  --color-info: oklch(0.6769 0.1411 233.68);
+  --color-info-content: oklch(0.9800 0.0100 89.88);
+
+  --color-success: oklch(0.5254 0.1378 152.15);
+  --color-success-content: oklch(0.9800 0.0100 89.88);
+
+  --color-warning: oklch(0.9168 0.1915 101.41);
+  --color-warning-content: oklch(0.2600 0.0200 89.88);
+
+  --color-error: oklch(0.5756 0.2353 28.11);
+  --color-error-content: oklch(0.9800 0.0100 89.88);
+}
+
+@theme {
+  --color-postal: oklch(0.5756 0.2353 28.11);
+  --color-logistica: oklch(0.4202 0.0000 89.88);
+  --color-financiero: oklch(0.5254 0.1378 152.15);
+}
