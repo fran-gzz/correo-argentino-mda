@@ -11,5 +11,6 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
+  output: "server",
   integrations: [icon(), mdx()],
 });
