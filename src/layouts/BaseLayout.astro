@@ -63,8 +63,24 @@ const isActiveRoute = (href: string) =>
     : currentPath === href || currentPath.startsWith(`${href}/`);
 ---
 
-<html lang="es" data-theme="light">
+<html lang="es">
   <head>
+    <script is:inline>
+      (() => {
+        const savedTheme = localStorage.getItem("theme");
+        const theme =
+          savedTheme === "light" || savedTheme === "dark"
+            ? savedTheme
+            : "light";
+
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <script>
+      import { themeChange } from "theme-change";
+
+      themeChange();
+    </script>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
@@ -81,7 +97,7 @@ const isActiveRoute = (href: string) =>
         aria-label="toggle sidebar"
       />
       <div class="drawer-content flex min-h-screen flex-col">
-        <nav class="navbar w-full bg-primary gap-2">
+        <nav class="navbar w-full gap-2 bg-primary">
           <label
             for="my-drawer-4"
             aria-label="open sidebar"
@@ -92,7 +108,7 @@ const isActiveRoute = (href: string) =>
           >
             <Icon name="heroicons:bars-3" class="size-5" />
           </label>
-          <div>Portal Mesa de Ayuda</div>
+          <div class="text-primary-content">Portal Mesa de Ayuda</div>
         </nav>
 
         <main class="flex-1 overflow-y-auto p-6">
@@ -143,7 +159,21 @@ const isActiveRoute = (href: string) =>
             }
           </ul>
 
-          <div class="w-full border-t border-secondary-content/20 p-2">
+          <div class="w-full border-t border-secondary-content/20 menu gap-1">
+            <button
+              type="button"
+              data-toggle-theme="dark,light"
+              data-act-class="ACTIVECLASS"
+              aria-label="Cambiar entre tema claro y oscuro"
+              data-tip="Tema"
+              class="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary-content/80 transition is-drawer-close:tooltip is-drawer-close:tooltip-right hover:bg-base-100/10 hover:text-secondary-content"
+            >
+              <Icon
+                name="heroicons:moon"
+                class="size-5 shrink-0 opacity-80 transition group-hover:opacity-100"
+              />
+              <span class="truncate is-drawer-close:hidden">Cambiar tema</span>
+            </button>
             <a
               href={loginItem.href}
               aria-label={loginItem.label}
