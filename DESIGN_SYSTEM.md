@@ -267,16 +267,51 @@ Anti-patron:
 ## Espaciado y layout
 - Shell principal en 2 columnas:
   - Columna izquierda: `Sidebar` fija (`w-64`) con prioridad visual
-  - Columna derecha: `TopBar` + `main` + `Footer`
+  - Columna derecha: `TopBar` sticky + `main` + `Footer`
 - Altura minima general: `min-h-screen`
 - Area de contenido: `main` con `flex-1` y `overflow-y-auto`
 - Padding base de contenido: `p-6`
 - Bordes de separacion: `border-base-300`
 
+## Contrato de Barra Superior (Header/TopBar)
+
+### Concepto
+- El Header es un componente estructural critico: epicentro de orientacion
+  global y quick actions.
+- Debe ser delgado, minimamente invasivo y sticky siempre.
+
+### Estructura por zonas
+- Zona izquierda (contexto): nombre dinamico de la ruta/pantalla activa.
+  En mobile esta etiqueta se oculta para priorizar herramientas.
+- Zona derecha (herramientas globales), orden izquierda a derecha:
+  A. Busqueda maestra: omnibox/paleta/quick search con atajos. En desktop
+  se muestra expandida; en mobile se contrae a icono de lupa que abre modal.
+  B. Preferencias: toggle dark/light con icono dinamico que comunica estado
+  actual o accion de cambio.
+  C. Alertas y sistema: centro de notificaciones con badge discreto para no
+  leidas y acceso rapido a ayuda/manual.
+
+### Reglas de intervencion visual
+- Jerarquia visual reducida: botones `ghost`, sin CTAs pesados en Header.
+- Escalabilidad y agrupacion: usar divisores logicos entre bloques de
+  herramientas (por ejemplo, busqueda separada de utilidades).
+- Consistencia de temas: fondo, borde inferior, iconos y contraste dependen
+  de tokens semanticos light/dark del sistema.
+
+### Estado actual vs objetivo (trazabilidad)
+- Estado actual en `BaseLayout`: topbar simple con boton de drawer y texto
+  estatico; no existe sticky formal ni bloques completos de busqueda,
+  notificaciones y ayuda en la Barra Superior.
+- Estado actual en herramientas globales: el toggle de tema existe pero vive
+  en la sidebar; no en la zona derecha del Header.
+- Objetivo aprobado: mover y consolidar herramientas globales en Header segun
+  el orden y comportamiento responsive definidos en este contrato.
+- Esta actualizacion es documental: no modifica implementacion funcional.
+
 ## Componentes catalogados
 Globales actuales:
 - `Sidebar` (navegacion lateral con iconos y estado activo)
-- `TopBar` (cabecera superior)
+- `TopBar` (cabecera superior basica en `BaseLayout`, pendiente de evolucion al contrato aprobado)
 - `Footer` (pie global)
 
 Layout actual:
@@ -350,7 +385,7 @@ solo se registra el gap entre estado real y roadmap objetivo.
 - Los colores reservados por linea de negocio no se reutilizan como semanticos
 - Los semanticos (`info/success/warning/error/neutral`) son similares al lenguaje de marca, pero no iguales a institucional/postal/financiero/logistica
 - `platinum` y `onyx` se establecen como neutrales base para superficies y texto
-- La sidebar tiene prioridad estructural y visual sobre header/footer
+- Header y sidebar forman una doble capa de navegacion: el Header concentra orientacion global y quick actions; la sidebar concentra navegacion seccional
 - El enlace activo en sidebar se marca con color `primary`
 - La arquitectura inicial privilegia claridad de lectura y navegacion rapida
 - El portal mantiene sentence case en espanol para texto visible
@@ -360,7 +395,8 @@ solo se registra el gap entre estado real y roadmap objetivo.
 - Definir tipografia final desde Fontsource
 - Diseñar variante dark propia alineada al branding
 - Implementar sidebar minimizable (comportamiento tipo Gemini)
-- Implementar buscador global con atajo `Ctrl+K` / `Cmd+K`
+- Implementar contrato completo de Header/TopBar (sticky + contexto dinamico + herramientas globales)
+- Implementar buscador global con atajo `Ctrl+K` / `Cmd+K` dentro de la Busqueda maestra del Header
 - Implementar breadcrumbs en secciones de catalogos y documentacion
 - Catalogar componentes de dominio (cards, tablas, badges, filtros)
 - Ejecutar revision de accesibilidad y contraste WCAG AA

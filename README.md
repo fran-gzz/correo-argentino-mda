@@ -20,6 +20,30 @@ Unificar en una sola plataforma:
 - Interacciones de copia rapida para acelerar tareas operativas.
 - Idioma en espanol con sentence case en titulos y textos de interfaz.
 
+## Contrato de Barra Superior (Header/Topbar)
+
+- Rol: componente estructural critico, epicentro de orientacion global y
+  quick actions.
+- Comportamiento base: Header delgado, minimamente invasivo y sticky siempre.
+- Zona izquierda: nombre dinamico de la ruta/pantalla activa; en mobile se
+  oculta esta etiqueta para priorizar herramientas.
+- Zona derecha (izquierda a derecha):
+  A. Busqueda maestra (omnibox/paleta/quick search): desktop expandida,
+  mobile en icono de lupa que abre modal.
+  B. Preferencias: toggle dark/light con icono dinamico.
+  C. Alertas y sistema: notificaciones con badge discreto + acceso rapido a
+  ayuda/manual.
+- Reglas visuales: botones ghost, divisores logicos entre bloques y
+  consistencia por tokens semanticos de tema (fondo, borde, iconos, contraste).
+
+Estado actual vs objetivo:
+- El `BaseLayout` actual aun no implementa por completo este contrato del
+  Header.
+- Hoy la topbar es basica (menu + texto fijo), el toggle de tema vive en la
+  sidebar y no existe aun el bloque integral de busqueda/alertas/ayuda.
+- Esta directriz deja definido el objetivo documental para implementacion
+  posterior sin declarar funcionalidades inexistentes.
+
 ## Stack real del proyecto
 
 - Astro (output server) + adapter Vercel

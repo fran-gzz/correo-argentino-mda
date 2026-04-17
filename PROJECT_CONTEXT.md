@@ -46,6 +46,27 @@ de operaciones logisticas y postales.
 - Interacciones de baja friccion, sin ruido visual ni animaciones pesadas.
 - Navegacion orientada a resolver tareas en pocos clics.
 
+### Contrato de Barra Superior (Header/Topbar)
+- El Header es un componente estructural critico: epicentro de orientacion
+   global y quick actions.
+- Debe ser delgado, minimamente invasivo y sticky en todo momento para no
+   perder acceso a herramientas globales durante el scroll.
+- Zona izquierda (contexto): muestra nombre dinamico de la ruta/pantalla
+   activa. En mobile se oculta esta etiqueta para priorizar herramientas.
+- Zona derecha (herramientas globales), en orden de izquierda a derecha:
+   A. Busqueda maestra: omnibox/paleta/quick search con atajos. En desktop
+   visible expandida; en mobile contraida a icono de lupa que abre modal.
+   B. Preferencias: toggle dark/light con icono dinamico que comunique estado
+   actual o accion de cambio.
+   C. Alertas y sistema: centro de notificaciones con badge discreto para no
+   leidas y acceso rapido a ayuda/manual.
+- Reglas de intervencion del Header:
+   - Jerarquia visual reducida: botones ghost, sin CTAs pesados.
+   - Escalabilidad y agrupacion: divisores logicos entre bloques (por ejemplo,
+      busqueda separada de utilidades).
+   - Consistencia de temas: fondo, borde inferior, iconos y contraste segun
+      tokens semanticos en light/dark.
+
 ### Lenguaje de interfaz
 - Idioma principal: espanol.
 - Estilo de escritura: sentence case para titulos y textos de UI.
@@ -88,6 +109,20 @@ Notas de trazabilidad:
 - Rutas adicionales hoy presentes fuera del roadmap de 11 vistas:
   /documentacion, /design-system y /login.
 - Esta actualizacion documental no crea ni modifica rutas funcionales.
+
+---
+
+## Estado actual vs objetivo del Header
+
+| Aspecto | Objetivo documental aprobado | Estado actual en BaseLayout | Gap actual |
+|---|---|---|---|
+| Rol estructural | Header critico para orientacion global y quick actions | Topbar minima con boton de drawer + texto fijo | Falta consolidar Header como centro unico de contexto y acciones globales |
+| Comportamiento base | Siempre sticky, delgado y minimamente invasivo | No tiene comportamiento sticky declarado | Falta fijacion persistente durante scroll |
+| Zona izquierda | Nombre dinamico de ruta/pantalla activa; oculto en mobile | Texto estatico "Portal Mesa de Ayuda" | Falta contexto dinamico por ruta y regla responsive de ocultamiento |
+| Zona derecha A (busqueda) | Omnibox/paleta/quick search con atajos; desktop expandida y mobile por modal de lupa | No existe busqueda en Header | Falta bloque completo de busqueda maestra |
+| Zona derecha B (preferencias) | Toggle dark/light con icono dinamico en Header | Toggle de tema existente pero ubicado en sidebar | Falta mover/normalizar preferencia como herramienta global de Header |
+| Zona derecha C (alertas/sistema) | Notificaciones con badge discreto + acceso rapido a ayuda/manual | No hay centro de alertas/ayuda en Header | Falta bloque de alertas y soporte rapido |
+| Jerarquia visual y tokens | Botones ghost, divisores por bloques, fondo/borde/iconos por tokens semanticos light/dark | Header actual usa fondo primario pleno y sin divisores funcionales de herramientas | Falta aplicar jerarquia reducida y agrupacion escalable |
 
 ---
 
