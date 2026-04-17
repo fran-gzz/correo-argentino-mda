@@ -1,5 +1,5 @@
-# DESIGN SYSTEM — Mesa de Ayuda - Correo Argentino
-Generado el 2026-04-10. Actualizar ante cualquier cambio de diseño.
+# DESIGN SYSTEM - Portal de la Mesa de Ayuda Interna
+Generado el 2026-04-10. Actualizar ante cualquier cambio de diseno.
 
 ## Stack
 - Framework: Astro
@@ -10,10 +10,18 @@ Generado el 2026-04-10. Actualizar ante cualquier cambio de diseño.
 - Datos/Auth: Supabase + Supabase Auth
 - Deploy objetivo: Vercel
 
+## Contexto de producto (actualizado 2026-04-17)
+- Producto: Portal de la Mesa de Ayuda Interna.
+- Objetivo principal: centralizar y agilizar tareas de operadores N1/N2
+  para tipificacion de tickets, busqueda de personal, monitoreo de
+  terminales y gestion de carga laboral.
+- Dominio de uso: soporte corporativo logistico y postal.
+
 ## Tema activo
 - Tema base activo: `light`
 - Modo oscuro: disponible por `prefers-color-scheme` con tema `dark`
-- Dirección visual: minimalista, utilitaria y de lectura rápida, orientada a productividad interna
+- Selector global: alternancia manual `light/dark` disponible desde el layout principal
+- Direccion visual: minimalista, utilitaria y de lectura rapida, orientada a productividad interna
 
 ## Paleta oficial (actualizada 2026-04-13)
 
@@ -241,14 +249,19 @@ Snippet listo para copiar:
 Anti-patron:
 - No pintar toda la card con color de estado para indicar un resultado; usar badge o alert dentro de la card.
 
-## Tipografía
-- Estado actual: sans-serif del sistema (temporal)
-- Objetivo de estilo: sans-serif limpia, tecnica y legible para lectura rapida en soporte
-- Regla: definir familia final desde Fontsource antes del cierre visual del MVP
+## Tipografia
+- UI principal: sans-serif moderna y legible para operacion intensiva.
+- Datos tecnicos: tipografia monoespaciada para IPs, rutas y texto rigido.
+- Regla de idioma: espanol en sentence case para titulos y microcopy.
+- Regla de cierre MVP: definir familia final desde Fontsource.
 
-## Escala tipográfica usada
+## Interaccion operativa
+- Acciones de copia rapida con feedback inmediato para tareas repetitivas.
+- Navegacion de baja friccion, orientada a resolucion de tareas en pocos clics.
+
+## Escala tipografica usada
 - Titulo principal de pagina: `text-3xl font-bold`
-- Navegación y elementos globales: `text-sm`
+- Navegacion y elementos globales: `text-sm`
 - Texto secundario/global: `text-sm` con opacidad (`text-base-content/70`)
 
 ## Espaciado y layout
@@ -269,7 +282,7 @@ Globales actuales:
 Layout actual:
 - `BaseLayout` (ensambla sidebar + topbar + main + footer)
 
-Paginas base existentes:
+Paginas implementadas hoy (estado real del repo):
 - `/`
 - `/titulos-tickets`
 - `/documentacion`
@@ -278,7 +291,27 @@ Paginas base existentes:
 - `/oficinas-telegrafia`
 - `/cubics`
 - `/configuracion`
+- `/design-system`
 - `/login`
+
+Roadmap funcional objetivo (11 vistas):
+
+| Vista | Ruta objetivo | Estado actual | Nota operativa |
+|---|---|---|---|
+| Dashboard principal | `/` | Implementada | Ajustar widgets al foco N1/N2 |
+| Titulos de tickets | `/titulos-tickets` | Implementada | Mantener agilidad de copia |
+| Buscador de usuarios | `/buscador-usuarios` | Implementada | Definir politicas de acceso final |
+| Directorio de oficinas | `/directorio-oficinas` | Cobertura parcial con `/oficinas-telegrafia` | Resolver nombre final de ruta |
+| Guia de soportes | `/guia-soportes` | Implementada | Completar cobertura de casos |
+| Cronograma | `/cronograma` | No implementada | Ruta pendiente |
+| Cubics | `/cubics` | Implementada | Evolucionar a monitoreo operativo |
+| Mapa de sucursales | `/mapa-sucursales` | No implementada | Ruta pendiente |
+| Inventario de terminales | `/inventario-terminales` | No implementada | Ruta pendiente |
+| Enlaces importantes | `/enlaces-importantes` | No implementada | Ruta pendiente |
+| Configuracion | `/configuracion` | Implementada | Ajustar preferencias de usuario |
+
+Nota de trazabilidad: no se implementan rutas nuevas en este ajuste documental;
+solo se registra el gap entre estado real y roadmap objetivo.
 
 ## Convenciones de nomenclatura
 - Rutas: kebab-case y sin tildes (ejemplo: `/oficinas-telegrafia`)
@@ -302,6 +335,15 @@ Paginas base existentes:
 - Animaciones lentas o decorativas que afecten la velocidad de uso
 - Secciones no justificadas por el briefing funcional
 
+## Reglas de intervencion de UI
+1. Mantener consistencia modular visual en contenedores, tarjetas y
+  composicion limpia de contenido.
+2. Si se agrega una ruta o vista nueva, registrar la ruta en el orquestador
+  principal y en la navegacion dinamica (sidebar y topbar cuando aplique).
+  Estado actual: `src/layouts/BaseLayout.astro` concentra el arreglo `navItems`.
+3. Todo componente nuevo debe usar referencias semanticas de color (tokens
+  DaisyUI o variables del sistema), para integracion automatica con temas.
+
 ## Decisiones documentadas
 - Se adopta `light` como tema por defecto para consistencia operativa
 - `primary` queda fijo en school-bus-yellow y `secondary` en steel-azure
@@ -310,7 +352,9 @@ Paginas base existentes:
 - `platinum` y `onyx` se establecen como neutrales base para superficies y texto
 - La sidebar tiene prioridad estructural y visual sobre header/footer
 - El enlace activo en sidebar se marca con color `primary`
-- La arquitectura inicial privilegia claridad de lectura y navegación rapida
+- La arquitectura inicial privilegia claridad de lectura y navegacion rapida
+- El portal mantiene sentence case en espanol para texto visible
+- Las rutas nuevas deben pasar por el orquestador de `navItems` en BaseLayout
 
 ## Pendientes
 - Definir tipografia final desde Fontsource
