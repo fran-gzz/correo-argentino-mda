@@ -5,8 +5,6 @@ import vercel from "@astrojs/vercel";
 
 import icon from "astro-icon";
 
-import mdx from "@astrojs/mdx";
-
 export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
@@ -14,5 +12,5 @@ export default defineConfig({
 
   output: "server",
   adapter: vercel(),
-  integrations: [icon(), mdx()],
+  integrations: [icon()],
 });

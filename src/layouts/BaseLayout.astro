@@ -17,36 +17,51 @@ const { title = "Portal Mesa de Ayuda" } = Astro.props;
 const currentPath = Astro.url.pathname;
 
 const navItems: NavItem[] = [
-  { href: "/", label: "Home", icon: "heroicons:home" },
+  { href: "/", label: "Inicio", icon: "heroicons:home" },
   {
     href: "/titulos-tickets",
-    label: "Títulos de Tickets",
+    label: "Titulos de tickets",
     icon: "heroicons:queue-list",
   },
   {
-    href: "/documentacion",
-    label: "Documentación",
-    icon: "heroicons:document-text",
-  },
-  {
-    href: "/guia-soportes",
-    label: "Guía de Soportes",
-    icon: "heroicons:lifebuoy",
-  },
-  {
     href: "/buscador-usuarios",
-    label: "Buscador de Usuarios",
+    label: "Buscador de usuarios",
     icon: "heroicons:users",
   },
   {
-    href: "/oficinas-telegrafia",
-    label: "Oficinas Telegrafía",
+    href: "/directorio-oficinas",
+    label: "Directorio de oficinas",
     icon: "heroicons:building-office-2",
+  },
+  {
+    href: "/guia-soportes",
+    label: "Guia de soportes",
+    icon: "heroicons:lifebuoy",
+  },
+  {
+    href: "/cronograma",
+    label: "Cronograma",
+    icon: "heroicons:calendar-days",
   },
   { href: "/cubics", label: "Cubics", icon: "heroicons:computer-desktop" },
   {
+    href: "/mapa-sucursales",
+    label: "Mapa de sucursales",
+    icon: "heroicons:map",
+  },
+  {
+    href: "/inventario-terminales",
+    label: "Inventario de terminales",
+    icon: "heroicons:server-stack",
+  },
+  {
+    href: "/enlaces-importantes",
+    label: "Enlaces importantes",
+    icon: "heroicons:link",
+  },
+  {
     href: "/configuracion",
-    label: "Configuración",
+    label: "Configuracion",
     icon: "heroicons:cog-6-tooth",
   },
 ];

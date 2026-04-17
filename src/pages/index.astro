@@ -2,20 +2,23 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Home Público">
+<BaseLayout title="Portal Mesa de Ayuda">
   <section class="mx-auto flex w-full max-w-4xl flex-col gap-6">
-    <h1 class="text-3xl font-bold text-secondary">Home Público</h1>
+    <h1 class="text-3xl font-bold text-secondary">Portal Mesa de Ayuda</h1>
 
     <article class="card border border-base-300 bg-base-200 shadow-sm">
       <div class="card-body gap-3">
-        <h2 class="card-title">Design System</h2>
+        <h2 class="card-title">Accesos operativos</h2>
         <p class="text-sm text-base-content/70">
-          Acceso interno para consultar la paleta, reglas y ejemplos de
-          componentes.
+          Ingreso rapido a los modulos principales para tareas de soporte N1 y
+          N2.
         </p>
-        <div class="card-actions justify-end">
-          <a href="/design-system" class="btn btn-primary btn-sm">
-            Abrir Design System
+        <div class="card-actions justify-start gap-2">
+          <a href="/titulos-tickets" class="btn btn-primary btn-sm">
+            Titulos de tickets
+          </a>
+          <a href="/buscador-usuarios" class="btn btn-secondary btn-sm">
+            Buscador de usuarios
           </a>
         </div>
       </div>

@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from "astro";
 
 const PRIVATE_ROUTES = [
   "/buscador-usuarios",
-  "/oficinas-telegrafia",
+  "/directorio-oficinas",
   "/cubics",
   "/configuracion",
 ];
