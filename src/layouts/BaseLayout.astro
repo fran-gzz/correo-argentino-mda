@@ -72,10 +72,27 @@ const loginItem: NavItem = {
   icon: "heroicons:arrow-right-on-rectangle",
 };
 
+const helpItem: NavItem = {
+  href: "/guia-soportes",
+  label: "Ayuda rapida",
+  icon: "heroicons:question-mark-circle",
+};
+
+const quickAccessItems: NavItem[] = [...navItems, loginItem, helpItem];
+
 const isActiveRoute = (href: string) =>
   href === "/"
     ? currentPath === "/"
     : currentPath === href || currentPath.startsWith(`${href}/`);
+
+const activeNavItem = navItems.find((item) => isActiveRoute(item.href));
+const activeRouteLabel =
+  activeNavItem?.label ??
+  (isActiveRoute(loginItem.href) ? loginItem.label : "Portal Mesa de Ayuda");
+const activeRouteIcon =
+  activeNavItem?.icon ??
+  (isActiveRoute(loginItem.href) ? loginItem.icon : "heroicons:home");
+const unreadNotifications = 3;
 ---
 
 <html lang="es">
@@ -106,27 +123,77 @@ const isActiveRoute = (href: string) =>
   <body class="min-h-screen bg-base-100 text-base-content">
     <div class="drawer lg:drawer-open">
       <input
-        id="my-drawer-4"
+        id="main-drawer"
         type="checkbox"
         class="drawer-toggle"
         aria-label="toggle sidebar"
       />
       <div class="drawer-content flex min-h-screen flex-col">
-        <nav class="navbar w-full gap-2 bg-primary">
-          <label
-            for="my-drawer-4"
-            aria-label="open sidebar"
-            aria-controls="my-drawer-4"
-            role="button"
-            tabindex="0"
-            class="btn btn-circle drawer-button btn-secondary"
-          >
-            <Icon name="heroicons:bars-3" class="size-5" />
-          </label>
-          <div class="text-primary-content">Portal Mesa de Ayuda</div>
-        </nav>
+        <header
+          class="navbar sticky top-0 z-30 min-h-12 border-b border-base-300 bg-base-100/95 px-3 text-base-content backdrop-blur sm:px-4"
+        >
+          <div class="flex items-center gap-2">
+            <label
+              for="main-drawer"
+              aria-label="open sidebar"
+              aria-controls="main-drawer"
+              role="button"
+              tabindex="0"
+              class="btn btn-ghost btn-circle drawer-button lg:hidden"
+            >
+              <Icon name="heroicons:bars-3" class="size-5" />
+            </label>
 
-        <main class="flex-1 overflow-y-auto p-6">
+            <div class="hidden items-center gap-2 text-base-content/80 md:flex">
+              <span class="hidden text-sm font-medium md:inline"
+                >{activeRouteLabel}</span
+              >
+            </div>
+          </div>
+
+          <div class="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              data-open-command-palette
+              aria-label="Abrir busqueda maestra"
+              class="btn btn-ghost hidden items-center gap-2 border border-base-300 bg-base-100 px-3 font-normal normal-case md:inline-flex"
+            >
+              <Icon name="heroicons:magnifying-glass" class="size-4" />
+              <span class="text-sm text-base-content/70">Buscar</span>
+              <kbd class="kbd kbd-sm">Ctrl</kbd>
+              <kbd class="kbd kbd-sm">K</kbd>
+            </button>
+
+            <button
+              type="button"
+              data-open-command-palette
+              aria-label="Abrir busqueda maestra"
+              class="btn btn-ghost btn-circle md:hidden"
+            >
+              <Icon name="heroicons:magnifying-glass" class="size-5" />
+            </button>
+
+            <div class="divider divider-horizontal m-0"></div>
+
+            <button
+              id="theme-toggle"
+              type="button"
+              data-toggle-theme="dark,light"
+              data-act-class="ACTIVECLASS"
+              aria-label="Activar modo oscuro"
+              class="btn btn-ghost btn-circle"
+            >
+              <Icon id="theme-icon-moon" name="heroicons:moon" class="size-5" />
+              <Icon
+                id="theme-icon-sun"
+                name="heroicons:sun"
+                class="hidden size-5"
+              />
+            </button>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-6">
           <slot />
         </main>
 
@@ -135,7 +202,7 @@ const isActiveRoute = (href: string) =>
 
       <div class="drawer-side is-drawer-close:overflow-visible">
         <label
-          for="my-drawer-4"
+          for="main-drawer"
           aria-label="close sidebar"
           class="drawer-overlay"></label>
 
@@ -175,20 +242,6 @@ const isActiveRoute = (href: string) =>
           </ul>
 
           <div class="w-full border-t border-secondary-content/20 menu gap-1">
-            <button
-              type="button"
-              data-toggle-theme="dark,light"
-              data-act-class="ACTIVECLASS"
-              aria-label="Cambiar entre tema claro y oscuro"
-              data-tip="Tema"
-              class="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary-content/80 transition is-drawer-close:tooltip is-drawer-close:tooltip-right hover:bg-base-100/10 hover:text-secondary-content"
-            >
-              <Icon
-                name="heroicons:moon"
-                class="size-5 shrink-0 opacity-80 transition group-hover:opacity-100"
-              />
-              <span class="truncate is-drawer-close:hidden">Cambiar tema</span>
-            </button>
             <a
               href={loginItem.href}
               aria-label={loginItem.label}
@@ -207,5 +260,190 @@ const isActiveRoute = (href: string) =>
         </div>
       </div>
     </div>
+
+    <dialog id="command-palette" class="modal">
+      <div
+        class="modal-box w-11/12 max-w-xl border border-base-300 bg-base-100 p-0"
+      >
+        <div class="border-b border-base-300 p-4">
+          <label for="command-palette-input" class="sr-only"
+            >Filtrar accesos</label
+          >
+
+          <label class="input w-full">
+            <Icon
+              name="heroicons:magnifying-glass"
+              class="size-5 text-base-content/60"
+            />
+            <input
+              type="search"
+              placeholder="Search"
+              id="command-palette-input"
+              type="text"
+              placeholder="Buscar accesos..."
+              class="grow w-full"
+              autocomplete="off"
+            />
+          </label>
+        </div>
+
+        <ul class="menu w-full">
+          {
+            quickAccessItems.map((item) => (
+              <li
+                data-command-item
+                data-search-text={`${item.label} ${item.href}`.toLowerCase()}
+              >
+                <a href={item.href} class="justify-between gap-3">
+                  <span class="flex min-w-0 items-center gap-2">
+                    <Icon name={item.icon} class="size-4 shrink-0" />
+                    <span class="truncate">{item.label}</span>
+                  </span>
+                  <span class="text-xs text-base-content/60">{item.href}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p
+          id="command-palette-empty"
+          class="hidden px-4 pb-4 text-sm text-base-content/70"
+        >
+          No hay accesos que coincidan.
+        </p>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button aria-label="Cerrar busqueda">close</button>
+      </form>
+    </dialog>
+
+    <script>
+      const commandPalette = document.getElementById(
+        "command-palette",
+      ) as HTMLDialogElement | null;
+      const commandPaletteInput = document.getElementById(
+        "command-palette-input",
+      ) as HTMLInputElement | null;
+      const commandPaletteItems = Array.from(
+        document.querySelectorAll("[data-command-item]"),
+      ) as HTMLLIElement[];
+      const commandPaletteEmpty = document.getElementById(
+        "command-palette-empty",
+      ) as HTMLElement | null;
+      const commandPaletteTriggers = Array.from(
+        document.querySelectorAll("[data-open-command-palette]"),
+      ) as HTMLButtonElement[];
+
+      const themeToggle = document.getElementById(
+        "theme-toggle",
+      ) as HTMLButtonElement | null;
+      const themeMoonIcon = document.getElementById("theme-icon-moon");
+      const themeSunIcon = document.getElementById("theme-icon-sun");
+
+      const updateThemeToggle = (): void => {
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark";
+
+        themeMoonIcon?.classList.toggle("hidden", isDark);
+        themeSunIcon?.classList.toggle("hidden", !isDark);
+
+        if (themeToggle) {
+          themeToggle.setAttribute(
+            "aria-label",
+            isDark ? "Activar modo claro" : "Activar modo oscuro",
+          );
+        }
+      };
+
+      const filterCommandPalette = (): void => {
+        const query = commandPaletteInput?.value.trim().toLowerCase() ?? "";
+        let visibleItems = 0;
+
+        commandPaletteItems.forEach((item: HTMLLIElement) => {
+          const searchText = item.dataset.searchText ?? "";
+          const isVisible = query.length === 0 || searchText.includes(query);
+
+          item.classList.toggle("hidden", !isVisible);
+          if (isVisible) {
+            visibleItems += 1;
+          }
+        });
+
+        commandPaletteEmpty?.classList.toggle("hidden", visibleItems > 0);
+      };
+
+      const openCommandPalette = (): void => {
+        if (!commandPalette) {
+          return;
+        }
+
+        if (!commandPalette.open) {
+          commandPalette.showModal();
+        }
+
+        if (commandPaletteInput) {
+          commandPaletteInput.value = "";
+          filterCommandPalette();
+          commandPaletteInput.focus();
+        }
+      };
+
+      const closeCommandPalette = (): void => {
+        if (commandPalette?.open) {
+          commandPalette.close();
+        }
+      };
+
+      commandPaletteTriggers.forEach((trigger: HTMLButtonElement) => {
+        trigger.addEventListener("click", () => {
+          openCommandPalette();
+        });
+      });
+
+      commandPaletteInput?.addEventListener("input", () => {
+        filterCommandPalette();
+      });
+
+      commandPalette?.addEventListener("click", (event: MouseEvent) => {
+        if (event.target === commandPalette) {
+          closeCommandPalette();
+        }
+      });
+
+      document.addEventListener("keydown", (event: KeyboardEvent) => {
+        const isCommandShortcut =
+          (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k";
+
+        if (isCommandShortcut) {
+          event.preventDefault();
+          openCommandPalette();
+          return;
+        }
+
+        if (event.key === "Escape") {
+          closeCommandPalette();
+        }
+      });
+
+      themeToggle?.addEventListener("click", () => {
+        window.setTimeout(() => {
+          updateThemeToggle();
+        }, 0);
+      });
+
+      const themeObserver = new MutationObserver(() => {
+        updateThemeToggle();
+      });
+
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+
+      updateThemeToggle();
+      filterCommandPalette();
+    </script>
   </body>
 </html>
