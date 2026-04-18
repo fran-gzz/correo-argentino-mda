@@ -267,7 +267,7 @@ Anti-patron:
 ## Espaciado y layout
 - Shell principal en 2 columnas:
   - Columna izquierda: `Sidebar` fija (`w-64`) con prioridad visual
-  - Columna derecha: `TopBar` sticky + `main` + `Footer`
+  - Columna derecha: `TopBar` sticky + `main`
 - Altura minima general: `min-h-screen`
 - Area de contenido: `main` con `flex-1` y `overflow-y-auto`
 - Padding base de contenido: `p-6`
@@ -312,10 +312,9 @@ Anti-patron:
 Globales actuales:
 - `Sidebar` (navegacion lateral con iconos y estado activo)
 - `TopBar` (cabecera superior basica en `BaseLayout`, pendiente de evolucion al contrato aprobado)
-- `Footer` (pie global)
 
 Layout actual:
-- `BaseLayout` (ensambla sidebar + topbar + main + footer)
+- `BaseLayout` (ensambla sidebar + topbar + main)
 
 Paginas implementadas hoy (estado real del repo):
 - `/`
