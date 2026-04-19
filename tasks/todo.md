@@ -1,53 +1,102 @@
-# Tarea: Refinamiento visual de icono y click-to-copy en grilla de Cubics
+# Tarea: Diseno visual y maquetacion del grid de Inventario de Terminales
 Fecha: 2026-04-18
 
 ## Descripcion
-Aplicar un ajuste de composicion visual y micro-interaccion en las columnas Hostname y Direccion IP de la grilla de equipos en /cubics, limitando el alcance a maquetacion UI (estructura, clases, estados visibles y transiciones) sin cambiar la logica JS subyacente de copiado o filtrado.
+Disenar e implementar la pantalla de Inventario de Terminales como una grilla
+de alta densidad construida con CSS Grid (sin usar la etiqueta table),
+manteniendo legibilidad operativa, jerarquia visual clara y comportamiento
+responsive con scroll horizontal en pantallas chicas.
 
 ## Riesgos identificados
-- Introducir cambios de comportamiento no solicitados al tocar scripts existentes en lugar de limitarse a clases/markup.
-- Generar salto de layout horizontal si el icono de copiar/check no reserva espacio estable en estado idle/hover/active.
-- Perder legibilidad tecnica si Hostname/IP dejan de usar tipografia monoespaciada.
-- Romper consistencia de color al usar valores hardcodeados fuera de tokens semanticos.
-- Degradar responsividad si el contenedor del icono de dispositivo se encoge en anchos reducidos.
+- Forzar iconos inexistentes en el set actual puede degradar consistencia
+  visual si no se define un mapeo claro de equivalencias.
+- Sin minimos estrictos por columna, el grid puede colapsar y quedar ilegible
+  en anchos reducidos.
+- Campos largos (serie, provincia, sucursal) pueden romper el layout si no se
+  aplica truncamiento consistente en todos los niveles.
+- La codificacion visual por sistema operativo puede introducir colores no
+  semanticos si no se controla con tokens del sistema.
+- Alta densidad de datos sin jerarquia tipografica puede aumentar fatiga visual
+  y errores de lectura del operador.
+- Uso insuficiente de primitives DaisyUI puede producir UI inconsistente con el
+  resto del portal si se resuelve todo con clases ad-hoc.
 
 ## Plan de ejecucion
 
-[x] Paso 1 - ui-designer: auditar el estado actual de las celdas Hostname e IP para identificar el delta exacto frente al pedido (icono contenedor fijo, hover discoverable y estado activo sin salto).
-    Criterio de exito: se documenta una lista concreta de ajustes visuales pendientes sin incluir cambios de logica JS.
+[x] Paso 1 - ui-designer: auditar y fijar el contrato visual de la pantalla
+    (cabecera, buscador, grid falso de 5 columnas, apilamiento vertical por
+    celda) tomando como baseline la ruta actual.
+    Criterio de exito: existe una estructura objetivo clara y trazable que
+    cubre todos los bloques exigidos por el pedido sin usar table.
 
-[x] Paso 2 - ui-designer: maquetar el icono de dispositivo a la izquierda del Hostname dentro de una ficha tecnica fija (contenedor redondeado, no deformable, fondo translúcido y tono acento en icono).
-    Criterio de exito: el icono queda encapsulado en un bloque visual estable con `shrink-0` y estilo semantico consistente con el sistema.
+[x] Paso 2 - ui-designer: implementar cabecera de pagina con titulo,
+    descripcion en muted foreground y buscador restrictivo con ancho maximo,
+    icono de lupa absoluto interno y padding coherente del input, priorizando
+    componentes/utilidades DaisyUI para input y estados visuales base.
+    Criterio de exito: encabezado y buscador se visualizan correctos en mobile
+    y desktop, con icono alineado y sin superposiciones.
 
-[x] Paso 3 - ui-designer: refinar el estado Idle y Hover de los bloques click-to-copy para Hostname e IP (cursor, transicion de color del texto, aparicion progresiva del icono copiar).
-    Criterio de exito: al hover se percibe claramente interaccion por color y opacidad, sin alterar alineacion ni espaciado de fila.
+[x] Paso 3 - ui-designer: construir la arquitectura base del contenedor de
+    datos con overflow-x-auto, wrapper interno con ancho minimo equivalente a
+    980px y plantilla de 5 columnas con minmax en el orden solicitado,
+    alineando a la derecha la quinta columna.
+    Criterio de exito: la grilla mantiene proporciones estables, no colapsa y
+    permite scroll horizontal en pantallas chicas.
 
-[x] Paso 4 - ui-designer: ajustar el estado visual de exito simulado para que el icono check reemplace al icono copiar exactamente en el mismo slot visual sin desplazamientos.
-    Criterio de exito: el area de icono mantiene tamano/posicion constante y no hay salto horizontal durante el swap visual.
+[x] Paso 4 - ui-designer: maquetar el contenido de alta densidad por fila para
+    columnas 1 y 2 (Hostname/Red y Hardware), incluyendo iconografia, pilas
+    tipograficas, indentado visual y estilos monoespaciados donde corresponde.
+    Criterio de exito: cada fila expone nombre, IP, MAC, fabricante/modelo,
+    RAM y serie con jerarquia visual clara y sin desbordes.
 
-[x] Paso 5 - ui-designer: validar capa tooltip en ambos estados visibles (`Clic para copiar` y `¡Copiado!`) desde UI, conservando el texto y estilo de globo existentes.
-    Criterio de exito: todo el bloque interactivo queda envuelto por tooltip con copy correcto en idle y post-click, sin cambios de logica.
+[x] Paso 5 - ui-designer: maquetar columnas 3, 4 y 5 (Sistema Operativo,
+    Ubicacion y Ultimo contacto) con iconos, badge compacto de arquitectura,
+    bloque NIS, metadatos secundarios y alineacion derecha del bloque temporal.
+    Criterio de exito: se renderizan correctamente SO, arquitectura, sucursal,
+    provincia/region, NIS, fecha y hora segun la composicion solicitada.
 
-[x] Paso 6 - qa-reviewer: verificar resultado final de UI y confirmar que el alcance se mantuvo en maquetacion visual sin tocar comportamiento funcional.
-    Criterio de exito: revision aprobada de composicion, micro-interaccion, tokens semanticos, tipografia monoespaciada y estabilidad responsive.
+[x] Paso 6 - ui-designer: aplicar reglas globales de visualizacion y densidad
+  (border por fila, hover muted, truncamiento extensivo, overflow-hidden,
+  tokens semanticos, consistencia tipografica sans/mono y uso prioritario de
+  primitives DaisyUI como badge, input y contenedores semanticos).
+    Criterio de exito: ningun campo largo estira la matriz ni rompe columnas,
+    y el estado hover/lectura es consistente en toda la grilla.
+
+[x] Paso 7 - ui-designer: asegurar origen de iconos desde el paquete actual de
+  iconografia del proyecto (astro-icon + set ya instalado), mapeando
+  equivalencias visuales para Monitor, Cpu, HardDrive, MapPin, Clock y Search
+  sin instalar dependencias nuevas.
+  Criterio de exito: todos los iconos de la vista provienen del stack actual
+  y la pagina compila sin regresiones de build/check.
+
+[x] Paso 8 - qa-reviewer: verificar resultado completo, accesibilidad basica,
+    cumplimiento estricto del pedido visual y preparar commit final.
+    Criterio de exito: QA aprueba estructura, responsividad, densidad,
+    truncamiento, iconografia requerida y ausencia de desviaciones funcionales.
 
 ## Agentes involucrados
 - ui-designer
 - qa-reviewer
 
 ## Criterio de exito global
-Las columnas Hostname y Direccion IP quedan con una experiencia visual de click-to-copy clara y estable: icono de dispositivo encapsulado en ficha tecnica, estados idle/hover/active consistentes, tooltip contextual y cero cambios en la logica subyacente.
+La pantalla Inventario de Terminales queda implementada como una grilla de
+alta densidad, sin table, con 5 columnas estables por CSS Grid, scroll
+horizontal controlado en mobile, contenido apilado por columna con jerarquia
+tecnica legible, truncamiento robusto y uso consistente de tokens semanticos e
+iconos del paquete actual, sin incorporar nuevas dependencias.
 
 ## Resultado de revision — 2026-04-18
 
 ### Aprobado
-- Icono de dispositivo validado en Hostname con contenedor fijo, redondeado y no deformable (`size-8`, `shrink-0`), estilo ficha tecnica translucida y acento semantico.
-- Estado idle/hover del bloque click-to-copy validado: texto monoespaciado, cursor clic, transicion de color y aparicion progresiva del icono por opacidad.
-- No se detectaron colores hardcodeados (HEX/RGB) en los archivos revisados; se usan tokens semanticos (`base-*`, `accent`, `success`).
-- La grilla mantiene alineacion y responsividad en mobile/tablet/desktop sin solapamientos ni quiebres visibles.
+- Se implementa grilla sin etiqueta table y con 5 columnas via CSS Grid con minmax, manteniendo overflow horizontal controlado.
+- Cabecera y buscador cumplen con icono absoluto y campo con label accesible.
+- Filas densas con composicion por columnas, borde por fila, hover y jerarquia tipografica coherente.
+- Truncamiento aplicado de forma consistente en campos potencialmente largos (hostname, modelo, SO, sucursal, NIS, fecha).
+- Iconografia usa astro-icon + heroicons, sin uso de React/lucide.
+- Build y chequeo de Astro completados sin errores.
 
 ### Requiere correccion
-- Se detectaron cambios de logica JS en la pagina de Cubics fuera del alcance solicitado de maquetacion visual. El script cambia modelo de datos y comportamiento de filtrado/busqueda (`data-name/data-agent/data-status` -> `data-hostname/data-assigned-user`, y eliminacion de filtro por estado), incumpliendo el criterio de no tocar logica subyacente.
+- Mejora recomendada de accesibilidad semantica para la grilla de datos: agregar roles ARIA de tabla/grilla (por ejemplo role="table", role="row", role="columnheader", role="cell") o alternativa equivalente para mejorar navegacion por lector de pantalla.
 
 ### Bloqueantes para completar la tarea
-- Revertir o aislar los cambios de logica JS en la pagina para mantener esta iteracion estrictamente visual.
+- Ninguno.
