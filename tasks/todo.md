@@ -1,102 +1,112 @@
-# Tarea: Diseno visual y maquetacion del grid de Inventario de Terminales
-Fecha: 2026-04-18
+# Tarea: Replicar vista Enlaces importantes
+Fecha: 2026-04-19
 
 ## Descripcion
-Disenar e implementar la pantalla de Inventario de Terminales como una grilla
-de alta densidad construida con CSS Grid (sin usar la etiqueta table),
-manteniendo legibilidad operativa, jerarquia visual clara y comportamiento
-responsive con scroll horizontal en pantallas chicas.
+Implementar la vista de Enlaces importantes en la ruta activa del proyecto,
+respetando la estructura pedida (header + grilla responsive + cards por
+categoria), la anatomia exacta de cada item (enlace + divisor + boton copiar),
+y la logica de interaccion (estado temporal de copiado y manejo especial de
+rutas UNC que empiezan con \\), usando solo iconos del pack ya instalado y
+tooltip nativo de DaisyUI, sin agregar dependencias.
 
 ## Riesgos identificados
-- Forzar iconos inexistentes en el set actual puede degradar consistencia
-  visual si no se define un mapeo claro de equivalencias.
-- Sin minimos estrictos por columna, el grid puede colapsar y quedar ilegible
-  en anchos reducidos.
-- Campos largos (serie, provincia, sucursal) pueden romper el layout si no se
-  aplica truncamiento consistente en todos los niveles.
-- La codificacion visual por sistema operativo puede introducir colores no
-  semanticos si no se controla con tokens del sistema.
-- Alta densidad de datos sin jerarquia tipografica puede aumentar fatiga visual
-  y errores de lectura del operador.
-- Uso insuficiente de primitives DaisyUI puede producir UI inconsistente con el
-  resto del portal si se resuelve todo con clases ad-hoc.
+- El pedido menciona React con useState, pero el stack activo de la vista es
+  Astro sin integracion React declarada; hay riesgo de desvio de alcance si se
+  intenta introducir React solo para esta pantalla.
+- Existe inconsistencia de rutas: la navegacion principal y accesos rapidos
+  siguen apuntando a /enlaces-importantes mientras la implementacion en curso
+  esta en /enlaces.
+- Si se define un icono que no existe en el pack actual (astro-icon +
+  heroicons), la UI puede renderizar placeholders vacios o inconsistencia
+  visual entre categorias.
+- El tooltip flotante y el estado visual de copiado pueden introducir regresion
+  de accesibilidad de teclado si no se valida foco y feedback no visual.
+- El caso especial de rutas UNC requiere bloquear navegacion del anchor y copiar
+  texto al portapapeles; una condicion incorrecta puede romper enlaces normales.
 
 ## Plan de ejecucion
 
-[x] Paso 1 - ui-designer: auditar y fijar el contrato visual de la pantalla
-    (cabecera, buscador, grid falso de 5 columnas, apilamiento vertical por
-    celda) tomando como baseline la ruta actual.
-    Criterio de exito: existe una estructura objetivo clara y trazable que
-    cubre todos los bloques exigidos por el pedido sin usar table.
+[x] Paso 1 - ui-designer: fijar contrato funcional y visual de la pantalla
+  [src/pages/enlaces/index.astro](src/pages/enlaces/index.astro), tomando
+  como referencia los patrones ya implementados en
+  [src/pages/cubics/index.astro](src/pages/cubics/index.astro) y
+  [src/pages/inventario-terminales/index.astro](src/pages/inventario-terminales/index.astro),
+  y definiendo estructura de datos por categoria junto con la politica de
+  ruta canonica (/enlaces vs /enlaces-importantes) antes de maquetar.
+    Criterio de exito: existe una definicion clara de categoria, item y ruta
+    final, alineada con stack Astro + DaisyUI y sin ambiguedad de navegacion.
 
-[x] Paso 2 - ui-designer: implementar cabecera de pagina con titulo,
-    descripcion en muted foreground y buscador restrictivo con ancho maximo,
-    icono de lupa absoluto interno y padding coherente del input, priorizando
-    componentes/utilidades DaisyUI para input y estados visuales base.
-    Criterio de exito: encabezado y buscador se visualizan correctos en mobile
-    y desktop, con icono alineado y sin superposiciones.
+[x] Paso 2 - ui-designer: implementar encabezado de pagina y grilla responsive
+    de categorias con los breakpoints solicitados (gap-5, lg:grid-cols-2,
+    xl:grid-cols-3), tarjetas con borde, sombra suave, rounded-xl y header
+    interno con borde inferior y fondo de contraste.
+    Criterio de exito: la vista presenta header y cards por categoria en la
+    grilla esperada, con consistencia visual en mobile, tablet y desktop.
 
-[x] Paso 3 - ui-designer: construir la arquitectura base del contenedor de
-    datos con overflow-x-auto, wrapper interno con ancho minimo equivalente a
-    980px y plantilla de 5 columnas con minmax en el orden solicitado,
-    alineando a la derecha la quinta columna.
-    Criterio de exito: la grilla mantiene proporciones estables, no colapsa y
-    permite scroll horizontal en pantallas chicas.
+[x] Paso 3 - ui-designer: implementar getCategoryTheme(iconName) para mapear
+  icono tematico desde el pack heroicons ya instalado y clases de color por
+  categoria (fondo/transparencia/texto), y aplicar el resultado en el
+  encabezado de cada card.
+    Criterio de exito: cada categoria muestra icono y tono visual diferenciable,
+    con clases centralizadas en una sola funcion de mapeo.
 
-[x] Paso 4 - ui-designer: maquetar el contenido de alta densidad por fila para
-    columnas 1 y 2 (Hostname/Red y Hardware), incluyendo iconografia, pilas
-    tipograficas, indentado visual y estilos monoespaciados donde corresponde.
-    Criterio de exito: cada fila expone nombre, IP, MAC, fabricante/modelo,
-    RAM y serie con jerarquia visual clara y sin desbordes.
+[x] Paso 4 - ui-designer: construir la anatomia completa de cada item de enlace
+    (contenedor group relative, bloque izquierdo con anchor flexible, divisor
+    vertical, bloque derecho fijo para copiar), incluyendo hover/focus visibles
+    y aparicion del icono ExternalLink en hover.
+    Criterio de exito: cada item respeta la estructura exacta solicitada y el
+    layout se mantiene estable con y sin description.
 
-[x] Paso 5 - ui-designer: maquetar columnas 3, 4 y 5 (Sistema Operativo,
-    Ubicacion y Ultimo contacto) con iconos, badge compacto de arquitectura,
-    bloque NIS, metadatos secundarios y alineacion derecha del bloque temporal.
-    Criterio de exito: se renderizan correctamente SO, arquitectura, sucursal,
-    provincia/region, NIS, fecha y hora segun la composicion solicitada.
+[x] Paso 5 - ui-designer: agregar tooltip de URL por item usando el componente
+  nativo de DaisyUI (patron tooltip-top/tooltip-neutral ya usado en Cubics),
+  con texto monoespaciado truncable y contraste correcto en light/dark.
+    Criterio de exito: la URL se visualiza en hover sin mover layout y mantiene
+    legibilidad en ambos temas.
 
-[x] Paso 6 - ui-designer: aplicar reglas globales de visualizacion y densidad
-  (border por fila, hover muted, truncamiento extensivo, overflow-hidden,
-  tokens semanticos, consistencia tipografica sans/mono y uso prioritario de
-  primitives DaisyUI como badge, input y contenedores semanticos).
-    Criterio de exito: ningun campo largo estira la matriz ni rompe columnas,
-    y el estado hover/lectura es consistente en toda la grilla.
+[x] Paso 6 - ui-designer: implementar logica de copiado con estado temporal de
+    2000ms, actualizacion de icono Copy/Check y manejo especial de rutas UNC
+    (url que inicia con \\) para prevenir navegacion y copiar texto al click.
+    Criterio de exito: el boton de copiar y el caso UNC funcionan de forma
+    consistente, sin romper navegacion de enlaces HTTP normales.
 
-[x] Paso 7 - ui-designer: asegurar origen de iconos desde el paquete actual de
-  iconografia del proyecto (astro-icon + set ya instalado), mapeando
-  equivalencias visuales para Monitor, Cpu, HardDrive, MapPin, Clock y Search
-  sin instalar dependencias nuevas.
-  Criterio de exito: todos los iconos de la vista provienen del stack actual
-  y la pagina compila sin regresiones de build/check.
+[x] Paso 7 - ui-designer: alinear referencias de ruta en navegacion global y
+  accesos rapidos (incluyendo el drawer en
+  [src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro) y cards de
+  [src/pages/index.astro](src/pages/index.astro)) para que el modulo Enlaces
+  importantes abra la ruta final implementada y no queden enlaces rotos.
+    Criterio de exito: sidebar y dashboard navegan al destino correcto de la
+    pantalla sin 404 ni duplicidad funcional.
 
-[x] Paso 8 - qa-reviewer: verificar resultado completo, accesibilidad basica,
-    cumplimiento estricto del pedido visual y preparar commit final.
-    Criterio de exito: QA aprueba estructura, responsividad, densidad,
-    truncamiento, iconografia requerida y ausencia de desviaciones funcionales.
+[x] Paso 8 - qa-reviewer: validar resultado integral (fidelidad visual,
+    interacciones, accesibilidad basica, responsive y chequeo de build/check)
+  y dejar la tarea lista para cierre, verificando que no se instalaron
+  dependencias nuevas para esta seccion.
+    Criterio de exito: QA aprueba cumplimiento del pedido y no detecta
+    regresiones funcionales ni visuales en la ruta intervenida.
 
 ## Agentes involucrados
 - ui-designer
 - qa-reviewer
 
 ## Criterio de exito global
-La pantalla Inventario de Terminales queda implementada como una grilla de
-alta densidad, sin table, con 5 columnas estables por CSS Grid, scroll
-horizontal controlado en mobile, contenido apilado por columna con jerarquia
-tecnica legible, truncamiento robusto y uso consistente de tokens semanticos e
-iconos del paquete actual, sin incorporar nuevas dependencias.
+La pantalla Enlaces importantes queda replicada con la estructura visual,
+jerarquia, hover tooltip, composicion de item y logica de copiado solicitadas,
+incluyendo el manejo especial de rutas UNC y la navegacion coherente desde el
+resto del portal hacia la ruta final implementada.
 
-## Resultado de revision — 2026-04-18
+## Resultado de revision — 2026-04-19
 
 ### Aprobado
-- Se implementa grilla sin etiqueta table y con 5 columnas via CSS Grid con minmax, manteniendo overflow horizontal controlado.
-- Cabecera y buscador cumplen con icono absoluto y campo con label accesible.
-- Filas densas con composicion por columnas, borde por fila, hover y jerarquia tipografica coherente.
-- Truncamiento aplicado de forma consistente en campos potencialmente largos (hostname, modelo, SO, sucursal, NIS, fecha).
-- Iconografia usa astro-icon + heroicons, sin uso de React/lucide.
-- Build y chequeo de Astro completados sin errores.
+- Ruta canonica alineada a /enlaces en navegacion lateral y accesos rapidos.
+- Vista Enlaces importantes cumple estructura pedida: header + grid responsive + cards por categoria.
+- Tooltip implementado con DaisyUI nativo y feedback visual de copiado funcional.
+- Logica UNC validada: no navega y copia correctamente.
+- Estado temporal de copiado validado con reseteo automatico a 2000ms.
+- No se agregaron dependencias ni cambios fuera del alcance funcional solicitado.
+- Build y Astro check ejecutados sin errores.
 
 ### Requiere correccion
-- Mejora recomendada de accesibilidad semantica para la grilla de datos: agregar roles ARIA de tabla/grilla (por ejemplo role="table", role="row", role="columnheader", role="cell") o alternativa equivalente para mejorar navegacion por lector de pantalla.
+- Sin observaciones bloqueantes en los archivos auditados para esta tarea.
 
 ### Bloqueantes para completar la tarea
 - Ninguno.
