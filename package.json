@@ -16,7 +16,6 @@
     "@astrojs/mdx": "^5.0.3",
     "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/geist-mono": "^5.2.7",
-    "@iconify-json/heroicons": "^1.2.3",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.5",
     "astro-icon": "^1.1.5",
@@ -24,5 +23,8 @@
     "tailwindcss": "^4.2.2",
     "theme-change": "^2.5.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@iconify-json/boxicons": "^1.2.0"
   }
 }
