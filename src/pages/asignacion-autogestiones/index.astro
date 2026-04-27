@@ -1,19 +1,19 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 ---
 
 <BaseLayout title="Asignacion de autogestiones">
-  <div class="w-full pb-8">
+  <PageContainer gap="lg" class="pb-8">
     <PageHeader
       title="Asignacion de autogestiones"
       description="Distribucion semiautomatica de tickets de AG entrantes para el equipo operativo."
-      class="mb-8"
     />
 
     <div
-      class="mt-8 flex w-full min-h-100 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-base-300 bg-base-200/30 p-12 text-center"
+      class="flex w-full min-h-100 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-base-300 bg-base-200/30 p-12 text-center"
     >
       <Icon
         name="boxicons:git-branch"
@@ -28,5 +28,5 @@ import PageHeader from "@components/ui/PageHeader.astro";
         El contenido de este modulo se encuentra vacio tal como se solicito.
       </p>
     </div>
-  </div>
+  </PageContainer>
 </BaseLayout>

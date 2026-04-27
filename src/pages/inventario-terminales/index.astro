@@ -3,6 +3,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import DataTable from "@components/ui/DataTable.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import inventoryRows from "../../data/inventario_terminales.json";
@@ -161,7 +162,7 @@ const terminalRowGridClass = "grid grid-cols-12 items-start gap-4";
 ---
 
 <BaseLayout title="Inventario de terminales">
-  <section class="flex flex-col gap-6">
+  <PageContainer as="section" width="wide" gap="md">
     <div class="space-y-3">
       <PageHeader
         title="Inventario de Terminales"
@@ -365,7 +366,7 @@ const terminalRowGridClass = "grid grid-cols-12 items-start gap-4";
         }
       </DataTable>
     </section>
-  </section>
+  </PageContainer>
 
   <script>
     import {

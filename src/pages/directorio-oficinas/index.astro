@@ -3,6 +3,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import MasterDetailTable from "@components/ui/MasterDetailTable.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import {
@@ -111,7 +112,7 @@ const groupedOffices = Array.from(
 ---
 
 <BaseLayout title="Directorio de oficinas">
-  <section class="mx-auto flex w-full max-w-7xl flex-col gap-6 pb-8">
+  <PageContainer as="section" width="wide" gap="md" class="pb-8">
     <PageHeader
       title="Directorio de oficinas"
       description="Buscador maestro de sucursales, contactos operativos y activos tecnologicos asociados a cada oficina."
@@ -464,7 +465,7 @@ const groupedOffices = Array.from(
               )
             }
     </MasterDetailTable>
-  </section>
+  </PageContainer>
 
   <script>
     import {

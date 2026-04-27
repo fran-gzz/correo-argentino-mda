@@ -1,0 +1,37 @@
+---
+interface Props {
+  tone?: "primary" | "secondary" | "accent" | "neutral" | "warning";
+  size?: "sm" | "md";
+  class?: string;
+}
+
+const {
+  tone = "neutral",
+  size = "sm",
+  class: className = "",
+} = Astro.props;
+
+const toneClasses: Record<NonNullable<Props["tone"]>, string> = {
+  primary: "border-primary/20 bg-primary/15 text-primary",
+  secondary: "border-secondary/20 bg-secondary/15 text-secondary",
+  accent: "border-accent/20 bg-accent/15 text-accent",
+  neutral: "border-base-300 bg-base-200 text-base-content/70",
+  warning: "border-warning/25 bg-warning/15 text-warning",
+};
+
+const sizeClasses: Record<NonNullable<Props["size"]>, string> = {
+  sm: "badge-sm text-xs",
+  md: "text-sm",
+};
+---
+
+<span
+  class:list={[
+    "badge border font-semibold",
+    toneClasses[tone],
+    sizeClasses[size],
+    className,
+  ]}
+>
+  <slot />
+</span>

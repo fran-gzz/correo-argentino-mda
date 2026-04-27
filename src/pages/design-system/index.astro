@@ -8,6 +8,7 @@ import DataTable from "@components/ui/DataTable.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import DesignSystemSection from "@components/ui/DesignSystemSection.astro";
 import MasterDetailTable from "@components/ui/MasterDetailTable.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 
@@ -188,7 +189,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
 ---
 
 <BaseLayout title="Estándar de diseño | Portal Mesa de Ayuda">
-  <div class="mx-auto flex w-full max-w-7xl flex-col gap-8 pb-8">
+  <PageContainer width="wide" gap="lg" class="pb-8">
     <header
       class="flex flex-col gap-5 border-b border-base-300 pb-6 lg:flex-row lg:items-end lg:justify-between"
     >
@@ -220,12 +221,61 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
         aria-label="Secciones del estándar"
         class="flex flex-wrap gap-2 lg:max-w-md lg:justify-end"
       >
+        <a href="#contenedores" class="btn btn-outline btn-sm">
+          Contenedores
+        </a>
         <a href="#colores" class="btn btn-outline btn-sm">Colores</a>
         <a href="#componentes" class="btn btn-outline btn-sm">Componentes</a>
         <a href="#datos" class="btn btn-outline btn-sm">Datos</a>
         <a href="#iconografia" class="btn btn-outline btn-sm">Iconografía</a>
       </nav>
     </header>
+
+    <DesignSystemSection
+      id="contenedores"
+      title="Contenedores de página"
+      description="PageContainer centra el contenido principal y fija el ancho máximo sin agregar padding interno; el margen respirable lo mantiene BaseLayout."
+    >
+      <div class="grid gap-4 lg:grid-cols-2">
+        <article class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm">
+          <p class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+            Default
+          </p>
+          <h3 class="mt-2 text-sm font-semibold text-base-content">
+            Páginas de consulta o dashboards simples
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-base-content/70">
+            Usa <code class="font-mono text-xs">width=&quot;default&quot;</code>{" "}
+            para pantallas con tarjetas, formularios compactos o contenido que
+            no necesita expandirse por todo el lienzo.
+          </p>
+          <div class="mt-4 rounded-lg border border-dashed border-base-300 bg-base-200/70 p-3">
+            <code class="font-mono text-xs text-base-content/75">
+              &lt;PageContainer gap=&quot;lg&quot;&gt;
+            </code>
+          </div>
+        </article>
+
+        <article class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm">
+          <p class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+            Wide
+          </p>
+          <h3 class="mt-2 text-sm font-semibold text-base-content">
+            Tablas, mapas y listados operativos
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-base-content/70">
+            Usa <code class="font-mono text-xs">width=&quot;wide&quot;</code>{" "}
+            cuando la lectura dependa de columnas, grillas densas o superficies
+            que requieren más aire horizontal.
+          </p>
+          <div class="mt-4 rounded-lg border border-dashed border-base-300 bg-base-200/70 p-3">
+            <code class="font-mono text-xs text-base-content/75">
+              &lt;PageContainer width=&quot;wide&quot; gap=&quot;md&quot;&gt;
+            </code>
+          </div>
+        </article>
+      </div>
+    </DesignSystemSection>
 
     <DesignSystemSection
       id="colores"
@@ -743,5 +793,5 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
         }
       </div>
     </DesignSystemSection>
-  </div>
+  </PageContainer>
 </BaseLayout>

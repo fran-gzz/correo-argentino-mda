@@ -1,0 +1,38 @@
+---
+interface Props {
+  width?: "default" | "wide";
+  gap?: "md" | "lg";
+  as?: "div" | "section";
+  class?: string;
+}
+
+const {
+  width = "default",
+  gap = "md",
+  as = "div",
+  class: className = "",
+} = Astro.props;
+
+const ContainerTag = as;
+
+const widthClassByVariant: Record<NonNullable<Props["width"]>, string> = {
+  default: "max-w-6xl",
+  wide: "max-w-7xl",
+};
+
+const gapClassByVariant: Record<NonNullable<Props["gap"]>, string> = {
+  md: "gap-6",
+  lg: "gap-8",
+};
+---
+
+<ContainerTag
+  class:list={[
+    "mx-auto flex w-full flex-col",
+    widthClassByVariant[width],
+    gapClassByVariant[gap],
+    className,
+  ]}
+>
+  <slot />
+</ContainerTag>

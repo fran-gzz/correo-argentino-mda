@@ -5,6 +5,7 @@ import CopyButton from "@components/ui/CopyButton.astro";
 import DataTable from "@components/ui/DataTable.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import OpenExternalUrlButton from "@components/ui/OpenExternalUrlButton.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import { usefulContactCategories } from "@/data/contactos_utiles";
 import type { UsefulContactCategory } from "@/types/contactos-utiles";
@@ -94,7 +95,7 @@ const contactRowGridClass = "grid grid-cols-12 items-start gap-4";
 ---
 
 <BaseLayout title="Contactos útiles | Portal Mesa de Ayuda">
-  <section class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <PageContainer as="section" width="wide" gap="md">
     <PageHeader
       title="Contactos útiles"
       description="Directorio operativo para ubicar teléfonos, correos y accesos clave sin salir del flujo de soporte."
@@ -403,7 +404,7 @@ const contactRowGridClass = "grid grid-cols-12 items-start gap-4";
         })
       }
     </section>
-  </section>
+  </PageContainer>
 
   <script>
     const normalizeValue = (value: string): string =>

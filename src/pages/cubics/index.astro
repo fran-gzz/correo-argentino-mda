@@ -4,6 +4,7 @@ import { Icon } from "astro-icon/components";
 import CopyButton from "@components/ui/CopyButton.astro";
 import DataTable from "@components/ui/DataTable.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import {
@@ -36,7 +37,7 @@ const cubicRowGridClass = "grid grid-cols-12 items-center gap-4";
 ---
 
 <BaseLayout title="Cubics">
-  <section class="flex flex-col gap-6">
+  <PageContainer as="section" width="wide" gap="md">
     <div
       class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
     >
@@ -311,7 +312,7 @@ const cubicRowGridClass = "grid grid-cols-12 items-center gap-4";
         }
       </DataTable>
     </section>
-  </section>
+  </PageContainer>
 
   <script>
     import {

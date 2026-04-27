@@ -1,13 +1,14 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import guia from "../../data/guia_completa.json";
 import info_soportes from "../../data/info_soportes.json";
 ---
 
 <BaseLayout title="Guía de soportes">
-  <div class="space-y-8 animate-fade-in">
+  <PageContainer width="wide" gap="lg" class="animate-fade-in">
     <!-- Page Header -->
     <section class="space-y-4">
       <div
@@ -56,7 +57,7 @@ import info_soportes from "../../data/info_soportes.json";
       >
         <div class="overflow-x-auto">
           <table
-            class="table table-zebra table-sm w-full table-fixed"
+            class="table table-zebra table-sm w-full min-w-240 table-fixed"
             id="table-guia"
           >
             <thead>
@@ -598,5 +599,5 @@ import info_soportes from "../../data/info_soportes.json";
         }
       }
     </style>
-  </div>
+  </PageContainer>
 </BaseLayout>

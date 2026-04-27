@@ -2,12 +2,13 @@
 /* ARCHIVO: src/pages/buscador-usuarios/index.astro */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import UserCard from "@components/UserCard.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import { Icon } from "astro-icon/components";
 ---
 
 <BaseLayout title="Buscador de Usuarios | MDA">
-  <div class="max-w-6xl mx-auto space-y-8">
+  <PageContainer gap="lg">
     <section
       class="py-12 px-6 rounded-2xl bg-base-200/50 border border-base-300 shadow-sm transition-colors duration-300"
     >
@@ -198,7 +199,7 @@ import { Icon } from "astro-icon/components";
         >
       </div>
     </section>
-  </div>
+  </PageContainer>
 
   <UserCard />
 

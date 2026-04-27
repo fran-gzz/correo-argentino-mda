@@ -2,17 +2,17 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import CronogramaDashboard from "@components/cronograma/CronogramaDashboard.astro";
 import { Icon } from "astro-icon/components";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 ---
   
 <BaseLayout title="Cronograma">
-  <div class="max-w-7xl mx-auto px-4 py-8">
+  <PageContainer width="wide" gap="lg">
     <PageHeader
       title="Cronograma"
       description="Gestión integral de asistencia y modalidades del equipo MDA."
-      class="mb-8"
     />
 
     <CronogramaDashboard />
-  </div>
+  </PageContainer>
 </BaseLayout>

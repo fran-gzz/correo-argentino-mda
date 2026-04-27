@@ -1,0 +1,65 @@
+---
+import { Icon } from "astro-icon/components";
+import type { CatalogBundle } from "./types";
+
+interface Props {
+  bundle: CatalogBundle;
+}
+
+const { bundle } = Astro.props;
+
+const bundleUrl = bundle.url?.trim() ?? "";
+const hasBundleUrl = bundleUrl.length > 0;
+const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
+---
+
+<article class="rounded-lg border border-primary/30 bg-primary/10 p-4 sm:p-5">
+  <div
+    class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+  >
+    <div class="flex min-w-0 items-start gap-3">
+      <span
+        class="mt-0.5 inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-content"
+        aria-hidden="true"
+      >
+        <Icon name="boxicons:package" class="size-5" />
+      </span>
+
+      <div class="min-w-0 space-y-1">
+        <h2 class="text-base font-semibold text-base-content sm:text-lg">
+          {bundle.title}
+        </h2>
+        <p class="text-sm leading-relaxed text-base-content/70">
+          {bundle.description}
+        </p>
+      </div>
+    </div>
+
+    {
+      hasBundleUrl ? (
+        <a
+          href={bundleUrl}
+          class="btn btn-primary btn-sm shrink-0 gap-2 sm:btn-md"
+          target={isWebUrl(bundleUrl) ? "_blank" : undefined}
+          rel={isWebUrl(bundleUrl) ? "noopener noreferrer" : undefined}
+        >
+          <Icon
+            name="boxicons:arrow-up-right-square"
+            class="size-4"
+            aria-hidden="true"
+          />
+          <span>Descargar .zip</span>
+        </a>
+      ) : (
+        <button
+          type="button"
+          class="btn btn-primary btn-disabled btn-sm shrink-0 gap-2 sm:btn-md"
+          disabled
+        >
+          <Icon name="boxicons:calendar" class="size-4" aria-hidden="true" />
+          <span>Disponible pronto</span>
+        </button>
+      )
+    }
+  </div>
+</article>

@@ -1,0 +1,132 @@
+---
+import { Icon } from "astro-icon/components";
+
+type BoxiconName = `boxicons:${string}`;
+type BannerTone = "primary" | "secondary" | "accent" | "info" | "success";
+
+interface Props {
+  title: string;
+  description: string;
+  icon: BoxiconName;
+  badgeLabel?: string;
+  href: string;
+  ctaLabel: string;
+  ctaIcon?: BoxiconName;
+  tone?: BannerTone;
+}
+
+const {
+  title,
+  description,
+  icon,
+  badgeLabel,
+  href,
+  ctaLabel,
+  ctaIcon = "boxicons:arrow-up-right-square",
+  tone = "primary",
+} = Astro.props;
+
+const toneClasses: Record<
+  BannerTone,
+  {
+    surface: string;
+    icon: string;
+    badge: string;
+    button: string;
+  }
+> = {
+  primary: {
+    surface: "border-primary/30 bg-primary/10",
+    icon: "bg-primary text-primary-content",
+    badge: "badge-warning",
+    button: "btn-primary",
+  },
+  secondary: {
+    surface: "border-secondary/30 bg-secondary/10",
+    icon: "bg-secondary text-secondary-content",
+    badge: "badge-secondary",
+    button: "btn-secondary",
+  },
+  accent: {
+    surface: "border-accent/30 bg-accent/10",
+    icon: "bg-accent text-accent-content",
+    badge: "badge-accent",
+    button: "btn-accent",
+  },
+  info: {
+    surface: "border-info/30 bg-info/10",
+    icon: "bg-info text-info-content",
+    badge: "badge-info",
+    button: "btn-info",
+  },
+  success: {
+    surface: "border-success/30 bg-success/10",
+    icon: "bg-success text-success-content",
+    badge: "badge-success",
+    button: "btn-success",
+  },
+};
+
+const classes = toneClasses[tone];
+const headingId = `${title
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-|-$/g, "")}-announcement-title`;
+const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
+const isExternal = isWebUrl(href);
+---
+
+<section
+  class:list={["rounded-lg border p-4 sm:p-5", classes.surface]}
+  aria-labelledby={headingId}
+>
+  <div
+    class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+  >
+    <div class="flex min-w-0 items-start gap-3">
+      <span
+        class:list={[
+          "mt-0.5 inline-flex size-10 shrink-0 items-center justify-center rounded-lg",
+          classes.icon,
+        ]}
+        aria-hidden="true"
+      >
+        <Icon name={icon} class="size-5" />
+      </span>
+
+      <div class="min-w-0 space-y-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <h2
+            id={headingId}
+            class="text-base font-semibold text-base-content sm:text-lg"
+          >
+            {title}
+          </h2>
+          {
+            badgeLabel && (
+              <span class:list={["badge badge-sm", classes.badge]}>
+                {badgeLabel}
+              </span>
+            )
+          }
+        </div>
+
+        <p class="text-sm leading-relaxed text-base-content/70">
+          {description}
+        </p>
+      </div>
+    </div>
+
+    <a
+      href={href}
+      class:list={["btn btn-sm shrink-0 gap-2 sm:btn-md", classes.button]}
+      target={isExternal ? "_blank" : undefined}
+      rel={isExternal ? "noopener noreferrer" : undefined}
+    >
+      <Icon name={ctaIcon} class="size-4" aria-hidden="true" />
+      <span>{ctaLabel}</span>
+    </a>
+  </div>
+</section>

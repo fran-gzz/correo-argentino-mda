@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
+import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 
 // Datos de ejemplo para las sucursales (mock)
@@ -54,7 +55,7 @@ const sucursales = [
     crossorigin=""
   />
 
-  <div class="space-y-8 animate-fade-in">
+  <PageContainer width="wide" gap="lg" class="animate-fade-in">
     <!-- Page Header -->
     <section class="space-y-4">
       <div
@@ -492,5 +493,5 @@ const sucursales = [
         }
       }
     </style>
-  </div>
+  </PageContainer>
 </BaseLayout>

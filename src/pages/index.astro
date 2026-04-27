@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
 import { Icon } from "astro-icon/components";
 
 type BoxiconName = `boxicons:${string}`;
@@ -90,7 +91,7 @@ const quickAccessItems: QuickAccessItem[] = [
 ---
 
 <BaseLayout title="Dashboard | Portal Mesa de Ayuda">
-  <div class="mx-auto flex w-full max-w-6xl flex-col gap-8">
+  <PageContainer gap="lg">
     <section aria-labelledby="bienvenida-heading" class="flex flex-col gap-2">
       <h1
         id="bienvenida-heading"
@@ -143,5 +144,5 @@ const quickAccessItems: QuickAccessItem[] = [
         }
       </div>
     </section>
-  </div>
+  </PageContainer>
 </BaseLayout>
