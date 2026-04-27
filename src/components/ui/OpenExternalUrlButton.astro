@@ -21,8 +21,6 @@ const {
   variant = "icon",
   label = "Abrir",
   size = "sm",
-  appearance = "outline",
-  tone = "secondary",
   disabled = false,
   newTab = true,
   class: className = "",
@@ -35,38 +33,14 @@ const sizeClassMap: Record<NonNullable<Props["size"]>, string> = {
   md: "",
 };
 
-const appearanceClassMap: Record<
-  NonNullable<Props["tone"]>,
-  Record<NonNullable<Props["appearance"]>, string>
-> = {
-  primary: {
-    solid: "btn-primary",
-    outline: "btn-outline btn-primary",
-    ghost: "btn-ghost text-primary hover:bg-primary/10",
-  },
-  secondary: {
-    solid: "btn-secondary",
-    outline: "btn-outline btn-secondary",
-    ghost: "btn-ghost text-secondary hover:bg-secondary/10",
-  },
-  accent: {
-    solid: "btn-accent",
-    outline: "btn-outline btn-accent",
-    ghost: "btn-ghost text-accent hover:bg-accent/10",
-  },
-  neutral: {
-    solid: "btn-neutral",
-    outline: "btn-outline btn-neutral",
-    ghost: "btn-ghost text-neutral hover:bg-neutral/10",
-  },
-};
-
 const canOpen = Boolean(href) && !disabled;
 const isIconVariant = variant === "icon";
 const baseClasses = [
   "btn rounded-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
   sizeClassMap[size],
-  appearanceClassMap[tone][appearance],
+  canOpen
+    ? "btn-secondary"
+    : "btn-disabled border-base-300 bg-base-200 text-base-content/45",
   isIconVariant ? "btn-square" : "gap-1",
   className,
   buttonClass,

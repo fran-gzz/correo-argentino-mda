@@ -1,6 +1,9 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
+import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
+import MasterDetailTable from "@components/ui/MasterDetailTable.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import {
   officeDirectoryItems,
@@ -75,6 +78,9 @@ const assetLabelByType: Record<OfficeAssetType, string> = {
   desktop: "Terminal",
 };
 
+const officeDirectoryHeaderGridClass = "grid-cols-12 gap-4";
+const officeDirectoryRowGridClass = "grid grid-cols-12 items-center gap-4";
+
 const groupedOffices = Array.from(
   officeDirectoryItems.reduce(
     (groups, office) => {
@@ -106,15 +112,10 @@ const groupedOffices = Array.from(
 
 <BaseLayout title="Directorio de oficinas">
   <section class="mx-auto flex w-full max-w-7xl flex-col gap-6 pb-8">
-    <header class="space-y-2">
-      <h1 class="text-3xl font-bold text-base-content">
-        Directorio de oficinas
-      </h1>
-      <p class="max-w-3xl text-sm text-base-content/70 sm:text-base">
-        Buscador maestro de sucursales, contactos operativos y activos
-        tecnologicos asociados a cada oficina.
-      </p>
-    </header>
+    <PageHeader
+      title="Directorio de oficinas"
+      description="Buscador maestro de sucursales, contactos operativos y activos tecnologicos asociados a cada oficina."
+    />
 
     <section
       class="flex flex-col gap-3 rounded-box border border-base-300 bg-base-100 p-3 shadow-sm lg:flex-row lg:items-center lg:justify-between"
@@ -164,31 +165,33 @@ const groupedOffices = Array.from(
       <span>No se encontraron oficinas para los filtros actuales.</span>
     </div>
 
-    <section
-      class="overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-sm"
-      aria-label="Directorio de oficinas"
+    <MasterDetailTable
+      ariaLabel="Directorio de oficinas"
+      minWidthClass="min-w-280"
+      headerGridClass={officeDirectoryHeaderGridClass}
+      class="bg-base-100"
     >
-      <div class="overflow-x-auto">
-        <table class="table table-fixed min-w-280">
-          <colgroup>
-            <col class="w-14" />
-            <col class="w-[12%]" />
-            <col class="w-[24%]" />
-            <col />
-            <col class="w-[14%]" />
-          </colgroup>
-
-          <thead class="bg-base-200/70">
-            <tr class="text-xs uppercase tracking-wide text-base-content/70">
-              <th aria-label="Expandir detalle"></th>
-              <th>Codigo</th>
-              <th>Nombre</th>
-              <th>Direccion</th>
-              <th>Centro de costo</th>
-            </tr>
-          </thead>
-
-          <tbody>
+      <div slot="header" class="col-span-1">
+        <DataTableHeaderCell>
+          <span class="sr-only">Expandir detalle</span>
+        </DataTableHeaderCell>
+      </div>
+      <div slot="header" class="col-span-2">
+        <DataTableHeaderCell sortKey="code" monospace>
+          Codigo
+        </DataTableHeaderCell>
+      </div>
+      <div slot="header" class="col-span-3">
+        <DataTableHeaderCell sortKey="name">Nombre</DataTableHeaderCell>
+      </div>
+      <div slot="header" class="col-span-4">
+        <DataTableHeaderCell sortKey="address">Direccion</DataTableHeaderCell>
+      </div>
+      <div slot="header" class="col-span-2">
+        <DataTableHeaderCell sortKey="cost-center" monospace>
+          Centro de costo
+        </DataTableHeaderCell>
+      </div>
             {
               groupedOffices.map((group) =>
                 group.offices.map((office, index) => {
@@ -198,13 +201,13 @@ const groupedOffices = Array.from(
                   return (
                     <>
                       {index === 0 && (
-                        <tr
+                        <div
                           data-location-group-row
+                          data-master-detail-group-header={group.location}
                           data-location-group={group.location}
                           data-search-text={group.searchText}
-                          class="hidden border-b border-base-300 bg-base-200/80"
+                          class="hidden border-b border-base-300 bg-base-200/80 px-5 py-3"
                         >
-                          <td colspan="5" class="px-5 py-3">
                             <div class="flex items-center justify-between gap-3">
                               <div class="min-w-0">
                                 <p class="flex items-center gap-2 text-sm font-semibold text-base-content">
@@ -220,25 +223,37 @@ const groupedOffices = Array.from(
                                 </p>
                               </div>
                             </div>
-                          </td>
-                        </tr>
+                        </div>
                       )}
 
-                      <tr
-                        data-office-master-row
+                      <article
+                        data-master-detail-sort-item
                         data-office-id={office.id}
                         data-office-type={office.type}
                         data-office-location={office.location}
                         data-search-text={searchText}
-                        role="button"
-                        tabindex="0"
-                        aria-expanded="false"
+                        data-sort-code={office.code}
+                        data-sort-name={office.name}
+                        data-sort-address={`${office.address} ${office.location} ${office.region} ${office.postalCode}`}
+                        data-sort-cost-center={office.costCenter}
+                        data-sort-group={office.location}
                         class:list={[
-                          "cursor-pointer border-b border-base-300 transition-colors hover:bg-base-200/70 focus:outline-none focus-visible:bg-base-200/80 focus-visible:ring-2 focus-visible:ring-primary/50",
+                          "block",
                           !isVisibleByDefault && "hidden",
                         ]}
                       >
-                        <td class="align-middle">
+                        <div
+                          data-office-master-row
+                          data-office-id={office.id}
+                          role="button"
+                          tabindex="0"
+                          aria-expanded="false"
+                          class:list={[
+                            officeDirectoryRowGridClass,
+                            "cursor-pointer border-b border-base-300 px-4 py-3 transition-colors hover:bg-base-200/70 focus:outline-none focus-visible:bg-base-200/80 focus-visible:ring-2 focus-visible:ring-primary/50",
+                          ]}
+                        >
+                        <div class="col-span-1">
                           <span
                             class="inline-flex size-8 items-center justify-center rounded-lg border border-base-300 bg-base-200 text-base-content/70 transition-colors"
                             aria-hidden="true"
@@ -254,9 +269,9 @@ const groupedOffices = Array.from(
                               class="hidden size-4"
                             />
                           </span>
-                        </td>
+                        </div>
 
-                        <td class="align-middle">
+                        <div class="col-span-2">
                           <span
                             class:list={[
                               "inline-flex px-2 py-1 font-mono text-sm font-semibold",
@@ -266,9 +281,9 @@ const groupedOffices = Array.from(
                           >
                             {office.code}
                           </span>
-                        </td>
+                        </div>
 
-                        <td class="align-middle">
+                        <div class="col-span-3 min-w-0">
                           <div class="min-w-0">
                             <p class="truncate text-sm font-semibold text-base-content">
                               <span data-highlight-target>{office.name}</span>
@@ -281,9 +296,9 @@ const groupedOffices = Array.from(
                               <span>{office.assets.length} activos</span>
                             </div>
                           </div>
-                        </td>
+                        </div>
 
-                        <td class="align-middle">
+                        <div class="col-span-4 min-w-0">
                           <div class="min-w-0 space-y-1">
                             <p class="flex min-w-0 items-center gap-2 text-sm text-base-content/75">
                               <Icon
@@ -306,24 +321,23 @@ const groupedOffices = Array.from(
                               </span>
                             </div>
                           </div>
-                        </td>
+                        </div>
 
-                        <td class="align-middle">
+                        <div class="col-span-2">
                           <span
                             class="font-mono text-sm text-base-content/75"
                             data-highlight-target
                           >
                             {office.costCenter}
                           </span>
-                        </td>
-                      </tr>
+                        </div>
+                        </div>
 
-                      <tr
+                      <div
                         data-office-detail-row
                         data-office-id={office.id}
                         class="hidden border-b border-base-300 bg-base-200/20"
                       >
-                        <td colspan="5" class="p-0">
                           <div class="office-detail-panel m-3 rounded-lg border border-base-300 bg-base-200/60 p-4 md:p-5">
                             <div class="grid gap-5 lg:grid-cols-2">
                               <section class="min-w-0 space-y-3">
@@ -442,17 +456,14 @@ const groupedOffices = Array.from(
                               </section>
                             </div>
                           </div>
-                        </td>
-                      </tr>
+                      </div>
+                      </article>
                     </>
                   );
                 }),
               )
             }
-          </tbody>
-        </table>
-      </div>
-    </section>
+    </MasterDetailTable>
   </section>
 
   <script>
@@ -460,24 +471,25 @@ const groupedOffices = Array.from(
       highlightSearchTargets,
       matchesSearchQuery,
     } from "@lib/clientSearch";
+    import { refreshMasterDetailTableSort } from "@lib/clientMasterDetailTableSort";
 
     const tabButtons = Array.from(
       document.querySelectorAll<HTMLButtonElement>("[data-office-tab]"),
     );
+    const tableRoot = document.querySelector<HTMLElement>(
+      "[data-master-detail-table-root]",
+    );
+    const officeItems = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-master-detail-sort-item]"),
+    );
     const masterRows = Array.from(
-      document.querySelectorAll<HTMLTableRowElement>(
-        "[data-office-master-row]",
-      ),
+      document.querySelectorAll<HTMLElement>("[data-office-master-row]"),
     );
     const detailRows = Array.from(
-      document.querySelectorAll<HTMLTableRowElement>(
-        "[data-office-detail-row]",
-      ),
+      document.querySelectorAll<HTMLElement>("[data-office-detail-row]"),
     );
     const locationGroupRows = Array.from(
-      document.querySelectorAll<HTMLTableRowElement>(
-        "[data-location-group-row]",
-      ),
+      document.querySelectorAll<HTMLElement>("[data-location-group-row]"),
     );
     const searchInput =
       document.querySelector<HTMLInputElement>("#office-search");
@@ -497,13 +509,16 @@ const groupedOffices = Array.from(
     const detailRowById = new Map(
       detailRows.map((row) => [row.dataset.officeId ?? "", row]),
     );
+    const masterRowById = new Map(
+      masterRows.map((row) => [row.dataset.officeId ?? "", row]),
+    );
 
-    const isRowVisible = (row: HTMLTableRowElement): boolean => {
+    const isItemVisible = (item: HTMLElement): boolean => {
       const matchesType =
         selectedOfficeType === "all" ||
-        row.dataset.officeType === selectedOfficeType;
+        item.dataset.officeType === selectedOfficeType;
       const matchesSearch = matchesSearchQuery(searchInput?.value.trim(), [
-        row.dataset.searchText,
+        item.dataset.searchText,
       ]);
 
       return matchesType && matchesSearch;
@@ -514,14 +529,19 @@ const groupedOffices = Array.from(
       let visibleRows = 0;
       let expandedRowIsVisible = false;
 
-      masterRows.forEach((row) => {
-        const rowIsVisible = isRowVisible(row);
+      if (tableRoot) {
+        tableRoot.dataset.masterDetailView =
+          selectedOfficeType === "all" ? "grouped" : "flat";
+      }
 
-        if (rowIsVisible) {
+      officeItems.forEach((item) => {
+        const itemIsVisible = isItemVisible(item);
+
+        if (itemIsVisible) {
           visibleRows += 1;
         }
 
-        if (rowIsVisible && row.dataset.officeId === expandedOfficeId) {
+        if (itemIsVisible && item.dataset.officeId === expandedOfficeId) {
           expandedRowIsVisible = true;
         }
       });
@@ -530,20 +550,21 @@ const groupedOffices = Array.from(
         expandedOfficeId = null;
       }
 
-      masterRows.forEach((row) => {
-        const officeId = row.dataset.officeId ?? "";
-        const rowIsVisible = isRowVisible(row);
-        const rowIsExpanded = rowIsVisible && officeId === expandedOfficeId;
+      officeItems.forEach((item) => {
+        const officeId = item.dataset.officeId ?? "";
+        const itemIsVisible = isItemVisible(item);
+        const rowIsExpanded = itemIsVisible && officeId === expandedOfficeId;
+        const row = masterRowById.get(officeId);
         const detailRow = detailRowById.get(officeId);
-        const openIcon = row.querySelector<HTMLElement>("[data-chevron-open]");
-        const closedIcon = row.querySelector<HTMLElement>(
+        const openIcon = row?.querySelector<HTMLElement>("[data-chevron-open]");
+        const closedIcon = row?.querySelector<HTMLElement>(
           "[data-chevron-closed]",
         );
 
-        row.classList.toggle("hidden", !rowIsVisible);
-        row.classList.toggle("bg-base-200/70", rowIsExpanded);
-        row.setAttribute("aria-expanded", rowIsExpanded ? "true" : "false");
-        highlightSearchTargets(row, rowIsVisible ? rawSearchValue : "");
+        item.classList.toggle("hidden", !itemIsVisible);
+        row?.classList.toggle("bg-base-200/70", rowIsExpanded);
+        row?.setAttribute("aria-expanded", rowIsExpanded ? "true" : "false");
+        highlightSearchTargets(item, itemIsVisible ? rawSearchValue : "");
 
         openIcon?.classList.toggle("hidden", !rowIsExpanded);
         closedIcon?.classList.toggle("hidden", rowIsExpanded);
@@ -552,15 +573,16 @@ const groupedOffices = Array.from(
 
       locationGroupRows.forEach((groupRow) => {
         const location = groupRow.dataset.locationGroup ?? "";
-        const hasVisibleRows = masterRows.some((row) => {
-          const isVisible = !row.classList.contains("hidden");
-          return isVisible && row.dataset.officeLocation === location;
+        const hasVisibleRows = officeItems.some((item) => {
+          const isVisible = !item.classList.contains("hidden");
+          return isVisible && item.dataset.officeLocation === location;
         });
         const showGroup = selectedOfficeType === "all" && hasVisibleRows;
 
         groupRow.classList.toggle("hidden", !showGroup);
       });
 
+      refreshMasterDetailTableSort();
       emptyState?.classList.toggle("hidden", visibleRows > 0);
     };
 

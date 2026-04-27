@@ -3,6 +3,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import CopyButton from "@components/ui/CopyButton.astro";
 import OpenExternalUrlButton from "@components/ui/OpenExternalUrlButton.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
 import { usefulContactCategories } from "@/data/contactos_utiles";
 import type { UsefulContactCategory } from "@/types/contactos-utiles";
 
@@ -89,15 +90,10 @@ const getContactSearchText = (
 
 <BaseLayout title="Contactos útiles | Portal Mesa de Ayuda">
   <section class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-    <header class="space-y-2">
-      <h1 class="text-3xl font-bold text-base-content">Contactos útiles</h1>
-      <p
-        class="max-w-3xl text-sm leading-relaxed text-base-content/70 sm:text-base"
-      >
-        Directorio operativo para ubicar teléfonos, correos y accesos clave sin
-        salir del flujo de soporte.
-      </p>
-    </header>
+    <PageHeader
+      title="Contactos útiles"
+      description="Directorio operativo para ubicar teléfonos, correos y accesos clave sin salir del flujo de soporte."
+    />
 
     <div class="w-full max-w-xl">
       <label class="input input-bordered w-full" for="contacts-search">

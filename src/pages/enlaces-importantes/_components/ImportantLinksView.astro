@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import PageHeader from "@components/ui/PageHeader.astro";
 import CategoryCard from "./CategoryCard.astro";
 import type { CategoryViewModel } from "./types";
 
@@ -11,16 +12,12 @@ const { categories } = Astro.props;
 ---
 
 <section class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-  <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-    <div class="max-w-3xl space-y-2">
-      <h1 class="text-3xl font-bold text-base-content">
-        Enlaces importantes
-      </h1>
-      <p class="text-sm leading-relaxed text-base-content/70 sm:text-base">
-        Accesos clave para resolver tareas operativas de soporte con menos
-        fricción.
-      </p>
-    </div>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <PageHeader
+      title="Enlaces importantes"
+      description="Accesos clave para resolver tareas operativas de soporte con menos fricción."
+      class="max-w-3xl"
+    />
 
     <div class="form-control w-full max-w-md">
       <label class="sr-only" for="important-links-search">
@@ -45,7 +42,7 @@ const { categories } = Astro.props;
         Filtra los enlaces mientras escribís.
       </p>
     </div>
-  </header>
+  </div>
 
   <section
     class="rounded-xl border border-primary/30 bg-primary/10 p-4 sm:p-5"

@@ -44,10 +44,17 @@ const sizeClassMap: Record<NonNullable<Props["size"]>, string> = {
   md: "",
 };
 
-const appearanceClassMap: Record<NonNullable<Props["appearance"]>, string> = {
-  ghost: "btn-ghost",
-  outline: "btn-outline",
-  surface: "border border-base-300 bg-base-100 hover:bg-base-200",
+const valueAppearanceClassMap: Record<NonNullable<Props["appearance"]>, string> =
+  {
+    ghost: "btn-ghost",
+    outline: "btn-outline",
+    surface: "border border-base-300 bg-base-100 hover:bg-base-200",
+  };
+
+const actionAppearanceClassMap: Record<NonNullable<Props["appearance"]>, string> = {
+  ghost: "btn-soft",
+  outline: "btn-soft btn-outline",
+  surface: "btn-soft",
 };
 
 const tooltipPositionClassMap: Record<
@@ -63,7 +70,7 @@ const tooltipPositionClassMap: Record<
 const valueButtonClasses = [
   "group min-h-0 justify-start gap-2 rounded-lg px-2 py-1.5 text-left normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
   sizeClassMap[size],
-  appearanceClassMap[appearance],
+  valueAppearanceClassMap[appearance],
   fullWidth ? "w-full" : "max-w-full",
   className,
 ];
@@ -71,14 +78,14 @@ const valueButtonClasses = [
 const linkButtonClasses = [
   "gap-1 rounded-lg normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
   sizeClassMap[size],
-  appearanceClassMap[appearance],
+  actionAppearanceClassMap[appearance],
   className,
 ];
 
 const iconButtonClasses = [
   "btn-square rounded-lg transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
   sizeClassMap[size],
-  appearanceClassMap[appearance],
+  actionAppearanceClassMap[appearance],
   className,
 ];
 

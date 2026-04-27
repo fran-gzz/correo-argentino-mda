@@ -4,7 +4,11 @@ import { Icon } from "astro-icon/components";
 import Button from "@components/ui/Button.astro";
 import ColorSwatch from "@components/ui/ColorSwatch.astro";
 import CopyButton from "@components/ui/CopyButton.astro";
+import DataTable from "@components/ui/DataTable.astro";
+import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import DesignSystemSection from "@components/ui/DesignSystemSection.astro";
+import MasterDetailTable from "@components/ui/MasterDetailTable.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 
 type BoxiconName = `boxicons:${string}`;
@@ -178,6 +182,9 @@ const tableRows = [
     icon: "boxicons:shield" as BoxiconName,
   },
 ];
+
+const designTableHeaderGridClass = "grid-cols-12 gap-4";
+const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
 ---
 
 <BaseLayout title="Estándar de diseño | Portal Mesa de Ayuda">
@@ -271,9 +278,9 @@ const tableRows = [
               <p class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
                 Jerarquía
               </p>
-              <h1 class="mt-2 text-3xl font-bold text-base-content">
+              <p class="mt-2 text-3xl font-bold text-base-content">
                 Título principal de página
-              </h1>
+              </p>
               <h2 class="mt-3 text-xl font-semibold text-base-content">
                 Encabezado de sección
               </h2>
@@ -324,6 +331,19 @@ const tableRows = [
       description="Los controles base usan DaisyUI de forma atómica, con ajustes mínimos de Tailwind para espaciado, foco y consistencia operativa."
     >
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm">
+          <h3 class="text-sm font-semibold text-base-content">
+            Encabezado de página
+          </h3>
+          <div class="mt-4 rounded-lg border border-base-300 bg-base-200/50 p-4">
+            <PageHeader
+              title="Inventario de Terminales"
+              description="Vista consolidada del parque operativo para diagnostico rapido."
+              headingLevel="h2"
+            />
+          </div>
+        </section>
+
         <section class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm">
           <h3 class="text-sm font-semibold text-base-content">Botones</h3>
           <div class="mt-4 flex flex-wrap gap-2">
@@ -516,87 +536,180 @@ const tableRows = [
       title="Tablas y listados de datos"
       description="Las grillas deben sostener lectura por filas, metadata secundaria y acciones alineadas al extremo derecho, con desplazamiento horizontal cuando el ancho disponible no alcanza."
     >
-      <section
-        class="overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
-        aria-label="Ejemplo de tabla de inventario"
+      <DataTable
+        ariaLabel="Ejemplo de tabla de inventario"
+        minWidthClass="min-w-240"
+        headerGridClass={designTableHeaderGridClass}
+        rowGridClass={designTableRowGridClass}
+        class="bg-base-100"
       >
-        <div class="overflow-x-auto">
-          <table class="table min-w-240">
-            <thead class="bg-base-200/80">
-              <tr class="text-xs uppercase tracking-wide text-base-content/60">
-                <th>Activo</th>
-                <th>Área</th>
-                <th>Responsable</th>
-                <th>Estado</th>
-                <th class="text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                tableRows.map((row) => (
-                  <tr class="border-b border-base-300 last:border-b-0 hover:bg-base-200/60">
-                    <td>
-                      <div class="flex min-w-0 items-center gap-3">
-                        <span
-                          class="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-secondary/25 bg-secondary/10 text-secondary"
-                          aria-hidden="true"
-                        >
-                          <Icon name={row.icon} class="size-4" />
-                        </span>
-                        <div class="min-w-0">
-                          <p class="truncate font-mono text-sm font-semibold text-base-content">
-                            {row.host}
-                          </p>
-                          <p class="truncate font-mono text-xs text-base-content/60">
-                            {row.ip}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-medium text-base-content">
-                        {row.area}
-                      </p>
-                      <p class="text-xs text-base-content/60">
-                        Metadata operativa
-                      </p>
-                    </td>
-                    <td class="text-sm text-base-content/75">{row.owner}</td>
-                    <td>
-                      <span class:list={["badge badge-sm", row.badge]}>
-                        {row.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="flex justify-end gap-2">
-                        <CopyButton
-                          value={row.host}
-                          variant="value"
-                          appearance="ghost"
-                          label={row.host}
-                          ariaLabel={`Copiar ${row.host}`}
-                          monospace
-                        />
-                        <button
-                          type="button"
-                          class="btn btn-outline btn-square btn-sm"
-                          aria-label={`Editar ${row.host}`}
-                        >
-                          <Icon
-                            name="boxicons:edit"
-                            class="size-4"
-                            aria-hidden="true"
-                          />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              }
-            </tbody>
-          </table>
+        <div slot="header" class="col-span-4">
+          <DataTableHeaderCell sortKey="activo" monospace>
+            Activo
+          </DataTableHeaderCell>
         </div>
-      </section>
+        <div slot="header" class="col-span-3">
+          <DataTableHeaderCell sortKey="area">Área</DataTableHeaderCell>
+        </div>
+        <div slot="header" class="col-span-2">
+          <DataTableHeaderCell sortKey="responsable">
+            Responsable
+          </DataTableHeaderCell>
+        </div>
+        <div slot="header" class="col-span-1">
+          <DataTableHeaderCell>Estado</DataTableHeaderCell>
+        </div>
+        <div slot="header" class="col-span-2">
+          <DataTableHeaderCell align="right">Acciones</DataTableHeaderCell>
+        </div>
+
+        {
+          tableRows.map((row) => (
+            <article
+              data-table-row
+              data-sort-activo={row.host}
+              data-sort-area={row.area}
+              data-sort-responsable={row.owner}
+              class:list={[
+                designTableRowGridClass,
+                "border-b border-base-300 px-4 py-3 transition-colors last:border-b-0 hover:bg-base-200/60",
+              ]}
+            >
+              <div class="col-span-4 min-w-0">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span
+                    class="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-secondary/25 bg-secondary/10 text-secondary"
+                    aria-hidden="true"
+                  >
+                    <Icon name={row.icon} class="size-4" />
+                  </span>
+                  <div class="min-w-0">
+                    <p class="truncate font-mono text-sm font-semibold text-base-content">
+                      {row.host}
+                    </p>
+                    <p class="truncate font-mono text-xs text-base-content/60">
+                      {row.ip}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-span-3 min-w-0">
+                <p class="text-sm font-medium text-base-content">{row.area}</p>
+                <p class="text-xs text-base-content/60">
+                  Metadata operativa
+                </p>
+              </div>
+              <div class="col-span-2 text-sm text-base-content/75">
+                {row.owner}
+              </div>
+              <div class="col-span-1">
+                <span class:list={["badge badge-sm", row.badge]}>
+                  {row.status}
+                </span>
+              </div>
+              <div class="col-span-2">
+                <div class="flex justify-end gap-2">
+                  <CopyButton
+                    value={row.host}
+                    variant="value"
+                    appearance="ghost"
+                    label={row.host}
+                    ariaLabel={`Copiar ${row.host}`}
+                    monospace
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-square btn-sm"
+                    aria-label={`Editar ${row.host}`}
+                  >
+                    <Icon name="boxicons:edit" class="size-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </DataTable>
+
+      <div class="mt-5 grid gap-3 lg:grid-cols-[0.8fr_1.2fr]">
+        <div class="rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm">
+          <h3 class="text-sm font-semibold text-base-content">
+            Tabla con detalle expandible
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-base-content/70">
+            Usar para listados donde una fila maestra conserva un panel de
+            detalle asociado, como el directorio de oficinas.
+          </p>
+        </div>
+
+        <MasterDetailTable
+          ariaLabel="Ejemplo de tabla con detalle"
+          minWidthClass="min-w-160"
+          headerGridClass={designTableHeaderGridClass}
+          class="bg-base-100"
+        >
+          <div slot="header" class="col-span-2">
+            <DataTableHeaderCell>
+              <span class="sr-only">Expandir</span>
+            </DataTableHeaderCell>
+          </div>
+          <div slot="header" class="col-span-3">
+            <DataTableHeaderCell sortKey="code" monospace>
+              Código
+            </DataTableHeaderCell>
+          </div>
+          <div slot="header" class="col-span-4">
+            <DataTableHeaderCell sortKey="name">Oficina</DataTableHeaderCell>
+          </div>
+          <div slot="header" class="col-span-3">
+            <DataTableHeaderCell sortKey="cost-center" monospace>
+              CECO
+            </DataTableHeaderCell>
+          </div>
+
+          <div
+            data-master-detail-group-header="Lomas de Zamora"
+            class="border-b border-base-300 bg-base-200/80 px-4 py-3 text-sm font-semibold text-base-content"
+          >
+            Lomas de Zamora
+          </div>
+          <article
+            data-master-detail-sort-item
+            data-sort-code="LOM"
+            data-sort-name="Lomas de Zamora"
+            data-sort-cost-center="CECO-1842"
+            data-sort-group="Lomas de Zamora"
+          >
+            <div class="grid grid-cols-12 items-center gap-4 border-b border-base-300 px-4 py-3">
+              <div class="col-span-2">
+                <span class="inline-flex size-8 items-center justify-center rounded-lg border border-base-300 bg-base-200 text-base-content/70">
+                  <Icon name="boxicons:chevron-up" class="size-4" />
+                </span>
+              </div>
+              <div class="col-span-3 font-mono text-sm font-semibold text-base-content">
+                LOM
+              </div>
+              <div class="col-span-4 min-w-0">
+                <p class="truncate text-sm font-semibold text-base-content">
+                  Lomas de Zamora
+                </p>
+                <p class="truncate text-xs text-base-content/60">
+                  Fila maestra con panel asociado
+                </p>
+              </div>
+              <div class="col-span-3 font-mono text-sm text-base-content/75">
+                CECO-1842
+              </div>
+            </div>
+            <div class="border-b border-base-300 bg-base-200/20 p-3">
+              <div class="rounded-lg border border-base-300 bg-base-100 p-3 text-sm text-base-content/70">
+                Panel de detalle que debe moverse siempre junto a su fila
+                maestra.
+              </div>
+            </div>
+          </article>
+        </MasterDetailTable>
+      </div>
     </DesignSystemSection>
 
     <DesignSystemSection
