@@ -59,11 +59,11 @@ export default function TitlesApp() {
                       {/* Header + Separador */}
                       <section className="py-2 flex items-center gap-x-2 mb-4">
                         <article className="flex items-center justify-center size-7 rounded-sm bg-primary">
-                          <h2 className="text-sm bg-primary font-semibold text-neutral-800">
+                          <h2 className="text-sm font-semibold text-primary-content">
                             {letter}
                           </h2>
                         </article>
-                        <span className="h-px block bg-gray-300 dark:bg-neutral-800 w-full" />
+                        <span className="h-px block bg-base-300 w-full" />
                       </section>
 
                       {/* Grid */}
@@ -81,7 +81,7 @@ export default function TitlesApp() {
                           >
                             <div className="card-body">
                               {copiedIndex === t.index ? (
-                                <div className="flex items-center justify-center  text-sm font-medium text-neutral-800">
+                                <div className="flex items-center justify-center text-sm font-medium text-primary-content">
                                   <CopiedIcon />
                                 </div>
                               ) : (

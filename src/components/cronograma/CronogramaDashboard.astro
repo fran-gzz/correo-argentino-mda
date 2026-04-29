@@ -52,13 +52,13 @@
         <div class="bg-base-200/20 border-b border-base-300/50">
           <div class="flex flex-col sm:flex-row justify-between items-center py-4 px-6 gap-4">
             <h3 class="text-lg flex items-center gap-3 font-bold text-base-content">
-              <div class="p-2 rounded-xl bg-[#254888]/10 text-[#254888]">
+              <div class="p-2 rounded-xl bg-secondary/10 text-secondary">
                 <i class="bx bx-group"></i>
               </div>
               Estado de operadores
             </h3>
             <div class="flex items-center gap-2.5 bg-base-100/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-base-300/50 shadow-sm">
-               <i class="bx bxs-calendar-check text-[#ffc72c] text-lg"></i>
+               <i class="bx bxs-calendar-check text-primary text-lg"></i>
                <span class="text-sm font-semibold tracking-wide" id="daily-date-display"></span>
             </div>
           </div>
@@ -67,7 +67,7 @@
           <table class="w-full text-sm text-left">
             <thead class="bg-base-200/30 text-xs uppercase font-bold text-base-content/50 tracking-wider">
               <tr>
-                <th class="py-4 px-6 rounded-tl-3xl w-[320px]">Operador</th>
+                <th class="py-4 px-6 rounded-tl-3xl w-80">Operador</th>
                 <th class="py-4 px-4">Modalidad</th>
                 <th class="py-4 px-4">Horario</th>
                 <th class="py-4 px-4">Break</th>
@@ -88,29 +88,29 @@
         <div class="bg-base-200/20 border-b border-base-300/50">
           <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 py-4 px-6">
             <h3 class="text-lg flex items-center gap-3 font-bold">
-              <div class="p-2 rounded-xl bg-[#254888]/10 text-[#254888]">
+              <div class="p-2 rounded-xl bg-secondary/10 text-secondary">
                 <i class="bx bx-calendar-star"></i>
               </div>
               Matriz Mensual
             </h3>
             <div class="flex flex-wrap gap-4 bg-base-100/50 px-5 py-2 rounded-2xl border border-base-300/50 shadow-sm backdrop-blur-sm">
               <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-base-content/70">
-                <div class="w-3.5 h-3.5 rounded-md bg-[#ffc72c] shadow-sm"></div> HO
+                <div class="w-3.5 h-3.5 rounded-md bg-primary shadow-sm"></div> HO
               </div>
               <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-base-content/70">
-                <div class="w-3.5 h-3.5 rounded-md bg-[#254888] shadow-sm"></div> Presencial
+                <div class="w-3.5 h-3.5 rounded-md bg-secondary shadow-sm"></div> Presencial
               </div>
               <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-base-content/70">
-                <div class="w-3.5 h-3.5 rounded-md bg-[#b3474d] shadow-sm"></div> Licencia
+                <div class="w-3.5 h-3.5 rounded-md bg-error shadow-sm"></div> Licencia
               </div>
               <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-base-content/70">
-                <div class="w-3.5 h-3.5 rounded-md bg-[#0d9488] shadow-sm"></div> Vacaciones
+                <div class="w-3.5 h-3.5 rounded-md bg-success shadow-sm"></div> Vacaciones
               </div>
             </div>
           </div>
         </div>
         <div class="p-2">
-          <div class="overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin rounded-2xl border border-base-200/50">
+          <div class="overflow-x-auto max-h-150 overflow-y-auto scrollbar-thin rounded-2xl border border-base-200/50">
             <table class="w-full text-sm text-left border-separate border-spacing-0" id="monthly-table">
               <thead class="sticky top-0 z-30 bg-base-100/90 backdrop-blur-xl shadow-sm" id="monthly-thead">
                 <!-- Headers injected here -->
@@ -174,35 +174,35 @@
     switch (type) {
       case 'Presencial':
         return {
-          badge: 'bg-[#254888] text-white shadow-sm font-semibold px-3 py-1 rounded-full text-[11px] tracking-wide',
+          badge: 'bg-secondary text-secondary-content shadow-sm font-semibold px-3 py-1 rounded-full text-xs tracking-wide',
           icon: 'bxs-briefcase',
-          color: '#254888',
-          bgClass: 'bg-[#254888]/10'
+          color: 'var(--color-secondary)',
+          bgClass: 'bg-secondary/10'
         };
       case 'Home Office':
         return {
-          badge: 'bg-[#ffc72c] text-[#0c0c0c] font-semibold px-3 py-1 rounded-full text-[11px] tracking-wide',
+          badge: 'bg-primary text-primary-content font-semibold px-3 py-1 rounded-full text-xs tracking-wide',
           icon: 'bxs-home',
-          color: '#ffc72c',
-          bgClass: 'bg-[#ffc72c]/10'
+          color: 'var(--color-primary)',
+          bgClass: 'bg-primary/10'
         };
       case 'Licencia':
         return {
-          badge: 'bg-[#b3474d] text-white shadow-sm font-semibold px-3 py-1 rounded-full text-[11px] tracking-wide',
+          badge: 'bg-error text-error-content shadow-sm font-semibold px-3 py-1 rounded-full text-xs tracking-wide',
           icon: 'bxs-first-aid',
-          color: '#b3474d',
-          bgClass: 'bg-[#b3474d]/10'
+          color: 'var(--color-error)',
+          bgClass: 'bg-error/10'
         };
       case 'Vacaciones':
         return {
-          badge: 'bg-[#0d9488] text-white shadow-sm font-semibold px-3 py-1 rounded-full text-[11px] tracking-wide',
+          badge: 'bg-success text-success-content shadow-sm font-semibold px-3 py-1 rounded-full text-xs tracking-wide',
           icon: 'bxs-sun',
-          color: '#0d9488',
-          bgClass: 'bg-[#0d9488]/10'
+          color: 'var(--color-success)',
+          bgClass: 'bg-success/10'
         };
       default:
         return {
-          badge: 'bg-base-200 text-base-content/60 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide border border-base-300/50',
+          badge: 'bg-base-200 text-base-content/60 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-base-300/50',
           icon: 'bx-help-circle',
           color: 'var(--fallback-bc,oklch(var(--bc)/0.4))',
           bgClass: 'bg-base-200/50'
@@ -234,10 +234,10 @@
     });
 
     const statItems = [
-      { label: 'Presencial', value: stats.presencial, icon: 'bxs-briefcase', color: '#254888', bg: 'bg-[#254888]/10' },
-      { label: 'Home Office', value: stats.homeOffice, icon: 'bxs-home', color: '#ffc72c', bg: 'bg-[#ffc72c]/15' },
-      { label: 'Licencia', value: stats.licencia, icon: 'bxs-first-aid', color: '#b3474d', bg: 'bg-[#b3474d]/10' },
-      { label: 'Vacaciones', value: stats.vacaciones, icon: 'bxs-sun', color: '#0d9488', bg: 'bg-[#0d9488]/10' },
+      { label: 'Presencial', value: stats.presencial, icon: 'bxs-briefcase', color: 'var(--color-secondary)', bg: 'bg-secondary/10' },
+      { label: 'Home Office', value: stats.homeOffice, icon: 'bxs-home', color: 'var(--color-primary)', bg: 'bg-primary/15' },
+      { label: 'Licencia', value: stats.licencia, icon: 'bxs-first-aid', color: 'var(--color-error)', bg: 'bg-error/10' },
+      { label: 'Vacaciones', value: stats.vacaciones, icon: 'bxs-sun', color: 'var(--color-success)', bg: 'bg-success/10' },
     ];
 
     if (statsContainer) {
@@ -248,7 +248,7 @@
           </div>
           <div class="p-6 relative z-10 flex flex-col h-full justify-between">
             <div class="flex justify-between items-start mb-2">
-              <span class="text-[12px] font-bold uppercase tracking-widest" style="color: ${stat.color}">${stat.label}</span>
+              <span class="text-xs font-bold uppercase tracking-widest" style="color: ${stat.color}">${stat.label}</span>
             </div>
             <div>
               <span class="text-5xl font-black tracking-tight text-base-content">${stat.value}</span>
@@ -269,8 +269,8 @@
       const username = op.nombre.toLowerCase().split(' ')[0][0] + (op.nombre.toLowerCase().split(' ')[1] || '');
 
       let ringClass = "bg-base-200/50 text-base-content/60 ring-base-200";
-      if (status === 'Presencial') ringClass = "bg-[#254888] text-white ring-[#254888]/30 shadow-md shadow-[#254888]/20";
-      else if (status === 'Home Office') ringClass = "bg-[#ffc72c] text-[#0c0c0c] ring-[#ffc72c]/40 shadow-md shadow-[#ffc72c]/20";
+      if (status === 'Presencial') ringClass = "bg-secondary text-secondary-content ring-secondary/30 shadow-md shadow-secondary/20";
+      else if (status === 'Home Office') ringClass = "bg-primary text-primary-content ring-primary/40 shadow-md shadow-primary/20";
 
       rowsHtml += `
         <tr class="hover:bg-base-200/40 transition-colors duration-200 group">
@@ -281,7 +281,7 @@
               </div>
               <div class="flex flex-col">
                 <span class="font-bold text-sm text-base-content">${op.nombre}</span>
-                <span class="text-[11px] text-base-content/50 font-medium">${username}@correoargentino.com.ar</span>
+                <span class="text-xs text-base-content/50 font-medium">${username}@correoargentino.com.ar</span>
               </div>
             </div>
           </td>
@@ -300,7 +300,7 @@
             ${isAbsent ? '<span class="text-base-content/30">-</span>' : '<span class="text-base-content/80">1 hr</span>'}
           </td>
           <td class="px-6 py-4 text-right">
-            <code class="text-[11px] font-bold bg-base-200/50 px-3 py-1.5 rounded-lg text-base-content/60 border border-base-300/50 shadow-sm">${username}</code>
+            <code class="text-xs font-bold bg-base-200/50 px-3 py-1.5 rounded-lg text-base-content/60 border border-base-300/50 shadow-sm">${username}</code>
           </td>
         </tr>
       `;
@@ -317,15 +317,15 @@
     const todayStr = new Date().toISOString().split('T')[0];
 
     let theadHtml = `<tr>
-      <th class="sticky left-0 bg-base-100/95 backdrop-blur-xl z-40 min-w-[200px] border-r border-b border-base-200 px-6 py-3 font-bold text-xs uppercase tracking-wider text-base-content/60 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">Operador</th>`;
+      <th class="sticky left-0 bg-base-100/95 backdrop-blur-xl z-40 min-w-50 border-r border-b border-base-200 px-6 py-3 font-bold text-xs uppercase tracking-wider text-base-content/60 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">Operador</th>`;
     
     dates.forEach(date => {
       const d = new Date(date + 'T12:00:00');
       const isToday = date === todayStr;
       const isWeekend = d.getDay() === 0 || d.getDay() === 6;
       
-      let thClass = "text-center min-w-[48px] px-0 border-r border-b border-base-200 transition-colors";
-      if (isToday) thClass += " bg-[#ffc72c]/15 text-[#ffc72c] border-b-[#ffc72c] border-b-2";
+      let thClass = "text-center min-w-12 px-0 border-r border-b border-base-200 transition-colors";
+      if (isToday) thClass += " bg-primary/15 text-primary border-b-primary border-b-2";
       else if (isWeekend) thClass += " bg-base-200/30 text-base-content/40";
       else thClass += " text-base-content/70";
       
@@ -334,8 +334,8 @@
       theadHtml += `
         <th class="${thClass}">
           <div class="flex flex-col items-center py-2 gap-0.5">
-            <span class="font-bold text-[9px] opacity-60 tracking-widest">${dayName}</span>
-            <span class="font-black text-[13px] ${isToday ? 'scale-110' : ''}">${d.getDate()}</span>
+            <span class="font-bold text-xs opacity-60 tracking-widest">${dayName}</span>
+            <span class="font-black text-xs ${isToday ? 'scale-110' : ''}">${d.getDate()}</span>
           </div>
         </th>
       `;
@@ -346,7 +346,7 @@
     let tbodyHtml = '';
     cronoData.forEach(op => {
       tbodyHtml += `<tr class="group">
-        <td class="sticky left-0 bg-base-100 z-30 font-bold py-3 px-6 text-[12px] border-r border-b border-base-200/70 group-hover:bg-base-200/40 transition-colors shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">
+        <td class="sticky left-0 bg-base-100 z-30 font-bold py-3 px-6 text-xs border-r border-b border-base-200/70 group-hover:bg-base-200/40 transition-colors shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">
           <div class="flex items-center gap-3">
             <div class="w-1.5 h-1.5 rounded-full bg-base-300 group-hover:bg-primary transition-colors"></div>
             ${op.nombre}
@@ -376,8 +376,8 @@
               class="h-10 w-full rounded-xl flex flex-col items-center justify-center gap-[1px] transition-all duration-300 cursor-help hover:-translate-y-0.5 hover:shadow-md relative z-0 ${styles.bgClass}"
               title="${op.nombre} - ${date}: ${status}"
             >
-              <i class="bx text-[11px] ${styles.icon} opacity-90" style="color: ${styles.color}"></i>
-              <span class="font-black text-[9px] leading-none tracking-tighter" style="color: ${styles.color}">${initials}</span>
+              <i class="bx text-xs ${styles.icon} opacity-90" style="color: ${styles.color}"></i>
+              <span class="font-black text-xs leading-none tracking-tighter" style="color: ${styles.color}">${initials}</span>
             </div>
           </td>
         `;
