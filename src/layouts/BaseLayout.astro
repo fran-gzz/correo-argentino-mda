@@ -57,9 +57,9 @@ const navSections: NavSection[] = [
     label: "Mesa de ayuda",
     items: [
       {
-        href: "/cronograma",
-        label: "Cronograma",
-        icon: "boxicons:calendar-filled",
+        href: "/supervision",
+        label: "Supervisión",
+        icon: "boxicons:shield-quarter-filled",
       },
       {
         href: "/asignacion-autogestiones",
@@ -249,7 +249,7 @@ const isActiveRoute = (href: string) =>
               aria-label="Abrir busqueda maestra"
               class="btn btn-ghost inline-flex w-full max-w-2xl items-center justify-start gap-2 border border-base-300 bg-base-100 px-4 font-normal normal-case"
             >
-              <Icon name="boxicons:search-filled" class="size-4" />
+              <Icon name="boxicons:search" class="size-4" />
               <span class="text-sm text-base-content/70">Buscar</span>
               <kbd class="kbd kbd-sm">Ctrl</kbd>
               <kbd class="kbd kbd-sm">K</kbd>
@@ -315,7 +315,7 @@ const isActiveRoute = (href: string) =>
           class="drawer-overlay"></label>
 
         <div
-          class="flex min-h-full flex-col items-start bg-secondary is-drawer-close:w-16 xl:is-drawer-close:w-20 is-drawer-open:w-56 md:is-drawer-open:w-64 xl:is-drawer-open:w-72 transition-all duration-300 ease-in-out"
+          class="flex min-h-full flex-col items-start bg-secondary is-drawer-close:w-16 xl:is-drawer-close:w-16 is-drawer-open:w-56 md:is-drawer-open:w-64 xl:is-drawer-open:w-72 transition-all duration-300 ease-in-out"
         >
           <a
             href="/"
@@ -334,7 +334,7 @@ const isActiveRoute = (href: string) =>
               </div>
             </div>
             <div class="is-drawer-close:hidden min-w-0">
-              <p class="text-[10px] uppercase font-black tracking-widest text-primary truncate leading-tight">Correo Argentino</p>
+              <p class="text-xs uppercase font-black tracking-widest text-primary truncate leading-tight">Correo Argentino</p>
               <h1 class="text-base font-black text-secondary-content tracking-tighter truncate leading-none">Mesa de Ayuda</h1>
             </div>
           </a>
@@ -345,7 +345,7 @@ const isActiveRoute = (href: string) =>
                 <>
                   <ul class="menu w-full gap-1 p-2">
                     <li class="menu-title is-drawer-close:hidden mb-1">
-                      <span class="text-[11px] font-bold uppercase tracking-wider text-secondary-content/40">
+                      <span class="text-xs font-bold uppercase tracking-wider text-secondary-content/40">
                         {section.label}
                       </span>
                     </li>
@@ -358,7 +358,7 @@ const isActiveRoute = (href: string) =>
                             aria-label={item.label}
                             data-tip={item.label}
                             class:list={[
-                              "group flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition",
+                              "group flex items-center gap-2.5 rounded-lg text-xs p-2.5 font-medium transition",
                               "is-drawer-close:justify-center is-drawer-close:px-0",
                               "is-drawer-close:tooltip is-drawer-close:tooltip-right",
                               isActive

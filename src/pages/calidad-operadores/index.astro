@@ -1,0 +1,37 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+import PageContainer from "@components/ui/PageContainer.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
+---
+
+<BaseLayout title="Calidad de operadores">
+  <PageContainer gap="lg" class="pb-8">
+    <a href="/supervision" class="btn btn-ghost btn-sm mb-2 w-fit pl-2">
+      <Icon name="boxicons:chevron-left" class="size-4" />
+      Volver a Supervisión
+    </a>
+
+    <PageHeader
+      title="Calidad de operadores"
+      description="Métricas y validaciones de la calidad de atención del equipo de operaciones."
+    />
+
+    <div
+      class="flex w-full min-h-100 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-base-300 bg-base-200/30 p-12 text-center"
+    >
+      <Icon
+        name="boxicons:bar-chart-big-filled"
+        class="mb-4 size-12 text-base-content/20"
+      />
+
+      <h2 class="mb-2 text-xl font-medium text-base-content">
+        Sección sin contenido
+      </h2>
+
+      <p class="max-w-md text-balance text-sm text-base-content/70">
+        El contenido de este módulo se encuentra vacío tal como se solicitó.
+      </p>
+    </div>
+  </PageContainer>
+</BaseLayout>

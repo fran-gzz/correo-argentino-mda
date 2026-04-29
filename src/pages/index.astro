@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import PageContainer from "@components/ui/PageContainer.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
 import { Icon } from "astro-icon/components";
 
 type BoxiconName = `boxicons:${string}`;
@@ -92,18 +93,10 @@ const quickAccessItems: QuickAccessItem[] = [
 
 <BaseLayout title="Dashboard | Portal Mesa de Ayuda">
   <PageContainer gap="lg">
-    <section aria-labelledby="bienvenida-heading" class="flex flex-col gap-2">
-      <h1
-        id="bienvenida-heading"
-        class="text-2xl font-semibold text-base-content"
-      >
-        ¡Hola! 👋
-      </h1>
-      <p class="text-base text-base-content/70">
-        Bienvenido al panel principal. Desde aqui puedes entrar rapido a los
-        modulos operativos del portal.
-      </p>
-    </section>
+    <PageHeader
+      title="¡Hola! 👋"
+      description="Bienvenido al panel principal. Desde aquí puedes entrar rápido a los módulos operativos del portal."
+    />
 
     <section
       aria-labelledby="accesos-rapidos-heading"
