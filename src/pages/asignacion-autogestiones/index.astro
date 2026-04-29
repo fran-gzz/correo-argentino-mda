@@ -1,32 +1,680 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import { Icon } from "astro-icon/components";
 import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
+import DataTable from "@components/ui/DataTable.astro";
+import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
+import { Icon } from "astro-icon/components";
+
+// Datos mockeados de operadores
+const operadores = [
+  {
+    id: "OPE-001",
+    nombre: "Ana García",
+    horarioP: "09:00 - 18:00",
+    horarioH: "N/A",
+    breakP: "13:00 - 14:00",
+    breakH: "N/A",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-002",
+    nombre: "Carlos Rodríguez",
+    horarioP: "08:00 - 17:00",
+    horarioH: "08:00 - 17:00",
+    breakP: "12:00 - 13:00",
+    breakH: "12:00 - 13:00",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-003",
+    nombre: "María Fernández",
+    horarioP: "N/A",
+    horarioH: "10:00 - 19:00",
+    breakP: "N/A",
+    breakH: "14:00 - 15:00",
+    estado: "En reunión",
+  },
+  {
+    id: "OPE-004",
+    nombre: "Juan Pérez",
+    horarioP: "09:00 - 18:00",
+    horarioH: "N/A",
+    breakP: "13:00 - 14:00",
+    breakH: "N/A",
+    estado: "Vacaciones",
+  },
+  {
+    id: "OPE-005",
+    nombre: "Lucía Gómez",
+    horarioP: "11:00 - 20:00",
+    horarioH: "11:00 - 20:00",
+    breakP: "15:00 - 16:00",
+    breakH: "15:00 - 16:00",
+    estado: "Tarea administrativa",
+  },
+  {
+    id: "OPE-006",
+    nombre: "Diego Torres",
+    horarioP: "07:00 - 16:00",
+    horarioH: "N/A",
+    breakP: "11:00 - 12:00",
+    breakH: "N/A",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-007",
+    nombre: "Laura Martínez",
+    horarioP: "N/A",
+    horarioH: "09:00 - 18:00",
+    breakP: "N/A",
+    breakH: "13:00 - 14:00",
+    estado: "Licencia",
+  },
+  {
+    id: "OPE-008",
+    nombre: "Roberto Sánchez",
+    horarioP: "08:00 - 17:00",
+    horarioH: "N/A",
+    breakP: "12:30 - 13:30",
+    breakH: "N/A",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-009",
+    nombre: "Elena Ruiz",
+    horarioP: "09:00 - 18:00",
+    horarioH: "09:00 - 18:00",
+    breakP: "13:00 - 14:00",
+    breakH: "13:00 - 14:00",
+    estado: "En reunión",
+  },
+  {
+    id: "OPE-010",
+    nombre: "Ricardo López",
+    horarioP: "10:00 - 19:00",
+    horarioH: "N/A",
+    breakP: "14:00 - 15:00",
+    breakH: "N/A",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-011",
+    nombre: "Sofía Castro",
+    horarioP: "N/A",
+    horarioH: "08:00 - 17:00",
+    breakP: "N/A",
+    breakH: "12:00 - 13:00",
+    estado: "Tarea administrativa",
+  },
+  {
+    id: "OPE-012",
+    nombre: "Javier Méndez",
+    horarioP: "07:00 - 16:00",
+    horarioH: "07:00 - 16:00",
+    breakP: "11:30 - 12:30",
+    breakH: "11:30 - 12:30",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-013",
+    nombre: "Patricia Sosa",
+    horarioP: "09:00 - 18:00",
+    horarioH: "N/A",
+    breakP: "13:00 - 14:00",
+    breakH: "N/A",
+    estado: "Vacaciones",
+  },
+  {
+    id: "OPE-014",
+    nombre: "Fernando Díaz",
+    horarioP: "08:30 - 17:30",
+    horarioH: "N/A",
+    breakP: "12:30 - 13:30",
+    breakH: "N/A",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-015",
+    nombre: "Gabriela Blanco",
+    horarioP: "11:00 - 20:00",
+    horarioH: "11:00 - 20:00",
+    breakP: "15:00 - 16:00",
+    breakH: "15:00 - 16:00",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-016",
+    nombre: "Martín Guzmán",
+    horarioP: "09:00 - 18:00",
+    horarioH: "N/A",
+    breakP: "13:00 - 14:00",
+    breakH: "N/A",
+    estado: "En reunión",
+  },
+  {
+    id: "OPE-017",
+    nombre: "Valeria Ortiz",
+    horarioP: "N/A",
+    horarioH: "10:00 - 19:00",
+    breakP: "N/A",
+    breakH: "14:00 - 15:00",
+    estado: "Disponible",
+  },
+  {
+    id: "OPE-018",
+    nombre: "Sergio Ramos",
+    horarioP: "08:00 - 17:00",
+    horarioH: "N/A",
+    breakP: "12:00 - 13:00",
+    breakH: "N/A",
+    estado: "Tarea administrativa",
+  },
+  {
+    id: "OPE-019",
+    nombre: "Natalia Herrera",
+    horarioP: "09:00 - 18:00",
+    horarioH: "09:00 - 18:00",
+    breakP: "13:00 - 14:00",
+    breakH: "13:00 - 14:00",
+    estado: "Licencia",
+  },
+  {
+    id: "OPE-020",
+    nombre: "Pablo Vaca",
+    horarioP: "07:30 - 16:30",
+    horarioH: "N/A",
+    breakP: "11:30 - 12:30",
+    breakH: "N/A",
+    estado: "Disponible",
+  },
+];
+
+const getBadgeColor = (estado: string) => {
+  switch (estado) {
+    case "Disponible":
+      return "badge-success";
+    case "Vacaciones":
+    case "Licencia":
+      return "badge-error";
+    case "En reunión":
+      return "badge-warning";
+    case "Tarea administrativa":
+      return "badge-info";
+    default:
+      return "badge-neutral";
+  }
+};
+
+const disponiblesCount = operadores.filter(
+  (op) => op.estado === "Disponible",
+).length;
+const noDisponiblesList = operadores.filter((op) => op.estado !== "Disponible");
+const noDisponiblesCount = noDisponiblesList.length;
+
+const breakdown: Record<string, number> = {
+  "Vacaciones": 0,
+  "Licencia": 0,
+  "En reunión": 0,
+  "Tarea administrativa": 0,
+};
+noDisponiblesList.forEach((op) => {
+  if (breakdown[op.estado] !== undefined) {
+    breakdown[op.estado]++;
+  } else {
+    breakdown[op.estado] = 1;
+  }
+});
 ---
 
-<BaseLayout title="Asignacion de autogestiones">
+<BaseLayout title="Asignación de Autogestiones">
   <PageContainer>
     <PageHeader
-      title="Asignacion de autogestiones"
-      description="Distribucion semiautomatica de tickets de AG entrantes para el equipo operativo."
+      title="Asignación de Autogestiones"
+      description="Distribución equitativa y controlada de tickets entre operadores técnicos. Utiliza el botón de asignar próximo para rotar de manera circular."
     />
 
-    <div
-      class="flex w-full min-h-100 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-base-300 bg-base-200/30 p-12 text-center"
-    >
-      <Icon
-        name="boxicons:git-branch-filled"
-        class="mb-4 size-12 text-base-content/20"
-      />
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <!-- Card Disponibles -->
+      <div class="card bg-base-100 border border-base-300 shadow-sm overflow-hidden group hover:border-success/30 transition-all duration-300">
+        <div class="absolute -top-4 -right-4 p-4 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-500 pointer-events-none">
+          <Icon name="boxicons:user-check" class="size-32" />
+        </div>
+        <div class="card-body p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-success/10 rounded-lg text-success">
+              <Icon name="boxicons:user-check" class="size-6" />
+            </div>
+            <h3 class="font-bold text-xs uppercase tracking-widest text-base-content/50">Disponibilidad Actual</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-5xl font-black text-success tracking-tight" id="stat-disponibles-count">{disponiblesCount}</span>
+            <span class="text-base-content/40 font-bold uppercase text-[10px] tracking-wider">operadores activos</span>
+          </div>
+          <div class="mt-6 flex flex-col gap-2">
+             <div class="flex justify-between text-[11px] font-bold uppercase tracking-wider px-0.5">
+                <span class="text-base-content/40">Tasa de disponibilidad</span>
+                <span class="text-success font-mono" id="stat-percentage">{Math.round((disponiblesCount / operadores.length) * 100)}%</span>
+             </div>
+             <progress 
+               class="progress progress-success w-full h-2.5 bg-base-200" 
+               value={disponiblesCount} 
+               max={operadores.length} 
+               id="stat-progress"
+             ></progress>
+          </div>
+        </div>
+      </div>
 
-      <h2 class="mb-2 text-xl font-medium text-base-content">
-        Seccion sin contenido
-      </h2>
-
-      <p class="max-w-md text-balance text-sm text-base-content/70">
-        El contenido de este modulo se encuentra vacio tal como se solicito.
-      </p>
+      <!-- Card No Disponibles -->
+      <div class="card bg-base-100 border border-base-300 shadow-sm overflow-hidden group hover:border-base-content/20 transition-all duration-300">
+        <div class="absolute -top-4 -right-4 p-4 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-500 pointer-events-none">
+          <Icon name="boxicons:user-x" class="size-32" />
+        </div>
+        <div class="card-body p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="p-2 bg-base-content/5 rounded-lg text-base-content/50">
+              <Icon name="boxicons:user-x" class="size-6" />
+            </div>
+            <h3 class="font-bold text-xs uppercase tracking-widest text-base-content/50">Fuera de Servicio</h3>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-5xl font-black text-base-content/80 tracking-tight" id="stat-no-disponibles-count">{noDisponiblesCount}</span>
+            <span class="text-base-content/40 font-bold uppercase text-[10px] tracking-wider">en estados especiales</span>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-2 gap-2">
+            {
+              Object.entries(breakdown).map(([estado, count]) => (
+                <div 
+                  class="flex items-center justify-between p-2 rounded-lg bg-base-200/50 border border-transparent hover:border-base-300 transition-all duration-200 group/stat data-[count='0']:opacity-40" 
+                  data-stat-estado={estado}
+                  data-count={count}
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class={`size-2 rounded-full shrink-0 ${getBadgeColor(estado).replace('badge-', 'bg-')}`} />
+                    <span class="text-[11px] font-bold truncate text-base-content/60 uppercase tracking-tight">{estado}</span>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-base-content/90" data-stat-count>{count}</span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div class="mb-4 flex flex-wrap items-center gap-4">
+      <div class="flex-1">
+        <label class="label cursor-pointer justify-start gap-3">
+          <input
+            type="checkbox"
+            id="toggle-disponibles"
+            class="toggle toggle-primary"
+          />
+          <span class="label-text">Ver solo operadores disponibles</span>
+        </label>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-reset" class="btn btn-secondary btn-soft">
+          <Icon name="boxicons:rewind" class="size-5" aria-hidden="true" />
+          Reset Historial
+        </button>
+        <button id="btn-asignar-proximo" class="btn btn-primary">
+          <Icon name="boxicons:user-check" class="size-5" aria-hidden="true" />
+          Asignar próximo
+        </button>
+      </div>
+    </div>
+
+    <DataTable
+      ariaLabel="Lista de operadores para asignación"
+      headerGridClass="grid-cols-[1.5fr_1fr_1fr_1fr_minmax(120px,auto)] gap-4"
+      rowGridClass="grid grid-cols-[1.5fr_1fr_1fr_1fr_minmax(120px,auto)] items-center gap-4"
+    >
+      <Fragment slot="header">
+        <DataTableHeaderCell sortKey="nombre">Operador</DataTableHeaderCell>
+        <DataTableHeaderCell>Jornada</DataTableHeaderCell>
+        <DataTableHeaderCell>Break</DataTableHeaderCell>
+        <DataTableHeaderCell sortKey="estado">Estado</DataTableHeaderCell>
+        <DataTableHeaderCell align="right">Acciones</DataTableHeaderCell>
+      </Fragment>
+
+      {
+        operadores.map((op) => (
+          <div
+            class="group border-b border-base-300 px-4 py-3 transition-colors hover:bg-base-200/50 data-[ultimo=true]:bg-primary/10 data-[ultimo=true]:border-primary"
+            data-table-row
+            data-op-id={op.id}
+            data-op-estado={op.estado}
+            data-op-nombre={op.nombre}
+            data-sort-nombre={op.nombre}
+            data-sort-estado={op.estado}
+          >
+            <div class="flex min-w-0 flex-col">
+              <span class="truncate font-medium text-base-content">
+                {op.nombre}
+              </span>
+              <span class="font-mono text-xs text-base-content/60">
+                {op.id}
+              </span>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              {op.horarioP !== "N/A" && (
+                <span
+                  class="flex items-center gap-1.5 text-xs text-base-content/70"
+                  title="Presencial"
+                >
+                  <Icon name="boxicons:building" class="size-3.5 opacity-60" />
+                  {op.horarioP}
+                </span>
+              )}
+              {op.horarioH !== "N/A" && (
+                <span
+                  class="flex items-center gap-1.5 text-xs text-base-content/70"
+                  title="Home Office"
+                >
+                  <Icon name="boxicons:home" class="size-3.5 opacity-60" />
+                  {op.horarioH}
+                </span>
+              )}
+            </div>
+
+            <div class="flex flex-col gap-1 text-base-content/70">
+              {op.breakP !== "N/A" && (
+                <span
+                  class="flex items-center gap-1.5 text-xs"
+                  title="Break Presencial"
+                >
+                  <Icon name="boxicons:coffee" class="size-3.5 opacity-60" />
+                  {op.breakP}
+                </span>
+              )}
+              {op.breakH !== "N/A" && (
+                <span
+                  class="flex items-center gap-1.5 text-xs"
+                  title="Break Home Office"
+                >
+                  <Icon
+                    name="boxicons:home-heart"
+                    class="size-3.5 opacity-60"
+                  />
+                  {op.breakH}
+                </span>
+              )}
+            </div>
+
+            <div>
+              <select
+                class={`select select-bordered select-sm w-full max-w-[160px] ${getBadgeColor(op.estado).replace("badge-", "select-")}`}
+                data-estado-select
+              >
+                <option value="Disponible" class="text-success" selected={op.estado === "Disponible"}>Disponible</option>
+                <option value="En reunión" class="text-warning" selected={op.estado === "En reunión"}>En reunión</option>
+                <option value="Tarea administrativa" class="text-info" selected={op.estado === "Tarea administrativa"}>Tarea administrativa</option>
+                <option value="Vacaciones" class="text-error" selected={op.estado === "Vacaciones"}>Vacaciones</option>
+                <option value="Licencia" class="text-error" selected={op.estado === "Licencia"}>Licencia</option>
+              </select>
+            </div>
+
+            <div class="flex items-center justify-end">
+              <button
+                class="btn btn-secondary btn-sm btn-soft btn-asignar-manual"
+                title={`Asignar a ${op.nombre}`}
+              >
+                Asignar
+              </button>
+            </div>
+          </div>
+        ))
+      }
+    </DataTable>
+
+    <!-- Modal de confirmación -->
+    <dialog id="modal-asignacion" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg text-success flex items-center gap-2">
+          <Icon name="boxicons:check-circle" class="size-6" />
+          ¡Asignación exitosa!
+        </h3>
+        <p class="py-4">Se ha asignado el ticket al operador:</p>
+        <div class="bg-base-200 p-4 rounded-lg text-center mb-4">
+          <span
+            class="block text-2xl font-bold text-base-content"
+            id="modal-op-nombre">...</span
+          >
+          <span class="font-mono text-sm text-base-content/70" id="modal-op-id"
+            >...</span
+          >
+        </div>
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn btn-primary">Aceptar</button>
+          </form>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>cerrar</button>
+      </form>
+    </dialog>
   </PageContainer>
 </BaseLayout>
+
+<script>
+  // Lógica del cliente para la asignación circular y filtrado
+  document.addEventListener("DOMContentLoaded", () => {
+    const LOCAL_STORAGE_KEY = "mda_ultimo_asignado_id";
+    const ROWS_SELECTOR = "[data-op-id]";
+    const ESTADO_DISPONIBLE = "Disponible";
+
+    const rows = document.querySelectorAll<HTMLElement>(ROWS_SELECTOR);
+    const btnAsignarProximo = document.getElementById("btn-asignar-proximo");
+    const btnReset = document.getElementById("btn-reset");
+    const toggleDisponibles = document.getElementById(
+      "toggle-disponibles",
+    ) as HTMLInputElement;
+
+    const modal = document.getElementById(
+      "modal-asignacion",
+    ) as HTMLDialogElement;
+    const modalNombre = document.getElementById("modal-op-nombre");
+    const modalId = document.getElementById("modal-op-id");
+
+    const statDisponiblesCount = document.getElementById("stat-disponibles-count");
+    const statNoDisponiblesCount = document.getElementById("stat-no-disponibles-count");
+    const statPercentage = document.getElementById("stat-percentage");
+    const statProgress = document.getElementById("stat-progress") as HTMLProgressElement;
+    const statBreakdownItems = document.querySelectorAll("[data-stat-estado]");
+
+    const getUltimoAsignado = () => localStorage.getItem(LOCAL_STORAGE_KEY);
+    const setUltimoAsignado = (id: string) =>
+      localStorage.setItem(LOCAL_STORAGE_KEY, id);
+    const clearUltimoAsignado = () =>
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+
+    const getEstadoColorClass = (estado: string) => {
+      switch (estado) {
+        case "Disponible": return "select-success";
+        case "Vacaciones":
+        case "Licencia": return "select-error";
+        case "En reunión": return "select-warning";
+        case "Tarea administrativa": return "select-info";
+        default: return "select-neutral";
+      }
+    };
+
+    // Actualiza visualmente la tabla
+    const updateUI = () => {
+      const ultimoId = getUltimoAsignado();
+      const soloDisponibles = toggleDisponibles.checked;
+
+      let countDisp = 0;
+      let countNoDisp = 0;
+      const counts: Record<string, number> = {
+        "Vacaciones": 0,
+        "Licencia": 0,
+        "En reunión": 0,
+        "Tarea administrativa": 0,
+      };
+
+      rows.forEach((row) => {
+        const id = row.getAttribute("data-op-id");
+        const estado = row.getAttribute("data-op-estado") || "";
+
+        if (estado === ESTADO_DISPONIBLE) {
+          countDisp++;
+        } else {
+          countNoDisp++;
+          if (counts[estado] !== undefined) {
+             counts[estado]++;
+          }
+        }
+
+        // Resaltar último asignado
+        if (id === ultimoId) {
+          row.setAttribute("data-ultimo", "true");
+        } else {
+          row.removeAttribute("data-ultimo");
+        }
+
+        // Filtrar por disponibilidad
+        if (soloDisponibles && estado !== ESTADO_DISPONIBLE) {
+          row.classList.add("hidden");
+        } else {
+          row.classList.remove("hidden");
+        }
+      });
+
+      // Actualizar UI de estadísticas
+      const total = rows.length;
+      if (statDisponiblesCount) statDisponiblesCount.textContent = countDisp.toString();
+      if (statNoDisponiblesCount) statNoDisponiblesCount.textContent = countNoDisp.toString();
+      if (statProgress) statProgress.value = countDisp;
+      if (statPercentage) statPercentage.textContent = `${Math.round((countDisp / total) * 100)}%`;
+      
+      statBreakdownItems.forEach(item => {
+         const estado = item.getAttribute("data-stat-estado");
+         if (estado && counts[estado] !== undefined) {
+             const count = counts[estado];
+             item.setAttribute("data-count", count.toString());
+             const countSpan = item.querySelector("[data-stat-count]");
+             if (countSpan) countSpan.textContent = count.toString();
+         }
+      });
+    };
+
+    // Escuchar cambios en los select de estado
+    const selects = document.querySelectorAll<HTMLSelectElement>("[data-estado-select]");
+    selects.forEach(select => {
+       select.addEventListener("change", (e) => {
+          const target = e.target as HTMLSelectElement;
+          const newEstado = target.value;
+          const row = target.closest(ROWS_SELECTOR) as HTMLElement;
+          if (row) {
+             row.setAttribute("data-op-estado", newEstado);
+             row.setAttribute("data-sort-estado", newEstado);
+          }
+          
+          const getSelectVariant = (estado: string) => {
+            switch (estado) {
+              case "Disponible": return "select-success";
+              case "Vacaciones":
+              case "Licencia": return "select-error";
+              case "En reunión": return "select-warning";
+              case "Tarea administrativa": return "select-info";
+              default: return "";
+            }
+          };
+
+          target.className = `select select-bordered select-sm w-full max-w-[160px] ${getSelectVariant(newEstado)}`;
+          
+          updateUI();
+       });
+    });
+
+    // Mostrar modal
+    const showModal = (nombre: string, id: string) => {
+      if (modalNombre) modalNombre.textContent = nombre;
+      if (modalId) modalId.textContent = id;
+      modal.showModal();
+    };
+
+    // Asignar a un operador específico
+    const asignar = (id: string, nombre: string) => {
+      setUltimoAsignado(id);
+      updateUI();
+      showModal(nombre, id);
+    };
+
+    // Lógica circular
+    const asignarProximo = () => {
+      // 1. Obtener la lista de operadores disponibles (manteniendo el orden del HTML)
+      const disponibles: { id: string; nombre: string }[] = [];
+      rows.forEach((row) => {
+        if (row.getAttribute("data-op-estado") === ESTADO_DISPONIBLE) {
+          disponibles.push({
+            id: row.getAttribute("data-op-id")!,
+            nombre: row.getAttribute("data-op-nombre")!,
+          });
+        }
+      });
+
+      if (disponibles.length === 0) {
+        alert("No hay operadores disponibles en este momento.");
+        return;
+      }
+
+      const ultimoId = getUltimoAsignado();
+
+      // Si no hay historial o el último no está en la lista de disponibles, empezamos por el primero
+      let nextIndex = 0;
+
+      if (ultimoId) {
+        const indexUltimo = disponibles.findIndex((op) => op.id === ultimoId);
+        if (indexUltimo !== -1) {
+          // Circular
+          nextIndex = (indexUltimo + 1) % disponibles.length;
+        } else {
+          // Si el último asignado ya no está disponible, podríamos tratar de encontrar
+          // su posición original, pero para simplificar, empezamos por el primero.
+          nextIndex = 0;
+        }
+      }
+
+      const proximo = disponibles[nextIndex];
+      asignar(proximo.id, proximo.nombre);
+    };
+
+    // Event Listeners
+    if (btnAsignarProximo) {
+      btnAsignarProximo.addEventListener("click", asignarProximo);
+    }
+
+    if (btnReset) {
+      btnReset.addEventListener("click", () => {
+        clearUltimoAsignado();
+        updateUI();
+      });
+    }
+
+    if (toggleDisponibles) {
+      toggleDisponibles.addEventListener("change", updateUI);
+    }
+
+    // Botones manuales en cada fila
+    rows.forEach((row) => {
+      const btnManual = row.querySelector(".btn-asignar-manual");
+      if (btnManual) {
+        btnManual.addEventListener("click", () => {
+          const id = row.getAttribute("data-op-id")!;
+          const nombre = row.getAttribute("data-op-nombre")!;
+          asignar(id, nombre);
+        });
+      }
+    });
+
+    // Inicializar UI
+    updateUI();
+  });
+</script>

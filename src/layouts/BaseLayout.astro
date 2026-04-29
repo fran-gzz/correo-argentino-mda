@@ -1,6 +1,8 @@
 ---
 import "@styles/global.css";
 import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
+import logo from "@assets/logo.svg";
 import geistLatinWoff2 from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
 import geistMonoLatinWoff2 from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 import packageJson from "../../package.json";
@@ -60,11 +62,23 @@ const navSections: NavSection[] = [
         href: "/supervision",
         label: "Supervisión",
         icon: "boxicons:shield-quarter-filled",
-      },
-      {
-        href: "/asignacion-autogestiones",
-        label: "Asignacion de autogestiones",
-        icon: "boxicons:git-branch-filled",
+        children: [
+          {
+            href: "/cronograma",
+            label: "Cronograma",
+            icon: "boxicons:calendar-filled",
+          },
+          {
+            href: "/calidad-operadores",
+            label: "Calidad de operadores",
+            icon: "boxicons:bar-chart-big-filled",
+          },
+          {
+            href: "/asignacion-autogestiones",
+            label: "Asignación de autogestiones",
+            icon: "boxicons:git-branch-filled",
+          },
+        ],
       },
       {
         href: "/titulos-tickets",
@@ -322,10 +336,10 @@ const isActiveRoute = (href: string) =>
               <div
                 class="flex w-8 bg-primary text-primary-content items-center justify-center rounded-xl shadow-sm lg:w-9"
               >
-                <Icon
-                  name="boxicons:building-house-filled"
-                  class="size-4 lg:size-5"
-                  aria-hidden="true"
+                <Image
+                  src={logo}
+                  alt="Logo Correo Argentino"
+                  class="size-4 lg:size-8 bg-primary p-1 rounded-full text-secondary"
                 />
               </div>
             </div>
@@ -372,7 +386,7 @@ const isActiveRoute = (href: string) =>
                           >
                             <Icon
                               name={item.icon}
-                                class="size-5 shrink-0 opacity-80 transition group-hover:opacity-100 lg:size-6"
+                              class="size-5 shrink-0 opacity-80 transition group-hover:opacity-100 lg:size-6"
                             />
                             <span class="truncate is-drawer-close:hidden">
                               {item.label}
@@ -550,7 +564,7 @@ const isActiveRoute = (href: string) =>
                           aria-hidden="true"
                         />
                       </div>
-                        <span class="text-xs font-bold leading-tight text-base-content/90">
+                      <span class="text-xs font-bold leading-tight text-base-content/90">
                         {owner}
                       </span>
                     </li>
