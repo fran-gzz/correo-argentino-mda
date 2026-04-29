@@ -306,7 +306,7 @@ const mainTabs = [
           </DataTableHeaderCell>
         </div>
         <div slot="header" class="col-span-2">
-          <DataTableHeaderCell sortKey="code" monospace>
+          <DataTableHeaderCell sortKey="code">
             Codigo
           </DataTableHeaderCell>
         </div>
@@ -317,7 +317,7 @@ const mainTabs = [
           <DataTableHeaderCell sortKey="address">Direccion</DataTableHeaderCell>
         </div>
         <div slot="header" class="col-span-2">
-          <DataTableHeaderCell sortKey="cost-center" monospace>
+          <DataTableHeaderCell sortKey="cost-center">
             Centro de costo
           </DataTableHeaderCell>
         </div>
@@ -614,7 +614,7 @@ const mainTabs = [
         >
           <button
             id="toggle-polygons"
-            class="btn btn-sm btn-outline border-base-content/20 shadow-sm gap-2 font-bold uppercase text-[10px] sm:text-xs transition-all duration-300"
+            class="btn btn-sm btn-outline border-base-content/20 shadow-sm gap-2 font-bold uppercase text-xs transition-all duration-300"
           >
             <Icon name="boxicons:layers-alt-filled" class="size-4 text-primary" />
             <span id="polygons-text">Ocultar Polígonos</span>
@@ -622,7 +622,7 @@ const mainTabs = [
 
           <button
             id="toggle-labels"
-            class="btn btn-sm btn-outline border-base-content/20 shadow-sm gap-2 font-bold uppercase text-[10px] sm:text-xs transition-all duration-300"
+            class="btn btn-sm btn-outline border-base-content/20 shadow-sm gap-2 font-bold uppercase text-xs transition-all duration-300"
           >
             <Icon name="boxicons:font-family-filled" class="size-4 text-primary" />
             <span id="labels-text">Ocultar Letras</span>
@@ -630,7 +630,7 @@ const mainTabs = [
 
           <button
             id="toggle-markers"
-            class="btn btn-sm btn-outline border-base-content/20 shadow-sm gap-2 font-bold uppercase text-[10px] sm:text-xs transition-all duration-300"
+            class="btn btn-sm btn-outline border-base-content/20 shadow-sm gap-2 font-bold uppercase text-xs transition-all duration-300"
           >
             <Icon name="boxicons:location-pin-filled" class="size-4 text-primary" />
             <span id="marker-toggle-text">Ocultar Sucursales</span>
@@ -931,7 +931,7 @@ const mainTabs = [
                 L.marker(pos as any, {
                   icon: L.divIcon({
                     className: "bg-transparent",
-                    html: `<div class="polygon-label font-black text-[#003B71] opacity-80 pointer-events-none transition-all duration-300" style="transform: translate(-50%, -50%); text-shadow: 0 2px 8px ${shadow}; line-height: 1; color: ${color}; font-size: ${fontSize};">${letter}</div>`,
+                    html: `<div class="polygon-label font-black text-secondary opacity-80 pointer-events-none transition-all duration-300" style="transform: translate(-50%, -50%); text-shadow: 0 2px 8px ${shadow}; line-height: 1; color: ${color}; font-size: ${fontSize};">${letter}</div>`,
                     iconSize: [0, 0],
                   }),
                   interactive: false,
@@ -944,7 +944,7 @@ const mainTabs = [
 
       dataMap.forEach((sucursal: any) => {
         const { lat, lng } = sucursal.ubicacion;
-        const popupContent = `<div class="px-1 py-1 min-w-[220px]"><div class="border-b border-gray-200 pb-2 mb-2"><h3 class="font-bold text-gray-900 text-sm m-0 leading-tight">${sucursal.ubicacion.nombre}</h3><span class="inline-block mt-1.5 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded uppercase tracking-wider">NIS: ${sucursal.nis}</span></div><div class="text-xs text-gray-700 space-y-1.5"><div class="flex justify-between items-center bg-gray-50 px-2 py-1 rounded"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-gray-800">${sucursal.region}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Equipos PC</span><span class="font-bold text-gray-700">${sucursal.cantidad_pc}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Servidores</span><span class="font-bold text-gray-700">${sucursal.servidores}</span></div><div class="flex justify-between pt-1.5 mt-1.5 border-t border-gray-100 px-2"><span class="text-gray-500">Contacto</span><a href="tel:${sucursal.contacto}" class="text-blue-600 font-bold hover:underline">${sucursal.contacto}</a></div></div></div>`;
+        const popupContent = `<div class="px-1 py-1 min-w-56"><div class="border-b border-gray-200 pb-2 mb-2"><h3 class="font-bold text-gray-900 text-sm m-0 leading-tight">${sucursal.ubicacion.nombre}</h3><span class="inline-block mt-1.5 px-2 py-0.5 bg-primary/10 text-primary text-xs font-black rounded uppercase tracking-wider">NIS: ${sucursal.nis}</span></div><div class="text-xs text-gray-700 space-y-1.5"><div class="flex justify-between items-center bg-gray-50 px-2 py-1 rounded"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-gray-800">${sucursal.region}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Equipos PC</span><span class="font-bold text-gray-700">${sucursal.cantidad_pc}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Servidores</span><span class="font-bold text-gray-700">${sucursal.servidores}</span></div><div class="flex justify-between pt-1.5 mt-1.5 border-t border-gray-100 px-2"><span class="text-gray-500">Contacto</span><a href="tel:${sucursal.contacto}" class="text-blue-600 font-bold hover:underline">${sucursal.contacto}</a></div></div></div>`;
         L.marker([lat, lng], { icon: sucursalMarkerIcon }).addTo(grupoSucursales).bindPopup(popupContent, { className: "custom-popup" });
       });
     };

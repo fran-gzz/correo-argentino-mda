@@ -4,21 +4,14 @@ import { Icon } from "astro-icon/components";
 interface Props {
   sortKey?: string;
   align?: "left" | "right";
-  monospace?: boolean;
   class?: string;
 }
 
-const {
-  sortKey,
-  align = "left",
-  monospace = false,
-  class: className = "",
-} = Astro.props;
+const { sortKey, align = "left", class: className = "" } = Astro.props;
 
 const contentClasses = [
-  "min-w-0 text-xs font-semibold uppercase tracking-wide text-secondary-content",
+  "min-w-0 text-xs font-mono font-semibold uppercase tracking-wide text-secondary-content",
   align === "right" ? "text-right" : "text-left",
-  monospace && "font-mono",
   className,
 ];
 
