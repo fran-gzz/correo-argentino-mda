@@ -1,20 +1,30 @@
-# Tarea: Sustituir iconos outlined por filled
+# Tarea: Normalización de clases Tailwind (Eliminación de valores hardcodeados)
 
-Fecha: 2026-04-28
+Fecha: 2026-04-29
 
-## Descripcion
+## Descripción
 
-Sustituir sistemáticamente el uso de iconos Boxicons de estilo "regular" (outline) por su versión "solid" (filled) en todo el proyecto. Se utilizará la convención del paquete `@iconify-json/boxicons` instalado, que utiliza el sufijo `-filled`.
+Eliminar el uso de valores arbitrarios de Tailwind (ej. `text-[11px]`, `bg-[#254888]`) en favor de clases predefinidas y tokens semánticos definidos en `DESIGN.md` y `src/styles/global.css`.
 
-## Plan de ejecucion
+## Plan de ejecución
 
-- [x] **Paso 1 — Preparación**: Identificar todos los archivos que contienen referencias a `boxicons:`.
-- [x] **Paso 2 — Reemplazo en Layouts**: Actualizar `src/layouts/BaseLayout.astro` para cambiar los iconos globales (sidebar, header, diálogos).
-- [x] **Paso 3 — Reemplazo en Páginas**: Iterar por las vistas principales (`src/pages/*.astro`) y actualizar los iconos.
-- [x] **Paso 4 — Reemplazo en Componentes**: Actualizar componentes reutilizables (`src/components/**/*.astro`) que utilicen iconos.
-- [x] **Paso 5 — Reemplazo en Datos**: Actualizar archivos de datos (`src/data/*.json` o `.ts`) que contengan nombres de iconos.
-- [x] **Paso 6 — Verificación**: Ejecutar `npm run build` para asegurar que todos los iconos se resuelven correctamente y realizar una inspección visual si es posible.
+- [x] **Paso 1 — Normalización de tamaños de texto**:
+    - Reemplazar `text-[9px]`, `text-[10px]`, `text-[11px]` por `text-xs`.
+    - Reemplazar `text-[12px]` por `text-xs`.
+- [x] **Paso 2 — Normalización de colores**:
+    - Reemplazar `#254888` (Steel Azure) por `secondary` o `linea-institucional`.
+    - Reemplazar `#ffc72c` (School Bus Yellow) por `primary`.
+    - Reemplazar `#b3474d` por `error`.
+    - Reemplazar `#0d9488` por `success` (o el token semántico correspondiente).
+    - Asegurar el uso de opacidad con tokens (ej. `bg-secondary/10` en vez de `bg-[#254888]/10`).
+- [x] **Paso 3 — Normalización de espaciados y dimensiones**:
+    - Reemplazar `w-[320px]` por `w-80`.
+    - Revisar y normalizar `max-h-[600px]`, `min-w-[220px]`, `border-l-[6px]`, etc.
+- [x] **Paso 4 — Auditoría final**:
+    - Ejecutar una búsqueda global de `-[` para asegurar que no queden inconsistencias críticas (excepto donde sea estrictamente necesario como en animaciones o grids complejos si no hay alternativa).
+- [x] **Paso 5 — Verificación visual**:
+    - Comprobar que los cambios no afecten negativamente la legibilidad o el layout.
 
-## Criterio de exito global
+## Criterio de éxito global
 
-Todos los iconos que tengan una versión rellena (filled) disponible en el set de Boxicons deben mostrarse con ese estilo, manteniendo la coherencia visual en todo el portal.
+El proyecto no debe contener valores arbitrarios en clases de Tailwind para colores institucionales ni tamaños de texto que tengan equivalentes en el sistema de diseño.
