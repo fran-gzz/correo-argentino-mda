@@ -24,7 +24,8 @@ const { bundle, items } = catalogData as CatalogViewModel;
       <div class="flex items-center gap-2">
         <Icon
           name="boxicons:link-filled"
-          class="size-5 text-base-content/70"
+          size={20}
+          class="text-base-content/70"
           aria-hidden="true"
         />
         <h2
@@ -36,11 +37,7 @@ const { bundle, items } = catalogData as CatalogViewModel;
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {
-          items.map((item) => (
-            <CatalogAppCard item={item} />
-          ))
-        }
+        {items.map((item) => <CatalogAppCard item={item} />)}
       </div>
     </section>
   </PageContainer>
