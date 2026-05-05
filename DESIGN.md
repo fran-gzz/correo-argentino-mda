@@ -526,3 +526,12 @@ El gap actual es de madurez funcional de contenido y no de estructura de navegac
 - Implementar breadcrumbs en secciones de catalogos para orientacion de navegacion.
 - Catalogar componentes de dominio (cards, tablas, badges, filtros) con criterios de uso por contexto.
 - Ejecutar revision de accesibilidad y contraste WCAG AA sobre rutas operativas.
+
+## 5) Iconos (`Icon`)
+
+Uso recomendado:
+
+- Siempre utilice el atributo `size={24}` (u otro valor numérico) en los componentes `<Icon />` de `astro-icon` para definir el tamaño del ícono.
+- Evite usar clases de Tailwind como `w-5`, `h-5`, `size-5` o sus variantes responsivas para controlar el tamaño del ícono.
+- Si necesita tamaños diferentes, ajuste el valor del atributo `size` (por ejemplo, `size={32}`).
+- Las clases pueden seguir utilizándose para otros estilos (color, margen, etc.), pero no deben incluir utilidades de ancho/alto o `size-`.

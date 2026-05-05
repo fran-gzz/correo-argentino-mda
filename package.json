@@ -23,6 +23,7 @@
     "astro": "^6.1.5",
     "astro-icon": "^1.1.5",
     "daisyui": "^5.5.19",
+    "html-to-image": "^1.11.13",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.2",
@@ -30,6 +31,8 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@iconify-json/boxicons": "^1.2.0"
+    "@iconify-json/boxicons": "^1.2.0",
+    "glob": "^13.0.6",
+    "playwright": "^1.59.1"
   }
 }
