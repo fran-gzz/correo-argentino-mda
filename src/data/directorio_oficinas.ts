@@ -310,7 +310,7 @@ const officeDirectoryBaseItems: OfficeDirectoryBaseItem[] = [
     code: "DIS-008",
     name: "Centro de Distribución Barracas",
     location: "CABA - Barracas",
-    region: "AMBA Logistica",
+    region: "AMBA Logística",
     address: "Av. Australia 2800, Barracas, Ciudad Autónoma de Buenos Aires",
     contacts: [
       {

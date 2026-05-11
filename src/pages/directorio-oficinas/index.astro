@@ -18,7 +18,7 @@ import {
 const sucursales = [
   {
     nis: "A1234",
-    ubicacion: {
+    ubicación: {
       lat: -34.6037,
       lng: -58.3816,
       nombre: "Sucursal Central - CABA",
@@ -30,7 +30,7 @@ const sucursales = [
   },
   {
     nis: "B5678",
-    ubicacion: { lat: -31.4201, lng: -64.1888, nombre: "Sucursal Córdoba" },
+    ubicación: { lat: -31.4201, lng: -64.1888, nombre: "Sucursal Córdoba" },
     region: "Centro",
     cantidad_pc: 8,
     servidores: 1,
@@ -38,7 +38,7 @@ const sucursales = [
   },
   {
     nis: "C9012",
-    ubicacion: { lat: -26.8241, lng: -65.2226, nombre: "Sucursal Tucumán" },
+    ubicación: { lat: -26.8241, lng: -65.2226, nombre: "Sucursal Tucumán" },
     region: "NOA",
     cantidad_pc: 5,
     servidores: 0,
@@ -46,7 +46,7 @@ const sucursales = [
   },
   {
     nis: "D3456",
-    ubicacion: { lat: -41.1335, lng: -71.3103, nombre: "Sucursal Bariloche" },
+    ubicación: { lat: -41.1335, lng: -71.3103, nombre: "Sucursal Bariloche" },
     region: "Patagonia",
     cantidad_pc: 4,
     servidores: 0,
@@ -54,7 +54,7 @@ const sucursales = [
   },
   {
     nis: "E7890",
-    ubicacion: {
+    ubicación: {
       lat: -38.7183,
       lng: -62.2663,
       nombre: "Sucursal Bahía Blanca",
@@ -66,7 +66,7 @@ const sucursales = [
   },
   {
     nis: "F1234",
-    ubicacion: { lat: -24.7821, lng: -65.4232, nombre: "Sucursal Salta" },
+    ubicación: { lat: -24.7821, lng: -65.4232, nombre: "Sucursal Salta" },
     region: "NOA",
     cantidad_pc: 6,
     servidores: 0,
@@ -74,7 +74,7 @@ const sucursales = [
   },
   {
     nis: "G5678",
-    ubicacion: { lat: -32.8895, lng: -68.8458, nombre: "Sucursal Mendoza" },
+    ubicación: { lat: -32.8895, lng: -68.8458, nombre: "Sucursal Mendoza" },
     region: "Cuyo",
     cantidad_pc: 9,
     servidores: 1,
@@ -82,7 +82,7 @@ const sucursales = [
   },
   {
     nis: "H9012",
-    ubicacion: { lat: -54.8019, lng: -68.303, nombre: "Sucursal Ushuaia" },
+    ubicación: { lat: -54.8019, lng: -68.303, nombre: "Sucursal Ushuaia" },
     region: "Patagonia",
     cantidad_pc: 3,
     servidores: 0,
@@ -90,7 +90,7 @@ const sucursales = [
   },
   {
     nis: "I3456",
-    ubicacion: { lat: -27.3671, lng: -55.8961, nombre: "Sucursal Posadas" },
+    ubicación: { lat: -27.3671, lng: -55.8961, nombre: "Sucursal Posadas" },
     region: "NEA",
     cantidad_pc: 5,
     servidores: 0,
@@ -98,7 +98,7 @@ const sucursales = [
   },
   {
     nis: "J7890",
-    ubicacion: {
+    ubicación: {
       lat: -34.5826,
       lng: -58.3816,
       nombre: "Centro Logístico Barracas",
@@ -110,7 +110,7 @@ const sucursales = [
   },
   {
     nis: "K1234",
-    ubicacion: { lat: -32.9442, lng: -60.6505, nombre: "Sucursal Rosario" },
+    ubicación: { lat: -32.9442, lng: -60.6505, nombre: "Sucursal Rosario" },
     region: "Litoral",
     cantidad_pc: 12,
     servidores: 2,
@@ -118,7 +118,7 @@ const sucursales = [
   },
   {
     nis: "L5678",
-    ubicacion: { lat: -27.4606, lng: -58.8305, nombre: "Sucursal Corrientes" },
+    ubicación: { lat: -27.4606, lng: -58.8305, nombre: "Sucursal Corrientes" },
     region: "NEA",
     cantidad_pc: 6,
     servidores: 1,
@@ -1089,8 +1089,8 @@ const mainTabs = [
         });
 
       dataMap.forEach((sucursal: any) => {
-        const { lat, lng } = sucursal.ubicacion;
-        const popupContent = `<div class="px-1 py-1 min-w-56"><div class="border-b border-gray-200 pb-2 mb-2"><h3 class="font-bold text-gray-900 text-sm m-0 leading-tight">${sucursal.ubicacion.nombre}</h3><span class="inline-block mt-1.5 px-2 py-0.5 bg-primary/10 text-primary text-xs font-black rounded uppercase tracking-wider">NIS: ${sucursal.nis}</span></div><div class="text-xs text-gray-700 space-y-1.5"><div class="flex justify-between items-center bg-gray-50 px-2 py-1 rounded"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-gray-800">${sucursal.region}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Equipos PC</span><span class="font-bold text-gray-700">${sucursal.cantidad_pc}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Servidores</span><span class="font-bold text-gray-700">${sucursal.servidores}</span></div><div class="flex justify-between pt-1.5 mt-1.5 border-t border-gray-100 px-2"><span class="text-gray-500">Contacto</span><a href="tel:${sucursal.contacto}" class="text-blue-600 font-bold hover:underline">${sucursal.contacto}</a></div></div></div>`;
+        const { lat, lng } = sucursal.ubicación;
+        const popupContent = `<div class="px-1 py-1 min-w-56"><div class="border-b border-gray-200 pb-2 mb-2"><h3 class="font-bold text-gray-900 text-sm m-0 leading-tight">${sucursal.ubicación.nombre}</h3><span class="inline-block mt-1.5 px-2 py-0.5 bg-primary/10 text-primary text-xs font-black rounded uppercase tracking-wider">NIS: ${sucursal.nis}</span></div><div class="text-xs text-gray-700 space-y-1.5"><div class="flex justify-between items-center bg-gray-50 px-2 py-1 rounded"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-gray-800">${sucursal.region}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Equipos PC</span><span class="font-bold text-gray-700">${sucursal.cantidad_pc}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Servidores</span><span class="font-bold text-gray-700">${sucursal.servidores}</span></div><div class="flex justify-between pt-1.5 mt-1.5 border-t border-gray-100 px-2"><span class="text-gray-500">Contacto</span><a href="tel:${sucursal.contacto}" class="text-blue-600 font-bold hover:underline">${sucursal.contacto}</a></div></div></div>`;
         L.marker([lat, lng], { icon: sucursalMarkerIcon })
           .addTo(grupoSucursales)
           .bindPopup(popupContent, { className: "custom-popup" });
