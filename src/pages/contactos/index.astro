@@ -299,34 +299,34 @@ const contactRowGridClass = "grid grid-cols-12 items-start gap-4";
                         )}
                       </div>
 
-                      <div class="col-span-3 min-w-0">
-                        {contact.emails.length > 0 ? (
-                          <div class="flex flex-col gap-1.5">
-                            {contact.emails.map((email) => (
-                              <div class="group flex min-w-0 items-center gap-1">
-                                <span
-                                  class="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-secondary/10 text-secondary"
-                                  aria-hidden="true"
-                                >
-                                  <Icon
-                                    name="boxicons:envelope-filled"
-                                    size={16}
-                                  />
-                                </span>
-                                <span
-                                  class="min-w-0 flex-1 truncate px-2 py-1.5 font-mono text-xs text-base-content/80 md:text-sm"
-                                  data-highlight-target
-                                >
-                                  {email}
-                                </span>
-                                <CopyButton
-                                  value={email}
-                                  variant="icon"
-                                  appearance="ghost"
-                                  size="xs"
-                                  ariaLabel={`Copiar correo ${email}`}
-                                  class="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100"
-                                />
+                          <div class="col-span-3 min-w-0">
+                            {contact.emails.length > 0 ? (
+                              <div class="flex flex-col gap-1.5">
+                                {contact.emails.map((email) => (
+                                  <div class="group flex min-w-0 items-center gap-1">
+                                    <span
+                                      class="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-secondary/10 text-secondary"
+                                      aria-hidden="true"
+                                    >
+                                      <Icon
+                                        name="boxicons:pencil-draw-filled"
+                                        class="size-3.5"
+                                      />
+                                    </span>
+                                    <span
+                                      class="min-w-0 flex-1 truncate px-2 py-1.5 font-mono text-xs text-base-content/80 md:text-sm"
+                                      data-highlight-target
+                                    >
+                                      {email}
+                                    </span>
+                                    <CopyButton
+                                      value={email}
+                                      variant="icon"
+                                      appearance="ghost"
+                                      size="xs"
+                                      ariaLabel={`Copiar correo ${email}`}
+                                      class="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100"
+                                    />
 
                                 <OpenExternalUrlButton
                                   href={`mailto:${email}`}
