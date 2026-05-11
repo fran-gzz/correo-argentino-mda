@@ -1,6 +1,3 @@
-// Este archivo fue generado automáticamente por scripts/parse-telegrafia-csv.mjs
-// No editar manualmente — regenerar con: node scripts/parse-telegrafia-csv.mjs
-
 export interface TelegrafiaContact {
   name: string;
   phone: string;
