@@ -1,7 +1,7 @@
 export interface TelegrafiaContact {
   name: string;
-  phone: string;
-  timeSlot: string;
+  phone?: string;
+  timeSlot?: string;
   role?: string;
 }
 
@@ -78,8 +78,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -99,8 +98,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -124,7 +122,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Casco, Fajks, Grazulis",
         phone: "8092 / 8089",
-        timeSlot: "",
+
         role: "Supervisión de Telegrafía",
       },
     ],
@@ -156,7 +154,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Orrego Alfredo Augusto",
         phone: "4763-0104",
-        timeSlot: "",
+
         role: "Auxiliar",
       },
     ],
@@ -183,24 +181,29 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDDonTorcuato@correoargentino.com.ar",
-    notes: "Sucursal mixta",
+    notes: "",
     contacts: [
+      {
+        name: "Oficina",
+        phone: "15 8059-0820 / 15 5308-6856",
+        timeSlot: "13:00 a 18:00",
+      },
       {
         name: "Barrios Gastón",
         phone: "15 2398-9172",
-        timeSlot: "8 a 13h:",
+        timeSlot: "8 a 13h",
         role: "Supervisor",
       },
       {
         name: "Ilabaca Yamila",
         phone: "15 6973-4685",
-        timeSlot: "8 a 13h:",
+        timeSlot: "8 a 13h",
         role: "Auxiliar",
       },
       {
         name: "Nuñez Osmar",
         phone: "15 3373-8912",
-        timeSlot: "8 a 13h:",
+        timeSlot: "8 a 13h",
         role: "Auxiliar",
       },
       {
@@ -209,11 +212,6 @@ export const mockTelegrafia: Office[] = [
         timeSlot: "13 a 18h",
         role: "Auxiliar",
       },
-      {
-        name: "Sucursal",
-        phone: "15 8059-0820 / 15 5308-6856",
-        timeSlot: "13 a 18h:",
-      }
     ],
     assets: [
       {
@@ -243,7 +241,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4740-5695",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -268,9 +265,22 @@ export const mockTelegrafia: Office[] = [
     address: "Rivadavia 302",
     lat: -34.6,
     lng: -58.3,
-    email: "",
-    notes: "Posible contacto: Alejandro Jes s Garcia (29804765) - tel 0348 4429309 / 15 3833-5695 / Carlos Romero (Jefe CDD) mail: CaRomero@correoargentino.com.ar",
+    email: "CaRomero@correoargentino.com.ar",
+    notes: "",
     contacts: [
+      {
+        name: "Oficina",
+        phone: "0348 4429309",
+      },
+      {
+        name: "Alejandro Jesús Garcia",
+        phone: "15 3833-5695",
+      },
+      {
+        name: "Carlos Romero",
+        phone: "",
+        role: "Jefe CDD",
+      },
     ],
     assets: [
       {
@@ -336,13 +346,12 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Hernandez Daniel Cerafin",
         phone: "4799-1731 (Fijo del sector Control)",
-        timeSlot: "5 a 13h:",
+        timeSlot: "5 a 13h",
         role: "Supervisor",
       },
       {
         name: "Obiedo Edgardo Adolfo",
         phone: "",
-        timeSlot: "",
         role: "Supervisor",
       },
     ],
@@ -370,8 +379,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "GBasile@correoargentino.com.ar (Jefe de CDD)",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -396,8 +404,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -421,12 +428,12 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Banegas Diego",
         phone: "15 5259-2137",
-        timeSlot: "05:00 a 13:00h:",
+        timeSlot: "05:00 a 13:00h",
       },
       {
         name: "Bellucio Daniel",
         phone: "15 3582-0749",
-        timeSlot: "13:00 a 20:00h:",
+        timeSlot: "13:00 a 20:00h",
       },
     ],
     assets: [
@@ -452,7 +459,7 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDSanMiguel@correoargentino.com.ar",
-    notes: "Integrado al CDD en Belgrano 1174",
+    notes: "Integrado al CDD en Belgrano 1174 Oficina Tel: 4664-7962",
     contacts: [
       {
         name: "Perez Carlos",
@@ -463,11 +470,6 @@ export const mockTelegrafia: Office[] = [
         name: "Pavon Raul",
         phone: "15 4989-8158",
         timeSlot: "Turno Tarde",
-      },
-      {
-        name: "Oficina",
-        phone: "4664-7962",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -488,7 +490,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDJCPaz@correoargentino.com.ar",
-    notes: "Confirma direcci n  en Roque Saenz Peña, CDD y Comercial funcionan en el mismo edificio",
+    notes:
+      "Confirma direcci n  en Roque Saenz Peña, CDD y Comercial funcionan en el mismo edificio",
     contacts: [
       {
         name: "Javier Caballero",
@@ -534,7 +537,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Marcelo Fabian Abtt",
         phone: "0230 15 4563511",
-        timeSlot: "",
+
         role: "Auxiliar",
       },
     ],
@@ -556,18 +559,14 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDElPalomar@correoargentino.com.ar",
-    notes: "Confirma direcci n MECANICO ROSETTI 736 (Marconi, esq. Rosetti 736)",
+    notes:
+      "Confirma direcci n MECANICO ROSETTI 736 (Marconi, esq. Rosetti 736) Fijo del CDD Tel: 4758 0113",
     contacts: [
-      {
-        name: "Fijo del CDD",
-        phone: "4758 0113",
-        timeSlot: "",
-      },
       {
         name: "Diego Schimpf",
         phone: "15 3397-2021",
         timeSlot: "05:00 a 13:00h",
-        role: "Supervisor"
+        role: "Supervisor",
       },
       {
         name: "Gustavo Nogueira",
@@ -579,13 +578,13 @@ export const mockTelegrafia: Office[] = [
         name: "Perla Kerschen",
         phone: "15 5734-3505",
         timeSlot: "13:00 a 20:00h",
-        role: "Auxiliar"
+        role: "Auxiliar",
       },
       {
         name: "Matias Capsalas",
         phone: "15 6035-7978",
         timeSlot: "13:00 a 20:00h",
-        role: "Auxiliar"
+        role: "Auxiliar",
       },
     ],
     assets: [
@@ -611,14 +610,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Oficina",
-        phone: "4662 9087 - 4665 0915",
-        timeSlot: "",
-      },
-    ],
+    notes: "Oficina Tel: 4662 9087 - 4665 0915",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -637,7 +630,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDRamosMejia@correoargentino.com.ar",
-    notes: "Confirma direcci n. Indica que la oficina de telegraf a se encuentra en el primer piso del edificio",
+    notes:
+      "Confirma direcci n. Indica que la oficina de telegraf a se encuentra en el primer piso del edificio",
     contacts: [
       {
         name: "Carlos Amengual",
@@ -648,7 +642,7 @@ export const mockTelegrafia: Office[] = [
         name: "Carlos Leiva",
         phone: "15 4658 2351",
         timeSlot: "Turno Tarde",
-      }
+      },
     ],
     assets: [
       {
@@ -829,7 +823,7 @@ export const mockTelegrafia: Office[] = [
         name: "Centurión Juan",
         phone: "",
         timeSlot: "Turno tarde",
-      }
+      },
     ],
     assets: [
       {
@@ -854,13 +848,14 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDLaferrere@correoargentino.com.ar",
-    notes: "Confirma direcci n en Coronel Montt N  3951 -  CDD G. de Laferrere",
+    notes:
+      "Confirma direcci n en Coronel Montt N  3951 -  CDD G. de Laferrere Oficina Tel: 4694-9284",
     contacts: [
       {
         name: "Raúl Galván",
         phone: "15 3834-0821",
         timeSlot: "08:00 a 15:40",
-        role: "Jefe"
+        role: "Jefe",
       },
       {
         name: "Rubén Bustos",
@@ -881,11 +876,6 @@ export const mockTelegrafia: Office[] = [
         name: "Gladys Bustos",
         phone: "15 3876-2371",
         timeSlot: "12:30 a 19:00",
-      },
-      {
-        name: "Oficina",
-        phone: "4694-9284",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -914,9 +904,9 @@ export const mockTelegrafia: Office[] = [
     notes: "Posible contacto: Mario Alberto Mansilla / 15-5764-0813 (5-12hrs)",
     contacts: [
       {
-        name: "TM: Parodi Selva",
+        name: "Parodi Selva",
         phone: "15 5047-1482",
-        timeSlot: "Turno mañana",
+        timeSlot: "TM: Turno mañana",
       },
       {
         name: "Giannasi Silvio",
@@ -963,8 +953,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "CDDEzeiza@correoargentino.com.ar",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1024,10 +1013,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto: Alfredo Damian Bohorquez (Jefe CDD)- ABohorquez@correo...",
-    contacts: [
-      
-    ],
+    notes:
+      "Posible contacto: Alfredo Damian Bohorquez (Jefe CDD)- ABohorquez@correo...",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1052,9 +1040,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1112,8 +1098,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "Sucursal Adrogu  ??? b0062@correo...",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1175,14 +1160,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Oficina",
-        phone: "4297-1345",
-        timeSlot: ""
-      },
-    ],
+    notes: "Oficina Tel: 4297-1345",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1206,13 +1185,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDAVELLANEDA@correoargentino.com.ar",
-    notes: "CDD AVELLANEDA, Espa a 81",
+    notes: "CDD AVELLANEDA, Espa a 81 Oficina Tel: 4201-8782",
     contacts: [
-      {
-        name: "Oficina",
-        phone: "4201-8782",
-        timeSlot:""
-      },
       {
         name: "Facundo Pérez",
         phone: "15 3353-6159",
@@ -1261,43 +1235,44 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDQuilmes@correoargentino.com.ar",
-    notes: "El CDD se encuentra en Martin Rodriguez 199 (Parque Industrial La Bernalesa), no cuenta con atencion al publico.",
+    notes:
+      "El CDD se encuentra en Martin Rodriguez 199 (Parque Industrial La Bernalesa), no cuenta con atencion al publico.",
     contacts: [
       {
         name: "Edgardo Monza",
         phone: "15 5955-1235",
         timeSlot: "07:00 a 14:12",
-        role: "Jefe"
+        role: "Jefe",
       },
       {
         name: "Daniel Martínez",
         phone: "15 5928-1909",
         timeSlot: "07:00 a 14:12",
-        role: "Supervisor"
+        role: "Supervisor",
       },
       {
         name: "Tamara Ferrari",
         phone: "15 6901-8447",
         timeSlot: "07:00 a 14:12",
-        role: "Auxiliar"
+        role: "Auxiliar",
       },
       {
         name: "Leonardo Caballero",
         phone: "15 5339-1677",
         timeSlot: "07:00 a 14:12",
-        role: "Auxiliar"
+        role: "Auxiliar",
       },
       {
         name: "Lorena Monasterio",
         phone: "15 4195-2064",
         timeSlot: "07:00 a 14:12",
-        role: "Auxiliar"
+        role: "Auxiliar",
       },
       {
         name: "Esteban Abel Echauri",
         phone: "15 5975-1219",
         timeSlot: "13:00 a 20:12",
-        role: "Supervisor"
+        role: "Supervisor",
       },
       {
         name: "Ezequiel Ramirez",
@@ -1330,24 +1305,18 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDBerazategui@correoargentino.com.ar",
-    notes: "AV. 14 4457 ENTRE 144 Y 145 (CDD BERAZATEGUI)",
+    notes:
+      "AV. 14 4457 ENTRE 144 Y 145 (CDD BERAZATEGUI) Oficina Tel: 4226-5120",
     contacts: [
-      {
-        name: "Oficina",
-        phone: "4226-5120",
-        timeSlot: "",
-      },
       {
         name: "Oscar Aurelio Ibarra",
         phone: "",
         timeSlot: "Turno mañana",
-        
       },
       {
         name: "Jorge David Oliva",
         phone: "",
         timeSlot: "Turno mañana",
-        
       },
       {
         name: "Rodolfo Daniel Bernat",
@@ -1378,7 +1347,7 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Corrige direcci n: Mitre 69.",
+    notes: "Corrige direcci n: Mitre 69. Oficina Tel: 4255-0231/6828",
     contacts: [
       {
         name: "Leonardo Ramirez",
@@ -1388,7 +1357,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Silvio Gimenez",
         phone: "15 4027-9744",
-        timeSlot: "07 a 14:42h"
+        timeSlot: "07 a 14:42h",
       },
       {
         name: "Diego Torres",
@@ -1400,11 +1369,6 @@ export const mockTelegrafia: Office[] = [
         phone: "15 5101-3348",
         timeSlot: "13 a 19:42h",
       },
-      {
-        name: "Oficina",
-        phone: "4255-0231/6828",
-        timeSlot: "",
-      }
     ],
     assets: [
       {
@@ -1430,8 +1394,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1619,7 +1582,6 @@ export const mockTelegrafia: Office[] = [
         timeSlot: "7 a 13h",
         role: "Joerodriguez",
       },
-      
     ],
     assets: [
       {
@@ -1644,14 +1606,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Supervisor de CDD Oscar Fernando Nuñez / (03487) - 422153",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Supervisor de CDD Oscar Fernando Nuñez / (03487) - 422153 Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1679,8 +1636,10 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Daniel Palomeque / Sergio Ocampo / Fernando Cardozo",
-        phone: "Palomeque 336- 435-6496 / Ocampo 336-459-7537/ Cardozo 336-401-0006",
-        timeSlot: "Palomeque 12:00 a 19:12 hs / Ocampo 06:30 a 14:12 hs / Cardozo 12:48 a 20:00 hs",
+        phone:
+          "Palomeque 336- 435-6496 / Ocampo 336-459-7537/ Cardozo 336-401-0006",
+        timeSlot:
+          "Palomeque 12:00 a 19:12 hs / Ocampo 06:30 a 14:12 hs / Cardozo 12:48 a 20:00 hs",
         role: "REF Teleg",
       },
     ],
@@ -1707,14 +1666,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1828,14 +1781,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "Mariano Moavro: 8816",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos. Mariano Moavro: 8816",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -1874,7 +1821,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "B0320@correoargentino.com.ar",
-    notes: "Posible contacto: Miguel Angel Teruel (14417019) - tel: 0231-15-7408439",
+    notes:
+      "Posible contacto: Miguel Angel Teruel (14417019) - tel: 0231-15-7408439",
     contacts: [
       {
         name: "Miguel Ángel Teruel",
@@ -1984,11 +1932,6 @@ export const mockTelegrafia: Office[] = [
         phone: "Jorge P rez: 0249 4327566",
         timeSlot: "Jorge P rez: 10:30 a 18h",
       },
-      {
-        name: "",
-        phone: "02494 437664",
-        timeSlot: "",
-      },
     ],
     assets: [
       {
@@ -2008,14 +1951,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2077,11 +2014,6 @@ export const mockTelegrafia: Office[] = [
         phone: "02246 15 446387",
         timeSlot: "8:30 a 16:15h",
       },
-      {
-        name: "",
-        phone: "02246 420468",
-        timeSlot: "",
-      },
     ],
     assets: [
       {
@@ -2101,14 +2033,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "La I1318 opera en  SUCSan Bernardo poor cierre de CDD Mar de Ajo",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "La I1318 opera en  SUCSan Bernardo poor cierre de CDD Mar de Ajo Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2127,14 +2054,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto: Jorge Santos (24040963) - tel: 2241-15-550021 (7-14:40)",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Posible contacto: Jorge Santos (24040963) - tel: 2241-15-550021 (7-14:40) Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2210,11 +2132,6 @@ export const mockTelegrafia: Office[] = [
         timeSlot: "10:30 a 18:12: Jose Luis Maidana",
         role: "Supervisor",
       },
-      {
-        name: "",
-        phone: "Jose Luis Maidana 02254 4160101",
-        timeSlot: "",
-      },
     ],
     assets: [
       {
@@ -2244,12 +2161,10 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Walter Victor Benitez",
         phone: "02344 454510",
-        timeSlot: "",
       },
       {
         name: "Claudio A. Laphitzborde",
         phone: "",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -2274,8 +2189,10 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Jos María Begbeder / Claro Daniel Gim nez",
-        phone: "Begbeder: 02281-15521298 / Gimenez: 02281-15521006 / Tel fono fijo 02281-434531",
-        timeSlot: "1er Turno: L a V de 05:48 a 13:00 hs / 2do Turno: L a V de 13:00 a 20:42 hs",
+        phone:
+          "Begbeder: 02281-15521298 / Gimenez: 02281-15521006 / Tel fono fijo 02281-434531",
+        timeSlot:
+          "1er Turno: L a V de 05:48 a 13:00 hs / 2do Turno: L a V de 13:00 a 20:42 hs",
         role: "1er Turno",
       },
     ],
@@ -2354,14 +2271,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto: JGuanca@correo... Jefe CDD 01 MDQ",
-    contacts: [
-      {
-        name: "Se envia mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Posible contacto: JGuanca@correo... Jefe CDD 01 MDQ Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2452,7 +2364,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Sunino Hernan / Vena Nahuel",
         phone: "Sunino Hernan  2262361678 - 22622146 / Vena Nahuel  2262500258",
-        timeSlot: "Sunino Hernan (Sup) 06:30 a 14:12 / Vena Nahuel (Aux) 10:30 a 17:00",
+        timeSlot:
+          "Sunino Hernan (Sup) 06:30 a 14:12 / Vena Nahuel (Aux) 10:30 a 17:00",
         role: "Sup",
       },
     ],
@@ -2479,14 +2392,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Llamar m s temprano, no contestan (Hoy 11/12 tampoco contestaron a las 11h)",
-    contacts: [
-      {
-        name: "",
-        phone: "Interno 4565",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Llamar m s temprano, no contestan (Hoy 11/12 tampoco contestaron a las 11h)",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2505,7 +2413,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "B0573@correoargentino.com.ar",
-    notes: "Pocos tickets en SM, tanto en teleg como en cdd - se consulta a la suc",
+    notes:
+      "Pocos tickets en SM, tanto en teleg como en cdd - se consulta a la suc",
     contacts: [
       {
         name: "Oscar Cordero",
@@ -2536,14 +2445,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Adrian Firpo - 03489 15 663495",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Adrian Firpo - 03489 15 663495 Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2572,7 +2475,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Enrique Russo y Daniel",
         phone: "Enrique Russo:  15 6744-9674 / Daniel: 15 6282-0120",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -2598,7 +2500,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Tittarelli Marcelo Rodolfo",
         phone: "4613-2895 / 4637-7754",
-        timeSlot: "07:00 a 13:00:",
+        timeSlot: "07:00 a 13:00",
       },
       {
         name: "Arnez Fernando Ra l",
@@ -2613,17 +2515,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Colucci Leonardo Martín",
         phone: "",
-        timeSlot: "13:00 a 20:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Cantizano Diego Alejandro",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Colucci Leonardo Martín",
+        timeSlot: "13:00 a 20:00",
       },
     ],
     assets: [
@@ -2676,8 +2568,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2701,7 +2592,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Alejandra Maria Cruz",
         phone: "5941-3309",
-        timeSlot: "7 a 13h:",
+        timeSlot: "7 a 13h",
       },
       {
         name: "Daniel Leonardo Friera",
@@ -2711,17 +2602,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Fabi n Nuñez",
         phone: "",
-        timeSlot: "13 a 20h:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Daniel Leonardo Friera",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Fabi n Nuñez",
+        timeSlot: "13 a 20h",
       },
     ],
     assets: [
@@ -2747,7 +2628,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Supervisi n de Telegrafía",
         phone: "8092 / 8089",
-        timeSlot: "",
+
         role: "Casco, Fajks, Grazulis",
       },
     ],
@@ -2774,7 +2655,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Supervisi n de Telegrafía",
         phone: "8092 / 8089",
-        timeSlot: "",
+
         role: "Casco, Fajks, Grazulis",
       },
     ],
@@ -2801,7 +2682,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Supervisi n de Telegrafía",
         phone: "8092 / 8089",
-        timeSlot: "",
+
         role: "Casco, Fajks, Grazulis",
       },
     ],
@@ -2828,7 +2709,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Supervisi n de Telegrafía",
         phone: "8092 / 8089",
-        timeSlot: "",
+
         role: "Casco, Fajks, Grazulis",
       },
     ],
@@ -2860,7 +2741,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "A confirmar",
         phone: "",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -2891,7 +2771,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "A confirmar",
         phone: "",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -2912,14 +2791,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Llamar m s temprano, no contestan (Hoy 11/12 tampoco contestaron a las 11h)",
-    contacts: [
-      {
-        name: "",
-        phone: "Interno 4565",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Llamar m s temprano, no contestan (Hoy 11/12 tampoco contestaron a las 11h)",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -2938,7 +2812,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "cdd7@correoargentino.com.ar",
-    notes: "Carrasco 37 es la ubicaci n del CDD 7, el cual se encuentra en el primer piso, mismo edificio arriba de la sucursal comercial floresta",
+    notes:
+      "Carrasco 37 es la ubicaci n del CDD 7, el cual se encuentra en el primer piso, mismo edificio arriba de la sucursal comercial floresta",
     contacts: [
       {
         name: "Eduardo Sosa",
@@ -2974,12 +2849,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Arancibia Carlos",
         phone: "Arancibia Carlos: 15 2341-0271",
-        timeSlot: "06:00 a 15:00:",
-      },
-      {
-        name: "",
-        phone: "4825-2152",
-        timeSlot: "Arancibia Carlos",
+        timeSlot: "06:00 a 15:00",
       },
     ],
     assets: [
@@ -3000,14 +2870,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3034,9 +2898,9 @@ export const mockTelegrafia: Office[] = [
     notes: "Junto al CDD 23.",
     contacts: [
       {
-        name: "TM: Fernando Lopez / TT: Miguel Morales",
+        name: "Fernando Lopez / TT: Miguel Morales",
         phone: "4931-6163",
-        timeSlot: "TM: 6 a 13hs / TT: 13 a 20 hs",
+        timeSlot: "TM: TM: 6 a 13hs / TT: 13 a 20 hs",
       },
     ],
     assets: [
@@ -3066,7 +2930,8 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Luis Tebes / Juan Tejada",
-        phone: "Luis Tebes 1166884397 / Juan Tejada 1159372632 / Fijo oficina 4924-3269",
+        phone:
+          "Luis Tebes 1166884397 / Juan Tejada 1159372632 / Fijo oficina 4924-3269",
         timeSlot: "Luis Tebes  07:00 hs a 14:00 / Juan Tejada 11:00 hs a 18:00",
       },
     ],
@@ -3093,7 +2958,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Pino Rojas Alejandro Referente Telegrafía",
         phone: "Pino Rojas Alejandro / Rivero Walter: 15 8024-4267",
-        timeSlot: "07:00 a 13:00:",
+        timeSlot: "07:00 a 13:00",
         role: "LP 33625",
       },
       {
@@ -3101,16 +2966,6 @@ export const mockTelegrafia: Office[] = [
         phone: "",
         timeSlot: "Pino Rojas Alejandro",
         role: "LP 137096",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "13:00 a 18:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Rivero Walter",
       },
     ],
     assets: [
@@ -3166,9 +3021,9 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "TM: Camos Colman Dante Fabian / TT: Marcelo Arena",
+        name: "Camos Colman Dante Fabian / TT: Marcelo Arena",
         phone: "TM: Colman 1168062803 / TT: Arena 1157618266",
-        timeSlot: "TM: 07:00 a 14:12hs / TT: Arena 13:00 a 20:12h",
+        timeSlot: "TM: TM: 07:00 a 14:12hs / TT: Arena 13:00 a 20:12h",
       },
     ],
     assets: [
@@ -3194,14 +3049,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3230,27 +3079,17 @@ export const mockTelegrafia: Office[] = [
       {
         name: "P rez F lix Daniel",
         phone: "P rez F lix Daniel: 0383 4992451",
-        timeSlot: "06:00 a 13:42:",
+        timeSlot: "06:00 a 13:42",
       },
       {
-        name: "Barrionuevo Ren ",
+        name: "Barrionuevo Ren",
         phone: "Barrionuevo Ren : 0383 4524834",
         timeSlot: "P rez F lix Daniel",
       },
       {
         name: "Barrionuevo Oscar",
         phone: "Barrionuevo Oscar: 0383 4569053",
-        timeSlot: "Barrionuevo Ren ",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "11:00 a 18:42:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Barrionuevo Oscar",
+        timeSlot: "Barrionuevo Ren",
       },
     ],
     assets: [
@@ -3271,24 +3110,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "4719",
-        timeSlot: "",
-      },
-      {
-        name: "",
-        phone: "Walter Gomez: 03624 15386778",
-        timeSlot: "",
-      },
-      {
-        name: "",
-        phone: "Lucia Fernandez: 03624 15746052",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos. 4719",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3317,13 +3140,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "More Alejandro An bal Responsable de Telegrafía",
         phone: "More Alejandro An bal: 0373 5400256",
-        timeSlot: "06:30 a 13:42:",
+        timeSlot: "06:30 a 13:42",
         role: "L.P. 123.863",
-      },
-      {
-        name: "",
-        phone: "Sucursal: 0373 5420289",
-        timeSlot: "More Alejandro An bal",
       },
     ],
     assets: [
@@ -3349,7 +3167,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDPresidenteRoqueSaenzPena@correoargentino.com.ar",
-    notes: "Se envía nuevamente mail al usuario solicitando telef nos personales y franjas horarias de los referentes mencionados.",
+    notes:
+      "Se envía nuevamente mail al usuario solicitando telef nos personales y franjas horarias de los referentes mencionados.",
     contacts: [
       {
         name: "Saravia Eduardo / L pez Gonzalo / Ramos Alcides / Saravia Daniel / Santia Monica",
@@ -3375,14 +3194,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3443,7 +3256,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Fernando Emmanuel García",
         phone: "Fernando Emmanuel García: 0280 4845185",
-        timeSlot: "TM (06:18 a 14h):",
+        timeSlot: "TM (06:18 a 14h)",
         role: "Jefe del CDD/CDP",
       },
       {
@@ -3461,7 +3274,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "talo Ra l Contreras",
         phone: "talo Ra l Contreras: 0208 4368443",
-        timeSlot: "TM (06:18 a 13:30H):",
+        timeSlot: "TM (06:18 a 13:30H)",
         role: "Auxiliar del CDD/CDP",
       },
       {
@@ -3469,41 +3282,6 @@ export const mockTelegrafia: Office[] = [
         phone: "Monsalve Gustavo Ariel: 0280 4328930",
         timeSlot: "Fernando Daniel Artiles",
         role: "Auxiliar del CDD/CDP",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: " talo Ra l Contreras",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Monsalve Gustavo Ariel",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "TT (12:18 a 19h):",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Gerardo Manuel Villagr n",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Fernando Daniel Artiles",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: " talo Ra l Contreras",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Monsalve Gustavo Ariel",
       },
     ],
     assets: [
@@ -3534,17 +3312,12 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Garay Pablo",
         phone: "Garay Pablo: 0280 4364182",
-        timeSlot: "09:30 a 15:00:",
+        timeSlot: "09:30 a 15:00",
       },
       {
         name: "Moyano Francisco",
         phone: "Moyano Francisco: 0280 4679988",
         timeSlot: "Garay Pablo",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Moyano Francisco",
       },
     ],
     assets: [
@@ -3575,7 +3348,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Arbe Santos Ruben",
         phone: "Arbe Santos Ruben: 02945 405421",
-        timeSlot: "5 a 12:20h:",
+        timeSlot: "5 a 12:20h",
       },
       {
         name: "Alexis Arbe",
@@ -3590,17 +3363,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Darío Nicolás Quij n",
         phone: "Darío Nicolás Quij n: 2945 465364",
-        timeSlot: "11 a 18:30h:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "N stor Gabriel Lovera",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Darío Nicolás Quij n",
+        timeSlot: "11 a 18:30h",
       },
     ],
     assets: [
@@ -3626,14 +3389,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3656,8 +3413,8 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Pablo Cama o y Victor Claudio Martinez",
-        phone: "351 6684020 - Lun/vie. de 13:12 a 21:00      /      351 6214436   -        lun/Vie. de 05:30 a 12:42",
-        timeSlot: "",
+        phone:
+          "351 6684020 - Lun/vie. de 13:12 a 21:00      /      351 6214436   -        lun/Vie. de 05:30 a 12:42",
       },
     ],
     assets: [
@@ -3678,14 +3435,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "CDD 02 Cordoba",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "CDD 02 Cordoba Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3741,14 +3492,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "**Sin datos cargados**",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "**Sin datos cargados** Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3772,12 +3517,15 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDVillaCarlosPaz@correoargentino.com.ar",
-    notes: "Cesar Leonel Carrizo - lecarrizo@correoargentinosa.onmicrosoft.com // Luis Angel Z rate - 03541-421910/28986//  Nelson Fabian Oviedo - 03541-437321",
+    notes:
+      "Cesar Leonel Carrizo - lecarrizo@correoargentinosa.onmicrosoft.com // Luis Angel Z rate - 03541-421910/28986//  Nelson Fabian Oviedo - 03541-437321",
     contacts: [
       {
         name: "Turno ma ana: Oviedo, Nelson Fabi n",
-        phone: "Turno Ma ana: 3541-521798 /  3541-621431 /  3541-581762 - Turno Tarde : 3541-642231",
-        timeSlot: "06.00 a 13.30 / 06.00 a 13.30 / 07.00 a 14.30 / 12.00 a 19.00",
+        phone:
+          "Turno Ma ana: 3541-521798 /  3541-621431 /  3541-581762 - Turno Tarde : 3541-642231",
+        timeSlot:
+          "06.00 a 13.30 / 06.00 a 13.30 / 07.00 a 14.30 / 12.00 a 19.00",
         role: "Supervisor CDD / Carrizo, C sar Leonel - Supervisor CDD / Z rate Luis Angel - Jefe CDD / Turno tarde: Rossi, Lautaro Ignacio - Auxiliar CDD",
       },
     ],
@@ -3831,14 +3579,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "JROMERA@correoargentino.com.ar",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "JROMERA@correoargentino.com.ar Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3893,14 +3635,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto:  RaFerreyra@correoargentino.com.ar\nOficina 03546-420200",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Posible contacto:  RaFerreyra@correoargentino.com.ar\nOficina 03546-420200 Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3955,14 +3692,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible Contacto:    Luciano Rincon          LRincon@correoargentino.com.ar",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Posible Contacto:    Luciano Rincon          LRincon@correoargentino.com.ar Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -3981,7 +3713,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "telegrafiariocuarto@correoargentino.com.ar",
-    notes: "Javier Omar Oviedo - 0358-4990018 //  Jonathan Leonardo Nieto - 3584649273 //  Leonardo Fabian Panotto\n- 0358-4377408",
+    notes:
+      "Javier Omar Oviedo - 0358-4990018 //  Jonathan Leonardo Nieto - 3584649273 //  Leonardo Fabian Panotto\n- 0358-4377408",
     contacts: [
       {
         name: "Cristian CIARMATORI / Alexis OYOLA",
@@ -4012,7 +3745,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "SUC Rio Tercero     Dirección de oficina: Intendente Del Buono 81 (mismo domicilio CDD).",
+    notes:
+      "SUC Rio Tercero     Dirección de oficina: Intendente Del Buono 81 (mismo domicilio CDD).",
     contacts: [
       {
         name: "Lopresti, Danilo Natanael.",
@@ -4043,7 +3777,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto: Alejandro Cloquell    ACloquell@correoargentino.com.ar",
+    notes:
+      "Posible contacto: Alejandro Cloquell    ACloquell@correoargentino.com.ar",
     contacts: [
       {
         name: "SUP. Dami n Alberto Guzmán / REF.",
@@ -4075,7 +3810,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "X0476@correoargentino.com.ar",
-    notes: "X0476@correoargentino.com.ar  // CDDVillaMaria@correoargentino.com.ar",
+    notes:
+      "X0476@correoargentino.com.ar  // CDDVillaMaria@correoargentino.com.ar",
     contacts: [
       {
         name: "Santill n Marco Antonio / Diaz H ctor Gustavo",
@@ -4102,14 +3838,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "X0400@correoargentino.com.ar",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "X0400@correoargentino.com.ar Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4133,7 +3863,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Suc Marcos Juares - Cordoba      -Unico personal para Telegrafía y CDD",
+    notes:
+      "Suc Marcos Juares - Cordoba      -Unico personal para Telegrafía y CDD",
     contacts: [
       {
         name: "Sergio Rubén L pez",
@@ -4164,7 +3895,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "\"Sucursal Paso de los Libres\" <W0042@correoargentino.com.ar>      Segovia Hugo Alberto LP100620 Encargado del sector CDD, tel. particular 3772-620711, horario de 7 a 12 hs, y de 15 a 18Hs.\nGobernatori Anibal LP141358 Auxiliar del sector CDD, tel. particular 3772-645962, horario de 7 a 14hs, y fijo de la sucursal es 3772-424555.\nLa oficina de correo est  ubicada en Sitja Nin N 998, Paso de los Libres, Ctes CP3230",
+    notes:
+      '"Sucursal Paso de los Libres" <W0042@correoargentino.com.ar>      Segovia Hugo Alberto LP100620 Encargado del sector CDD, tel. particular 3772-620711, horario de 7 a 12 hs, y de 15 a 18Hs.\nGobernatori Anibal LP141358 Auxiliar del sector CDD, tel. particular 3772-645962, horario de 7 a 14hs, y fijo de la sucursal es 3772-424555.\nLa oficina de correo est  ubicada en Sitja Nin N 998, Paso de los Libres, Ctes CP3230',
     contacts: [
       {
         name: "Segovia Hugo Alberto",
@@ -4196,7 +3928,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "M ndez Sergo Fabi n Jefe",
         phone: "M ndez Sergo Fabi n : 4809",
-        timeSlot: "07:00 a 11:00:",
+        timeSlot: "07:00 a 11:00",
       },
       {
         name: "Centuri n Ramón Mario Alberto Encargado",
@@ -4206,32 +3938,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Lanser Marco Antonio Encargado",
         phone: "",
-        timeSlot: "18:00 a 21:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "M ndez Sergo Fabi n",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "07:00 a 14:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Centuri n Ramón Mario Alberto",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "13:00 a 21:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Lanser Marco Antonio",
+        timeSlot: "18:00 a 21:00",
       },
     ],
     assets: [
@@ -4289,22 +3996,12 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "\"Sucursal Bella Vista - Ctes\" <W0004@correoargentino.com.ar>               Interino: Zarza Pablo Rubén\nTel fono personal:01134697085\nDirección: Corrientes n  689\nJefe a cargo de oficina: Molina Encina",
+    notes:
+      '"Sucursal Bella Vista - Ctes" <W0004@correoargentino.com.ar>               Interino: Zarza Pablo Rubén\nTel fono personal:01134697085\nDirección: Corrientes n  689\nJefe a cargo de oficina: Molina Encina',
     contacts: [
       {
         name: "Correa juan Nicolás",
         phone: "Tel fono 3777-451316",
-        timeSlot: "",
-      },
-      {
-        name: "",
-        phone: "Tel fono personal:3777-233217",
-        timeSlot: "",
-      },
-      {
-        name: "",
-        phone: "Franja horaria: 7:00AM a 14:00PM",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -4325,14 +4022,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "\"Sucursal Goya\" <W0010@correoargentino.com.ar>",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      '"Sucursal Goya" <W0010@correoargentino.com.ar> Se envió mail solicitando datos.',
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4356,14 +4048,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "W0039@correoargentino.com.ar",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "W0039@correoargentino.com.ar Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4385,7 +4071,7 @@ export const mockTelegrafia: Office[] = [
     notes: "W0018@correoargentino.com.ar",
     contacts: [
       {
-        name: "G mez Dario Jos ",
+        name: "G mez Dario Jos",
         phone: "personal 3773498475 /  oficina 3773420201",
         timeSlot: "06:00 a 10:00 / 12:30 a 15:30",
       },
@@ -4506,14 +4192,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4540,9 +4220,10 @@ export const mockTelegrafia: Office[] = [
     notes: "Confirma direcci n.",
     contacts: [
       {
-        name: "TM: Cantero Jorge Ariel / TT: Rameri Silvia Noemi",
-        phone: "TM: Jorge 345 154092098 / TT: Silvia 345 154169592 / Oficina 345 4212540",
-        timeSlot: "TM: 5:00 a 12:20 / TT: 12:00 a 19:20",
+        name: "Cantero Jorge Ariel / TT: Rameri Silvia Noemi",
+        phone:
+          "TM: Jorge 345 154092098 / TT: Silvia 345 154169592 / Oficina 345 4212540",
+        timeSlot: "TM: TM: 5:00 a 12:20 / TT: 12:00 a 19:20",
       },
     ],
     assets: [
@@ -4595,14 +4276,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4661,7 +4336,8 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Demarziani Juan Carlos / Garcia Cristian Ramon",
-        phone: "Demarziani 3435-410013 / Garcia 3435 419011 / Oficina 3435-421070",
+        phone:
+          "Demarziani 3435-410013 / Garcia 3435 419011 / Oficina 3435-421070",
         timeSlot: "Demarziani 06:00 a 15:00h / Garcia 06:00 a 13:15h",
       },
     ],
@@ -4688,12 +4364,13 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDParana@correoargentino.com.ar",
-    notes: "CDD Paran .\nDirección: 25 de Mayo 102, Planta Baja, Paran , Entre R os.",
+    notes:
+      "CDD Paran .\nDirección: 25 de Mayo 102, Planta Baja, Paran , Entre R os.",
     contacts: [
       {
         name: "Gonz lez Mario Ceferino Supervisor CDD",
         phone: "Gonz lez Mario Ceferino: 0343 5205619",
-        timeSlot: "Turno Ma ana (05:00 a 12:00):",
+        timeSlot: "Turno Ma ana (05:00 a 12:00)",
       },
       {
         name: "Godoy Claudio Alcides Jefe CDD",
@@ -4708,17 +4385,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Zamboni Roberto Dami n Supervisor 2. Turno",
         phone: "Zamboni Roberto Dami n: 0343 4539643",
-        timeSlot: "Turno Tarde (12:00 a 19:00):",
-      },
-      {
-        name: "",
-        phone: "Interno Oficina de Telegrafía: 5037",
-        timeSlot: "Ledesma Manuel Antonio",
-      },
-      {
-        name: "",
-        phone: "Interno Jefatura CDD: 5010",
-        timeSlot: "Zamboni Roberto Dami n",
+        timeSlot: "Turno Tarde (12:00 a 19:00)",
       },
     ],
     assets: [
@@ -4744,12 +4411,14 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDFormosa@correoargentino.com.ar",
-    notes: "Confirma direcci n. CDD funciona en el mismo sitio que la Sucursal.",
+    notes:
+      "Confirma direcci n. CDD funciona en el mismo sitio que la Sucursal.",
     contacts: [
       {
         name: "Goiburu Jos Alejandro / Acosta Arnaldo Ariel /Ramirez Modesto",
         phone: "Goiburu 3704-514132 / Acosta 3705-211188 / Ramirez 3704-662272",
-        timeSlot: "Goiburu 3704-514132 / Acosta 3705-211188 / Ramirez 3704-662272",
+        timeSlot:
+          "Goiburu 3704-514132 / Acosta 3705-211188 / Ramirez 3704-662272",
         role: "Ref",
       },
     ],
@@ -4796,7 +4465,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Ojeda Federico Gast n",
         phone: "Ojeda Federico Gast n : 0371 8445218",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -4826,7 +4494,8 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "VICTOR FERNANDEZ / GABRIEL GOMEZ",
-        phone: "3886464037  03888 420220 / CELULAR 3888506086  FIJO 03888 420220",
+        phone:
+          "3886464037  03888 420220 / CELULAR 3888506086  FIJO 03888 420220",
         timeSlot: "7:30 A 15:00 / 06:30 A 14:20",
       },
     ],
@@ -4853,14 +4522,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto:          Daniel Fernando Virazate                DVirazate@correoargentino.com.ar",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Posible contacto:          Daniel Fernando Virazate                DVirazate@correoargentino.com.ar Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4884,14 +4548,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "CDD JUJUY",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "CDD JUJUY Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4915,14 +4573,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "pc: Alvaro Estrada- Aestrada@correoargentino.com.ar",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "pc: Alvaro Estrada- Aestrada@correoargentino.com.ar Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4946,14 +4599,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envia mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -4982,7 +4629,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Alzogaray Carlos Orfel Supervisor",
         phone: "Alzogaray Carlos Orfel: 0230 2206029",
-        timeSlot: "07:00 a 14:41:",
+        timeSlot: "07:00 a 14:41",
         role: "DNI 22.074.828, L.P. 29324",
       },
       {
@@ -4990,11 +4637,6 @@ export const mockTelegrafia: Office[] = [
         phone: "Fernandez Gustavo David: 0230 2640147",
         timeSlot: "Alzogaray Carlos Orfel",
         role: "DNI 17.087.731, L.P. 24954",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Fernandez Gustavo David",
       },
     ],
     assets: [
@@ -5030,7 +4672,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Del Canto Sebastián Supervisor",
         phone: "",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -5051,14 +4692,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5107,27 +4742,18 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDGralSMartin@correoargentino.com.ar",
-    notes: "Dirección: 25 de Mayo 398.\nLa direcci n coincide con la de la sucursal de San Martín.",
+    notes:
+      "Dirección: 25 de Mayo 398.\nLa direcci n coincide con la de la sucursal de San Martín.",
     contacts: [
       {
         name: "Galarraga Hugo Javier Jefe de CDD",
         phone: "Galarraga Hugo Javier : 0263 4360871",
-        timeSlot: "07:30 a 15:30:",
+        timeSlot: "07:30 a 15:30",
       },
       {
         name: "Nader Oscar Armando Supervisor de CDD",
         phone: "Nader Oscar Armando : 0263 4225448",
         timeSlot: "Galarraga Hugo Javier",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "10:30 a 18:15:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Nader Oscar Armando",
       },
     ],
     assets: [
@@ -5148,14 +4774,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5182,9 +4802,9 @@ export const mockTelegrafia: Office[] = [
     notes: "Confirma direcci n.",
     contacts: [
       {
-        name: "TM: Hugo Lucero / TT: Nicolas Precopio",
+        name: "Hugo Lucero / TT: Nicolas Precopio",
         phone: "Hugo 2616579940 / Nicolas 2614499595 / Tel. 2614499595",
-        timeSlot: "No brinda informaci n.",
+        timeSlot: "TM: No brinda informaci n.",
       },
     ],
     assets: [
@@ -5244,9 +4864,9 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "TM: Omar Lucero / TT: Gonzalo Ahumada",
+        name: "Omar Lucero / TT: Gonzalo Ahumada",
         phone: "4222196",
-        timeSlot: "TM: 07:00 a 13:00h / TT: 13:00 a 19:00",
+        timeSlot: "TM: TM: 07:00 a 13:00h / TT: 13:00 a 19:00",
       },
     ],
     assets: [
@@ -5275,9 +4895,9 @@ export const mockTelegrafia: Office[] = [
     notes: "Confirma direcci n",
     contacts: [
       {
-        name: "TM: Moran Fernando Andrés / TT: Leandro Sergio",
+        name: "Moran Fernando Andrés / TT: Leandro Sergio",
         phone: "TM: Fernando 2614188849 / TT: Leandro 2616679630",
-        timeSlot: "TM: 06:00 a 13:00h / TT: 12:00 a 19h",
+        timeSlot: "TM: TM: 06:00 a 13:00h / TT: 12:00 a 19h",
         role: "Ref",
       },
     ],
@@ -5304,7 +4924,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDMaipu@correoargentino.com.ar",
-    notes: "CDD Maip  (CP 5515).\nDirección: San Martín 335, Maip .\nLa oficina comercial se encuentra en la misma direcci n, independiente del CDD.",
+    notes:
+      "CDD Maip  (CP 5515).\nDirección: San Martín 335, Maip .\nLa oficina comercial se encuentra en la misma direcci n, independiente del CDD.",
     contacts: [
       {
         name: "Gallardo Sergio Ernesto Jefe de Oficina",
@@ -5315,19 +4936,19 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Amico Marcelo Reemplazo de Jefe",
         phone: "",
-        timeSlot: "",
+
         role: "Hasta 13 de enero",
       },
       {
         name: "Monta a Walther Guillermo Auxiliar encargado de Telegrafía",
         phone: "",
-        timeSlot: "",
+
         role: "Ma ana",
       },
       {
         name: "Videla Irma Auxiliar encargada de Telegrafía",
         phone: "",
-        timeSlot: "",
+
         role: "Tarde",
       },
     ],
@@ -5364,13 +4985,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "lvarez Javier Encargado",
         phone: "lvarez Javier : 0262 2677231",
-        timeSlot: "",
+
         role: "Reemplazo en per odo de licencia",
-      },
-      {
-        name: "",
-        phone: "Tel fono CDD : 0262 422814",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -5401,22 +5017,12 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Rojas Rodrigo",
         phone: "0261 4499501",
-        timeSlot: "06:00 a 13:15:",
+        timeSlot: "06:00 a 13:15",
       },
       {
         name: "Garcia Walter",
         phone: "",
         timeSlot: "Rojas Rodrigo",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "06:00 a 13:45:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Garcia Walter",
       },
     ],
     assets: [
@@ -5437,14 +5043,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5504,7 +5104,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "N0004@correoargentino.com.ar",
-    notes: "Confirma direcci n. CDD funciona en el mismo sitio que la Sucursal.",
+    notes:
+      "Confirma direcci n. CDD funciona en el mismo sitio que la Sucursal.",
     contacts: [
       {
         name: "Ramiro Aguirre",
@@ -5539,7 +5140,8 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Mario Andres Schneider / Eduardo Olivera",
-        phone: "Mario 03755 - 15577985 / Eduardo 03755 - 15557310 / 03755 - 426401",
+        phone:
+          "Mario 03755 - 15577985 / Eduardo 03755 - 15557310 / 03755 - 426401",
         timeSlot: "Mario 08:30 A 16:30 / Eduardo 06:00 A 13:15",
         role: "Sup",
       },
@@ -5567,14 +5169,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5634,7 +5230,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Barros Cristian Alberto Auxiliar",
         phone: "Interno 6026",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -5660,14 +5255,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5691,7 +5280,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "Q0014@correoargentino.com.ar",
-    notes: "Confirma direcci n. CDD funciona en el mismo sitio que la Sucursal.",
+    notes:
+      "Confirma direcci n. CDD funciona en el mismo sitio que la Sucursal.",
     contacts: [
       {
         name: "Diaz Rolando",
@@ -5722,14 +5312,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5758,7 +5342,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Villanueva Juan Eduardo Referente",
         phone: "Villanueva Juan Eduardo: 0294 4664984",
-        timeSlot: "07:00 a 18:00 (rotativo):",
+        timeSlot: "07:00 a 18:00 (rotativo)",
       },
       {
         name: "Inzunza H ctor Humberto",
@@ -5769,16 +5353,6 @@ export const mockTelegrafia: Office[] = [
         name: "Baldini Luis Federico",
         phone: "Baldini Luis Federico: 0297 2509974",
         timeSlot: "Inzunza H ctor Humberto",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "08:30 a 16:30:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Baldini Luis Federico",
       },
     ],
     assets: [
@@ -5804,14 +5378,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5928,14 +5496,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Rivadavia 830 - Suc 1 Bariloche",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Rivadavia 830 - Suc 1 Bariloche Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -5954,14 +5516,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6016,14 +5572,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6047,14 +5597,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6078,7 +5622,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "DISTRISLA@correoargentino.com.ar",
-    notes: "Dean Funes 170 - Primer Piso (Coincide con el CDD 01 Salta), Salta Capital",
+    notes:
+      "Dean Funes 170 - Primer Piso (Coincide con el CDD 01 Salta), Salta Capital",
     contacts: [
       {
         name: "Federico Gast n Medina",
@@ -6114,14 +5659,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6167,7 +5706,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Vanucci Santiago Sebastián",
         phone: "",
-        timeSlot: "",
+
         role: "DNI: 3274124",
       },
     ],
@@ -6194,7 +5733,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "A0033@correoargentino.com.ar",
-    notes: "Av Vicente Lopez y Planes 402 - CDD y Sucursal funcionan en el mismo sitio",
+    notes:
+      "Av Vicente Lopez y Planes 402 - CDD y Sucursal funcionan en el mismo sitio",
     contacts: [
       {
         name: "Martin Sergio Farfan Cortez",
@@ -6256,14 +5796,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6319,17 +5853,13 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "J0022@correoargentino.com.ar",
-    notes: "Dirección: San Martín 493.\nLa oficina coincide con el CDD y con la oficina de atenci n al p blico.",
+    notes:
+      "Dirección: San Martín 493.\nLa oficina coincide con el CDD y con la oficina de atenci n al p blico.",
     contacts: [
       {
         name: "Trujillo Gast n Ariel",
         phone: "0264 4450400",
-        timeSlot: "10:00 a 17:15:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Trujillo Gast n Ariel",
+        timeSlot: "10:00 a 17:15",
       },
     ],
     assets: [
@@ -6349,13 +5879,15 @@ export const mockTelegrafia: Office[] = [
     address: "San Martín 801",
     lat: -34.6,
     lng: -58.3,
-    email: "CDDSanLuis-Control@correoargentino.com.ar\n\nCDDSanLuis@correoargentino.com.ar",
-    notes: "CDD San Luis.\nTelegrafía funciona en el mismo sector del CDD.\nDirección: San Martín 801, CP 5700.",
+    email:
+      "CDDSanLuis-Control@correoargentino.com.ar\n\nCDDSanLuis@correoargentino.com.ar",
+    notes:
+      "CDD San Luis.\nTelegrafía funciona en el mismo sector del CDD.\nDirección: San Martín 801, CP 5700.",
     contacts: [
       {
         name: "Blasco Ángel OST a cargo de Telegrafía",
         phone: "Blasco Ángel: 0266 4810261",
-        timeSlot: "07:00 a 13:30:",
+        timeSlot: "07:00 a 13:30",
         role: "LP 17374",
       },
       {
@@ -6373,23 +5905,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Irusta Pablo Supervisor/Auxiliar",
         phone: "Irusta Pablo: 0266 4202796",
-        timeSlot: "12:30 a 18:00:",
+        timeSlot: "12:30 a 18:00",
         role: "LP 29462",
-      },
-      {
-        name: "",
-        phone: "Interno CDD/Telegrafía: 6412",
-        timeSlot: "Blasco Ángel",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "12:30 a 20:30:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Irusta Pablo",
       },
     ],
     assets: [
@@ -6423,9 +5940,11 @@ export const mockTelegrafia: Office[] = [
     notes: "Confirma direcci n.",
     contacts: [
       {
-        name: "TM: David Alfredo Dom nguez Galende / TT: Adrián Deonides Calder n",
-        phone: "TM: Dom nguez 2657205684  / TT: Calder n 2657353110 / 2657-423014",
-        timeSlot: "TM: Dom nguez 08:00 hs a 15:45 hs / TT: Calder n 13:00 hs a 20:45 hs",
+        name: "David Alfredo Dom nguez Galende / TT: Adrián Deonides Calder n",
+        phone:
+          "TM: Dom nguez 2657205684  / TT: Calder n 2657353110 / 2657-423014",
+        timeSlot:
+          "TM: TM: Dom nguez 08:00 hs a 15:45 hs / TT: Calder n 13:00 hs a 20:45 hs",
         role: "Sup",
       },
     ],
@@ -6452,14 +5971,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto:        Leonardo Emanuel Guzman Neri      (DNI:   35182307   )          0297-15-4584076 (6-13hrs)",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Posible contacto:        Leonardo Emanuel Guzman Neri      (DNI:   35182307   )          0297-15-4584076 (6-13hrs) Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6514,14 +6028,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6545,14 +6053,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "posible contacto:  Roberto Marcelo Nievas Nahuelquin - ( DNI:  31189125 )     0297 15 5285220 / 0297 4871471",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "posible contacto:  Roberto Marcelo Nievas Nahuelquin - ( DNI:  31189125 )     0297 15 5285220 / 0297 4871471 Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6732,27 +6235,18 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "cdd01Rosario@correoargentino.com.ar",
-    notes: "Correo Central Rosario.\nDirección: C rdoba y Buenos Aires, primer piso.",
+    notes:
+      "Correo Central Rosario.\nDirección: C rdoba y Buenos Aires, primer piso.",
     contacts: [
       {
         name: "Boettner Walter",
         phone: "0341 4200731",
-        timeSlot: "05:00 a 12:42:",
+        timeSlot: "05:00 a 12:42",
       },
       {
         name: "Cavagni Hugo Fabi n",
         phone: "5731",
         timeSlot: "Boettner Walter",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "12:00 a 19:42:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Cavagni Hugo Fabi n",
       },
     ],
     assets: [
@@ -6813,14 +6307,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6875,14 +6363,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posee ticket pendiente de mudanza, no hay contacto.  /  \"Sucursal 4 Rosario\" <S0304@correoargentino.com.ar>",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      'Posee ticket pendiente de mudanza, no hay contacto.  /  "Sucursal 4 Rosario" <S0304@correoargentino.com.ar> Se envió mail solicitando datos.',
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6906,7 +6389,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Mesa Daniel Responsable Telegrafía",
         phone: "Mesa Daniel / Vela Leonardo : 0341 4349121",
-        timeSlot: "05:00 a 12:00:",
+        timeSlot: "05:00 a 12:00",
       },
       {
         name: "Vela Leonardo Responsable Telegrafía",
@@ -6916,12 +6399,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Falco Sergio Adrián Supervisor CDD 05",
         phone: "",
-        timeSlot: "11:00 a 16:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Vela Leonardo",
+        timeSlot: "11:00 a 16:00",
       },
     ],
     assets: [
@@ -6947,14 +6425,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -6978,14 +6450,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7016,11 +6482,6 @@ export const mockTelegrafia: Office[] = [
         phone: "Raggio Norberto : 0347 1563533",
         timeSlot: "08 a 15h",
       },
-      {
-        name: "",
-        phone: "Sucursal : 0347 1422456",
-        timeSlot: "",
-      },
     ],
     assets: [
       {
@@ -7045,14 +6506,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7076,14 +6531,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7110,7 +6559,7 @@ export const mockTelegrafia: Office[] = [
     notes: "Confirma direcci n.",
     contacts: [
       {
-        name: "Díaz María Alejandra ",
+        name: "Díaz María Alejandra",
         phone: "3476-603189",
         timeSlot: "07:00 a 14:00 hs",
       },
@@ -7133,14 +6582,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7241,7 +6684,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Faure Yoel Auxiliar",
         phone: "",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -7267,14 +6709,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7298,14 +6734,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7329,14 +6759,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7365,7 +6789,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Heltner Eduardo Roque",
         phone: "0342 4500801",
-        timeSlot: "05:00 a 14:00:",
+        timeSlot: "05:00 a 14:00",
       },
       {
         name: "Giordano Mauricio Edgardo",
@@ -7375,22 +6799,12 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Gonzalez Marcelo Antonio",
         phone: "",
-        timeSlot: "06:00 a 14:00:",
+        timeSlot: "06:00 a 14:00",
       },
       {
         name: "García Ramos Evangelina Jefa de CDD",
         phone: "",
         timeSlot: "Giordano Mauricio Edgardo",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "14:00 a 19:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Gonzalez Marcelo Antonio",
       },
     ],
     assets: [
@@ -7477,12 +6891,10 @@ export const mockTelegrafia: Office[] = [
       {
         name: "P rez Claudio H ctor Auxiliar",
         phone: "P rez Claudio H ctor: 0342 5253171",
-        timeSlot: "",
       },
       {
         name: "Malizia Oscar Eduardo Auxiliar",
         phone: "Malizia Oscar Eduardo: 0342 4448514",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -7508,14 +6920,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7539,14 +6945,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7580,7 +6980,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Caruso Fernando",
         phone: "",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -7637,14 +7036,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envia mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7673,14 +7066,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7704,14 +7091,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "4739",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos. 4739",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7766,14 +7147,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7797,14 +7172,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7855,7 +7224,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDD05Cordoba@correoargentino.com.ar",
-    notes: "CDD05Cordoba@correoargentino.com.ar // Cristian Gustavo Oviedo - croviedo@correoargentino.com.ar // Diego Maciel Fernandez - diegfernandez@correoargentino.com.ar //",
+    notes:
+      "CDD05Cordoba@correoargentino.com.ar // Cristian Gustavo Oviedo - croviedo@correoargentino.com.ar // Diego Maciel Fernandez - diegfernandez@correoargentino.com.ar //",
     contacts: [
       {
         name: "OVIEDO CRISTIAN / supervisor PALOMARES PABLO",
@@ -7892,7 +7262,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "CESAR OLMEDO",
         phone: "C: 0351 15 3429451 - D: 0351 15 3429451",
-        timeSlot: " HORARIO: 9HS A 16HS",
+        timeSlot: "HORARIO: 9HS A 16HS",
         role: "DAMIAN VALDEZ",
       },
     ],
@@ -7919,14 +7289,9 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Jessica Soledad Sampayo Picco - JSampayo@correoargentino.com.ar / Av. Col n 3860 (CDD 7 C RDOBA)",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes:
+      "Jessica Soledad Sampayo Picco - JSampayo@correoargentino.com.ar / Av. Col n 3860 (CDD 7 C RDOBA) Se envió mail solicitando datos.",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -7965,7 +7330,6 @@ export const mockTelegrafia: Office[] = [
       {
         name: "BIANCA GALINDEZ",
         phone: "",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -7991,12 +7355,15 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "B0589@correoargentino.com.ar",
-    notes: "Confirma direcci n. Indica que se ubica en la esquina entre Avellaneda y Mitre, siendo Avellaneda para atenci n al p blico y  Mitre para el CDD y la Oficina Telegr fica.",
+    notes:
+      "Confirma direcci n. Indica que se ubica en la esquina entre Avellaneda y Mitre, siendo Avellaneda para atenci n al p blico y  Mitre para el CDD y la Oficina Telegr fica.",
     contacts: [
       {
         name: "Juan Carlos Staltari / Fernando Settembrino / H ctor Mar n / Ricardo Stalldecker / Gabriel Cepeda",
-        phone: "Staltari Juan 02932-15404329 / Fernando Settembrino 02932-15500770 /  Mar n H ctor 02932-15498812 / Stalldecker Ricardo 02932-15630795 / Cepeda Gabriel 02932-1550931",
-        timeSlot: "06:00 a 13:42:  Juan Carlos Staltari, H ctor Mar n, Ricardo Stalldecker / 09 a 16:42: Fernando Settembrino / 10:48 a 18:00: Gabriel Cepeda",
+        phone:
+          "Staltari Juan 02932-15404329 / Fernando Settembrino 02932-15500770 /  Mar n H ctor 02932-15498812 / Stalldecker Ricardo 02932-15630795 / Cepeda Gabriel 02932-1550931",
+        timeSlot:
+          "06:00 a 13:42:  Juan Carlos Staltari, H ctor Mar n, Ricardo Stalldecker / 09 a 16:42: Fernando Settembrino / 10:48 a 18:00: Gabriel Cepeda",
         role: "Sup CDD",
       },
     ],
@@ -8026,9 +7393,10 @@ export const mockTelegrafia: Office[] = [
     notes: "Informan que CDD y sucursal comercial funcionan el mismo sitio.",
     contacts: [
       {
-        name: "TM: Ojeda Pablo, Funes Marcos / TT: Dibari Alberto, Martin Miguel",
-        phone: "TM: Ojeda Pablo 11-6805-9683, Funes Marcos 11-6296-3725 / TT: Dibari Alberto 11-6754-0095, Martin Miguel 11-6924-0354 / Sector de Control 4660 0276",
-        timeSlot: "07:00 a 18:00",
+        name: "Ojeda Pablo, Funes Marcos / TT: Dibari Alberto, Martin Miguel",
+        phone:
+          "TM: Ojeda Pablo 11-6805-9683, Funes Marcos 11-6296-3725 / TT: Dibari Alberto 11-6754-0095, Martin Miguel 11-6924-0354 / Sector de Control 4660 0276",
+        timeSlot: "TM: 07:00 a 18:00",
       },
     ],
     assets: [
@@ -8050,8 +7418,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8070,12 +7437,15 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Martínez V ctor Claudio DNI 25081809 cel. 351 6684020 horario de lunes  a viernes de 13:12 a 21:00\nCama o Pablo Sebastian DNI 27014141  cel. 351 6214436 horario de lunes a viernes de 05:30 a 12:42\nNiss Tele.  I2070 -  I3890 -  I6009",
+    notes:
+      "Martínez V ctor Claudio DNI 25081809 cel. 351 6684020 horario de lunes  a viernes de 13:12 a 21:00\nCama o Pablo Sebastian DNI 27014141  cel. 351 6214436 horario de lunes a viernes de 05:30 a 12:42\nNiss Tele.  I2070 -  I3890 -  I6009",
     contacts: [
       {
         name: "Martínez V ctor Claudio",
-        phone: "351 6684020 - Lun/vie. de 13:12 a 21:00      /      351 6214436   -        lun/Vie. de 05:30 a 12:42",
-        timeSlot: "Lun/vie. de 13:12 a 21:00      /                                Vie. de 05:30 a 12:42",
+        phone:
+          "351 6684020 - Lun/vie. de 13:12 a 21:00      /      351 6214436   -        lun/Vie. de 05:30 a 12:42",
+        timeSlot:
+          "Lun/vie. de 13:12 a 21:00      /                                Vie. de 05:30 a 12:42",
         role: "Cama o Pablo Sebastian -",
       },
     ],
@@ -8127,27 +7497,18 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "cdd01Rosario@correoargentino.com.ar",
-    notes: "Correo Central Rosario.\nDirección: C rdoba y Buenos Aires, primer piso.",
+    notes:
+      "Correo Central Rosario.\nDirección: C rdoba y Buenos Aires, primer piso.",
     contacts: [
       {
         name: "Boettner Walter",
         phone: "0341 4200731",
-        timeSlot: "05:00 a 12:42:",
+        timeSlot: "05:00 a 12:42",
       },
       {
         name: "Cavagni Hugo Fabi n",
         phone: "5731",
         timeSlot: "Boettner Walter",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "12:00 a 19:42:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Cavagni Hugo Fabi n",
       },
     ],
     assets: [
@@ -8178,7 +7539,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Heltner Eduardo Roque",
         phone: "0342 4500801",
-        timeSlot: "05:00 a 14:00:",
+        timeSlot: "05:00 a 14:00",
       },
       {
         name: "Giordano Mauricio Edgardo",
@@ -8188,22 +7549,12 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Gonzalez Marcelo Antonio",
         phone: "",
-        timeSlot: "06:00 a 14:00:",
+        timeSlot: "06:00 a 14:00",
       },
       {
         name: "García Ramos Evangelina Jefa de CDD",
         phone: "",
         timeSlot: "Giordano Mauricio Edgardo",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "14:00 a 19:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Gonzalez Marcelo Antonio",
       },
     ],
     assets: [
@@ -8234,7 +7585,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Supervisi n de Telegrafía",
         phone: "8092 / 8089",
-        timeSlot: "",
+
         role: "Casco, Fajks, Grazulis",
       },
     ],
@@ -8262,8 +7613,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "CDD CASA CENTRAL",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8292,7 +7642,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Supervisi n de Telegrafía",
         phone: "8092 / 8089",
-        timeSlot: "",
+
         role: "Casco, Fajks, Grazulis",
       },
     ],
@@ -8324,7 +7674,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "G mez Alejandro",
         phone: "G mez Alejandro: 0264 4722239",
-        timeSlot: "05:30 a 13:30:",
+        timeSlot: "05:30 a 13:30",
       },
       {
         name: "Gonzalez Martín",
@@ -8334,22 +7684,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Gil Leandro",
         phone: "Gil Leandro: 0264 4607546",
-        timeSlot: "06:00 a 14:30:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Gonzalez Martín",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "12:00 a 19:30:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Gil Leandro",
+        timeSlot: "06:00 a 14:30",
       },
     ],
     assets: [
@@ -8374,13 +7709,15 @@ export const mockTelegrafia: Office[] = [
     address: "San Martín 801",
     lat: -34.6,
     lng: -58.3,
-    email: "CDDSanLuis-Control@correoargentino.com.ar\n\nCDDSanLuis@correoargentino.com.ar",
-    notes: "CDD San Luis.\nTelegrafía funciona en el mismo sector del CDD.\nDirección: San Martín 801, CP 5700.",
+    email:
+      "CDDSanLuis-Control@correoargentino.com.ar\n\nCDDSanLuis@correoargentino.com.ar",
+    notes:
+      "CDD San Luis.\nTelegrafía funciona en el mismo sector del CDD.\nDirección: San Martín 801, CP 5700.",
     contacts: [
       {
         name: "Blasco Ángel OST a cargo de Telegrafía",
         phone: "Blasco Ángel: 0266 4810261",
-        timeSlot: "07:00 a 13:30:",
+        timeSlot: "07:00 a 13:30",
         role: "LP 17374",
       },
       {
@@ -8398,23 +7735,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Irusta Pablo Supervisor/Auxiliar",
         phone: "Irusta Pablo: 0266 4202796",
-        timeSlot: "12:30 a 18:00:",
+        timeSlot: "12:30 a 18:00",
         role: "LP 29462",
-      },
-      {
-        name: "",
-        phone: "Interno CDD/Telegrafía: 6412",
-        timeSlot: "Blasco Ángel",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "12:30 a 20:30:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Irusta Pablo",
       },
     ],
     assets: [
@@ -8445,7 +7767,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "TelegrafiaTucuman@correoargentino.com.ar",
-    notes: "Confirma direcci n. Indica que la oficina se encuentra en el Sector de Transmisi n, y pr ximamente se trasladaran al CDD Tucum n.",
+    notes:
+      "Confirma direcci n. Indica que la oficina se encuentra en el Sector de Transmisi n, y pr ximamente se trasladaran al CDD Tucum n.",
     contacts: [
       {
         name: "Sergio Gustavo Martinez",
@@ -8496,7 +7819,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "TelegrafiaTucuman@correoargentino.com.ar",
-    notes: "Confirma direcci n. Indica que la oficina se encuentra en el Sector de Transmisi n, y pr ximamente se trasladaran al CDD Tucum n.",
+    notes:
+      "Confirma direcci n. Indica que la oficina se encuentra en el Sector de Transmisi n, y pr ximamente se trasladaran al CDD Tucum n.",
     contacts: [
       {
         name: "Sergio Gustavo Martinez",
@@ -8542,12 +7866,10 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Obregon Martin",
         phone: "Obregon Martin 15 3672-0093",
-        timeSlot: "",
       },
       {
         name: "Perfilio Fernando",
         phone: "Perfilio Fernando 15 5458-114?",
-        timeSlot: "",
       },
     ],
     assets: [
@@ -8573,32 +7895,20 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDCatamarca@correoargentino.com.ar",
-    notes: "CDD-01.\nDirección: Calle San Martín 761.",
+    notes: "",
     contacts: [
       {
-        name: "P rez F lix Daniel",
-        phone: "P rez F lix Daniel: 0383 4992451",
-        timeSlot: "06:00 a 13:42:",
+        name: "Pérez Félix Daniel",
+        phone: "0383 4992451",
+        timeSlot: "06:00 a 13:42",
       },
       {
-        name: "Barrionuevo Ren ",
-        phone: "Barrionuevo Ren : 0383 4524834",
-        timeSlot: "P rez F lix Daniel",
+        name: "Barrionuevo Ren",
+        phone: "0383 4524834",
       },
       {
         name: "Barrionuevo Oscar",
-        phone: "Barrionuevo Oscar: 0383 4569053",
-        timeSlot: "Barrionuevo Ren ",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "11:00 a 18:42:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Barrionuevo Oscar",
+        phone: "0383 4569053",
       },
     ],
     assets: [
@@ -8620,13 +7930,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8646,13 +7950,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "No aplica?",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8672,13 +7970,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envia mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8703,13 +7995,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8729,16 +8015,16 @@ export const mockTelegrafia: Office[] = [
     name: "CF - CDD 34",
     type: "telegrafia",
     region: "CABA",
-    address: "Santiago del Estero 1167",
+    address: "San Juan 349",
     lat: -34.6,
     lng: -58.3,
     email: "cdd34@correoargentino.com.ar",
-    notes: "Se mudaron a San Juan 349 unific ndose con CDD 33",
+    notes: "",
     contacts: [
       {
         name: "Alejandra Maria Cruz",
         phone: "5941-3309",
-        timeSlot: "7 a 13h:",
+        timeSlot: "7 a 13h",
       },
       {
         name: "Daniel Leonardo Friera",
@@ -8746,19 +8032,9 @@ export const mockTelegrafia: Office[] = [
         timeSlot: "Alejandra Maria Cruz",
       },
       {
-        name: "Fabi n Nuñez",
+        name: "Fabián Nuñez",
         phone: "",
-        timeSlot: "13 a 20h:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Daniel Leonardo Friera",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Fabi n Nuñez",
+        timeSlot: "13 a 20h",
       },
     ],
     assets: [
@@ -8780,13 +8056,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8811,8 +8081,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8832,13 +8101,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8857,12 +8120,11 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "Posible contacto:   W Nieva   0351 15 4837126",
+    notes: "",
     contacts: [
       {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
+        name: "Walter Nieva",
+        phone: "0351 15 4837126",
       },
     ],
     assets: [
@@ -8908,27 +8170,16 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "cdd01Rosario@correoargentino.com.ar",
-    notes: "Correo Central Rosario.\nDirección: C rdoba y Buenos Aires, primer piso.",
+    notes: "",
     contacts: [
       {
         name: "Boettner Walter",
         phone: "0341 4200731",
-        timeSlot: "05:00 a 12:42:",
+        timeSlot: "05:00 a 12:42",
       },
       {
-        name: "Cavagni Hugo Fabi n",
+        name: "Cavagni Hugo Fabián",
         phone: "5731",
-        timeSlot: "Boettner Walter",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "12:00 a 19:42:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Cavagni Hugo Fabi n",
       },
     ],
     assets: [
@@ -8950,13 +8201,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -8981,13 +8226,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9007,13 +8246,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9035,10 +8268,9 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "Supervisi n de Telegrafía",
+        name: "Casco, Fajks, Grazulis",
         phone: "8092 / 8089",
-        timeSlot: "",
-        role: "Casco, Fajks, Grazulis",
+        role: "Supervisión de Telegrafía",
       },
     ],
     assets: [
@@ -9060,13 +8292,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9085,24 +8311,19 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "cdd03mdq@correoargentino.com.ar",
-    notes: "Dirección correcta, integrada con cdd",
+    notes: "",
     contacts: [
       {
         name: "García Horacio",
-        phone: "García Horacio: 0223 5606786",
-        timeSlot: "García Horacio: 6 a 13h",
+        phone: "0223 5606786",
+        timeSlot: "06:00 a 13:00",
         role: "Auxiliar",
       },
       {
         name: "Costales Pablo",
-        phone: "Costales Pablo: 0223 4365468",
-        timeSlot: "Costales Pablo: 09:00 a 16:00h",
-        role: "Supervisor Tarde",
-      },
-      {
-        name: "",
-        phone: "0223 4807079",
-        timeSlot: "",
+        phone: "0223 4365468",
+        timeSlot: "09:00 a 16:00",
+        role: "Supervisor",
       },
     ],
     assets: [
@@ -9123,13 +8344,26 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDD10Cordoba@correoargentino.com.ar",
-    notes: "Ariel Javier Acedo - 0351 4289100 INTERNO 9234 - 9214",
+    notes: "",
     contacts: [
       {
-        name: "CASTILLO PABLO / ALSINA MARCO /MICHELI JOSE",
-        phone: "351-2234900 / 351-2938429 / 351-2130187",
-        timeSlot: "06 A 14HS / 06 A 14HS / 09 A 17HS",
-        role: "Jefe",
+        name: "Ariel Javier Acedo",
+        phone: "0351 4289100 / Interno: 9234 / 9214",
+      },
+      {
+        name: "Pablo Castillo",
+        phone: "0351 2234900",
+        timeSlot: "06:00 a 14:00",
+      },
+      {
+        name: "Marco Alsina",
+        phone: "0351 2938429",
+        timeSlot: "06:00 a 14:00",
+      },
+      {
+        name: "Jose Micheli",
+        phone: "0351 2130187",
+        timeSlot: "09:00 a 17:00",
       },
     ],
     assets: [
@@ -9156,14 +8390,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-        role: "Maria Florencia Grandilla [03329 15 620830] est hasta las 16h",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9188,13 +8415,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9214,13 +8435,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9258,27 +8473,16 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDRivadavia@correoargentino.com.ar",
-    notes: "Dirección: A. del Valle 189.\nCDD coincide con la oficina.",
+    notes: "",
     contacts: [
       {
         name: "Moreno Pablo Sebastián",
-        phone: "Moreno Pablo Sebastián: 0263 4596291",
-        timeSlot: "09:00 a 16:40:",
+        phone: "0263 4596291",
+        timeSlot: "09:00 a 16:40",
       },
       {
         name: "Cappadona Diego Orlando",
-        phone: "Cappadona Diego Orlando: 0263 4614949",
-        timeSlot: "Moreno Pablo Sebastián",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "09:00 a 16:10:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Cappadona Diego Orlando",
+        phone: "0263 4614949",
       },
     ],
     assets: [
@@ -9305,13 +8509,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9338,10 +8536,9 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "Supervisi n de Telegrafía",
+        name: "Casco, Fajks, Grazulis",
         phone: "8092 / 8089",
-        timeSlot: "",
-        role: "Casco, Fajks, Grazulis",
+        role: "Supervisión de Telegrafía",
       },
     ],
     assets: [
@@ -9370,44 +8567,18 @@ export const mockTelegrafia: Office[] = [
     notes: "Dirección: San Juan 1098, Corrientes Capital.",
     contacts: [
       {
-        name: "M ndez Sergo Fabi n Jefe",
-        phone: "M ndez Sergo Fabi n : 4809",
-        timeSlot: "07:00 a 11:00:",
+        name: "Méndez Sergo Fabián",
+        phone: "4809",
+        timeSlot: "07:00 a 11:00",
       },
       {
-        name: "Centuri n Ramón Mario Alberto Encargado",
+        name: "Centurión Ramón Mario Alberto",
         phone: "",
-        timeSlot: "M ndez Sergo Fabi n",
       },
       {
-        name: "Lanser Marco Antonio Encargado",
+        name: "Lanser Marco Antonio",
         phone: "",
-        timeSlot: "18:00 a 21:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "M ndez Sergo Fabi n",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "07:00 a 14:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Centuri n Ramón Mario Alberto",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "13:00 a 21:00:",
-      },
-      {
-        name: "",
-        phone: "",
-        timeSlot: "Lanser Marco Antonio",
+        timeSlot: "18:00 a 21:00",
       },
     ],
     assets: [
@@ -9443,12 +8614,12 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "Q0026@correoargentino.com.ar",
-    notes: "Dato relevante: Indica que en la sucursal practicamente no hay se al, y puede que no responda a llamadas",
+    notes: "",
     contacts: [
       {
         name: "Marcelo Perez",
-        phone: "0299-154518076",
-        timeSlot: "08:00 a 15:30 hs",
+        phone: "0299 154518076",
+        timeSlot: "08:00 a 15:30",
       },
     ],
     assets: [
@@ -9474,12 +8645,12 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "H0004@correoargentino.com.ar",
-    notes: "Confirma direcci n",
+    notes: "",
     contacts: [
       {
-        name: "Vaz Leandro Horacio ",
-        phone: "3625-610111",
-        timeSlot: "06:00 hs a 14:00 hs.",
+        name: "Vaz Leandro Horacio",
+        phone: "03625 610111",
+        timeSlot: "06:00 a 14:00",
       },
     ],
     assets: [
@@ -9505,13 +8676,13 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CddRdelaCruz@correoargentino.com.ar",
-    notes: "Confirma direcci n.",
+    notes: "",
     contacts: [
       {
         name: "Herrera Gabriel",
-        phone: "2612522283 / 4912101",
-        timeSlot: "07:00 a 14:30 ",
-        role: "Sup",
+        phone: "0261 2522283 / 0261 4912101",
+        timeSlot: "07:00 a 14:30",
+        role: "Supervisor",
       },
     ],
     assets: [
@@ -9537,17 +8708,19 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "CDDIng.Maschwitz@correoargentino.com.ar",
-    notes: "Dirección correcta",
+    notes: "",
     contacts: [
       {
         name: "Marcelo Bardallo",
         phone: "0348 4629807",
-        timeSlot: "5 a 12h: Marcelo Bardallo",
+        timeSlot: "5 a 12h",
+        role: "Supervisor",
       },
       {
-        name: "Carlos Gast n Mi arro",
+        name: "Carlos Gastón Miarro",
         phone: "",
-        timeSlot: "12 a 19h: Carlos Gast n Mi arro",
+        timeSlot: "12 a 19h",
+        role: "Auxiliar",
       },
     ],
     assets: [
@@ -9577,7 +8750,7 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oscar Eduardo Guayco",
-        phone: "261 4499579",
+        phone: "0261 4499579",
         timeSlot: "8 a 14h",
       },
     ],
@@ -9610,17 +8783,17 @@ export const mockTelegrafia: Office[] = [
     name: "CDD Cañuelas",
     type: "telegrafia",
     region: "Buenos Aires",
-    address: "9 de Julio 642",
+    address: "San Martin 466",
     lat: -34.6,
     lng: -58.3,
     email: "CDDCanuelas@correoargentino.com.ar",
-    notes: "Informa direcci n San Martin 466.",
+    notes: "",
     contacts: [
       {
         name: "Claudio de los Santos",
-        phone: "02226-421199",
+        phone: "02226 421199",
         timeSlot: "07:00 a 14:42",
-        role: "Sup",
+        role: "Supervisor",
       },
     ],
     assets: [
@@ -9641,12 +8814,19 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "B0720@correoargentino.com.ar",
-    notes: "Funciona dentro de SUC QUILMES (B0720), confirma direcci n H. Yrigoyen 405",
+    notes: "Funciona dentro de SUC QUILMES (B0720)",
     contacts: [
       {
-        name: "Godoy Natalia / Mussio Roxana",
-        phone: "Natalia: 1152605239 / Roxana: 1168830244",
-        timeSlot: "Natalia: 09:00 a 16:00 / Roxana: 10:00 a 17:00",
+        name: "Natalia Godoy",
+        phone: "15 5260-5239",
+        timeSlot: "09:00 a 16:00",
+        role: "Auxiliar",
+      },
+      {
+        name: "Roxana Mussio",
+        phone: "15 6883-0244",
+        timeSlot: "10:00 a 17:00",
+        role: "Auxiliar",
       },
     ],
     assets: [
@@ -9667,14 +8847,8 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "La direcci n corresponde a Correo Central Rosario, se envía mail a la sucursal S0300",
-    contacts: [
-      {
-        name: "Se envía mail",
-        phone: "",
-        timeSlot: "",
-      },
-    ],
+    notes: "",
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9699,8 +8873,7 @@ export const mockTelegrafia: Office[] = [
     lng: -58.3,
     email: "",
     notes: "",
-    contacts: [
-    ],
+    contacts: [],
     assets: [
       {
         type: "server",
@@ -9719,12 +8892,18 @@ export const mockTelegrafia: Office[] = [
     lat: -34.6,
     lng: -58.3,
     email: "",
-    notes: "La I7147 Opera en SUC MORENO, Se dio de alta por Mudanza de I1076 CDD MORENO al Easy de MORENO creando nueva oficina",
+    notes:
+      "La I7147 Opera en SUC MORENO, Se dio de alta por Mudanza de I1076 CDD MORENO al Easy de MORENO creando nueva oficina",
     contacts: [
       {
-        name: "Enrique Russo y Daniel",
-        phone: "Enrique Russo:  15 6744-9674 / Daniel: 15 6282-0120",
-        timeSlot: "",
+        name: "Enrique Russo",
+        phone: "15 6744-9674",
+        role: "Auxiliar",
+      },
+      {
+        name: "Daniel",
+        phone: "15 6282-0120",
+        role: "Auxiliar",
       },
     ],
     assets: [
@@ -9748,9 +8927,14 @@ export const mockTelegrafia: Office[] = [
     notes: "Contactos: Ariel Fajks 8042, Bibiana Casco",
     contacts: [
       {
-        name: "No aplica",
-        phone: "No aplica",
-        timeSlot: "No aplica",
+        name: "Ariel Fajks",
+        phone: "8042",
+        role: "Auxiliar",
+      },
+      {
+        name: "Bibiana Casco",
+        phone: "",
+        role: "Auxiliar",
       },
     ],
     assets: [
@@ -9774,10 +8958,9 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "Supervisi n de Telegrafía",
+        name: "Casco, Fajks, Grazulis",
         phone: "8092 / 8089",
-        timeSlot: "",
-        role: "Casco, Fajks, Grazulis",
+        role: "Supervisión de Telegrafía",
       },
     ],
     assets: [
