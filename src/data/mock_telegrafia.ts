@@ -43,16 +43,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -79,16 +82,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -115,16 +121,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -151,16 +160,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -187,16 +199,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -228,6 +243,7 @@ export const mockTelegrafia: Office[] = [
         name: "Orrego Alfredo Augusto",
         phone: "4763-0104",
         role: "Auxiliar",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -258,30 +274,31 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "15 8059-0820 / 15 5308-6856",
-        timeSlot: "13 a 18h",
+        timeSlot: "13:00 a 18:00h",
+        role: "",
       },
       {
         name: "Barrios Gastón",
         phone: "15 2398-9172",
-        timeSlot: "08 a 13h",
+        timeSlot: "08:00 a 13:00h",
         role: "Supervisor",
       },
       {
         name: "Ilabaca Yamila",
         phone: "15 6973-4685",
-        timeSlot: "08 a 13h",
+        timeSlot: "08:00 a 13:00h",
         role: "Auxiliar",
       },
       {
         name: "Nuñez Osmar",
         phone: "15 3373-8912",
-        timeSlot: "08 a 13h",
+        timeSlot: "08:00 a 13:00h",
         role: "Auxiliar",
       },
       {
         name: "Guerra Alan",
         phone: "15 6103-4972",
-        timeSlot: "13 a 18h",
+        timeSlot: "13:00 a 18:00h",
         role: "Auxiliar",
       },
     ],
@@ -313,6 +330,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4740-5695",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -342,16 +361,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0348 4429309",
+        phone: "0348 442-9309",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Alejandro Jesús Garcia",
         phone: "15 3833-5695",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Carlos Romero",
-
-        role: "Jefe CDD",
+        role: "Jefe de CDD",
+        timeSlot: "",
+        phone: "",
       },
     ],
     assets: [
@@ -382,12 +406,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Anibal Perez",
         phone: "15 3405-6175",
-        timeSlot: "05 a 13h / 12 a 19h",
+        timeSlot: "05:00 a 13:00h",
+        role: "",
       },
       {
         name: "Sebastian Reyes",
-
-        timeSlot: "05 a 13h / 12 a 19h",
+        timeSlot: "05:00 a 13:00h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -418,13 +444,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Hernandez Daniel Cerafin",
         phone: "4799-1731 (Fijo del sector Control)",
-        timeSlot: "05 a 13h",
+        timeSlot: "05:00 a 13:00h",
         role: "Supervisor",
       },
       {
         name: "Obiedo Edgardo Adolfo",
-
         role: "Supervisor",
+        timeSlot: "",
+        phone: "",
       },
     ],
     assets: [
@@ -500,12 +527,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Banegas Diego",
         phone: "15 5259-2137",
-        timeSlot: "05 a 13h",
+        timeSlot: "05:00 a 13:00h",
+        role: "",
       },
       {
         name: "Bellucio Daniel",
         phone: "15 3582-0749",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
       },
     ],
     assets: [
@@ -536,16 +565,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4664-7962",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Perez Carlos",
         phone: "15 3302-9631",
         timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Pavon Raul",
         phone: "15 4989-8158",
         timeSlot: "Turno Tarde",
+        role: "",
       },
     ],
     assets: [
@@ -572,21 +605,25 @@ export const mockTelegrafia: Office[] = [
         name: "Javier Caballero",
         phone: "15 3042-1411",
         timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Mario Morales",
         phone: "15 6527-3725",
         timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Hector Pinardel",
         phone: "15 6176-9026",
         timeSlot: "Turno Tarde",
+        role: "",
       },
       {
         name: "Miguel Pombo",
         phone: "15 2602-0197",
         timeSlot: "Turno Tarde",
+        role: "",
       },
     ],
     assets: [
@@ -613,6 +650,7 @@ export const mockTelegrafia: Office[] = [
         name: "Marcelo Fabian Abtt",
         phone: "0230 15 4563511",
         role: "Auxiliar",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -638,29 +676,31 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4758 0113",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Diego Schimpf",
         phone: "15 3397-2021",
-        timeSlot: "05 a 13h",
+        timeSlot: "05:00 a 13:00h",
         role: "Supervisor",
       },
       {
         name: "Gustavo Nogueira",
         phone: "15 6471-3080",
-        timeSlot: "05 a 13h",
+        timeSlot: "05:00 a 13:00h",
         role: "Supervisor",
       },
       {
         name: "Perla Kerschen",
         phone: "15 5734-3505",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
         role: "Auxiliar",
       },
       {
         name: "Matias Capsalas",
         phone: "15 6035-7978",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
         role: "Auxiliar",
       },
     ],
@@ -692,6 +732,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4662-9087 / 4665-0915",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -717,16 +759,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "15 4658-2351",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Carlos Amengual",
         phone: "15 4658-2351",
         timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Carlos Leiva",
-        phone: "15 4658 2351",
+        phone: "15 4658-2351",
         timeSlot: "Turno Tarde",
+        role: "",
       },
     ],
     assets: [
@@ -757,12 +803,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Da Costa Joaquín",
         phone: "15 6185-9219",
-        timeSlot: "07 a 14hs",
+        timeSlot: "07:00 a 14:00h",
+        role: "",
       },
       {
         name: "Vallejos Diego",
         phone: "15 2384-6895",
-        timeSlot: "13 a 20hs",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
       },
     ],
     assets: [
@@ -793,13 +841,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Ledesma Marcelo",
         phone: "15 5736-6162",
-        timeSlot: "07 a 15:12h",
-        role: "Jefe CDD",
+        timeSlot: "07:00 a 15:12h",
+        role: "Jefe de CDD",
       },
       {
         name: "Medera Fabian",
         phone: "15 2747-4035",
-        timeSlot: "09 a 17:12h",
+        timeSlot: "09:00 a 17:12h",
         role: "Auxiliar",
       },
     ],
@@ -831,13 +879,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Magnou Matías Nicolás",
         phone: "15 3104-1948",
-        timeSlot: "05 a 12:12h",
+        timeSlot: "05:00 a 12:12h",
         role: "Referente Telegrafía",
       },
       {
         name: "Rivadeneira Diego Adrián",
         phone: "15 3795-8536",
-        timeSlot: "12 a 19:12h",
+        timeSlot: "12:00 a 19:12h",
         role: "Referente Telegrafía",
       },
     ],
@@ -864,13 +912,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Fernando Martín Parra",
         phone: "15 3477-3758",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
         role: "Supervisor",
       },
       {
         name: "Martín Alejandro Moya",
         phone: "15 4010-891",
-        timeSlot: "10 a 17h",
+        timeSlot: "10:00 a 17:00h",
         role: "Supervisor",
       },
     ],
@@ -902,12 +950,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Christian Niz",
         phone: "4482-1506 (Sector Control CDD San Justo)",
-        timeSlot: "07 a 18:30h",
+        timeSlot: "07:00 a 18:30h",
+        role: "",
       },
       {
         name: "Centurión Juan",
-
-        timeSlot: "Turno tarde",
+        timeSlot: "Turno Tarde",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -938,32 +988,38 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4694-9284",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Raúl Galván",
         phone: "15 3834-0821",
-        timeSlot: "08 a 15:40h",
+        timeSlot: "08:00 a 15:40h",
         role: "Jefe",
       },
       {
         name: "Rubén Bustos",
         phone: "15 6134-6509",
-        timeSlot: "07 a 14:40h",
+        timeSlot: "07:00 a 14:40h",
+        role: "",
       },
       {
         name: "Silvia Lezcano",
         phone: "15 4068-9065",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
+        role: "",
       },
       {
         name: "Mario Bustos",
         phone: "15 5930-9002",
-        timeSlot: "12 a 19:40h",
+        timeSlot: "12:00 a 19:40h",
+        role: "",
       },
       {
         name: "Gladys Bustos",
         phone: "15 3876-2371",
-        timeSlot: "12:30 a 19h",
+        timeSlot: "12:30 a 19:00h",
+        role: "",
       },
     ],
     assets: [
@@ -994,27 +1050,32 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Parodi Selva",
         phone: "15 5047-1482",
-        timeSlot: "Turno mañana",
+        timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Giannasi Silvio",
         phone: "15 4049-6326",
-        timeSlot: "Turno mañana",
+        timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Correa Maximiliano",
         phone: "15 5047-1840",
-        timeSlot: "Turno tarde",
+        timeSlot: "Turno Tarde",
+        role: "",
       },
       {
         name: "Rodriguez Norberto",
         phone: "15 6199-0662",
-        timeSlot: "Turno tarde",
+        timeSlot: "Turno Tarde",
+        role: "",
       },
       {
         name: "Giacobbo Sabrina",
         phone: "15 6530-5470",
-        timeSlot: "Turno tarde",
+        timeSlot: "Turno Tarde",
+        role: "",
       },
     ],
     assets: [
@@ -1070,12 +1131,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Natalia Morales",
         phone: "15 5019-1752",
-        timeSlot: "Turno mañana",
+        timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Alejandro Vliz",
         phone: "15 5488-3180",
-        timeSlot: "Turno tarde",
+        timeSlot: "Turno Tarde",
+        role: "",
       },
     ],
     assets: [
@@ -1151,7 +1214,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Marcelo Ruisdia",
         phone: "15 3290-7830",
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
         role: "Supervisor",
       },
       {
@@ -1214,13 +1277,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Cardozo Hugo",
         phone: "4219-0667",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
         role: "Supervisor",
       },
       {
         name: "Sanchez Miguel",
         phone: "4219-0667",
-        timeSlot: "13 a 19h",
+        timeSlot: "13:00 a 19:00h",
         role: "Supervisor",
       },
     ],
@@ -1252,6 +1315,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4297-1345",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -1282,29 +1347,31 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4201-8782",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Facundo Pérez",
         phone: "15 3353-6159",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
         role: "Supervisor",
       },
       {
         name: "Cardoso Horacio",
         phone: "15 5709-0517",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
         role: "Auxiliar",
       },
       {
         name: "Ovejero Rodolfo",
         phone: "15 5160-4282",
-        timeSlot: "13 a 19h",
+        timeSlot: "13:00 a 19:00h",
         role: "Supervisor",
       },
       {
         name: "Esposito Hernán",
         phone: "15 3242-4640",
-        timeSlot: "13 a 19h",
+        timeSlot: "13:00 a 19:00h",
         role: "Auxiliar",
       },
     ],
@@ -1336,49 +1403,49 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Edgardo Monza",
         phone: "15 5955-1235",
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
         role: "Jefe",
       },
       {
         name: "Daniel Martínez",
         phone: "15 5928-1909",
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
         role: "Supervisor",
       },
       {
         name: "Tamara Ferrari",
         phone: "15 6901-8447",
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
         role: "Auxiliar",
       },
       {
         name: "Leonardo Caballero",
         phone: "15 5339-1677",
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
         role: "Auxiliar",
       },
       {
         name: "Lorena Monasterio",
         phone: "15 4195-2064",
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
         role: "Auxiliar",
       },
       {
         name: "Esteban Abel Echauri",
         phone: "15 5975-1219",
-        timeSlot: "13 a 20:12h",
+        timeSlot: "13:00 a 20:12h",
         role: "Supervisor",
       },
       {
         name: "Ezequiel Ramirez",
         phone: "15 6868-4341",
-        timeSlot: "13 a 20:12h",
+        timeSlot: "13:00 a 20:12h",
         role: "Auxiliar",
       },
       {
         name: "Leonardo Castillo",
         phone: "15 3596-0118",
-        timeSlot: "13 a 20:12h",
+        timeSlot: "13:00 a 20:12h",
         role: "Auxiliar",
       },
     ],
@@ -1405,21 +1472,26 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4226-5120",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Oscar Aurelio Ibarra",
-
-        timeSlot: "Turno mañana",
+        timeSlot: "Turno Mañana",
+        role: "",
+        phone: "",
       },
       {
         name: "Jorge David Oliva",
-
-        timeSlot: "Turno mañana",
+        timeSlot: "Turno Mañana",
+        role: "",
+        phone: "",
       },
       {
         name: "Rodolfo Daniel Bernat",
-
-        timeSlot: "Turno tarde",
+        timeSlot: "Turno Tarde",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -1450,26 +1522,32 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4255-0231/6828",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Leonardo Ramirez",
         phone: "15 6157-5524",
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
+        role: "",
       },
       {
         name: "Silvio Gimenez",
         phone: "15 4027-9744",
-        timeSlot: "07 a 14:42h",
+        timeSlot: "07:00 a 14:42h",
+        role: "",
       },
       {
         name: "Diego Torres",
         phone: "15 2245-5074",
-        timeSlot: "13 a 19:42h",
+        timeSlot: "13:00 a 19:42h",
+        role: "",
       },
       {
         name: "Jorge Maciel",
         phone: "15 5101-3348",
-        timeSlot: "13 a 19:42h",
+        timeSlot: "13:00 a 19:42h",
+        role: "",
       },
     ],
     assets: [
@@ -1524,18 +1602,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Seratuni Ruben",
-        phone: "0221 4796135",
-        timeSlot: "07 a 14:42h",
+        phone: "0221 479-6135",
+        timeSlot: "07:00 a 14:42h",
+        role: "",
       },
       {
         name: "Pometto Silvio",
-        phone: "0221 5700004",
-        timeSlot: "07 a 14:42h",
+        phone: "0221 570-0004",
+        timeSlot: "07:00 a 14:42h",
+        role: "",
       },
       {
         name: "Marcelo Videla",
-        phone: "0221 6253881",
-        timeSlot: "07 a 14:42h",
+        phone: "0221 625-3881",
+        timeSlot: "07:00 a 14:42h",
+        role: "",
       },
     ],
     assets: [
@@ -1565,15 +1646,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Marcelo Clavijo",
-        phone: "0221 4576017",
-        timeSlot: "07 a 16h",
+        phone: "0221 457-6017",
+        timeSlot: "07:00 a 16:00h",
         role: "Supervisor",
       },
       {
         name: "Jorge Salomon",
-
-        timeSlot: "07 a 16h",
+        timeSlot: "07:00 a 16:00h",
         role: "Jefe",
+        phone: "",
       },
     ],
     assets: [
@@ -1603,14 +1684,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Manuel Alfredo Correa",
-        phone: "0221 155945062",
-        timeSlot: "07:30 a 15h",
+        phone: "0221 1559-45062",
+        timeSlot: "07:30 a 15:00h",
         role: "Jefe de CDD",
       },
       {
         name: "Gustavo Saenz Linares",
-        phone: "0221 4641085",
-        timeSlot: "09 a 15h",
+        phone: "0221 464-1085",
+        timeSlot: "09:00 a 15:00h",
         role: "Jefe de CDD",
       },
     ],
@@ -1636,20 +1717,20 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Morison Dario",
-        phone: "0221 5349182",
-        timeSlot: "06:30 a 13h",
+        phone: "0221 534-9182",
+        timeSlot: "06:30 a 13:00h",
         role: "Jefe",
       },
       {
         name: "Villarreal Gullirmo",
-        phone: "0221 6178122",
-        timeSlot: "07 a 14h",
+        phone: "0221 617-8122",
+        timeSlot: "07:00 a 14:00h",
         role: "Jefe",
       },
       {
         name: "Vizzia Marcelo",
-        phone: "0221 5236560",
-        timeSlot: "12 a 17h",
+        phone: "0221 523-6560",
+        timeSlot: "12:00 a 17:00h",
         role: "Jefe",
       },
     ],
@@ -1681,7 +1762,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Joel Alexis Rodriguez",
         phone: "02477 236814  / 02477 434384",
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
+        role: "",
       },
     ],
     assets: [
@@ -1713,6 +1795,7 @@ export const mockTelegrafia: Office[] = [
         name: "Oscar Fernando Nuñez",
         phone: "03487 422153",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -1742,20 +1825,20 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Sergio Ocampo",
-        phone: "0336 4597537",
+        phone: "0336 459-7537",
         timeSlot: "06:30 a 14:12h",
         role: "Referente Telegrafía",
       },
       {
         name: "Daniel Palomeque",
-        phone: "0336 4356496",
-        timeSlot: "12 a 19:12h",
+        phone: "0336 435-6496",
+        timeSlot: "12:00 a 19:12h",
         role: "Referente Telegrafía",
       },
       {
         name: "Fernando Cardozo",
-        phone: "0336 4010006",
-        timeSlot: "12:48 a 20h",
+        phone: "0336 401-0006",
+        timeSlot: "12:48 a 20:00h",
         role: "Referente Telegrafía",
       },
     ],
@@ -1812,8 +1895,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "San Felipe David Santiago",
         phone: "03388 15 480286",
-        timeSlot: "09 a 16:35h",
-        role: "Jefe Sucursal",
+        timeSlot: "09:00 a 16:35h",
+        role: "Jefe de Sucursal",
       },
     ],
     assets: [
@@ -1844,12 +1927,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Ricardo Javier Terán",
         phone: "02396 420310",
-        timeSlot: "09 a 16:30h",
+        timeSlot: "09:00 a 16:30h",
+        role: "",
       },
       {
         name: "Griselda Noemi Díaz",
-        phone: "02396 4216610",
-        timeSlot: "09 a 16:30h",
+        phone: "02396 421-6610",
+        timeSlot: "09:00 a 16:30h",
+        role: "",
       },
     ],
     assets: [
@@ -1880,7 +1965,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Noelia Belen Riera",
         phone: "02317 15 451533",
-        timeSlot: "09 a 15h",
+        timeSlot: "09:00 a 15:00h",
         role: "Jefe de Sucursal",
       },
     ],
@@ -1907,6 +1992,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Mariano Moavro",
         phone: "8816",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -1952,7 +2039,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Miguel Ángel Teruel",
         phone: "02317 408439 / 02342 422262",
-        timeSlot: "08 a 15:42h",
+        timeSlot: "08:00 a 15:42h",
+        role: "",
       },
     ],
     assets: [
@@ -1983,7 +2071,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Lucio Diaz",
         phone: "02324 15 355761",
-        timeSlot: "09 a 16h",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -2014,12 +2103,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Marcelo Celiz",
         phone: "02364 544753",
-        timeSlot: "09 a 16h",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
       {
         name: "Carlos Cieri",
         phone: "02352 506282",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
       },
     ],
     assets: [
@@ -2049,13 +2140,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Martín Torres",
-        phone: "0249 4378797",
-        timeSlot: "06 a 13:30h",
+        phone: "0249 437-8797",
+        timeSlot: "06:00 a 13:30h",
+        role: "",
       },
       {
         name: "Jorge Pérez",
-        phone: "0249 4327566",
-        timeSlot: "10:30 a 18h",
+        phone: "0249 432-7566",
+        timeSlot: "10:30 a 18:00h",
+        role: "",
       },
     ],
     assets: [
@@ -2106,12 +2199,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Damián Tissone",
         phone: "02252 481514",
-        timeSlot: "9 a 16h",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
       {
         name: "Julio Palacios",
         phone: "02252 448446",
-        timeSlot: "9 a 16h",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -2142,7 +2237,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Jorge Eira",
         phone: "02246 15 446387",
-        timeSlot: "8:30 a 16:15h",
+        timeSlot: "08:30 a 16:15h",
+        role: "",
       },
     ],
     assets: [
@@ -2189,7 +2285,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Jorge Santos",
         phone: "02241 15 550021",
-        timeSlot: "07 a 14:40h",
+        timeSlot: "07:00 a 14:40h",
+        role: "",
       },
     ],
     assets: [
@@ -2219,14 +2316,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Juarez Nicolas Nahuel",
-        phone: "0225 5624457",
-        timeSlot: "6 a 13:42h",
+        phone: "0225 562-4457",
+        timeSlot: "06:00 a 13:42h",
         role: "Descarga",
       },
       {
         name: "Veron Martin Gabriel",
-        phone: "0225 5416914",
-        timeSlot: "11 a 18h",
+        phone: "0225 541-6914",
+        timeSlot: "11:00 a 18:00h",
         role: "Carga",
       },
     ],
@@ -2257,9 +2354,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Juan Manuel Barba",
-
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
         role: "Auxiliar",
+        phone: "",
       },
       {
         name: "Jose Luis Maidana",
@@ -2291,14 +2388,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Walter Ricardo Sciaroni",
         phone: "02345 15-653769",
-        timeSlot: "08 a 15h",
+        timeSlot: "08:00 a 15:00h",
+        role: "",
       },
       {
         name: "Walter Victor Benitez",
         phone: "02344 454510",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Claudio A. Laphitzborde",
+        role: "",
+        timeSlot: "",
+        phone: "",
       },
     ],
     assets: [
@@ -2323,19 +2426,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "José María Begbeder",
-        phone: "02281 15521298",
-        timeSlot: "05:48 a 13h",
+        phone: "02281 1552-1298",
+        timeSlot: "05:48 a 13:00h",
         role: "1er Turno",
       },
       {
         name: "Claro Daniel Giménez",
-        phone: "02281 15521006",
-        timeSlot: "13 a 20:42h",
+        phone: "02281 1552-1006",
+        timeSlot: "13:00 a 20:42h",
         role: "2do Turno",
       },
       {
-        name: "Teléfono fijo",
+        name: "Teléfono Fijo",
         phone: "02281 434531",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -2361,7 +2466,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Darío Damanins",
         phone: "02284 440935",
-        timeSlot: "9 a 15h",
+        timeSlot: "09:00 a 15:00h",
+        role: "",
       },
     ],
     assets: [
@@ -2385,9 +2491,10 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "Damián Alejandro de la Canal",
+        name: "Damián Alejandro de La Canal",
         phone: "02983 424991",
-        timeSlot: "08 a 15:30h",
+        timeSlot: "08:00 a 15:30h",
+        role: "",
       },
     ],
     assets: [
@@ -2442,8 +2549,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Zariello Claudio",
-        phone: "0223 5184664",
-        timeSlot: "06 a 13h",
+        phone: "0223 518-4664",
+        timeSlot: "06:00 a 13:00h",
+        role: "",
       },
     ],
     assets: [
@@ -2469,12 +2577,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Román Ismael",
         phone: "02291 410402",
-        timeSlot: "07 a 14:42h",
+        timeSlot: "07:00 a 14:42h",
+        role: "",
       },
       {
         name: "Montovi Gonzalo",
         phone: "02291 528809",
-        timeSlot: "10 a 17:12h",
+        timeSlot: "10:00 a 17:12h",
+        role: "",
       },
     ],
     assets: [
@@ -2511,7 +2621,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Vena Nahuel",
         phone: "02262 500258",
-        timeSlot: "10:30 a 17h",
+        timeSlot: "10:30 a 17:00h",
         role: "Auxiliar",
       },
     ],
@@ -2562,8 +2672,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oscar Cordero",
-        phone: "0291 6454157",
-        timeSlot: "07 a 14h",
+        phone: "0291 645-4157",
+        timeSlot: "07:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -2595,6 +2706,7 @@ export const mockTelegrafia: Office[] = [
         name: "Adrian Firpo",
         phone: "03489 15 663495",
         timeSlot: "Horario a consultar",
+        role: "",
       },
     ],
     assets: [
@@ -2626,11 +2738,13 @@ export const mockTelegrafia: Office[] = [
         name: "Enrique Russo",
         phone: "15 6744-9674",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Daniel",
         phone: "15 6282-0120",
         role: "Auxiliar",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -2656,26 +2770,32 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4613-2895 / 4637-7754",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Tittarelli Marcelo Rodolfo",
-
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Arnez Fernando Raúl",
-
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Cantizano Diego Alejandro",
-
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Colucci Leonardo Martín",
-
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -2706,14 +2826,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "4783-3180",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Maximiliano Garcia",
-        timeSlot: "06 a 13h",
+        timeSlot: "06:00 a 13:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Rodrigo Lopez",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -2759,21 +2885,26 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "5941-3309",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Alejandra María Cruz",
-
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Daniel Leonardo Friera",
-
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Fabián Nuñez",
-
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -2800,16 +2931,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -2836,16 +2970,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -2872,16 +3009,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -2908,16 +3048,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -3014,15 +3157,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "5941-3308",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Eduardo Sosa",
-        timeSlot: "06 a 13:12h",
+        timeSlot: "06:00 a 13:12h",
+        role: "",
+        phone: "",
       },
       {
         name: "Héctor Núñez",
-
-        timeSlot: "13 a 20:12h",
+        timeSlot: "13:00 a 20:12h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -3048,7 +3196,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Carlos Arancibia",
         phone: "15 2341-0271",
-        timeSlot: "06 a 15h",
+        timeSlot: "06:00 a 15:00h",
+        role: "",
       },
     ],
     assets: [
@@ -3099,12 +3248,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Fernando Lopez",
         phone: "4931-6163",
-        timeSlot: "06 a 13h",
+        timeSlot: "06:00 a 13:00h",
+        role: "",
       },
       {
         name: "Miguel Morales",
         phone: "4931-6163",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
       },
     ],
     assets: [
@@ -3135,16 +3286,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Luis Tebes",
         phone: "1166884397",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
+        role: "",
       },
       {
         name: "Juan Tejada",
         phone: "1159372632",
-        timeSlot: "11 a 18h",
+        timeSlot: "11:00 a 18:00h",
+        role: "",
       },
       {
         name: "Oficina",
         phone: "4924-3269",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -3170,18 +3325,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "15 8024-4267",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Alejandro Pino Rojas",
-
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
         role: "Referente Telegrafía",
+        phone: "",
       },
       {
         name: "Walter Rivero",
-
-        timeSlot: "13 a 18h",
+        timeSlot: "13:00 a 18:00h",
         role: "Referente Telegrafía",
+        phone: "",
       },
     ],
     assets: [
@@ -3212,12 +3369,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Adrián Cabrera",
         phone: "15 3880-0846",
-        timeSlot: "07 a 14:42h",
+        timeSlot: "07:00 a 14:42h",
+        role: "",
       },
       {
         name: "Rolando Alfi",
         phone: "15 6410-0051",
-        timeSlot: "12 a 19:12h",
+        timeSlot: "12:00 a 19:12h",
         role: "Supervisor",
       },
     ],
@@ -3244,13 +3402,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Dante Fabian Colman",
         phone: "15 6806-2803",
-        timeSlot: "07 a 14:12h",
+        timeSlot: "07:00 a 14:12h",
         role: "Referente Telegrafía",
       },
       {
         name: "Marcelo Arena",
         phone: "15 5761-8266",
-        timeSlot: "13 a 20:12h",
+        timeSlot: "13:00 a 20:12h",
         role: "Referente Telegrafía",
       },
     ],
@@ -3306,18 +3464,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Daniel Perez Felix",
-        phone: "0383 4992451",
-        timeSlot: "06 a 13:42h",
+        phone: "0383 499-2451",
+        timeSlot: "06:00 a 13:42h",
+        role: "",
       },
       {
         name: "René Barrionuevo",
-        phone: "0383 4524834",
-        timeSlot: "06 a 13:42h",
+        phone: "0383 452-4834",
+        timeSlot: "06:00 a 13:42h",
+        role: "",
       },
       {
         name: "Oscar Barrionuevo",
-        phone: "0383 4569053",
-        timeSlot: "11 a 18:42h",
+        phone: "0383 456-9053",
+        timeSlot: "11:00 a 18:42h",
+        role: "",
       },
     ],
     assets: [
@@ -3400,31 +3561,38 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "03644 421301",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Eduardo Saravia",
-
         role: "Referente Telegrafía",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "Gonzalo López",
-
         role: "Referente Telegrafía",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "Alcides Ramos",
-
         role: "Referente Telegrafía",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "Daniel Saravia",
-
         role: "Referente Telegrafía",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "Mónica Santía",
-
         role: "Referente Telegrafía",
+        timeSlot: "",
+        phone: "",
       },
     ],
     assets: [
@@ -3480,12 +3648,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Julio Cesar Wright",
         phone: "02613 065357",
-        timeSlot: "09 a 16h",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
       {
         name: "Enzo Daniel Blackie",
         phone: "02974 640169",
-        timeSlot: "09 a 16h",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -3510,33 +3680,33 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Fernando Emmanuel García",
-        phone: "0280 4845185",
-        timeSlot: "06:18 a 14h",
-        role: "Jefe del CDD/CDP",
+        phone: "0280 484-5185",
+        timeSlot: "06:18 a 14:00h",
+        role: "Jefe de CDD/CDP",
       },
       {
         name: "Gerardo Manuel Villagrán",
-        phone: "0280 4683712",
-        timeSlot: "06:18 a 14h",
-        role: "Supervisor del CDD/CDP",
+        phone: "0280 468-3712",
+        timeSlot: "06:18 a 14:00h",
+        role: "Supervisor de CDD/CDP",
       },
       {
         name: "Fernando Daniel Artiles",
-        phone: "0280 4682022",
+        phone: "0280 468-2022",
         timeSlot: "06:18 a 13:30h",
-        role: "Auxiliar del CDD/CDP",
+        role: "Auxiliar de CDD/CDP",
       },
       {
         name: "Ítalo Raúl Contreras",
-        phone: "0208 4368443",
+        phone: "0208 436-8443",
         timeSlot: "06:18 a 13:30h",
-        role: "Auxiliar del CDD/CDP",
+        role: "Auxiliar de CDD/CDP",
       },
       {
         name: "Monsalve Gustavo Ariel",
-        phone: "0280 4328930",
-        timeSlot: "12:18 a 19h",
-        role: "Auxiliar del CDD/CDP",
+        phone: "0280 432-8930",
+        timeSlot: "12:18 a 19:00h",
+        role: "Auxiliar de CDD/CDP",
       },
     ],
     assets: [
@@ -3566,13 +3736,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Garay Pablo",
-        phone: "0280 4364182",
-        timeSlot: "09:30 a 15h",
+        phone: "0280 436-4182",
+        timeSlot: "09:30 a 15:00h",
+        role: "",
       },
       {
         name: "Moyano Francisco",
-        phone: "0280 4679988",
-        timeSlot: "09:30 a 15h",
+        phone: "0280 467-9988",
+        timeSlot: "09:30 a 15:00h",
+        role: "",
       },
     ],
     assets: [
@@ -3603,22 +3775,26 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Ruben Arbe Santos",
         phone: "02945 405421",
-        timeSlot: "05 a 12:20h",
+        timeSlot: "05:00 a 12:20h",
+        role: "",
       },
       {
         name: "Alexis Arbe",
         phone: "02945 590136",
-        timeSlot: "05 a 12:20h",
+        timeSlot: "05:00 a 12:20h",
+        role: "",
       },
       {
         name: "Néstor Gabriel Lovera",
         phone: "02945 590136",
-        timeSlot: "11 a 18:30h",
+        timeSlot: "11:00 a 18:30h",
+        role: "",
       },
       {
         name: "Darío Nicolás Quijón",
         phone: "02945 465364",
-        timeSlot: "11 a 18:30h",
+        timeSlot: "11:00 a 18:30h",
+        role: "",
       },
     ],
     assets: [
@@ -3668,13 +3844,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Victor Claudio Martínez",
-        phone: "0351 6214436",
+        phone: "0351 621-4436",
         timeSlot: "05:30 a 12:42h",
+        role: "",
       },
       {
         name: "Pablo Camaño",
-        phone: "0351 6684020",
-        timeSlot: "13:12 a 21h",
+        phone: "0351 668-4020",
+        timeSlot: "13:12 a 21:00h",
+        role: "",
       },
     ],
     assets: [
@@ -3725,12 +3903,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Mario César Pastoriza",
         phone: "03564 498419",
-        timeSlot: "07:30 a 17",
+        timeSlot: "07:30 a 17:00h",
+        role: "",
       },
       {
         name: "Verónica Vivas",
         phone: "03564 498419",
         timeSlot: "07:30 a 16:30h",
+        role: "",
       },
     ],
     assets: [
@@ -3786,26 +3966,26 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Nelson Fabián Oviedo",
         phone: "03541 521798",
-        timeSlot: "06 a 13:30h",
-        role: "Supervisor CDD",
+        timeSlot: "06:00 a 13:30h",
+        role: "Supervisor de CDD",
       },
       {
         name: "Cesar Leonel Carrizo",
         phone: "03541 621431",
-        timeSlot: "06 a 13:30h",
-        role: "Supervisor CDD",
+        timeSlot: "06:00 a 13:30h",
+        role: "Supervisor de CDD",
       },
       {
         name: "Luis Angel Zárate",
         phone: "03541 581762",
-        timeSlot: "07 a 14:30h",
-        role: "Jefe CDD",
+        timeSlot: "07:00 a 14:30h",
+        role: "Jefe de CDD",
       },
       {
         name: "Lautaro Ignacio Rossi",
         phone: "03541 642231",
-        timeSlot: "12 a 19h",
-        role: "Auxiliar CDD",
+        timeSlot: "12:00 a 19:00h",
+        role: "Auxiliar de CDD",
       },
     ],
     assets: [
@@ -3836,12 +4016,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "03541 390102",
-        timeSlot: "06 a 10h / 13 a 16h",
+        timeSlot: "06:00 a 10:00h",
+        role: "",
       },
       {
         name: "Jorge Daniel Dávila",
-        phone: "0351 5155268",
-        role: "Encargado CDD",
+        phone: "0351 515-5268",
+        role: "Encargado de CDD",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -3891,13 +4073,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Jose Luis Orellano",
-        phone: "0351 5747096",
-        timeSlot: "08 a 17h",
+        phone: "0351 574-7096",
+        timeSlot: "08:00 a 17:00h",
+        role: "",
       },
       {
         name: "Sergio Juan Doning",
         phone: "03547 523792",
-        timeSlot: "08 a 17h",
+        timeSlot: "08:00 a 17:00h",
+        role: "",
       },
     ],
     assets: [
@@ -3953,7 +4137,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Pedro Anibal Elizondo",
         phone: "03525 438700",
-        timeSlot: "07:30 a 14h",
+        timeSlot: "07:30 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -4003,18 +4188,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0358 4623173",
-        timeSlot: "06 a 16:30h",
+        phone: "0358 462-3173",
+        timeSlot: "06:00 a 16:30h",
+        role: "",
       },
       {
         name: "Cristián Ciarmatori",
-        phone: "0358 6548455",
-        timeSlot: "06 a 14:30h",
+        phone: "0358 654-8455",
+        timeSlot: "06:00 a 14:30h",
+        role: "",
       },
       {
         name: "Alexis Oyola",
-        phone: "0358 4356852",
-        timeSlot: "06 a 14:30h",
+        phone: "0358 435-6852",
+        timeSlot: "06:00 a 14:30h",
+        role: "",
       },
     ],
     assets: [
@@ -4044,8 +4232,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Danilo Natanael Lopresti",
-        phone: "03571 5530360",
-        timeSlot: "08 a 16h",
+        phone: "03571 553-0360",
+        timeSlot: "08:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -4076,13 +4265,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Damián Alberto Guzmán",
         phone: "03544 314117",
-        timeSlot: "08 a 15h",
-        role: "Supervisor CDD",
+        timeSlot: "08:00 a 15:00h",
+        role: "Supervisor de CDD",
       },
       {
         name: "Emma Aimetta",
         phone: "15 2404-2857",
-        timeSlot: "08 a 15h",
+        timeSlot: "08:00 a 15:00h",
         role: "Ref. Operativo",
       },
     ],
@@ -4113,20 +4302,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0353 4535511",
-        timeSlot: "07 a 14:45h",
+        phone: "0353 453-5511",
+        timeSlot: "07:00 a 14:45h",
+        role: "",
       },
       {
         name: "Marco Antonio Santillán",
-        phone: "0353 4535511",
-        timeSlot: "07 a 14:45h",
+        phone: "0353 453-5511",
+        timeSlot: "07:00 a 14:45h",
         role: "Jefe de Sucursal",
       },
       {
         name: "Héctor Gustavo Díaz",
-        phone: "0353 4274324",
-        timeSlot: "07 a 14:45h",
-        role: "Supervisor CDD",
+        phone: "0353 427-4324",
+        timeSlot: "07:00 a 14:45h",
+        role: "Supervisor de CDD",
       },
     ],
     assets: [
@@ -4177,7 +4367,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Sergio Rubén López",
         phone: "03472 426645 / 03472 436730",
-        timeSlot: "08 a 15:42h",
+        timeSlot: "08:00 a 15:42h",
+        role: "",
       },
     ],
     assets: [
@@ -4205,18 +4396,23 @@ export const mockTelegrafia: Office[] = [
     email: "W0042@correoargentino.com.ar",
     notes: "",
     contacts: [
-      { name: "Oficina", phone: "03772 424555" },
+      {
+        name: "Oficina",
+        phone: "03772 424555",
+        role: "",
+        timeSlot: "",
+      },
       {
         name: "Segovia Hugo Alberto",
         phone: "03772 620711",
-        timeSlot: "7 a 12h / 15 a 18h",
-        role: "Supervisor CDD",
+        timeSlot: "07:00 a 12:00h",
+        role: "Supervisor de CDD",
       },
       {
         name: "Gobernatori Anibal",
         phone: "03772 645962",
-        timeSlot: "7 a 14h",
-        role: "Auxiliar CDD",
+        timeSlot: "07:00 a 14:00h",
+        role: "Auxiliar de CDD",
       },
     ],
     assets: [
@@ -4241,21 +4437,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Méndez Sergo Fabián",
-
-        timeSlot: "07 a 11h",
+        timeSlot: "07:00 a 11:00h",
         role: "Jefe",
+        phone: "",
       },
       {
         name: "Centurión Ramón Mario Alberto",
-
-        timeSlot: "07 a 11h",
+        timeSlot: "07:00 a 11:00h",
         role: "Encargado Telegrafía",
+        phone: "",
       },
       {
         name: "Lanser Marco Antonio",
-
-        timeSlot: "18 a 21h",
+        timeSlot: "18:00 a 21:00h",
         role: "Encargado Telegrafía",
+        phone: "",
       },
     ],
     assets: [
@@ -4288,17 +4484,22 @@ export const mockTelegrafia: Office[] = [
     email: "W0022@correoargentino.com.ar",
     notes: "---",
     contacts: [
-      { name: "Oficina", phone: "0378 2421053" },
+      {
+        name: "Oficina",
+        phone: "0378 242-1053",
+        role: "",
+        timeSlot: "",
+      },
       {
         name: "Mendoza Angelina Mariana",
         phone: "03782 444188",
-        timeSlot: "7 a 13:30h",
+        timeSlot: "07:00 a 13:30h",
         role: "Jefe de Sucursal",
       },
       {
         name: "Raul Carlos Mario Souto",
-        phone: "0378 2437107",
-        timeSlot: "11 a 13:30h",
+        phone: "0378 243-7107",
+        timeSlot: "11:00 a 13:30h",
         role: "Distribuidor",
       },
     ],
@@ -4325,11 +4526,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "03777 451316",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Correa Juan Nicolás",
         phone: "03777 233217",
-        timeSlot: "7 a 14h",
+        timeSlot: "07:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -4399,12 +4603,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0377 3420201",
+        phone: "0377 342-0201",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Gómez Darío José",
-        phone: "0377 3498475",
-        timeSlot: "06 a 10h / 12:30 a 15:30h",
+        phone: "0377 349-8475",
+        timeSlot: "06:00 a 10:00h",
+        role: "",
       },
     ],
     assets: [
@@ -4435,11 +4642,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "03446 435543",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Claudio Esteban Farabello",
         phone: "03446 381929",
         timeSlot: "07:30 a 14:40h",
+        role: "",
       },
     ],
     assets: [
@@ -4469,8 +4679,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Bustamante Nelson David",
-        phone: "0344 4406267",
-        timeSlot: "06 a 13:12h",
+        phone: "0344 440-6267",
+        timeSlot: "06:00 a 13:12h",
+        role: "",
       },
     ],
     assets: [
@@ -4502,6 +4713,7 @@ export const mockTelegrafia: Office[] = [
         name: "Sosa Emanuel Ricardo Omar",
         phone: "3445 421800",
         timeSlot: "07:30 a 15:30h",
+        role: "",
       },
     ],
     assets: [
@@ -4557,16 +4769,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Jorge Ariel Cantero",
         phone: "0345 15 4092098",
-        timeSlot: "05 a 12:20h",
+        timeSlot: "05:00 a 12:20h",
+        role: "",
       },
       {
         name: "Silvia Noemi Rameri",
         phone: "0345 15 4169592",
-        timeSlot: "12 a 19:20h",
+        timeSlot: "12:00 a 19:20h",
+        role: "",
       },
       {
         name: "Oficina",
-        phone: "0345 4212540",
+        phone: "0345 421-2540",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -4592,12 +4808,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Belmonte Ana Karina",
         phone: "03456 435122",
-        timeSlot: "07 a 15h",
+        timeSlot: "07:00 a 15:00h",
+        role: "",
       },
       {
         name: "Gonzalez Mariana Cecilia",
         phone: "03456 436667",
-        timeSlot: "07 a 15h",
+        timeSlot: "07:00 a 15:00h",
+        role: "",
       },
     ],
     assets: [
@@ -4653,7 +4871,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Juan Duarte",
         phone: "03442 427860",
-        timeSlot: "6 a 13:40h",
+        timeSlot: "06:00 a 13:40h",
+        role: "",
       },
     ],
     assets: [
@@ -4684,16 +4903,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Demarziani Juan Carlos",
         phone: "03435 410013",
-        timeSlot: "06 a 15h",
+        timeSlot: "06:00 a 15:00h",
+        role: "",
       },
       {
         name: "Garcia Cristian Ramon",
         phone: "03435 419011",
-        timeSlot: "06 a 13:15h",
+        timeSlot: "06:00 a 13:15h",
+        role: "",
       },
       {
         name: "Oficina",
         phone: "03435 421070",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -4724,30 +4947,37 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina de Telegrafía",
         phone: "5037",
+        role: "",
+        timeSlot: "",
       },
-      { name: "Oficina Jefatura CDD", phone: "5010" },
+      {
+        name: "Oficina Jefatura Cdd",
+        phone: "5010",
+        role: "",
+        timeSlot: "",
+      },
       {
         name: "Gonzalez Mario Ceferino",
-        phone: "0343 5205619",
-        timeSlot: "05 a 12h",
+        phone: "0343 520-5619",
+        timeSlot: "05:00 a 12:00h",
         role: "Supervisor de CDD",
       },
       {
         name: "Godoy Claudio Alcides",
-        phone: "0343 4701328",
-        timeSlot: "05 a 12h",
+        phone: "0343 470-1328",
+        timeSlot: "05:00 a 12:00h",
         role: "Jefe de CDD",
       },
       {
         name: "Ledesma Manuel Antonio",
-        phone: "0343 4709249",
-        timeSlot: "12 a 19h",
+        phone: "0343 470-9249",
+        timeSlot: "12:00 a 19:00h",
         role: "OST",
       },
       {
-        name: "Zamboni Roberto Dami n",
-        phone: "0343 4539643",
-        timeSlot: "12 a 19h",
+        name: "Zamboni Roberto Dami N",
+        phone: "0343 453-9643",
+        timeSlot: "12:00 a 19:00h",
         role: "Supervisor",
       },
     ],
@@ -4780,16 +5010,19 @@ export const mockTelegrafia: Office[] = [
         name: "Goiburu José Alejandro",
         phone: "03704 514132",
         role: "Referente",
+        timeSlot: "",
       },
       {
         name: "Acosta Arnaldo Ariel",
         phone: "03705 211188",
         role: "Auxiliar",
+        timeSlot: "",
       },
       {
         name: "Ramirez Modesto",
         phone: "03704 662272",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -4829,13 +5062,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Ojeda Alejandro Luis María",
-        phone: "0371 8445591",
-        timeSlot: "07 a 14:15h",
+        phone: "0371 844-5591",
+        timeSlot: "07:00 a 14:15h",
+        role: "",
       },
       {
         name: "Ojeda Federico Gastón",
-        phone: "0371 8445218",
-        timeSlot: "07 a 14:15h",
+        phone: "0371 844-5218",
+        timeSlot: "07:00 a 14:15h",
+        role: "",
       },
     ],
     assets: [
@@ -4865,13 +5100,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Victor Fernández",
-        phone: "0388 6464037 / 03888 420220",
-        timeSlot: "7:30 a 15h",
+        phone: "0388 646-4037 / 03888 420220",
+        timeSlot: "07:30 a 15:00h",
+        role: "",
       },
       {
         name: "Gabriel Gómez",
-        phone: "0388 8506086 / 03888 420220",
+        phone: "0388 850-6086 / 03888 420220",
         timeSlot: "06:30 a 14:20h",
+        role: "",
       },
     ],
     assets: [
@@ -5001,14 +5238,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Alzogaray Carlos Orfel",
-        phone: "0230 2206029",
-        timeSlot: "07 a 14:41h",
+        phone: "0230 220-6029",
+        timeSlot: "07:00 a 14:41h",
         role: "Supervisor",
       },
       {
         name: "Fernandez Gustavo David",
-        phone: "0230 2640147",
-        timeSlot: "07 a 14:41h",
+        phone: "0230 264-0147",
+        timeSlot: "07:00 a 14:41h",
         role: "Auxiliar",
       },
     ],
@@ -5037,18 +5274,23 @@ export const mockTelegrafia: Office[] = [
     email: "CDDChilecito@correoargentino.com.ar",
     notes: "",
     contacts: [
-      { name: "Oficina", phone: "0385 425007" },
       {
-        name: "Aballay Juan",
-
-        timeSlot: "07 a 14:45h",
-        role: "Auxiliar",
+        name: "Oficina",
+        phone: "0385 425007",
+        role: "",
+        timeSlot: "",
       },
       {
-        name: "Del Canto Sebastián",
-
-        timeSlot: "07 a 14:45h",
+        name: "Aballay Juan",
+        timeSlot: "07:00 a 14:45h",
+        role: "Auxiliar",
+        phone: "",
+      },
+      {
+        name: "del Canto Sebastián",
+        timeSlot: "07:00 a 14:45h",
         role: "Supervisor",
+        phone: "",
       },
     ],
     assets: [
@@ -5123,14 +5365,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Galarraga Hugo Javier",
-        phone: "0263 4360871",
-        timeSlot: "07:30 a 15:30",
+        phone: "0263 436-0871",
+        timeSlot: "07:30 a 15:30h",
         role: "Jefe de CDD",
       },
       {
         name: "Nader Oscar Armando",
-        phone: "0263 4225448",
-        timeSlot: "07:30 a 15:30",
+        phone: "0263 422-5448",
+        timeSlot: "07:30 a 15:30h",
         role: "Supervisor de CDD",
       },
     ],
@@ -5181,17 +5423,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0261 4499595",
+        phone: "0261 449-9595",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Hugo Lucero",
-        phone: "0261 6579940",
-        timeSlot: "Turno mañana",
+        phone: "0261 657-9940",
+        timeSlot: "Turno Mañana",
+        role: "",
       },
       {
         name: "Nicolas Precopio",
-
-        timeSlot: "Turno tarde",
+        timeSlot: "Turno Tarde",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -5222,7 +5468,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Cristian Alejandro Caceres",
         phone: "02625 446495",
-        timeSlot: "07 a 15h",
+        timeSlot: "07:00 a 15:00h",
+        role: "",
       },
     ],
     assets: [
@@ -5252,17 +5499,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0261 4222196",
+        phone: "0261 422-2196",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Omar Lucero",
-
-        timeSlot: "07 a 13h",
+        timeSlot: "07:00 a 13:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Gonzalo Ahumada",
-
-        timeSlot: "13 a 19h",
+        timeSlot: "13:00 a 19:00h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -5292,14 +5543,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Fernando Andrés Moran",
-        phone: "0261 4188849",
-        timeSlot: "06 a 13h",
+        phone: "0261 418-8849",
+        timeSlot: "06:00 a 13:00h",
         role: "Referente",
       },
       {
         name: "Leandro Sergio",
-        phone: "0261 6679630",
-        timeSlot: "12 a 19h",
+        phone: "0261 667-9630",
+        timeSlot: "12:00 a 19:00h",
         role: "Auxiliar",
       },
     ],
@@ -5330,31 +5581,33 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0262 4811227",
+        phone: "0262 481-1227",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Sergio Ernesto Gallardo",
-
         timeSlot: "08:30 a 16:30h",
         role: "Jefe de Oficina",
+        phone: "",
       },
       {
         name: "Amico Marcelo",
-
         timeSlot: "08:30 a 16:30h",
         role: "Reemplazo de Jefe",
+        phone: "",
       },
       {
         name: "Walther Guillermo Monta",
-
         timeSlot: "08:30 a 16:30h",
         role: "Auxiliar",
+        phone: "",
       },
       {
         name: "Irma Videla",
-
         timeSlot: "08:30 a 16:30h",
         role: "Auxiliar",
+        phone: "",
       },
     ],
     assets: [
@@ -5384,16 +5637,22 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Ortiz Diego Jesús Emanuel",
-        phone: "0262 22522471",
-        timeSlot: "06:30 a 12 / 13:30 a 15:30h",
+        phone: "0262 2252-2471",
+        timeSlot: "06:30 a 12:00h",
         role: "Supervisor / Encargado de CDD y Telegrafía",
       },
       {
         name: "Javier Alvarez",
-        phone: "0262 2677231",
-        timeSlot: "06:30 a 12 / 13:30 a 15:30h",
+        phone: "0262 267-7231",
+        timeSlot: "06:30 a 12:00h",
+        role: "",
       },
-      { name: "Oficina", phone: "0262 422814" },
+      {
+        name: "Oficina",
+        phone: "0262 422814",
+        role: "",
+        timeSlot: "",
+      },
     ],
     assets: [
       {
@@ -5422,17 +5681,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0261 4499501",
+        phone: "0261 449-9501",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Rojas Rodrigo",
-
-        timeSlot: "06 a 13:15h",
+        timeSlot: "06:00 a 13:15h",
+        role: "",
+        phone: "",
       },
       {
         name: "Garcia Walter",
-
-        timeSlot: "06 a 13:45h",
+        timeSlot: "06:00 a 13:45h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -5482,8 +5745,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Britez Juan Carlos",
-        phone: "0374 3460155",
-        timeSlot: "07 a 14:30h",
+        phone: "0374 346-0155",
+        timeSlot: "07:00 a 14:30h",
+        role: "",
       },
     ],
     assets: [
@@ -5519,7 +5783,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Ramiro Aguirre",
         phone: "03758 422313",
-        timeSlot: "07 a 14:30h",
+        timeSlot: "07:00 a 14:30h",
+        role: "",
       },
     ],
     assets: [
@@ -5556,10 +5821,15 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Eduardo Olivera",
         phone: "03755 15 557310",
-        timeSlot: "06 a 13:15h",
+        timeSlot: "06:00 a 13:15h",
         role: "Auxiliar",
       },
-      { name: "Oficina", phone: "03755 426401" },
+      {
+        name: "Oficina",
+        phone: "03755 426401",
+        role: "",
+        timeSlot: "",
+      },
     ],
     assets: [
       {
@@ -5613,8 +5883,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Silvero Ricardo",
-        phone: "0375 1421399",
-        timeSlot: "07 a 14h",
+        phone: "0375 142-1399",
+        timeSlot: "07:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -5639,14 +5910,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Carrazan Rubén Darío",
-        phone: "0299 4376026",
-        timeSlot: "06 a 13:42h",
+        phone: "0299 437-6026",
+        timeSlot: "06:00 a 13:42h",
         role: "Supervisor",
       },
       {
         name: "Barros Cristian Alberto",
         phone: "6026",
         role: "Auxiliar",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -5701,8 +5973,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Diaz Rolando",
-        phone: "0299 5315515 / 0299 4966080",
-        timeSlot: "08 a 16h",
+        phone: "0299 531-5515 / 0299 496-6080",
+        timeSlot: "08:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -5757,19 +6030,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Villanueva Juan Eduardo",
-        phone: "0294 4664984",
-        timeSlot: "07 a 18h",
+        phone: "0294 466-4984",
+        timeSlot: "07:00 a 18:00h",
         role: "Referente",
       },
       {
         name: "Inzunza Hector Humberto",
-        phone: "0294 4835117",
-        timeSlot: "07 a 18h",
+        phone: "0294 483-5117",
+        timeSlot: "07:00 a 18:00h",
+        role: "",
       },
       {
         name: "Baldini Luis Federico",
-        phone: "0297 2509974",
-        timeSlot: "8:30 a 16:30h",
+        phone: "0297 250-9974",
+        timeSlot: "08:30 a 16:30h",
+        role: "",
       },
     ],
     assets: [
@@ -5824,8 +6099,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Lara Miguel Ángel",
-        phone: "0299 6900829",
-        timeSlot: "06 a 13:42h",
+        phone: "0299 690-0829",
+        timeSlot: "06:00 a 13:42h",
+        role: "",
       },
     ],
     assets: [
@@ -5855,8 +6131,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Muñoz Lucas",
-        phone: "0298 4470784",
+        phone: "0298 447-0784",
         timeSlot: "06:30 a 13:42h",
+        role: "",
       },
     ],
     assets: [
@@ -5887,11 +6164,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "02984 442216",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Nestor Hernan Vuillermin Keding",
         phone: "02984 536703",
         role: "Referente",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -5967,7 +6247,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "José María Nuñez",
         phone: "02920 622466 / 02920 426325",
-        timeSlot: "07 a 15h",
+        timeSlot: "07:00 a 15:00h",
+        role: "",
       },
     ],
     assets: [
@@ -6048,8 +6329,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Federico Gastón Medina",
-        phone: "0387 4214643 / 0387 6835942",
-        timeSlot: "08 a 15:42h",
+        phone: "0387 421-4643 / 0387 683-5942",
+        timeSlot: "08:00 a 15:42h",
+        role: "",
       },
     ],
     assets: [
@@ -6110,6 +6392,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "03876 420459",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Jorge Horacio Vanucci",
@@ -6119,15 +6403,15 @@ export const mockTelegrafia: Office[] = [
       },
       {
         name: "Santana Eduardo David",
-
         timeSlot: "07:55 a 15:07h",
         role: "Auxiliar",
+        phone: "",
       },
       {
         name: "Vanucci Santiago Sebastián",
-
         timeSlot: "07:55 a 15:07h",
         role: "Auxiliar",
+        phone: "",
       },
     ],
     assets: [
@@ -6158,7 +6442,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Martin Sergio Farfan Cortez",
         phone: "3878 15 631934 / 03878 421013",
-        timeSlot: "08 a 17h",
+        timeSlot: "08:00 a 17:00h",
+        role: "",
       },
     ],
     assets: [
@@ -6188,8 +6473,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Graciela del Valle Arispe",
-        phone: "0387 3567579",
+        phone: "0387 356-7579",
         timeSlot: "07:30 a 14:40h",
+        role: "",
       },
     ],
     assets: [
@@ -6245,7 +6531,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Cabrera Claudio Ezequiel",
         phone: "02644 645056",
-        timeSlot: "08 a 15:42h",
+        timeSlot: "08:00 a 15:42h",
         role: "Supervisor",
       },
     ],
@@ -6276,8 +6562,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Trujillo Gastón Ariel",
-        phone: "0264 4450400",
-        timeSlot: "10 a 17:15h",
+        phone: "0264 445-0400",
+        timeSlot: "10:00 a 17:15h",
+        role: "",
       },
     ],
     assets: [
@@ -6301,29 +6588,34 @@ export const mockTelegrafia: Office[] = [
       "CDDSanLuis-Control@correoargentino.com.ar / CDDSanLuis@correoargentino.com.ar",
     notes: "",
     contacts: [
-      { name: "Oficina Telegrafía", phone: "6412" },
+      {
+        name: "Oficina Telegrafía",
+        phone: "6412",
+        role: "",
+        timeSlot: "",
+      },
       {
         name: "Blasco Ángel",
-        phone: "0266 4810261",
-        timeSlot: "12:30 a 18h",
+        phone: "0266 481-0261",
+        timeSlot: "12:30 a 18:00h",
         role: "OST a cargo de Telegrafía",
       },
       {
         name: "Kaus Darío",
-        phone: "0266 4010753",
-        timeSlot: "07 a 13:30h",
+        phone: "0266 401-0753",
+        timeSlot: "07:00 a 13:30h",
         role: "Supervisor / Auxiliar",
       },
       {
         name: "Videla Jorge",
-        phone: "0266 4034773",
-        timeSlot: "07 a 13:30h",
+        phone: "0266 403-4773",
+        timeSlot: "07:00 a 13:30h",
         role: "Supervisor / Auxiliar",
       },
       {
         name: "Irusta Pablo",
-        phone: "0266 4202796",
-        timeSlot: "12:30 a 20h",
+        phone: "0266 420-2796",
+        timeSlot: "12:30 a 20:00h",
         role: "Supervisor / Auxiliar",
       },
     ],
@@ -6360,17 +6652,19 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina Telegrafía",
         phone: "02657 423014",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "David Alfredo Dominguez Galende",
-        phone: "0265 7205684",
-        timeSlot: "08 a 15:45h",
+        phone: "0265 720-5684",
+        timeSlot: "08:00 a 15:45h",
         role: "Supervisor",
       },
       {
         name: "Adrián Deonides Calderón",
-        phone: "0265 7353110",
-        timeSlot: "13 a 20:45h",
+        phone: "0265 735-3110",
+        timeSlot: "13:00 a 20:45h",
         role: "Supervisor",
       },
     ],
@@ -6426,14 +6720,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Hugo G. Villegas",
-        phone: "0297 4310703",
-        timeSlot: "07 a 14:30h",
+        phone: "0297 431-0703",
+        timeSlot: "07:00 a 14:30h",
         role: "Supervisor",
       },
       {
         name: "Jorge I. Gonzalez",
-        phone: "0297 4111410",
-        timeSlot: "11 a 18h",
+        phone: "0297 411-1410",
+        timeSlot: "11:00 a 18:00h",
         role: "Auxiliar",
       },
     ],
@@ -6514,8 +6808,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Soria Juan Pablo",
-        phone: "0296 6674423",
-        timeSlot: "09 a 16h",
+        phone: "0296 667-4423",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -6545,13 +6840,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Jorge Aguilar",
-        phone: "0296 6674423",
-        timeSlot: "09 a 16h",
+        phone: "0296 667-4423",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
       {
         name: "Jessica Gleadell",
-        phone: "0296 6674423",
-        timeSlot: "09 a 16h",
+        phone: "0296 667-4423",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -6582,7 +6879,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Walter Raileff",
         phone: "02966 539128",
-        timeSlot: "07 a 14:30h",
+        timeSlot: "07:00 a 14:30h",
         role: "Jefe",
       },
       {
@@ -6620,7 +6917,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "José Antonio Muñoz",
         phone: "02902 421152",
-        timeSlot: "09 a 16:30h",
+        timeSlot: "09:00 a 16:30h",
+        role: "",
       },
     ],
     assets: [
@@ -6651,19 +6949,19 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Ruiz Yanina",
         phone: "02902 493533",
-        timeSlot: "08:18 a 16h",
+        timeSlot: "08:18 a 16:00h",
         role: "Auxiliar",
       },
       {
         name: "Gimenez Julio",
         phone: "02902 493533",
-        timeSlot: "10:45 a 18h",
+        timeSlot: "10:45 a 18:00h",
         role: "Auxiliar",
       },
       {
         name: "Inoztroza Camila",
         phone: "02902 493533",
-        timeSlot: "09:48 a 16h",
+        timeSlot: "09:48 a 16:00h",
         role: "Auxiliar",
       },
     ],
@@ -6695,17 +6993,19 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "5731",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Boettner Walter",
-        phone: "0341 4200731",
-        timeSlot: "12 a 19:42h",
+        phone: "0341 420-0731",
+        timeSlot: "12:00 a 19:42h",
         role: "Jefe",
       },
       {
         name: "Cavagni Hugo Fabián",
-        phone: "0341 4200731",
-        timeSlot: "12 a 19:42h",
+        phone: "0341 420-0731",
+        timeSlot: "12:00 a 19:42h",
         role: "Auxiliar",
       },
     ],
@@ -6796,14 +7096,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Nonis Luciano",
-        phone: "0341 6472861",
-        timeSlot: "06 a 13h",
+        phone: "0341 647-2861",
+        timeSlot: "06:00 a 13:00h",
         role: "Jefe",
       },
       {
         name: "Mamone Luciana",
-        phone: "0341 6472861",
-        timeSlot: "06 a 13h",
+        phone: "0341 647-2861",
+        timeSlot: "06:00 a 13:00h",
         role: "Auxiliar",
       },
     ],
@@ -6854,20 +7154,20 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Mesa Daniel",
-        phone: "0341 4349121",
-        timeSlot: "05 a 12h",
+        phone: "0341 434-9121",
+        timeSlot: "05:00 a 12:00h",
         role: "Responsable Telegrafía",
       },
       {
         name: "Vela Leonardo",
-        phone: "0341 4349121",
-        timeSlot: "05 a 12h",
+        phone: "0341 434-9121",
+        timeSlot: "05:00 a 12:00h",
         role: "Responsable Telegrafía",
       },
       {
         name: "Falco Sergio Adrián",
-        phone: "0341 4592420",
-        timeSlot: "11 a 16h",
+        phone: "0341 459-2420",
+        timeSlot: "11:00 a 16:00h",
         role: "Supervisor CDD 05",
       },
     ],
@@ -6948,8 +7248,8 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Raggio Norberto",
-        phone: "0347 1563533",
-        timeSlot: "08 a 15h",
+        phone: "0347 156-3533",
+        timeSlot: "08:00 a 15:00h",
         role: "Jefe de Sucursal",
       },
     ],
@@ -7031,7 +7331,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Díaz María Alejandra",
         phone: "03476 603189",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -7082,13 +7383,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Germán Eduardo Manzo",
         phone: "03492 210309",
-        timeSlot: "05 a 12:12h",
+        timeSlot: "05:00 a 12:12h",
         role: "Jefe",
       },
       {
         name: "Germán Javier Barrera",
         phone: "03492 687104",
-        timeSlot: "11 a 18:12h",
+        timeSlot: "11:00 a 18:12h",
         role: "Auxiliar",
       },
     ],
@@ -7125,6 +7426,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Diego Roberto Carignano",
         phone: "03493 448013",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -7153,14 +7456,16 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "Mu ez Gonzalo",
-        phone: "0349 1421158",
-        timeSlot: "07:30 a 15h",
+        name: "Mu Ez Gonzalo",
+        phone: "0349 142-1158",
+        timeSlot: "07:30 a 15:00h",
         role: "Jefe",
       },
       {
         name: "Faure Yoel",
         role: "Auxiliar",
+        timeSlot: "",
+        phone: "",
       },
     ],
     assets: [
@@ -7265,21 +7570,33 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0342 4500801",
+        phone: "0342 450-0801",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Heltner Eduardo Roque",
-        timeSlot: "05 a 14h",
+        timeSlot: "05:00 a 14:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Giordano Mauricio Edgardo",
+        role: "",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "Gonzalez Marcelo Antonio",
+        role: "",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "García Ramos Evangelina",
         role: "Jefa de CDD",
+        timeSlot: "",
+        phone: "",
       },
     ],
     assets: [
@@ -7329,8 +7646,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Damico Agustin Gabriel",
-        phone: "0342 4294389",
+        phone: "0342 429-4389",
         timeSlot: "06:30 a 14:12h",
+        role: "",
       },
     ],
     assets: [
@@ -7360,20 +7678,20 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Lespinard José Luis",
-        phone: "0342 4394394",
-        timeSlot: "07 a 15h",
+        phone: "0342 439-4394",
+        timeSlot: "07:00 a 15:00h",
         role: "Supervisor",
       },
       {
         name: "Perez Claudio Hector",
-        phone: "0342 5253171",
-        timeSlot: "07 a 15h",
+        phone: "0342 525-3171",
+        timeSlot: "07:00 a 15:00h",
         role: "Auxiliar",
       },
       {
         name: "Malizia Oscar Eduardo",
-        phone: "0342 4448514",
-        timeSlot: "07 a 15h",
+        phone: "0342 444-8514",
+        timeSlot: "07:00 a 15:00h",
         role: "Auxiliar",
       },
     ],
@@ -7454,14 +7772,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Rosli Germán Agustín",
-        phone: "0338 2680992",
-        timeSlot: "08 a 15h",
+        phone: "0338 268-0992",
+        timeSlot: "08:00 a 15:00h",
         role: "Encargado",
       },
       {
         name: "Caruso Fernando",
-        timeSlot: "08 a 15h",
+        timeSlot: "08:00 a 15:00h",
         role: "Auxiliar",
+        phone: "",
       },
     ],
     assets: [
@@ -7492,7 +7811,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Mario Adolfo Rivas",
         phone: "03844 15 511689 / 03844 421079",
-        timeSlot: "8 a 15h",
+        timeSlot: "08:00 a 15:00h",
+        role: "",
       },
     ],
     assets: [
@@ -7609,7 +7929,7 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Sebastian Rosemberger",
         phone: "02901 432500",
-        timeSlot: "08 a 15:12h",
+        timeSlot: "08:00 a 15:12h",
         role: "Auxiliar",
       },
     ],
@@ -7690,18 +8010,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0351 4563636 / 0351 7881947",
+        phone: "0351 456-3636 / 0351 788-1947",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Matías Dávila",
-        phone: "0351 2159233",
-        timeSlot: "06 a 13:45h",
+        phone: "0351 215-9233",
+        timeSlot: "06:00 a 13:45h",
         role: "Responsable",
       },
       {
         name: "Mario Rodríguez",
-        timeSlot: "06 a 13:45h",
-        role: "Jefe CDD",
+        timeSlot: "06:00 a 13:45h",
+        role: "Jefe de CDD",
+        phone: "",
       },
     ],
     assets: [
@@ -7726,18 +8049,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0351 4621109",
-        timeSlot: "06 a 18:40",
+        phone: "0351 462-1109",
+        timeSlot: "06:00 a 18:40h",
+        role: "",
       },
       {
         name: "Cristián Oviedo",
-        timeSlot: "06 a 18:40",
+        timeSlot: "06:00 a 18:40h",
         role: "Responsable",
+        phone: "",
       },
       {
         name: "Pablo Palomares",
-        timeSlot: "06 a 18:40",
-        role: "Jefe CDD",
+        timeSlot: "06:00 a 18:40h",
+        role: "Jefe de CDD",
+        phone: "",
       },
     ],
     assets: [
@@ -7768,14 +8094,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Cesar Olmedo",
         phone: "0351 15 3429451",
-        timeSlot: "09 a 16h",
+        timeSlot: "09:00 a 16:00h",
         role: "Responsable",
       },
       {
         name: "Damian Valdez",
         phone: "0351 15 3429451",
-        timeSlot: "09 a 16h",
-        role: "Jefe CDD",
+        timeSlot: "09:00 a 16:00h",
+        role: "Jefe de CDD",
       },
     ],
     assets: [
@@ -7831,13 +8157,14 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Enzo Matías Nieto Chávez",
         phone: "03541 382833",
-        timeSlot: "09 a 16:30h",
-        role: "Jefe CDD",
+        timeSlot: "09:00 a 16:30h",
+        role: "Jefe de CDD",
       },
       {
         name: "Bianca Galíndez",
-        phone: "0351 5284138",
-        timeSlot: "09 a 16h",
+        phone: "0351 528-4138",
+        timeSlot: "09:00 a 16:00h",
+        role: "",
       },
     ],
     assets: [
@@ -7869,31 +8196,31 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Juan Carlos Staltari",
         phone: "02932 15 404329",
-        timeSlot: "06 a 13:42h",
-        role: "Supervisor CDD",
+        timeSlot: "06:00 a 13:42h",
+        role: "Supervisor de CDD",
       },
       {
         name: "Fernando Settembrino",
         phone: "02932 15 500770",
-        timeSlot: "09 a 16:42h",
-        role: "Jefe de sucursal",
+        timeSlot: "09:00 a 16:42h",
+        role: "Jefe de Sucursal",
       },
       {
         name: "Héctor Marín",
         phone: "02932 15 498812",
-        timeSlot: "06 a 13:42h",
+        timeSlot: "06:00 a 13:42h",
         role: "Auxiliar",
       },
       {
         name: "Ricardo Stalldecker",
         phone: "02932 15 630795",
-        timeSlot: "06 a 13:42h",
+        timeSlot: "06:00 a 13:42h",
         role: "Auxiliar",
       },
       {
         name: "Gabriel Cepeda",
         phone: "02932 15 50931",
-        timeSlot: "10:48 a 18h",
+        timeSlot: "10:48 a 18:00h",
         role: "Auxiliar",
       },
     ],
@@ -7925,26 +8252,32 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Ojeda Pablo",
         phone: "15 6805-9683",
-        timeSlot: "07 a 18h",
+        timeSlot: "07:00 a 18:00h",
+        role: "",
       },
       {
         name: "Funes Marcos",
         phone: "15 6296-3725",
-        timeSlot: "07 a 18h",
+        timeSlot: "07:00 a 18:00h",
+        role: "",
       },
       {
         name: "Dibari Alberto",
         phone: "15 6754-0095",
-        timeSlot: "07 a 18h",
+        timeSlot: "07:00 a 18:00h",
+        role: "",
       },
       {
         name: "Martin Miguel",
         phone: "15 6924-0354",
-        timeSlot: "07 a 18h",
+        timeSlot: "07:00 a 18:00h",
+        role: "",
       },
       {
         name: "Sector de Control",
         phone: "4660-0276",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -7989,13 +8322,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Victor Claudio Martinez",
-        phone: "0351 6684020",
+        phone: "0351 668-4020",
         timeSlot: "13:12 a 21:00h",
+        role: "",
       },
       {
         name: "Pablo Sebastian Camao",
-        phone: "0351 6214436",
+        phone: "0351 621-4436",
         timeSlot: "05:30 a 12:42h",
+        role: "",
       },
     ],
     assets: [
@@ -8050,15 +8385,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0341 4200731 / Interno: 5731",
+        phone: "0341 420-0731 / Interno: 5731",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Boettner Walter",
-        timeSlot: "05 a 12:42h",
+        timeSlot: "05:00 a 12:42h",
+        role: "",
+        phone: "",
       },
       {
         name: "Cavagni Hugo Fabián",
-        timeSlot: "12 a 19:42h",
+        timeSlot: "12:00 a 19:42h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -8088,21 +8429,33 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oficina",
-        phone: "0342 4500801",
+        phone: "0342 450-0801",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Heltner Eduardo Roque",
-        timeSlot: "05 a 14h",
+        timeSlot: "05:00 a 14:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Giordano Mauricio Edgardo",
+        role: "",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "Gonzalez Marcelo Antonio",
+        role: "",
+        timeSlot: "",
+        phone: "",
       },
       {
         name: "García Ramos Evangelina",
         role: "Jefa de CDD",
+        timeSlot: "",
+        phone: "",
       },
     ],
     assets: [
@@ -8134,16 +8487,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -8200,16 +8556,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -8239,18 +8598,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Gómez Alejandro",
-        phone: "0264 4722239",
+        phone: "0264 472-2239",
         timeSlot: "05:30 a 13:30h",
+        role: "",
       },
       {
         name: "González Martín",
-        phone: "0264 5464980",
-        timeSlot: "06 a 14h",
+        phone: "0264 546-4980",
+        timeSlot: "06:00 a 14:00h",
+        role: "",
       },
       {
         name: "Gil Leandro",
-        phone: "0264 4607546",
-        timeSlot: "12 a 19:30h",
+        phone: "0264 460-7546",
+        timeSlot: "12:00 a 19:30h",
+        role: "",
       },
     ],
     assets: [
@@ -8279,29 +8641,34 @@ export const mockTelegrafia: Office[] = [
       "CDDSanLuis-Control@correoargentino.com.ar / CDDSanLuis@correoargentino.com.ar",
     notes: "",
     contacts: [
-      { name: "Oficina Telegrafía", phone: "6412" },
+      {
+        name: "Oficina Telegrafía",
+        phone: "6412",
+        role: "",
+        timeSlot: "",
+      },
       {
         name: "Blasco Ángel",
-        phone: "0266 4810261",
-        timeSlot: "12:30 a 18h",
+        phone: "0266 481-0261",
+        timeSlot: "12:30 a 18:00h",
         role: "OST a cargo de Telegrafía",
       },
       {
         name: "Kaus Darío",
-        phone: "0266 4010753",
-        timeSlot: "07 a 13:30h",
+        phone: "0266 401-0753",
+        timeSlot: "07:00 a 13:30h",
         role: "Supervisor / Auxiliar",
       },
       {
         name: "Videla Jorge",
-        phone: "0266 4034773",
-        timeSlot: "07 a 13:30h",
+        phone: "0266 403-4773",
+        timeSlot: "07:00 a 13:30h",
         role: "Supervisor / Auxiliar",
       },
       {
         name: "Irusta Pablo",
-        phone: "0266 4202796",
-        timeSlot: "12:30 a 20h",
+        phone: "0266 420-2796",
+        timeSlot: "12:30 a 20:00h",
         role: "Supervisor / Auxiliar",
       },
     ],
@@ -8338,8 +8705,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Sergio Gustavo Martínez",
-        phone: "0381 4485354",
-        timeSlot: "06 a 14h",
+        phone: "0381 448-5354",
+        timeSlot: "06:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -8390,8 +8758,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Sergio Gustavo Martínez",
-        phone: "0381 4485354",
-        timeSlot: "06 a 14h",
+        phone: "0381 448-5354",
+        timeSlot: "06:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -8422,22 +8791,26 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Lovera Matias",
         phone: "15 4083-7921",
-        timeSlot: "07 a 15h",
+        timeSlot: "07:00 a 15:00h",
+        role: "",
       },
       {
         name: "Ifran Gustavo",
         phone: "15 2392-1018",
-        timeSlot: "07 a 15h",
+        timeSlot: "07:00 a 15:00h",
+        role: "",
       },
       {
         name: "Obregon Martin",
         phone: "15 3672-0093",
-        timeSlot: "07 a 15h",
+        timeSlot: "07:00 a 15:00h",
+        role: "",
       },
       {
         name: "Perfilio Fernando",
         phone: "15 5458-114?",
-        timeSlot: "15 a 17:30h",
+        timeSlot: "15:00 a 17:30h",
+        role: "",
       },
     ],
     assets: [
@@ -8467,18 +8840,21 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Pérez Félix Daniel",
-        phone: "0383 4992451",
-        timeSlot: "06 a 13:42h",
+        phone: "0383 499-2451",
+        timeSlot: "06:00 a 13:42h",
+        role: "",
       },
       {
         name: "Barrionuevo Ren",
-        phone: "0383 4524834",
-        timeSlot: "06 a 13:42h",
+        phone: "0383 452-4834",
+        timeSlot: "06:00 a 13:42h",
+        role: "",
       },
       {
         name: "Barrionuevo Oscar",
-        phone: "0383 4569053",
-        timeSlot: "11 a 18:42h",
+        phone: "0383 456-9053",
+        timeSlot: "11:00 a 18:42h",
+        role: "",
       },
     ],
     assets: [
@@ -8594,18 +8970,26 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Oficina",
         phone: "5941-3309",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Alejandra Maria Cruz",
-        timeSlot: "7 a 13h",
+        timeSlot: "07:00 a 13:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Daniel Leonardo Friera",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
+        phone: "",
       },
       {
         name: "Fabián Nuñez",
-        timeSlot: "13 a 20h",
+        timeSlot: "13:00 a 20:00h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -8696,6 +9080,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Walter Nieva",
         phone: "0351 15 4837126",
+        role: "",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -8743,14 +9129,23 @@ export const mockTelegrafia: Office[] = [
     email: "cdd01Rosario@correoargentino.com.ar",
     notes: "",
     contacts: [
-      { name: "Oficina", phone: "5731 / 0341 4200731" },
+      {
+        name: "Oficina",
+        phone: "5731 / 0341 420-0731",
+        role: "",
+        timeSlot: "",
+      },
       {
         name: "Boettner Walter",
-        timeSlot: "05 a 12:42h",
+        timeSlot: "05:00 a 12:42h",
+        role: "",
+        phone: "",
       },
       {
         name: "Cavagni Hugo Fabián",
-        timeSlot: "12 a 19:42h",
+        timeSlot: "12:00 a 19:42h",
+        role: "",
+        phone: "",
       },
     ],
     assets: [
@@ -8842,16 +9237,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -8896,14 +9294,14 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "García Horacio",
-        phone: "0223 5606786",
-        timeSlot: "06 a 13h",
+        phone: "0223 560-6786",
+        timeSlot: "06:00 a 13:00h",
         role: "Auxiliar",
       },
       {
         name: "Costales Pablo",
-        phone: "0223 4365468",
-        timeSlot: "09 a 16h",
+        phone: "0223 436-5468",
+        timeSlot: "09:00 a 16:00h",
         role: "Supervisor",
       },
     ],
@@ -8929,24 +9327,26 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Ariel Javier Acedo",
-        phone: "0351 4289100 / Interno: 9234 / 9214",
+        phone: "0351 428-9100 / Interno: 9234 / 9214",
+        role: "",
+        timeSlot: "",
       },
       {
         name: "Pablo Castillo",
-        phone: "0351 2234900",
-        timeSlot: "06 a 14h",
+        phone: "0351 223-4900",
+        timeSlot: "06:00 a 14:00h",
         role: "Jefe",
       },
       {
         name: "Marco Alsina",
-        phone: "0351 2938429",
-        timeSlot: "06 a 14h",
+        phone: "0351 293-8429",
+        timeSlot: "06:00 a 14:00h",
         role: "Supervisor",
       },
       {
         name: "Jose Micheli",
-        phone: "0351 2130187",
-        timeSlot: "09 a 17h",
+        phone: "0351 213-0187",
+        timeSlot: "09:00 a 17:00h",
         role: "Auxiliar",
       },
     ],
@@ -9061,13 +9461,15 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Moreno Pablo Sebastián",
-        phone: "0263 4596291",
-        timeSlot: "09 a 16:40h",
+        phone: "0263 459-6291",
+        timeSlot: "09:00 a 16:40h",
+        role: "",
       },
       {
         name: "Cappadona Diego Orlando",
-        phone: "0263 4614949",
-        timeSlot: "09 a 16:10h",
+        phone: "0263 461-4949",
+        timeSlot: "09:00 a 16:10h",
+        role: "",
       },
     ],
     assets: [
@@ -9124,16 +9526,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -9164,18 +9569,20 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Méndez Sergo Fabián",
         phone: "4809",
-        timeSlot: "07 a 11h / 18 a 21h",
+        timeSlot: "07:00 a 11:00h",
         role: "Jefe",
       },
       {
         name: "Centurión Ramón Mario Alberto",
-        timeSlot: "07 a 14h",
+        timeSlot: "07:00 a 14:00h",
         role: "Auxiliar",
+        phone: "",
       },
       {
         name: "Lanser Marco Antonio",
-        timeSlot: "13 a 21h",
+        timeSlot: "13:00 a 21:00h",
         role: "Encargado",
+        phone: "",
       },
     ],
     assets: [
@@ -9216,7 +9623,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Marcelo Perez",
         phone: "0299 15 4518076",
-        timeSlot: "08 a 15:30h",
+        timeSlot: "08:00 a 15:30h",
+        role: "",
       },
     ],
     assets: [
@@ -9247,7 +9655,8 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Vaz Leandro Horacio",
         phone: "03625 610111",
-        timeSlot: "06 a 14h",
+        timeSlot: "06:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -9277,8 +9686,8 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Herrera Gabriel",
-        phone: "0261 2522283 / 0261 4912101",
-        timeSlot: "07 a 14:30h",
+        phone: "0261 252-2283 / 0261 491-2101",
+        timeSlot: "07:00 a 14:30h",
         role: "Supervisor",
       },
     ],
@@ -9307,16 +9716,23 @@ export const mockTelegrafia: Office[] = [
     email: "CDDIng.Maschwitz@correoargentino.com.ar",
     notes: "",
     contacts: [
-      { name: "Oficina", phone: "0348 4629807" },
+      {
+        name: "Oficina",
+        phone: "0348 462-9807",
+        role: "",
+        timeSlot: "",
+      },
       {
         name: "Marcelo Bardallo",
-        timeSlot: "5 a 12h",
+        timeSlot: "05:00 a 12:00h",
         role: "Supervisor",
+        phone: "",
       },
       {
         name: "Carlos Gastón Miarro",
-        timeSlot: "12 a 19h",
+        timeSlot: "12:00 a 19:00h",
         role: "Auxiliar",
+        phone: "",
       },
     ],
     assets: [
@@ -9346,8 +9762,9 @@ export const mockTelegrafia: Office[] = [
     contacts: [
       {
         name: "Oscar Eduardo Guayco",
-        phone: "0261 4499579",
-        timeSlot: "8 a 14h",
+        phone: "0261 449-9579",
+        timeSlot: "08:00 a 14:00h",
+        role: "",
       },
     ],
     assets: [
@@ -9386,9 +9803,9 @@ export const mockTelegrafia: Office[] = [
     notes: "",
     contacts: [
       {
-        name: "Claudio de los Santos",
+        name: "Claudio de Los Santos",
         phone: "02226 421199",
-        timeSlot: "07 a 14:42h",
+        timeSlot: "07:00 a 14:42h",
         role: "Supervisor",
       },
     ],
@@ -9415,13 +9832,13 @@ export const mockTelegrafia: Office[] = [
       {
         name: "Natalia Godoy",
         phone: "15 5260-5239",
-        timeSlot: "09 a 16h",
+        timeSlot: "09:00 a 16:00h",
         role: "Auxiliar",
       },
       {
         name: "Roxana Mussio",
         phone: "15 6883-0244",
-        timeSlot: "10 a 17h",
+        timeSlot: "10:00 a 17:00h",
         role: "Auxiliar",
       },
     ],
@@ -9494,11 +9911,13 @@ export const mockTelegrafia: Office[] = [
         name: "Enrique Russo",
         phone: "15 6744-9674",
         role: "Auxiliar",
+        timeSlot: "",
       },
       {
         name: "Daniel",
         phone: "15 6282-0120",
         role: "Auxiliar",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -9525,16 +9944,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
@@ -9561,16 +9983,19 @@ export const mockTelegrafia: Office[] = [
         name: "Ariel Fajks",
         phone: "8042",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Bibiana Casco",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
       {
         name: "Grazulis",
         phone: "8092 / 8089",
         role: "Supervisor",
+        timeSlot: "",
       },
     ],
     assets: [
