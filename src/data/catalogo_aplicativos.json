@@ -73,13 +73,7 @@
       "description": "Cliente Telnet portable para verificar conectividad a puertos y servicios específicos.",
       "url": "/descargas/aplicativos/Telnet.zip"
     },
-    {
-      "id": "hmda",
-      "title": "HMDA (Pulpito)",
-      "type": "Programa",
-      "description": "Paquete de herramientas (conexión remota con W10 y Ubuntu/Debian, captura de pantalla y acceso a HOST).",
-      "url": "/descargas/aplicativos/HMDA.zip"
-    },
+
     {
       "id": "cmda",
       "title": "CMDA",
