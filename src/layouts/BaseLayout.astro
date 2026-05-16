@@ -64,17 +64,17 @@ const navSections: NavSection[] = [
         icon: "boxicons:shield-quarter-filled",
         children: [
           {
-            href: "/cronograma",
+            href: "/supervision/cronograma",
             label: "Cronograma",
             icon: "boxicons:calendar-filled",
           },
           {
-            href: "/calidad-operadores",
+            href: "/supervision/calidad-operadores",
             label: "Calidad de operadores",
             icon: "boxicons:bar-chart-big-filled",
           },
           {
-            href: "/asignacion-autogestiones",
+            href: "/supervision/asignacion-autogestiones",
             label: "Asignación de autogestiones",
             icon: "boxicons:git-branch-filled",
           },
@@ -158,6 +158,17 @@ const navSections: NavSection[] = [
       },
     ],
   },
+  {
+    id: "admin",
+    label: "Administración",
+    items: [
+      {
+        href: "/admin",
+        label: "Panel de administración",
+        icon: "boxicons:apps-filled",
+      }
+    ],
+  },
 ];
 
 const flattenQuickAccessItems = (items: NavItem[]): NavItem[] =>
@@ -184,6 +195,44 @@ const isActiveRoute = (href: string) =>
   href === "/"
     ? currentPath === "/"
     : currentPath === href || currentPath.startsWith(`${href}/`);
+
+const user = Astro.locals.user;
+const userInitials = user.username.slice(0, 2).toUpperCase();
+
+const roleAvatarClasses: Record<string, string> = {
+  admin: "bg-error text-error-content",
+  supervisor: "bg-info text-info-content",
+  referent: "bg-warning text-warning-content",
+  agent: "bg-neutral text-neutral-content",
+};
+
+const roleLabelMap: Record<string, string> = {
+  admin: "Administrador",
+  supervisor: "Supervisor",
+  referent: "Referente",
+  agent: "Agente",
+};
+
+const avatarClass = roleAvatarClasses[user.role] ?? roleAvatarClasses.agent;
+const roleLabel = roleLabelMap[user.role] ?? "Agente";
+
+const isRouteLocked = (href: string): boolean => {
+  const role = user.role;
+
+  if (href === "/design-system" || href.startsWith("/admin")) {
+    return role !== "admin";
+  }
+
+  if (href === "/supervision/asignacion-autogestiones") {
+    return !["admin", "supervisor", "referent"].includes(role);
+  }
+
+  if (href.startsWith("/supervision") || href === "/supervision/cronograma" || href === "/supervision/calidad-operadores") {
+    return !["admin", "supervisor"].includes(role);
+  }
+
+  return false;
+};
 ---
 
 <html lang="es">
@@ -376,29 +425,42 @@ const isActiveRoute = (href: string) =>
                     </li>
                     {section.items.map((item) => {
                       const isActive = isActiveRoute(item.href);
+                      const isLocked = isRouteLocked(item.href);
                       return (
                         <li>
                           <a
-                            href={item.href}
+                            href={isLocked ? undefined : item.href}
                             aria-label={item.label}
-                            data-tip={item.label}
+                            aria-disabled={isLocked ? "true" : undefined}
+                            data-tip={isLocked ? `${item.label} (restringido)` : item.label}
+                            tabindex={isLocked ? -1 : undefined}
                             class:list={[
                               "group flex items-center gap-2.5 rounded-lg text-xs p-2.5 font-medium transition",
                               "is-drawer-close:justify-center is-drawer-close:px-0",
                               "is-drawer-close:tooltip is-drawer-close:tooltip-right",
-                              isActive
-                                ? "bg-primary text-primary-content shadow-sm"
-                                : "text-secondary-content/70 hover:bg-white/10 hover:text-white",
+                              isLocked
+                                ? "opacity-40 cursor-not-allowed pointer-events-none grayscale select-none"
+                                : isActive
+                                  ? "bg-primary text-primary-content shadow-sm"
+                                  : "text-secondary-content/70 hover:bg-white/10 hover:text-white",
                             ]}
                           >
                             <Icon
                               name={item.icon}
                               size={24}
-                              class=" shrink-0 opacity-80 transition group-hover:opacity-100"
+                              class="shrink-0 opacity-80 transition group-hover:opacity-100"
                             />
                             <span class="truncate is-drawer-close:hidden">
                               {item.label}
                             </span>
+                            {isLocked && (
+                              <Icon
+                                name="boxicons:lock"
+                                size={14}
+                                class="ml-auto shrink-0 opacity-60 is-drawer-close:hidden"
+                                aria-hidden="true"
+                              />
+                            )}
                           </a>
                         </li>
                       );
@@ -412,6 +474,79 @@ const isActiveRoute = (href: string) =>
                   )}
                 </>
               ))
+            }
+          </div>
+
+          <div class="w-full border-t border-secondary-content/10 p-2">
+            {
+              user.id === 0 ? (
+                <a
+                  href="/login"
+                  aria-label="Iniciar sesión"
+                  data-tip="Iniciar sesión"
+                  class:list={[
+                    "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
+                    "text-secondary-content/70 hover:bg-white/10 hover:text-white",
+                    "is-drawer-close:justify-center is-drawer-close:px-0",
+                    "is-drawer-close:tooltip is-drawer-close:tooltip-right",
+                  ]}
+                >
+                  <Icon
+                    name="boxicons:arrow-out-right-stroke-circle-half-filled"
+                    size={24}
+                    class="shrink-0 opacity-80 transition group-hover:opacity-100"
+                  />
+                  <span class="truncate is-drawer-close:hidden">
+                    Iniciar sesión
+                  </span>
+                </a>
+              ) : (
+                <div class="flex flex-col gap-1.5">
+                  <div
+                    class:list={[
+                      "flex items-center gap-2.5 rounded-lg p-2 is-drawer-close:justify-center is-drawer-close:p-2",
+                    ]}
+                  >
+                    <div
+                      class:list={[
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm",
+                        avatarClass,
+                      ]}
+                      aria-hidden="true"
+                    >
+                      {userInitials}
+                    </div>
+                    <div class="min-w-0 is-drawer-close:hidden">
+                      <p class="truncate text-xs font-semibold leading-tight text-secondary-content">
+                        {user.username}
+                      </p>
+                      <p class="truncate text-xs font-medium uppercase tracking-wider text-secondary-content/50">
+                        {roleLabel}
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="/logout"
+                    aria-label="Cerrar sesión"
+                    data-tip="Cerrar sesión"
+                    class:list={[
+                      "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
+                      "text-secondary-content/70 hover:bg-white/10 hover:text-white",
+                      "is-drawer-close:justify-center is-drawer-close:px-0",
+                      "is-drawer-close:tooltip is-drawer-close:tooltip-right",
+                    ]}
+                  >
+                    <Icon
+                      name="boxicons:door-open-alt-filled"
+                      size={24}
+                      class="shrink-0 opacity-80 transition group-hover:opacity-100"
+                    />
+                    <span class="truncate is-drawer-close:hidden">
+                      Cerrar sesión
+                    </span>
+                  </a>
+                </div>
+              )
             }
           </div>
         </div>
@@ -447,32 +582,43 @@ const isActiveRoute = (href: string) =>
 
         <ul class="menu w-full">
           {
-            quickAccessItems.map((item) => (
-              <li
-                data-command-item
-                data-search-text={`${item.label} ${item.href} ${item.parentLabel ?? ""}`.toLowerCase()}
-              >
-                <a href={item.href} class="justify-between gap-3">
-                  <span
-                    class:list={[
-                      "flex min-w-0 items-center gap-2",
-                      item.nested && "pl-5",
-                    ]}
+            quickAccessItems.map((item) => {
+              const isLocked = isRouteLocked(item.href);
+              return (
+                <li
+                  data-command-item
+                  data-search-text={`${item.label} ${item.href} ${item.parentLabel ?? ""}`.toLowerCase()}
+                  class:list={[isLocked && "opacity-40 grayscale select-none cursor-not-allowed"]}
+                >
+                  <a
+                    href={isLocked ? undefined : item.href}
+                    class="justify-between gap-3"
+                    tabindex={isLocked ? -1 : undefined}
                   >
-                    <Icon name={item.icon} size={14} class="shrink-0" />
-                    <span class="min-w-0">
-                      {item.parentLabel && (
-                        <span class="block text-xs text-base-content/50">
-                          {item.parentLabel}
-                        </span>
-                      )}
-                      <span class="block truncate">{item.label}</span>
+                    <span
+                      class:list={[
+                        "flex min-w-0 items-center gap-2",
+                        item.nested && "pl-5",
+                      ]}
+                    >
+                      <Icon name={item.icon} size={14} class="shrink-0" />
+                      <span class="min-w-0">
+                        {item.parentLabel && (
+                          <span class="block text-xs text-base-content/50">
+                            {item.parentLabel}
+                          </span>
+                        )}
+                        <span class="block truncate">{item.label}</span>
+                      </span>
                     </span>
-                  </span>
-                  <span class="text-xs text-base-content/60">{item.href}</span>
-                </a>
-              </li>
-            ))
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class="text-xs text-base-content/60">{item.href}</span>
+                      {isLocked && <Icon name="boxicons:lock" size={12} class="opacity-60" />}
+                    </div>
+                  </a>
+                </li>
+              );
+            })
           }
         </ul>
 
