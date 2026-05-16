@@ -27,3 +27,11 @@ pnpm-debug.log*
 # local tooling artifacts
 .playwright-mcp/
 tmp/
+
+# Base de datos
+/database/mda.db
+/database/mda.db-journal
+/drizzle/
+*.db
+*.db-journal
+database/mda.db

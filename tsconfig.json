@@ -3,45 +3,22 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@db/*": [
-        "src/db/*"
-      ],
-      "@content/*": [
-        "src/content/*"
-      ],
-      "@layouts/*": [
-        "src/layouts/*"
-      ],
-      "@pages/*": [
-        "src/pages/*"
-      ],
-      "@styles/*": [
-        "src/styles/*"
-      ],
-      "@assets/*": [
-        "src/assets/*"
-      ],
-      "@lib/*": [
-        "src/lib/*"
-      ],
-      "@types/*": [
-        "src/types/*"
-      ]
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@db/*": ["src/db/*"],
+      "@content/*": ["src/content/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@pages/*": ["src/pages/*"],
+      "@styles/*": ["src/styles/*"],
+      "@assets/*": ["src/assets/*"],
+      "@lib/*": ["src/lib/*"],
+      "@types/*": ["src/types/*"],
+      "@middleware/*": ["src/middleware/*"],
+      "@data/*": ["src/data/*"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "include": [
-    ".astro/types.d.ts",
-    "**/*"
-  ],
-  "exclude": [
-    "dist"
-  ]
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
 }
