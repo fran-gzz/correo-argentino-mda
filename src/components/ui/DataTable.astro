@@ -6,6 +6,7 @@ interface Props {
   rowGridClass: string;
   class?: string;
   bodyClass?: string;
+  id?: string;
 }
 
 const {
@@ -15,10 +16,12 @@ const {
   rowGridClass,
   class: className = "",
   bodyClass = "",
+  id,
 } = Astro.props;
 ---
 
 <section
+  id={id}
   class:list={[
     "overflow-x-auto rounded-box border border-base-300 bg-base-200/70 shadow-sm",
     className,
