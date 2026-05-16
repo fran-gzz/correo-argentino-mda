@@ -1006,30 +1006,28 @@ const mockOfficeDirectoryItems: OfficeDirectoryItem[] =
     ...officeSiteMetaById[office.id],
   }));
 
-// Datos reales de oficinas telegráficas importados del CSV
-import { mockTelegrafia } from "./mock_telegrafia";
+// Datos reales de oficinas telegráficas importados desde la Base de Datos
+import { getTelegrafiaOfficesFromDB } from "@lib/offices";
 
-const telegrafiaDirectoryItems: OfficeDirectoryItem[] = mockTelegrafia.map(
-  (t) => ({
-    id: t.id,
-    type: "telegrafia" as const,
-    code: t.code,
-    name: t.name,
-    location: t.region,
-    costCenter: "",
-    postalCode: "",
-    region: t.region,
-    address: t.address,
-    email: t.email,
-    notes: t.notes,
-    contacts: t.contacts,
-    assets: t.assets.map((a) => ({ ...a, status: "online" as const })),
-  }),
-);
+/**
+ * Obtiene el directorio completo de oficinas combinando:
+ * - Mock genérico (comercial, distribución, paquetería)
+ * - Base de datos (telegrafía)
+ */
+export async function getOfficeDirectoryItems(): Promise<
+  OfficeDirectoryItem[]
+> {
+  const telegrafiaItems = await getTelegrafiaOfficesFromDB();
 
-// Combinar ambas fuentes: mock genérico + telegrafía real
-// Filtrar las oficinas telegráficas de los datos mock para evitar duplicados
-export const officeDirectoryItems: OfficeDirectoryItem[] = [
-  ...mockOfficeDirectoryItems.filter((o) => o.type !== "telegrafia"),
-  ...telegrafiaDirectoryItems,
-];
+  const combined = [
+    ...mockOfficeDirectoryItems.filter((o) => o.type !== "telegrafia"),
+    ...telegrafiaItems,
+  ];
+
+  return combined.sort((a, b) => {
+    const codeComp = a.code.localeCompare(b.code, undefined, { numeric: true });
+    if (codeComp !== 0) return codeComp;
+    return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+  });
+}
+

@@ -8,11 +8,13 @@ import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import ViewSwitcher from "@components/ui/ViewSwitcher.astro";
 import {
-  officeDirectoryItems,
+  getOfficeDirectoryItems,
   type OfficeDirectoryItem,
   type OfficeAssetType,
   type OfficeType,
 } from "@/data/directorio_oficinas";
+
+const officeDirectoryItems = await getOfficeDirectoryItems();
 
 // Datos de ejemplo para el mapa de sucursales (mock)
 const sucursales = [
@@ -142,6 +144,10 @@ const officeTypeTabs: OfficeTypeTab[] = [
   { type: "distribucion", label: "Distribución" },
   { type: "paqueteria", label: "Paquetería" },
 ];
+
+const uniqueRegions = [
+  ...new Set(officeDirectoryItems.map((s) => s.region).filter(Boolean)),
+].sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
 const officeCountByType = officeDirectoryItems.reduce(
   (counts, office) => {
@@ -301,12 +307,24 @@ const mainTabs = [
           }
         </div>
 
-        <SearchInput
-          id="office-search"
-          label="Buscar oficina por nombre, código, región, centro de costo o código postal"
-          placeholder="Buscar por nombre, código, región, centro de costo o CP"
-          class="lg:max-w-sm"
-        />
+        <div class="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:max-w-xl">
+          <select
+            id="regionFilter"
+            class="select border-base-300 w-full sm:w-48 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-label="Filtrar por región"
+          >
+            <option value="all">Todas las regiones</option>
+            {uniqueRegions.map((region) => (
+              <option value={region}>{region}</option>
+            ))}
+          </select>
+          <SearchInput
+            id="office-search"
+            label="Buscar oficina por nombre, código, región, centro de costo o código postal"
+            placeholder="Buscar por nombre, código, región, centro de costo o CP"
+            class="w-full"
+          />
+        </div>
       </section>
 
       <div
@@ -382,6 +400,7 @@ const mainTabs = [
                     data-office-id={office.id}
                     data-office-type={office.type}
                     data-office-location={office.location}
+                    data-region={office.region}
                     data-search-text={searchText}
                     data-sort-code={office.code}
                     data-sort-name={office.name}
@@ -616,7 +635,7 @@ const mainTabs = [
                                             >
                                               <Icon
                                                 name={
-                                                  assetIconByType[asset.type]
+                                                  assetIconByType[asset.type] || "boxicons:info-circle-filled"
                                                 }
                                                 class="size-4"
                                               />
@@ -739,6 +758,8 @@ const mainTabs = [
     } from "@lib/clientSearch";
     import { refreshMasterDetailTableSort } from "@lib/clientMasterDetailTableSort";
 
+    declare const L: any;
+
     // --- Lógica del Switch Principal ---
     const mainViewDir = document.getElementById("main-view-directory");
     const mainViewMap = document.getElementById("main-view-map");
@@ -764,6 +785,8 @@ const mainTabs = [
     );
     const searchInput =
       document.querySelector<HTMLInputElement>("#office-search");
+    const regionFilter =
+      document.querySelector<HTMLSelectElement>("#regionFilter");
     const emptyState = document.querySelector<HTMLElement>(
       "#office-empty-state",
     );
@@ -789,11 +812,16 @@ const mainTabs = [
       const matchesType =
         selectedOfficeType === "all" ||
         item.dataset.officeType === selectedOfficeType;
+        
+      const regionValue = regionFilter?.value || "all";
+      const matchesRegion =
+        regionValue === "all" || item.dataset.region === regionValue;
+        
       const matchesSearch = matchesSearchQuery(searchInput?.value.trim(), [
         item.dataset.searchText,
       ]);
 
-      return matchesType && matchesSearch;
+      return matchesType && matchesRegion && matchesSearch;
     };
 
     const updateRows = (): void => {
@@ -854,7 +882,6 @@ const mainTabs = [
         groupRow.classList.toggle("hidden", !showGroup);
       });
 
-      refreshMasterDetailTableSort();
       emptyState?.classList.toggle("hidden", visibleRows > 0);
     };
 
@@ -1137,6 +1164,7 @@ const mainTabs = [
           tab.setAttribute("aria-selected", isActive ? "true" : "false");
         });
         updateRows();
+        refreshMasterDetailTableSort();
       });
     });
 
@@ -1156,7 +1184,9 @@ const mainTabs = [
     });
 
     searchInput?.addEventListener("input", updateRows);
+    regionFilter?.addEventListener("change", updateRows);
     updateRows();
+    refreshMasterDetailTableSort();
   </script>
 
   <style>
