@@ -64,4 +64,4 @@ async function runPingCycle() {
 runPingCycle();
 
 // Programar para que se ejecute cada 5 minutos (300000 ms)
-setInterval(runPingCycle, 300000);
+setInterval(runPingCycle, 600000);

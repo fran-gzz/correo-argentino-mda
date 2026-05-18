@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "mda-portal",
+      name: "correo-argentino-mda",
       script: "./dist/server/entry.mjs",
       env: {
         NODE_ENV: "production",
@@ -9,9 +9,11 @@ module.exports = {
       },
     },
     {
-      name: "mda-radar",
-      script: "npx",
-      args: "tsx scripts/ping-worker.ts",
-    },
+      name: "mda-ping-cubics",
+      script: "node",
+      args: "--import tsx scripts/ping-worker.ts",
+      autorestart: true,
+      watch: false
+    }
   ],
 };
