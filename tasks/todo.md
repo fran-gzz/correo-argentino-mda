@@ -1,14 +1,22 @@
-# Plan de Trabajo - Directorio de Oficinas (Reorganización de Filtros)
+# Plan de Trabajo - Búsqueda global en Admin de Oficinas
 
 ## Objetivo
-- Mover las pestañas (tabs) a la primera fila de la grilla de filtros.
-- Mover el select de región y la barra de búsqueda a una segunda fila.
-- Priorizar el ancho de la barra de búsqueda en la segunda fila.
+- Integrar el componente `SearchInput` en la vista de administración de oficinas (`src/pages/admin/offices/index.astro`).
+- Implementar la lógica de cliente para filtrar y resaltar resultados en vivo mientras el usuario escribe, reutilizando `@lib/searchUtils`.
+- Mejorar la experiencia de usuario reemplazando la necesidad de usar "Ctrl+F".
 
 ## Tareas
-- [X] En `src/pages/directorio-oficinas/index.astro`:
-    - [X] Reestructurar el `<section>` de filtros para que use `flex-col` siempre. <!-- id: 21 -->
-    - [X] Colocar el contenedor de `tabs` en la primera fila (ancho completo). <!-- id: 22 -->
-    - [X] Colocar el `select` y el `SearchInput` en un contenedor `flex` en la segunda fila. <!-- id: 23 -->
-    - [X] Ajustar las clases para que el `SearchInput` ocupe la mayor parte del espacio (ej. `flex-1` o `w-3/4`) y el `select` sea más pequeño (ej. `w-1/4` o `w-auto`). <!-- id: 24 -->
-- [X] Verificar los cambios en el navegador. <!-- id: 25 -->
+- [X] En `src/pages/admin/offices/index.astro`:
+    - [X] Importar el componente `SearchInput`. <!-- id: 26 -->
+    - [X] Modificar el "Toolbar" (donde está el título y el botón de nueva sucursal) para incluir la barra de búsqueda alineada correctamente de forma responsiva. <!-- id: 27 -->
+    - [X] Agregar el ID `office-count-badge` al contador de oficinas para actualizarlo dinámicamente. <!-- id: 28 -->
+    - [X] Agregar un atributo `data-search-text` a cada fila (`<article data-table-row>`) que contenga todos los textos relevantes concatenados (código, nombre, tipo, región). <!-- id: 29 -->
+    - [X] Agregar el atributo `data-search-target` a los elementos internos de la fila cuyo texto debe resaltarse al coincidir con la búsqueda. <!-- id: 30 -->
+    - [X] Crear un estado vacío (`empty state`) específico para "No se encontraron resultados de búsqueda", distinto del estado vacío general cuando no hay oficinas en la base de datos. <!-- id: 31 -->
+    - [X] Agregar un bloque `<script>` que: <!-- id: 32 -->
+        - [X] Importe `matchesSearchQuery` y `highlightSearchTargets` de `@lib/searchUtils`. <!-- id: 33 -->
+        - [X] Escuche el evento `input` del `SearchInput`. <!-- id: 34 -->
+        - [X] Filtre las filas en tiempo real y aplique el resaltado con `highlightSearchTargets`. <!-- id: 35 -->
+        - [X] Muestre/oculte el estado vacío de búsqueda según la cantidad de filas visibles. <!-- id: 36 -->
+        - [X] Actualice el contador de oficinas en el badge superior. <!-- id: 37 -->
+- [ ] Verificar funcionamiento abriendo el navegador en `/admin/offices` y probando distintas consultas. (Pendiente de verificación manual ya que el subagente fue omitido). <!-- id: 38 -->
