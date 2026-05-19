@@ -11,8 +11,20 @@ type BadgeTone = "primary" | "secondary" | "accent" | "neutral" | "warning";
 
 const { item } = Astro.props;
 
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
 const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
-const itemUrl = item.url?.trim() ?? "";
+
+const resolveUrl = (path: string): string => {
+  if (!path) return "";
+  if (isWebUrl(path) || path.startsWith('mailto:') || path.startsWith('tel:') || path.startsWith(cleanBase)) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`;
+};
+
+const itemUrl = resolveUrl(item.url?.trim() ?? "");
 const hasItemUrl = itemUrl.length > 0;
 const isExternal = hasItemUrl && isWebUrl(itemUrl);
 const variants = Array.isArray(item.variants) ? item.variants : [];
@@ -77,7 +89,7 @@ const typeTone = typeToneMap[item.type] ?? "neutral";
             class="dropdown-content menu bg-base-100 rounded-box z-10 mt-2 w-full border border-base-300 p-2 shadow-lg"
           >
             {variants.map((variant) => {
-              const variantUrl = variant.url?.trim() ?? "";
+              const variantUrl = resolveUrl(variant.url?.trim() ?? "");
               const hasVariantUrl = variantUrl.length > 0;
               const isVariantExternal = hasVariantUrl && isWebUrl(variantUrl);
 

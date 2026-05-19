@@ -8,9 +8,21 @@ interface Props {
 
 const { bundle } = Astro.props;
 
-const bundleUrl = bundle.url?.trim() ?? "";
-const hasBundleUrl = bundleUrl.length > 0;
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
 const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
+
+const resolveUrl = (path: string): string => {
+  if (!path) return "";
+  if (isWebUrl(path) || path.startsWith('mailto:') || path.startsWith('tel:') || path.startsWith(cleanBase)) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`;
+};
+
+const bundleUrl = resolveUrl(bundle.url?.trim() ?? "");
+const hasBundleUrl = bundleUrl.length > 0;
 ---
 
 <article class="rounded-lg border border-primary/30 bg-primary/10 p-4 sm:p-5">
