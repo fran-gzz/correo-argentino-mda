@@ -64,10 +64,30 @@ const quickAccessItems: NavItem[] = navSections.flatMap((section) =>
   flattenQuickAccessItems(section.items),
 );
 
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
+
+const getRelativePath = (path: string) => {
+  if (path.startsWith(cleanBase)) {
+    return '/' + path.slice(cleanBase.length);
+  }
+  if (path === cleanBase.slice(0, -1)) {
+    return '/';
+  }
+  return path;
+};
+
+const resolveUrl = (path: string) => {
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`;
+};
+
+const relativeCurrentPath = getRelativePath(currentPath);
+
 const isActiveRoute = (href: string) =>
   href === "/"
-    ? currentPath === "/"
-    : currentPath === href || currentPath.startsWith(`${href}/`);
+    ? relativeCurrentPath === "/"
+    : relativeCurrentPath === href || relativeCurrentPath.startsWith(`${href}/`);
 
 const user = Astro.locals.user;
 const userInitials = user.username.slice(0, 2).toUpperCase();
@@ -143,12 +163,12 @@ const isRouteLocked = (href: string): boolean => {
       crossorigin
     />
 
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href={`${cleanBase}favicon-96x96.png`} sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href={`${cleanBase}favicon.svg`} />
+    <link rel="shortcut icon" href={`${cleanBase}favicon.ico`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${cleanBase}apple-touch-icon.png`} />
     <meta name="apple-mobile-web-app-title" content="MDA" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="manifest" href={`${cleanBase}site.webmanifest`} />
 
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
@@ -257,7 +277,7 @@ const isRouteLocked = (href: string): boolean => {
           class="flex min-h-full flex-col items-start bg-secondary is-drawer-close:w-16 xl:is-drawer-close:w-16 is-drawer-open:w-56 md:is-drawer-open:w-64 xl:is-drawer-open:w-72 transition-all duration-300 ease-in-out"
         >
           <a
-            href="/"
+            href={resolveUrl("/")}
             aria-label="Ir al dashboard"
             class="flex min-h-16 w-full items-center gap-2.5 border-b border-secondary-content/10 px-3 is-drawer-close:justify-center is-drawer-close:px-0"
           >
@@ -302,7 +322,7 @@ const isRouteLocked = (href: string): boolean => {
                       return (
                         <li>
                           <a
-                            href={isLocked ? undefined : item.href}
+                            href={isLocked ? undefined : resolveUrl(item.href)}
                             aria-label={item.label}
                             aria-disabled={isLocked ? "true" : undefined}
                             data-tip={isLocked ? `${item.label} (restringido)` : item.label}
@@ -354,7 +374,7 @@ const isRouteLocked = (href: string): boolean => {
             {
               user.id === 0 ? (
                 <a
-                  href="/login"
+                  href={resolveUrl("/login")}
                   aria-label="Iniciar sesión"
                   data-tip="Iniciar sesión"
                   class:list={[
@@ -399,7 +419,7 @@ const isRouteLocked = (href: string): boolean => {
                     </div>
                   </div>
                   <a
-                    href="/logout"
+                    href={resolveUrl("/logout")}
                     aria-label="Cerrar sesión"
                     data-tip="Cerrar sesión"
                     class:list={[
@@ -464,7 +484,7 @@ const isRouteLocked = (href: string): boolean => {
                   class:list={[isLocked && "opacity-40 grayscale select-none cursor-not-allowed"]}
                 >
                   <a
-                    href={isLocked ? undefined : item.href}
+                    href={isLocked ? undefined : resolveUrl(item.href)}
                     class="justify-between gap-3"
                     tabindex={isLocked ? -1 : undefined}
                   >

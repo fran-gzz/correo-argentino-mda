@@ -162,8 +162,18 @@ export function getSectionTitle(pathname: string): string {
     });
   });
 
+  // Normalize pathname relative to BASE_URL
+  const base = import.meta.env.BASE_URL || "/";
+  const cleanBase = base.endsWith('/') ? base : base + '/';
+  let relativePath = pathname;
+  if (pathname.startsWith(cleanBase)) {
+    relativePath = '/' + pathname.slice(cleanBase.length);
+  } else if (pathname === cleanBase.slice(0, -1)) {
+    relativePath = '/';
+  }
+
   // Normalize pathname to remove trailing slash if present (except for root)
-  const normalizedPath = pathname === "/" ? pathname : pathname.replace(/\/$/, "");
+  const normalizedPath = relativePath === "/" ? relativePath : relativePath.replace(/\/$/, "");
 
   // Find exact match first
   const exactMatch = allItems.find(item => item.href === normalizedPath);
