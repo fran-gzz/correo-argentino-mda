@@ -142,6 +142,11 @@ export const navSections: NavSection[] = [
             label: "Gestión de oficinas",
             icon: "boxicons:building-filled",
           },
+          {
+            href: "/admin/contacts",
+            label: "Gestión de contactos",
+            icon: "boxicons:phone-filled",
+          },
         ],
       }
     ],

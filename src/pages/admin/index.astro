@@ -44,6 +44,15 @@ const adminModules: AdminModule[] = [
     active: true,
   },
   {
+    title: "Contactos útiles",
+    description:
+      "Gestión de contactos corporativos de proveedores, teléfonos, correos y enlaces.",
+    icon: "boxicons:phone-filled",
+    iconTone: "bg-primary/10 text-primary",
+    href: "/admin/contacts",
+    active: true,
+  },
+  {
     title: "Inventario Cubics",
     description:
       "Administración del inventario de terminales y equipos del parque operativo.",
@@ -88,6 +97,14 @@ const adminModules: AdminModule[] = [
 
 const activeModules = adminModules.filter((m) => m.active);
 const inactiveModules = adminModules.filter((m) => !m.active);
+
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
+
+const resolveUrl = (path: string) => {
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`;
+};
 ---
 
 <BaseLayout>
@@ -109,7 +126,7 @@ const inactiveModules = adminModules.filter((m) => !m.active);
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {activeModules.map((mod) => (
               <QuickAccessCard
-                href={mod.href!}
+                href={resolveUrl(mod.href!)}
                 title={mod.title}
                 description={mod.description}
                 icon={mod.icon}
