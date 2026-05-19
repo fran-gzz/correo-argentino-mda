@@ -3,20 +3,17 @@ import { eq, isNotNull, and, not } from "drizzle-orm";
 import { db } from "../src/db/index";
 import { cubics } from "../src/db/schema";
 
-// Función auxiliar para pausar el hilo de ejecución de manera nativa
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function runSegmentedPingRadar() {
   console.log("[Radar] Servidor de Monitoreo Iniciado.");
 
-  // Bucle infinito inteligente que mantendrá el proceso de PM2 vivo e indetectable
   while (true) {
     try {
       console.log(
         "\n[Radar] Consultado Base de Datos SQLite para iniciar nueva ronda...",
       );
 
-      // Traemos todas las terminales configuradas con IPs válidas
       const allMachines = await db
         .select()
         .from(cubics)
@@ -33,12 +30,9 @@ async function runSegmentedPingRadar() {
       let currentIndex = 0;
       let isFirstBatch = true;
 
-      // Consumimos el lote total de máquinas de forma dinámica segmentándolo según tu regla
       while (currentIndex < allMachines.length) {
-        // Regla de segmentación: 5 en el primer lote, de a 3 elementos en los lotes subsiguientes
         const batchSize = isFirstBatch ? 5 : 3;
 
-        // Extraemos la porción (slice) correspondiente
         const currentBatch = allMachines.slice(
           currentIndex,
           currentIndex + batchSize,
@@ -48,12 +42,10 @@ async function runSegmentedPingRadar() {
           `[Radar] Procesando lote: Máquinas de la ${currentIndex + 1} a la ${Math.min(currentIndex + batchSize, allMachines.length)} (Total de esta tanda: ${currentBatch.length})`,
         );
 
-        // Procesamos secuencialmente las máquinas de este lote específico
         for (const machine of currentBatch) {
           if (!machine.ip) continue;
 
           try {
-            // Probe con timeout de 2 segundos estricto para no retrasar el lote
             const res = await ping.promise.probe(machine.ip, { timeout: 2 });
             const newStatus = res.alive ? "online" : "offline";
 
@@ -74,7 +66,6 @@ async function runSegmentedPingRadar() {
               pingError,
             );
 
-            // Failover por excepción: marcamos offline por seguridad
             await db
               .update(cubics)
               .set({ status: "offline", lastPing: new Date().toISOString() })
@@ -82,16 +73,14 @@ async function runSegmentedPingRadar() {
           }
         }
 
-        // Desplazamos el puntero del lote
         currentIndex += batchSize;
         isFirstBatch = false;
 
-        // Si todavía quedan más máquinas en la lista por procesar, pausamos 3 minutos
         if (currentIndex < allMachines.length) {
           console.log(
             "[Radar] Lote finalizado con éxito. Pausando 3 minutos (180s) para no saturar switches...",
           );
-          await sleep(180000); // 3 minutos en milisegundos
+          await sleep(180000);
         }
       }
 
@@ -103,11 +92,10 @@ async function runSegmentedPingRadar() {
         "[Radar] Error crítico en el bucle principal:",
         criticalError,
       );
-      // Evita colapsar la CPU si la base de datos se desconecta temporalmente
+
       await sleep(30000);
     }
   }
 }
 
-// Ejecución inmediata al arrancar el proceso de PM2
 runSegmentedPingRadar();
