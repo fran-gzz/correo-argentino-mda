@@ -75,6 +75,8 @@ function timeAgo(dateString: string | null) {
   return `Hace ${days} día${days > 1 ? 's' : ''}`;
 }
 
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
 const headerGridClass = "grid-cols-[1.5fr_130px_100px_2fr_140px] gap-4";
 const rowGridClass =
   "grid grid-cols-[1.5fr_130px_100px_2fr_140px] items-center gap-4";
@@ -121,7 +123,7 @@ const rowGridClass =
         )}
       </div>
 
-      <a href="/admin/cubics/new" class="btn btn-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+      <a href={`${cleanBase}admin/cubics/new`} class="btn btn-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
         <Icon name="boxicons:plus" size={18} />
         Registrar nuevo cubic
       </a>
@@ -247,7 +249,7 @@ const rowGridClass =
               {/* Acciones */}
               <div class="flex items-center justify-end gap-1">
                 <a
-                  href={`/admin/cubics/${cubic.id}`}
+                  href={`${cleanBase}admin/cubics/${cubic.id}`}
                   class="btn btn-sm btn-ghost h-7 px-2 text-base-content/60 hover:text-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   aria-label={`Editar ${cubic.name}`}
                 >

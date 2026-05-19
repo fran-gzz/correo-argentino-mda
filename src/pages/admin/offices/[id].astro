@@ -8,8 +8,11 @@ import PageHeader from "@components/ui/PageHeader.astro";
 import { Icon } from "astro-icon/components";
 
 
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
+
 const user = Astro.locals.user;
-if (user.role !== "admin") return Astro.redirect("/login");
+if (user.role !== "admin") return Astro.redirect(`${cleanBase}login`);
 
 const { id } = Astro.params;
 const isNew = id === "new";
@@ -113,7 +116,7 @@ if (Astro.request.method === "POST") {
       }
 
       if (isNew) {
-        return Astro.redirect(`/admin/offices/${officeId}`);
+        return Astro.redirect(`${cleanBase}admin/offices/${officeId}`);
       }
       successMsg = "Oficina actualizada con éxito.";
     }
@@ -140,7 +143,7 @@ if (!isNew) {
       contacts: { with: { contact: true } },
     },
   });
-  if (!result) return Astro.redirect("/admin/offices");
+  if (!result) return Astro.redirect(`${cleanBase}admin/offices`);
   office = result as unknown as OfficeRecord;
 }
 
@@ -165,7 +168,7 @@ const assetTypeOptions = [
 
     {/* ── Breadcrumb / Volver ── */}
     <div class="flex items-center gap-2 text-sm text-base-content/60">
-      <a href="/admin/offices" class="flex items-center gap-1.5 hover:text-base-content transition-colors">
+      <a href={`${cleanBase}admin/offices`} class="flex items-center gap-1.5 hover:text-base-content transition-colors">
         <Icon name="boxicons:chevron-left" size={16} />
         Gestión de oficinas
       </a>
@@ -363,7 +366,7 @@ const assetTypeOptions = [
 
       {/* ── Acciones ── */}
       <div class="flex items-center justify-between gap-3 pt-1">
-        <a href="/admin/offices" class="btn rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent btn-ghost text-neutral hover:bg-neutral/10">
+        <a href={`${cleanBase}admin/offices`} class="btn rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent btn-ghost text-neutral hover:bg-neutral/10">
           <Icon name="boxicons:arrow-left-filled" size={16} />
           Volver al listado
         </a>

@@ -11,6 +11,9 @@ interface Props {
 }
 
 const { categories } = Astro.props;
+
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
 ---
 
 <PageContainer>
@@ -50,7 +53,7 @@ const { categories } = Astro.props;
     description="Descarga herramientas de mesa de ayuda desde un paquete .zip o por aplicativo individual para mantener la operatoria diaria."
     icon="boxicons:link-filled"
     badgeLabel="Nuevo"
-    href="/catalogo-aplicativos"
+    href={`${cleanBase}catalogo-aplicativos`}
     ctaLabel="Ir al catálogo"
     tone="primary"
   />

@@ -11,5 +11,7 @@ export const ALL: APIRoute = async ({ cookies, redirect }) => {
     cookies.delete("session_id", { path: "/" });
   }
 
-  return redirect("/login");
+  const base = import.meta.env.BASE_URL || "/";
+  const cleanBase = base.endsWith('/') ? base : base + '/';
+  return redirect(`${cleanBase}login`);
 };

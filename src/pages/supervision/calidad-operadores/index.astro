@@ -26,11 +26,13 @@ const avgSection1 = Math.round(
 const avgSection2 = Math.round(
   allCalls.reduce((acc, c) => acc + c.section2.score, 0) / totalCalls,
 );
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
 ---
 
 <BaseLayout>
   <PageContainer class="max-w-7xl mx-auto">
-    <a href="/supervision" class="btn btn-ghost btn-sm mb-2 w-fit pl-2">
+    <a href={`${cleanBase}supervision`} class="btn btn-ghost btn-sm mb-2 w-fit pl-2">
       <Icon name="boxicons:chevron-left" size={24} />
       Volver a Supervisión
     </a>

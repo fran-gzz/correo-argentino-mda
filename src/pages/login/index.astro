@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import BaseLayout from '@layouts/BaseLayout.astro';
 
 if (Astro.locals.user.id !== 0) {
-  return Astro.redirect('/');
+  return Astro.redirect(import.meta.env.BASE_URL || '/');
 }
 
 let errorMsg = '';
@@ -42,7 +42,7 @@ if (Astro.request.method === 'POST') {
           maxAge: 60 * 60 * 24 * 7
         });
         
-        return Astro.redirect('/');
+        return Astro.redirect(import.meta.env.BASE_URL || '/');
       } else {
         errorMsg = 'Contraseña incorrecta.';
       }
