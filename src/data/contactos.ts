@@ -8,7 +8,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
     tone: "primary",
     contacts: [
       {
-        id: "c10",
+        id: 1,
         provider: "CORASA",
         service: "Mesa de Ayuda",
         phones: ["6316-1111"],
@@ -16,7 +16,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c5",
+        id: 2,
         provider: "CORASA",
         service: "Soporte Técnico TI",
         phones: ["6316-1851"],
@@ -24,7 +24,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c4",
+        id: 3,
         provider: "CORASA",
         service: "Asistencia Operativa",
         phones: ["5432-2800", "2978"],
@@ -32,7 +32,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c6",
+        id: 4,
         provider: "CORASA",
         service: "Atención al Cliente",
         phones: ["011 4891-9191", "0810-777-7787"],
@@ -40,7 +40,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c7",
+        id: 5,
         provider: "CORASA",
         service: "Call center Giros",
         phones: ["5861-8972"],
@@ -48,7 +48,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c8",
+        id: 6,
         provider: "CORASA",
         service: "Fax MDA",
         phones: ["6316-1616"],
@@ -56,7 +56,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c11",
+        id: 7,
         provider: "CORASA",
         service: "Mesa de Ayuda Electoral",
         phones: ["0800 222 8686 (Opción 1)"],
@@ -72,7 +72,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
     tone: "info",
     contacts: [
       {
-        id: "c3",
+        id: 8,
         provider: "CORASA",
         service: "Gestión de Identidades y Accesos",
         phones: [],
@@ -80,7 +80,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c9",
+        id: 9,
         provider: "CORASA",
         service: "Service Manager",
         phones: [],
@@ -93,7 +93,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         ],
       },
       {
-        id: "c12",
+        id: 10,
         provider: "CORASA",
         service: "SAP",
         phones: ["83200"],
@@ -101,7 +101,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c13",
+        id: 11,
         provider: "CORASA",
         service: "Mosaic",
         phones: ["83201"],
@@ -109,7 +109,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c14",
+        id: 12,
         provider: "CORASA",
         service: "MicroInformática",
         phones: ["83202"],
@@ -117,7 +117,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c15",
+        id: 13,
         provider: "CORASA",
         service: "TYT",
         phones: ["83203"],
@@ -125,7 +125,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c16",
+        id: 14,
         provider: "CORASA",
         service: "STS",
         phones: ["83204"],
@@ -133,7 +133,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c17",
+        id: 15,
         provider: "CORASA",
         service: "Otros sistemas",
         phones: ["83205"],
@@ -149,7 +149,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
     tone: "accent",
     contacts: [
       {
-        id: "c1",
+        id: 16,
         provider: "Abakon",
         service: "SUBE",
         phones: ["0800-345-1222"],
@@ -162,7 +162,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         ],
       },
       {
-        id: "c2",
+        id: 17,
         provider: "Anses",
         service: "CUIL",
         phones: [],
@@ -175,15 +175,20 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         ],
       },
       {
-        id: "c18",
+        id: 18,
         provider: "Ministerio de Justicia",
         service: "UER",
-        phones: ["5300-4000 int: 74120", "5300-4010 MDA", "4123-3044 MDA"],
+        phones: [
+          "Interno: 74120",
+          "5300-4000",
+          "5300-4010 MDA",
+          "4123-3044 MDA",
+        ],
         emails: ["Soporte@dnrec.jus.gov.ar", "infouer@dnrec.jus.gov.ar"],
         urls: [],
       },
       {
-        id: "c19",
+        id: 19,
         provider: "Sepsa",
         service: "MDA Western Union",
         phones: ["0800-800-3030"],
@@ -191,7 +196,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c20",
+        id: 20,
         provider: "Sepsa",
         service: "Pago Fácil",
         phones: ["0800-444-3224 opción 3"],
@@ -203,7 +208,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         urls: [],
       },
       {
-        id: "c21",
+        id: 21,
         provider: "Prisma",
         service: "Lapos",
         phones: ["0800-333-1258 opción 1 y 2"],
@@ -219,7 +224,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
     tone: "secondary",
     contacts: [
       {
-        id: "c22",
+        id: 22,
         provider: "Correo Compras",
         service: "Correo Compras",
         phones: ["011-2040-0660"],
@@ -232,7 +237,7 @@ export const usefulContactCategories: UsefulContactCategory[] = [
         ],
       },
       {
-        id: "c23",
+        id: 23,
         provider: "Servicio Técnico Gregorutti",
         service: "Aforadora",
         phones: ["011 45415108"],
