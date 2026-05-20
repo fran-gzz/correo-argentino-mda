@@ -193,6 +193,7 @@ export const resourceCategories = sqliteTable("resource_categories", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   iconName: text("iconName").notNull(),
+  tone: text("tone").notNull().default("primary"),
 });
 
 export const resourceLinks = sqliteTable("resource_links", {
