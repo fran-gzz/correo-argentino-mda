@@ -5,7 +5,10 @@ export type CategoryTone =
   | "secondary"
   | "accent"
   | "neutral"
-  | "success";
+  | "success"
+  | "info"
+  | "warning"
+  | "error";
 
 export interface LinkAlternative {
   id: string;

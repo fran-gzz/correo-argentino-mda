@@ -4,14 +4,6 @@ import ImportantLinksView from "./_components/ImportantLinksView.astro";
 import { db } from "../../db";
 import type { CategoryTone, CategoryViewModel } from "./_components/types";
 
-const categoryTones: CategoryTone[] = [
-  "primary",
-  "secondary",
-  "accent",
-  "neutral",
-  "success",
-];
-
 const rawCategories = await db.query.resourceCategories.findMany({
   with: {
     links: true,
@@ -19,11 +11,11 @@ const rawCategories = await db.query.resourceCategories.findMany({
 });
 
 const importantCategories = rawCategories.map(
-  (category, index): CategoryViewModel => ({
+  (category): CategoryViewModel => ({
     id: category.id,
     category: category.title,
     icon: category.iconName as unknown as `boxicons:${string}`,
-    tone: categoryTones[index % categoryTones.length],
+    tone: (category.tone || "primary") as CategoryTone,
     links: category.links.map((link) => ({
       ...link,
       subtitle: link.subtitle ?? undefined,
