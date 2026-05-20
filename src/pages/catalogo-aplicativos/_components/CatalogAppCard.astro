@@ -37,7 +37,7 @@ const typeTone = typeToneMap[item.type] ?? "neutral";
 ---
 
 <article
-  class="card h-full border border-base-300 bg-base-100 shadow-sm transition-colors hover:border-secondary/40"
+  class="card h-full border border-base-300 bg-base-100 shadow-md transition-colors hover:border-secondary/40"
 >
   <div class="card-body gap-4 p-4 sm:p-5">
     <div class="flex items-start justify-between gap-3">
@@ -86,7 +86,7 @@ const typeTone = typeToneMap[item.type] ?? "neutral";
 
           <ul
             tabindex="-1"
-            class="dropdown-content menu bg-base-100 rounded-box z-10 mt-2 w-full border border-base-300 p-2 shadow-lg"
+            class="dropdown-content menu bg-base-100 rounded-box z-10 mt-2 w-full border border-base-300 p-2 shadow-md"
           >
             {variants.map((variant) => {
               const variantUrl = resolveUrl(variant.url?.trim() ?? "");

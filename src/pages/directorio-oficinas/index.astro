@@ -273,7 +273,7 @@ const mainTabs = [
     <!-- Contenedor de Directorio -->
     <div id="main-view-directory" class="space-y-6">
       <section
-        class="flex flex-col gap-4 rounded-box border border-base-300 bg-base-100 p-4 shadow-sm"
+        class="flex flex-col gap-4 rounded-box border border-base-300 bg-base-100 p-4 shadow-md"
         aria-label="Filtros del directorio"
       >
         <!-- Fila 1: Tabs -->
@@ -527,7 +527,7 @@ const mainTabs = [
                                   />
                                   Informacion de la oficina
                                 </h2>
-                                <div class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm space-y-2">
+                                <div class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-md space-y-2">
                                   {office.email && (
                                     <p class="flex items-center gap-2 text-sm text-base-content/80">
                                       <Icon
@@ -566,7 +566,7 @@ const mainTabs = [
                               {office.contacts.length > 0 ? (
                                 <div class="grid gap-3 sm:grid-cols-2">
                                   {office.contacts.map((contact) => (
-                                    <article class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm">
+                                    <article class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-md">
                                       <h3 class="truncate text-sm font-semibold text-base-content">
                                         {contact.name}
                                       </h3>
@@ -616,7 +616,7 @@ const mainTabs = [
                             </h2>
 
                             {office.assets.length > 0 ? (
-                              <div class="overflow-x-auto rounded-lg border border-base-300 bg-base-100 shadow-sm">
+                              <div class="overflow-x-auto rounded-lg border border-base-300 bg-base-100 shadow-md">
                                 <table class="table table-sm">
                                   <thead>
                                     <tr class="text-xs uppercase tracking-wide text-base-content/60">
