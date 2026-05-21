@@ -10,6 +10,9 @@ declare namespace App {
   }
 }
 
+interface HTMLDialogElement extends HTMLElement {
+  showModal(): void;
+  close(returnValue?: string): void;
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
