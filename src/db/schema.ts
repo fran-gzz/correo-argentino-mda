@@ -258,3 +258,34 @@ export const resourceLinksRelations = relations(resourceLinks, ({ one }) => ({
     references: [resourceCategories.id],
   }),
 }));
+
+// 10. OPERADORES (Asignación de autogestiones)
+export const operators = sqliteTable("operators", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  status: text("status").notNull().default("disponible"),
+  currentMode: text("current_mode").notNull().default("presencial"), // 'home' | 'presencial'
+  lastAutogestionAssignedAt: integer("last_autogestion_assigned_at"),
+});
+
+export const operatorShifts = sqliteTable("operator_shifts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  operatorId: text("operator_id")
+    .notNull()
+    .references(() => operators.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // 'home' | 'presencial'
+  shiftStart: text("shift_start").notNull(),
+  shiftEnd: text("shift_end").notNull(),
+  breakTime: text("break_time").notNull(),
+});
+
+export const operatorsRelations = relations(operators, ({ many }) => ({
+  shifts: many(operatorShifts),
+}));
+
+export const operatorShiftsRelations = relations(operatorShifts, ({ one }) => ({
+  operator: one(operators, {
+    fields: [operatorShifts.operatorId],
+    references: [operators.id],
+  }),
+}));
