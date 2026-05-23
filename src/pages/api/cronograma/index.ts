@@ -11,6 +11,7 @@ export const GET: APIRoute = async () => {
     const baseline = dbAgents.map((agent) => ({
       id: agent.id,
       nombre: agent.name,
+      username: agent.username || undefined,
       horario: agent.horarioDefault,
       location: agent.location || "Monte Grande",
       asistencia: {},
@@ -18,6 +19,8 @@ export const GET: APIRoute = async () => {
       esquema_horario: agent.esquemaHorario || {},
       esquema_break_inicio: agent.esquemaBreakInicio || {},
       esquema_break_fin: agent.esquemaBreakFin || {},
+      maxConsecutiveHO: agent.maxConsecutiveHO,
+      minPWeek: agent.minPWeek,
     }));
 
     // 2. Fetch all persistent schedule overrides from DB

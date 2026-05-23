@@ -173,6 +173,7 @@ export const cubics = sqliteTable("cubics", {
 export const agents = sqliteTable("agents", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull().unique(),
+  username: text("username"),
   avatarInitials: text("avatar_initials"),
   notes: text("notes"),
   location: text("location").notNull().default("Monte Grande"),
@@ -181,6 +182,8 @@ export const agents = sqliteTable("agents", {
   esquemaHorario: text("esquema_horario", { mode: "json" }).$type<Record<string, string>>(),
   esquemaBreakInicio: text("esquema_break_inicio", { mode: "json" }).$type<Record<string, string>>(),
   esquemaBreakFin: text("esquema_break_fin", { mode: "json" }).$type<Record<string, string>>(),
+  maxConsecutiveHO: integer("max_consecutive_ho"),
+  minPWeek: integer("min_p_week"),
 });
 
 export const cubicAssignments = sqliteTable(
