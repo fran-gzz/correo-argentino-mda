@@ -1,57 +1,44 @@
-import fs from "node:fs";
-import path from "node:path";
 import { db } from "../src/db/index";
 import { operators, operatorShifts } from "../src/db/schema";
+import operadores from "../src/data/operadores.json";
 
-async function seed() {
-  try {
-    const filePath = path.resolve(process.cwd(), "src/data/operadores.json");
-    const rawData = fs.readFileSync(filePath, "utf-8");
-    const operadores = JSON.parse(rawData);
+async function seedRealOperators() {
+  console.log("🚀 Iniciando carga de operadores reales...");
 
-    // Delete existing data to ensure a clean slate
-    await db.delete(operatorShifts).execute();
-    await db.delete(operators).execute();
+  for (const op of operadores) {
+    // 1. Insertar el operador base
+    await db
+      .insert(operators)
+      .values({
+        id: op.id,
+        name: op.name,
+        status: "disponible",
+        lastAutogestionAssignedAt: Date.now(),
+      })
+      .onConflictDoNothing();
 
-    for (const op of operadores) {
-      await db
-        .insert(operators)
-        .values({
-          id: op.id,
-          name: op.name,
-          status: "disponible",
-          currentMode: "presencial",
-          lastAutogestionAssignedAt: Date.now(),
-        })
-        .onConflictDoNothing();
-
-      const shifts = op.shifts;
-      if (shifts) {
-        if (shifts.home) {
-          await db.insert(operatorShifts).values({
-            operatorId: op.id,
-            type: "home",
-            shiftStart: shifts.home.start,
-            shiftEnd: shifts.home.end,
-            breakTime: shifts.home.break,
-          });
-        }
-        if (shifts.presencial) {
-          await db.insert(operatorShifts).values({
-            operatorId: op.id,
-            type: "presencial",
-            shiftStart: shifts.presencial.start,
-            shiftEnd: shifts.presencial.end,
-            breakTime: shifts.presencial.break,
-          });
+    // 2. Insertar los turnos (Home y Presencial)
+    if (op.shifts) {
+      const modalidades = ["home", "presencial"];
+      for (const tipo of modalidades) {
+        const turno = op.shifts[tipo as keyof typeof op.shifts];
+        if (turno) {
+          await db
+            .insert(operatorShifts)
+            .values({
+              operatorId: op.id,
+              type: tipo,
+              shiftStart: turno.start,
+              shiftEnd: turno.end,
+              breakTime: turno.break,
+            })
+            .onConflictDoNothing();
         }
       }
     }
-
-    console.log("Siembra de operadores (y sus turnos) completada exitosamente.");
-  } catch (error) {
-    console.error("Error ejecutando el seed:", error);
   }
+
+  console.log("✅ Carga finalizada con éxito.");
 }
 
-seed();
+seedRealOperators().catch(console.error);

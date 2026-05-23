@@ -267,12 +267,19 @@ export const resourceLinksRelations = relations(resourceLinks, ({ one }) => ({
   }),
 }));
 
-// 10. OPERADORES (Asignación de autogestiones)
+// 10. UBICACIONES DE TRABAJO (Normalización de sedes presenciales)
+export const workLocations = sqliteTable("work_locations", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+});
+
+// 11. OPERADORES (Asignación de autogestiones)
 export const operators = sqliteTable("operators", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   status: text("status").notNull().default("disponible"),
-  currentMode: text("current_mode").notNull().default("presencial"), // 'home' | 'presencial'
+  locationId: text("location_id").references(() => workLocations.id),
+  currentMode: text("current_mode").notNull().default("presencial"),
   lastAutogestionAssignedAt: integer("last_autogestion_assigned_at"),
 });
 
@@ -287,8 +294,16 @@ export const operatorShifts = sqliteTable("operator_shifts", {
   breakTime: text("break_time").notNull(),
 });
 
-export const operatorsRelations = relations(operators, ({ many }) => ({
+export const workLocationsRelations = relations(workLocations, ({ many }) => ({
+  operators: many(operators),
+}));
+
+export const operatorsRelations = relations(operators, ({ one, many }) => ({
   shifts: many(operatorShifts),
+  location: one(workLocations, {
+    fields: [operators.locationId],
+    references: [workLocations.id],
+  }),
 }));
 
 export const operatorShiftsRelations = relations(operatorShifts, ({ one }) => ({
