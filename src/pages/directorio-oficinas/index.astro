@@ -8,123 +8,34 @@ import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import ViewSwitcher from "@components/ui/ViewSwitcher.astro";
 import {
-  officeDirectoryItems,
+  getOfficeDirectoryItems,
   type OfficeDirectoryItem,
   type OfficeAssetType,
   type OfficeType,
 } from "@/data/directorio_oficinas";
+import { db } from "@db/index";
+import { provinces, regions } from "@db/schema";
+import { eq } from "drizzle-orm";
 
-// Datos de ejemplo para el mapa de sucursales (mock)
-const sucursales = [
-  {
-    nis: "A1234",
-    ubicacion: {
-      lat: -34.6037,
-      lng: -58.3816,
-      nombre: "Sucursal Central - CABA",
-    },
-    region: "AMBA",
-    cantidad_pc: 15,
-    servidores: 2,
-    contacto: "011-4444-5555",
-  },
-  {
-    nis: "B5678",
-    ubicacion: { lat: -31.4201, lng: -64.1888, nombre: "Sucursal Córdoba" },
-    region: "Centro",
-    cantidad_pc: 8,
-    servidores: 1,
-    contacto: "0351-444-5555",
-  },
-  {
-    nis: "C9012",
-    ubicacion: { lat: -26.8241, lng: -65.2226, nombre: "Sucursal Tucumán" },
-    region: "NOA",
-    cantidad_pc: 5,
-    servidores: 0,
-    contacto: "0381-444-5555",
-  },
-  {
-    nis: "D3456",
-    ubicacion: { lat: -41.1335, lng: -71.3103, nombre: "Sucursal Bariloche" },
-    region: "Patagonia",
-    cantidad_pc: 4,
-    servidores: 0,
-    contacto: "0294-444-5555",
-  },
-  {
-    nis: "E7890",
-    ubicacion: {
-      lat: -38.7183,
-      lng: -62.2663,
-      nombre: "Sucursal Bahía Blanca",
-    },
-    region: "Buenos Aires Sur",
-    cantidad_pc: 7,
-    servidores: 1,
-    contacto: "0291-444-5555",
-  },
-  {
-    nis: "F1234",
-    ubicacion: { lat: -24.7821, lng: -65.4232, nombre: "Sucursal Salta" },
-    region: "NOA",
-    cantidad_pc: 6,
-    servidores: 0,
-    contacto: "0387-444-5555",
-  },
-  {
-    nis: "G5678",
-    ubicacion: { lat: -32.8895, lng: -68.8458, nombre: "Sucursal Mendoza" },
-    region: "Cuyo",
-    cantidad_pc: 9,
-    servidores: 1,
-    contacto: "0261-444-5555",
-  },
-  {
-    nis: "H9012",
-    ubicacion: { lat: -54.8019, lng: -68.303, nombre: "Sucursal Ushuaia" },
-    region: "Patagonia",
-    cantidad_pc: 3,
-    servidores: 0,
-    contacto: "02901-444-5555",
-  },
-  {
-    nis: "I3456",
-    ubicacion: { lat: -27.3671, lng: -55.8961, nombre: "Sucursal Posadas" },
-    region: "NEA",
-    cantidad_pc: 5,
-    servidores: 0,
-    contacto: "0376-444-5555",
-  },
-  {
-    nis: "J7890",
-    ubicacion: {
-      lat: -34.5826,
-      lng: -58.3816,
-      nombre: "Centro Logístico Barracas",
-    },
-    region: "AMBA",
-    cantidad_pc: 25,
-    servidores: 4,
-    contacto: "011-4444-6666",
-  },
-  {
-    nis: "K1234",
-    ubicacion: { lat: -32.9442, lng: -60.6505, nombre: "Sucursal Rosario" },
-    region: "Litoral",
-    cantidad_pc: 12,
-    servidores: 2,
-    contacto: "0341-444-5555",
-  },
-  {
-    nis: "L5678",
-    ubicacion: { lat: -27.4606, lng: -58.8305, nombre: "Sucursal Corrientes" },
-    region: "NEA",
-    cantidad_pc: 6,
-    servidores: 1,
-    contacto: "0379-444-5555",
-  },
-];
+const officeDirectoryItems = await getOfficeDirectoryItems();
+
+const allProvincesWithRegion = await db
+  .select({
+    code: provinces.code,
+    name: provinces.name,
+    regionId: provinces.regionId,
+    regionName: regions.name,
+  })
+  .from(provinces)
+  .leftJoin(regions, eq(provinces.regionId, regions.id))
+  .orderBy(regions.name, provinces.name);
+
+const provincesByRegion: Record<string, { code: string; name: string }[]> = {};
+for (const p of allProvincesWithRegion) {
+  const rName = p.regionName ?? "Sin región";
+  if (!provincesByRegion[rName]) provincesByRegion[rName] = [];
+  provincesByRegion[rName].push({ code: p.code, name: p.name });
+}
 
 type BoxiconName = `boxicons:${string}`;
 
@@ -133,18 +44,26 @@ interface OfficeTypeTab {
   label: string;
 }
 
-const defaultOfficeType: OfficeType | "all" = "comercial";
+const defaultOfficeType: OfficeType | "all" = "all";
 
 const officeTypeTabs: OfficeTypeTab[] = [
   { type: "all", label: "Todas" },
   { type: "comercial", label: "Comerciales" },
-  { type: "telegrafia", label: "Telegrafia" },
-  { type: "distribucion", label: "Distribucion" },
-  { type: "paqueteria", label: "Paqueteria" },
+  { type: "telegrafia", label: "Telegrafía" },
+  { type: "distribucion", label: "Distribución" },
+  { type: "paqueteria", label: "Paquetería" },
 ];
 
+const uniqueRegions = [
+  ...new Set(
+    allProvincesWithRegion
+      .map((p) => p.regionName)
+      .filter((r): r is string => Boolean(r)),
+  ),
+].sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+
 const officeCountByType = officeDirectoryItems.reduce(
-  (counts, office) => {
+  (counts: Record<OfficeType | "all", number>, office) => {
     counts.all += 1;
     counts[office.type] += 1;
     return counts;
@@ -155,14 +74,14 @@ const officeCountByType = officeDirectoryItems.reduce(
     telegrafia: 0,
     distribucion: 0,
     paqueteria: 0,
-  } satisfies Record<OfficeType | "all", number>,
+  }
 );
 
 const officeTypeLabelByType: Record<OfficeType, string> = {
   comercial: "Comercial",
-  telegrafia: "Telegrafia",
-  distribucion: "Distribucion",
-  paqueteria: "Paqueteria",
+  telegrafia: "Telegrafía",
+  distribucion: "Distribución",
+  paqueteria: "Paquetería",
 };
 
 const officeTypeChipClassByType: Record<OfficeType, string> = {
@@ -208,8 +127,8 @@ const assetOrderByType: Record<OfficeAssetType, number> = {
   printer: 3,
 };
 
-const officeDirectoryHeaderGridClass = "grid-cols-12 gap-4";
-const officeDirectoryRowGridClass = "grid grid-cols-12 items-center gap-4";
+const officeDirectoryHeaderGridClass = "grid-cols-10 gap-4";
+const officeDirectoryRowGridClass = "grid grid-cols-10 items-center gap-4";
 
 const groupedOffices = Array.from(
   officeDirectoryItems.reduce((groups, office) => {
@@ -242,7 +161,7 @@ const mainTabs = [
 ];
 ---
 
-<BaseLayout title="Directorio de oficinas">
+<BaseLayout>
   <!-- Hoja de estilos de Leaflet (requerida por la librería) -->
   <link
     rel="stylesheet"
@@ -253,7 +172,6 @@ const mainTabs = [
 
   <PageContainer>
     <PageHeader
-      title="Directorio de oficinas"
       description="Visualización centralizada de la infraestructura, buscador de oficinas y mapa interactivo de cobertura nacional."
     />
 
@@ -268,57 +186,72 @@ const mainTabs = [
     <!-- Contenedor de Directorio -->
     <div id="main-view-directory" class="space-y-6">
       <section
-        class="flex flex-col gap-3 rounded-box border border-base-300 bg-base-100 p-3 shadow-sm lg:flex-row lg:items-center lg:justify-between"
+        class="flex flex-col gap-4 rounded-box border border-base-300 bg-base-100 p-4 shadow-md"
         aria-label="Filtros del directorio"
       >
-        <div
-          role="tablist"
-          class="tabs tabs-box w-full bg-base-200/80 p-1 lg:w-auto"
-        >
-          {
-            officeTypeTabs.map((tab) => {
-              const isActive = tab.type === defaultOfficeType;
+        <!-- Fila 1: Tabs -->
+        <div class="w-full">
+          <div
+            role="tablist"
+            class="tabs tabs-box w-full bg-base-200/80 p-1 flex-nowrap overflow-x-auto"
+          >
+            {
+              officeTypeTabs.map((tab) => {
+                const isActive = tab.type === defaultOfficeType;
 
-              return (
-                <button
-                  type="button"
-                  role="tab"
-                  data-office-tab
-                  data-office-type={tab.type}
-                  aria-selected={isActive ? "true" : "false"}
-                  class:list={[
-                    "tab flex-1 gap-2 rounded-lg border border-transparent transition-colors lg:flex-none",
-                    isActive && officeTypeTabActiveClassByType[tab.type],
-                  ]}
-                >
-                  <span>{tab.label}</span>
-                  <span class="badge badge-sm bg-base-100 text-base-content/70">
-                    {officeCountByType[tab.type]}
-                  </span>
-                </button>
-              );
-            })
-          }
+                return (
+                  <button
+                    type="button"
+                    role="tab"
+                    data-office-tab
+                    data-office-type={tab.type}
+                    aria-selected={isActive ? "true" : "false"}
+                    class:list={[
+                      "tab flex-1 gap-2 rounded-lg border border-transparent transition-colors lg:flex-none",
+                      isActive && officeTypeTabActiveClassByType[tab.type],
+                    ]}
+                  >
+                    <span>{tab.label}</span>
+                    <span class="badge badge-sm bg-base-100 text-base-content/70">
+                      {officeCountByType[tab.type]}
+                    </span>
+                  </button>
+                );
+              })
+            }
+          </div>
         </div>
 
-        <SearchInput
-          id="office-search"
-          label="Buscar oficina por nombre, codigo, region, centro de costo o codigo postal"
-          placeholder="Buscar por nombre, codigo, region, centro de costo o CP"
-          class="lg:max-w-sm"
-        />
+        <div class="flex flex-col sm:flex-row gap-3 w-full">
+          <select
+            id="regionFilter"
+            class="select border-base-300 w-full sm:w-auto sm:min-w-48 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-label="Filtrar por región"
+          >
+            <option value="all">Todas las regiones</option>
+            {uniqueRegions.map((region) => (
+              <option value={region}>{region}</option>
+            ))}
+          </select>
+          <select
+            id="provinceFilter"
+            class="select border-base-300 w-full sm:w-auto sm:min-w-48 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-label="Filtrar por provincia"
+            disabled
+          >
+            <option value="all">Todas las provincias</option>
+          </select>
+          <SearchInput
+            id="office-search"
+            label="Buscar oficina por nombre, código, región o código postal"
+            placeholder="Buscar por nombre, código, región o CP"
+            class="flex-1"
+          />
+        </div>
       </section>
 
-      <div
-        id="office-empty-state"
-        class="alert alert-warning hidden"
-        role="status"
-      >
-        <Icon name="boxicons:search" class="size-5" aria-hidden="true" />
-        <span>No se encontraron oficinas para los filtros actuales.</span>
-      </div>
-
-      <MasterDetailTable
+      <div id="office-table-wrapper">
+        <MasterDetailTable
         ariaLabel="Directorio de oficinas"
         minWidthClass="min-w-280"
         headerGridClass={officeDirectoryHeaderGridClass}
@@ -330,24 +263,19 @@ const mainTabs = [
           </DataTableHeaderCell>
         </div>
         <div slot="header" class="col-span-2">
-          <DataTableHeaderCell sortKey="code"> Codigo </DataTableHeaderCell>
+          <DataTableHeaderCell sortKey="code"> Código </DataTableHeaderCell>
         </div>
         <div slot="header" class="col-span-3">
           <DataTableHeaderCell sortKey="name">Nombre</DataTableHeaderCell>
         </div>
         <div slot="header" class="col-span-4">
-          <DataTableHeaderCell sortKey="address">Direccion</DataTableHeaderCell>
-        </div>
-        <div slot="header" class="col-span-2">
-          <DataTableHeaderCell sortKey="cost-center">
-            Centro de costo
-          </DataTableHeaderCell>
+          <DataTableHeaderCell sortKey="address">Dirección</DataTableHeaderCell>
         </div>
         {
           groupedOffices.map((group) =>
             group.offices.map((office, index) => {
-              const isVisibleByDefault = office.type === defaultOfficeType;
-              const searchText = `${office.name} ${office.code} ${office.region} ${office.location} ${office.costCenter} ${office.postalCode} ${officeTypeLabelByType[office.type]}`;
+              const isVisibleByDefault = defaultOfficeType === "all" || office.type === defaultOfficeType;
+              const searchText = `${office.name} ${office.code} ${office.region} ${office.provinceName} ${office.location} ${office.postalCode} ${officeTypeLabelByType[office.type]}`;
 
               return (
                 <>
@@ -370,7 +298,7 @@ const mainTabs = [
                             <span>{group.location}</span>
                           </p>
                           <p class="mt-1 text-xs text-base-content/60">
-                            {group.offices.length} oficinas en esta locacion
+                            {group.offices.length} oficinas en esta locación
                           </p>
                         </div>
                       </div>
@@ -382,11 +310,12 @@ const mainTabs = [
                     data-office-id={office.id}
                     data-office-type={office.type}
                     data-office-location={office.location}
+                    data-region={office.region}
+                    data-province-code={office.provinceCode}
                     data-search-text={searchText}
                     data-sort-code={office.code}
                     data-sort-name={office.name}
                     data-sort-address={`${office.address} ${office.location} ${office.region} ${office.postalCode}`}
-                    data-sort-cost-center={office.costCenter}
                     data-sort-group={office.location}
                     class:list={["block", !isVisibleByDefault && "hidden"]}
                   >
@@ -474,15 +403,6 @@ const mainTabs = [
                           </div>
                         </div>
                       </div>
-
-                      <div class="col-span-2">
-                        <span
-                          class="font-mono text-sm text-base-content/75"
-                          data-highlight-target
-                        >
-                          {office.costCenter || <span class="text-base-content/35">&mdash;</span>}
-                        </span>
-                      </div>
                     </div>
 
                     <div
@@ -504,7 +424,7 @@ const mainTabs = [
                                   />
                                   Informacion de la oficina
                                 </h2>
-                                <div class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm space-y-2">
+                                <div class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-md space-y-2">
                                   {office.email && (
                                     <p class="flex items-center gap-2 text-sm text-base-content/80">
                                       <Icon
@@ -543,7 +463,7 @@ const mainTabs = [
                               {office.contacts.length > 0 ? (
                                 <div class="grid gap-3 sm:grid-cols-2">
                                   {office.contacts.map((contact) => (
-                                    <article class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm">
+                                    <article class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-md">
                                       <h3 class="truncate text-sm font-semibold text-base-content">
                                         {contact.name}
                                       </h3>
@@ -589,17 +509,16 @@ const mainTabs = [
                                 class="size-4 text-secondary"
                                 aria-hidden="true"
                               />
-                              Activos tecnologicos
+                              Activos tecnológicos
                             </h2>
 
                             {office.assets.length > 0 ? (
-                              <div class="overflow-x-auto rounded-lg border border-base-300 bg-base-100 shadow-sm">
+                              <div class="overflow-x-auto rounded-lg border border-base-300 bg-base-100 shadow-md">
                                 <table class="table table-sm">
                                   <thead>
                                     <tr class="text-xs uppercase tracking-wide text-base-content/60">
                                       <th>Tipo / Hostname</th>
-                                      <th>Direccion IP</th>
-                                      <th>Estado</th>
+                                      <th>Dirección IP</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -616,7 +535,7 @@ const mainTabs = [
                                             >
                                               <Icon
                                                 name={
-                                                  assetIconByType[asset.type]
+                                                  assetIconByType[asset.type] || "boxicons:info-circle-filled"
                                                 }
                                                 class="size-4"
                                               />
@@ -634,17 +553,6 @@ const mainTabs = [
                                         <td class="font-mono text-sm">
                                           {asset.ip}
                                         </td>
-                                        <td>
-                                          {asset.status ? (
-                                            <span class="badge badge-success badge-outline badge-sm">
-                                              Online
-                                            </span>
-                                          ) : (
-                                            <span class="badge badge-ghost badge-sm">
-                                              &mdash;
-                                            </span>
-                                          )}
-                                        </td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -652,7 +560,7 @@ const mainTabs = [
                               </div>
                             ) : (
                               <p class="rounded-lg border border-base-300 bg-base-100 p-4 text-sm italic text-base-content/60">
-                                Sin activos tecnologicos registrados.
+                                Sin activos tecnológicos registrados.
                               </p>
                             )}
                           </section>
@@ -666,6 +574,7 @@ const mainTabs = [
           )
         }
       </MasterDetailTable>
+      </div>
     </div>
 
     <!-- Contenedor de Mapa -->
@@ -720,9 +629,10 @@ const mainTabs = [
   </PageContainer>
 
   <!-- Data para client-side (Astro Islands) -->
-  <script is:inline define:vars={{ sucursales }}>
-    // Inyectamos la variable desde el servidor hacia el cliente
+  <script is:inline define:vars={{ sucursales, provincesByRegion }}>
+
     window._SUCURSALES_DATA = sucursales;
+    window._PROVINCES_BY_REGION = provincesByRegion;
   </script>
 
   <!-- Script de Leaflet (CDN) y lógica combinada -->
@@ -739,11 +649,13 @@ const mainTabs = [
     } from "@lib/clientSearch";
     import { refreshMasterDetailTableSort } from "@lib/clientMasterDetailTableSort";
 
-    // --- Lógica del Switch Principal ---
+    declare const L: any;
+
+
     const mainViewDir = document.getElementById("main-view-directory");
     const mainViewMap = document.getElementById("main-view-map");
 
-    // --- Lógica del Directorio ---
+
     const tabButtons = Array.from(
       document.querySelectorAll<HTMLButtonElement>("[data-office-tab]"),
     );
@@ -764,11 +676,15 @@ const mainTabs = [
     );
     const searchInput =
       document.querySelector<HTMLInputElement>("#office-search");
-    const emptyState = document.querySelector<HTMLElement>(
-      "#office-empty-state",
+    const regionFilter =
+      document.querySelector<HTMLSelectElement>("#regionFilter");
+    const provinceFilter =
+      document.querySelector<HTMLSelectElement>("#provinceFilter");
+    const categoryEmptyState = document.querySelector<HTMLElement>(
+      "#office-category-empty-state",
     );
 
-    let selectedOfficeType = "comercial";
+    let selectedOfficeType = "all";
     let expandedOfficeId: string | null = null;
     const tabActiveClassesByType: Record<string, string> = {
       all: "office-tab-active office-tab-active-all",
@@ -789,11 +705,20 @@ const mainTabs = [
       const matchesType =
         selectedOfficeType === "all" ||
         item.dataset.officeType === selectedOfficeType;
+        
+      const regionValue = regionFilter?.value || "all";
+      const matchesRegion =
+        regionValue === "all" || item.dataset.region === regionValue;
+
+      const provinceValue = provinceFilter?.value || "all";
+      const matchesProvince =
+        provinceValue === "all" || item.dataset.provinceCode === provinceValue;
+        
       const matchesSearch = matchesSearchQuery(searchInput?.value.trim(), [
         item.dataset.searchText,
       ]);
 
-      return matchesType && matchesSearch;
+      return matchesType && matchesRegion && matchesProvince && matchesSearch;
     };
 
     const updateRows = (): void => {
@@ -854,18 +779,58 @@ const mainTabs = [
         groupRow.classList.toggle("hidden", !showGroup);
       });
 
-      refreshMasterDetailTableSort();
-      emptyState?.classList.toggle("hidden", visibleRows > 0);
+      const hasItemsInType = selectedOfficeType === "all" || officeItems.some((item) => item.dataset.officeType === selectedOfficeType);
+      const showCategoryEmpty = !hasItemsInType;
+
+      categoryEmptyState?.classList.toggle("hidden", !showCategoryEmpty);
     };
 
-    // --- Lógica del Mapa (Leaflet) ---
+
     let map: any = null;
     const initializeMap = () => {
       if (map) return;
       const dataMap = (window as any)._SUCURSALES_DATA || [];
+      const provincesData = (window as any)._PROVINCES_BY_REGION || {};
+      
+      const provinceToRegion: Record<string, string> = {};
+      const regionsArray: string[] = [];
+      for (const [regionName, provs] of Object.entries(provincesData)) {
+        regionsArray.push(regionName);
+        for (const p of provs as any[]) {
+          provinceToRegion[p.name] = regionName;
+        }
+      }
+      
+      const regionColors = [
+        "#003B71", // Azul Institucional
+        "#FFCC00", // Amarillo Institucional
+        "#2ECC71", // Verde
+        "#E74C3C", // Rojo
+        "#9B59B6", // Púrpura
+        "#F39C12", // Naranja
+        "#1ABC9C", // Turquesa
+        "#34495E", // Gris oscuro
+        "#D35400", // Naranja oscuro
+        "#2980B9"  // Azul claro
+      ];
+
+      const normalizeProvinceName = (geoName: string) => {
+        if (geoName === "Tierra del Fuego, Antártida e Islas del Atlántico Sur") return "Tierra del Fuego";
+        if (geoName === "Ciudad Autónoma de Buenos Aires") return "CABA";
+        return geoName;
+      };
+
+      const getRegionColor = (provinceName: string) => {
+        const dbName = normalizeProvinceName(provinceName);
+        const region = provinceToRegion[dbName];
+        if (!region) return "#7F8C8D"; // Gris default si no tiene región
+        const idx = regionsArray.indexOf(region);
+        return regionColors[idx % regionColors.length];
+      };
+
       const bounds = [
-        [-56.0, -74.0], // Sudoeste
-        [-21.0, -53.0], // Noreste
+        [-56.0, -74.0],
+        [-21.0, -53.0],
       ];
 
       map = L.map("mapa-sucursales", {
@@ -891,7 +856,7 @@ const mainTabs = [
       let labelsVisible = true;
       let markersVisible = true;
 
-      // Botones de control del mapa
+
       const polyBtn = document.getElementById("toggle-polygons");
       const polyText = document.getElementById("polygons-text");
       if (polyBtn) {
@@ -1009,6 +974,7 @@ const mainTabs = [
       const labelOverrides: Record<string, [number, number]> = {
         "Santa Fe": [-30.8, -61.6],
         "Buenos Aires": [-36.8, -60.1],
+        "Tierra del Fuego, Antártida e Islas del Atlántico Sur": [-54.3, -67.0],
       };
 
       fetch("/data/argentina_provincias.geojson")
@@ -1017,32 +983,22 @@ const mainTabs = [
           L.geoJSON(geoData, {
             style: function (feature: any) {
               const name = feature.properties.nombre;
-              const isYellow = [
-                "Buenos Aires",
-                "Córdoba",
-                "La Pampa",
-                "Mendoza",
-                "La Rioja",
-                "Chubut",
-                "Formosa",
-                "Santiago del Estero",
-                "Misiones",
-                "Jujuy",
-                "Santa Cruz",
-              ].includes(name);
-              const color = isYellow ? "#FFCC00" : "#003B71";
+              const color = getRegionColor(name);
               return {
                 color: color,
                 weight: 1.5,
                 fillColor: color,
                 fillOpacity:
-                  name === "Ciudad Autónoma de Buenos Aires" ? 0.25 : 0.12,
+                  name === "Ciudad Autónoma de Buenos Aires" ? 0.35 : 0.15,
               };
             },
             onEachFeature: function (feature: any, layer: any) {
               const name = feature.properties.nombre;
+              const dbName = normalizeProvinceName(name);
+              const regionName = provinceToRegion[dbName] || "Sin región";
+              const color = getRegionColor(name);
               layer.bindPopup(
-                `<div class='text-center p-1'><b style='color: ${provinceLetters[name] === "C" || provinceLetters[name] === "S" ? "#003B71" : "#FFCC00"};'>${name}</b><br/>Provincia de la República Argentina.</div>`,
+                `<div class='text-center p-1'><b style='color: ${color};'>${name}</b><br/><span class='text-xs text-gray-600'>${regionName}</span></div>`,
                 { className: "custom-popup" },
               );
               const letter = provinceLetters[name];
@@ -1052,25 +1008,7 @@ const mainTabs = [
                   centroid.lat,
                   centroid.lon,
                 ];
-                const isBlue = [
-                  "C",
-                  "S",
-                  "E",
-                  "W",
-                  "A",
-                  "G",
-                  "T",
-                  "F",
-                  "J",
-                  "D",
-                  "Q",
-                  "R",
-                  "V",
-                ].includes(letter);
-                const color = isBlue ? "#003B71" : "#FFCC00";
-                const shadow = isBlue
-                  ? "rgba(255,255,255,0.9)"
-                  : "rgba(0,0,0,0.5)";
+                const shadow = "rgba(255,255,255,0.8)";
                 let fontSize = "3.5rem";
                 if (letter === "C") fontSize = "2rem";
                 if (["B", "S", "X"].includes(letter)) fontSize = "4.2rem";
@@ -1089,15 +1027,15 @@ const mainTabs = [
         });
 
       dataMap.forEach((sucursal: any) => {
-        const { lat, lng } = sucursal.ubicacion;
-        const popupContent = `<div class="px-1 py-1 min-w-56"><div class="border-b border-gray-200 pb-2 mb-2"><h3 class="font-bold text-gray-900 text-sm m-0 leading-tight">${sucursal.ubicacion.nombre}</h3><span class="inline-block mt-1.5 px-2 py-0.5 bg-primary/10 text-primary text-xs font-black rounded uppercase tracking-wider">NIS: ${sucursal.nis}</span></div><div class="text-xs text-gray-700 space-y-1.5"><div class="flex justify-between items-center bg-gray-50 px-2 py-1 rounded"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-gray-800">${sucursal.region}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Equipos PC</span><span class="font-bold text-gray-700">${sucursal.cantidad_pc}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Servidores</span><span class="font-bold text-gray-700">${sucursal.servidores}</span></div><div class="flex justify-between pt-1.5 mt-1.5 border-t border-gray-100 px-2"><span class="text-gray-500">Contacto</span><a href="tel:${sucursal.contacto}" class="text-blue-600 font-bold hover:underline">${sucursal.contacto}</a></div></div></div>`;
+        const { lat, lng } = sucursal.ubicación;
+        const popupContent = `<div class="px-1 py-1 min-w-56"><div class="border-b border-gray-200 pb-2 mb-2"><h3 class="font-bold text-gray-900 text-sm m-0 leading-tight">${sucursal.ubicación.nombre}</h3><span class="inline-block mt-1.5 px-2 py-0.5 bg-primary/10 text-primary text-xs font-black rounded uppercase tracking-wider">NIS: ${sucursal.nis}</span></div><div class="text-xs text-gray-700 space-y-1.5"><div class="flex justify-between items-center bg-gray-50 px-2 py-1 rounded"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-gray-800">${sucursal.region}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Equipos PC</span><span class="font-bold text-gray-700">${sucursal.cantidad_pc}</span></div><div class="flex justify-between items-center px-2 py-0.5"><span class="text-gray-500">Servidores</span><span class="font-bold text-gray-700">${sucursal.servidores}</span></div><div class="flex justify-between pt-1.5 mt-1.5 border-t border-gray-100 px-2"><span class="text-gray-500">Contacto</span><a href="tel:${sucursal.contacto}" class="text-blue-600 font-bold hover:underline">${sucursal.contacto}</a></div></div></div>`;
         L.marker([lat, lng], { icon: sucursalMarkerIcon })
           .addTo(grupoSucursales)
           .bindPopup(popupContent, { className: "custom-popup" });
       });
     };
 
-    // --- Inicialización y Eventos ---
+
     const switcher = document.getElementById("main-view-switcher");
 
     switcher?.addEventListener("view-change", (e: any) => {
@@ -1137,6 +1075,7 @@ const mainTabs = [
           tab.setAttribute("aria-selected", isActive ? "true" : "false");
         });
         updateRows();
+        refreshMasterDetailTableSort();
       });
     });
 
@@ -1156,7 +1095,36 @@ const mainTabs = [
     });
 
     searchInput?.addEventListener("input", updateRows);
+
+    const provincesData = (window as any)._PROVINCES_BY_REGION as Record<string, { code: string; name: string }[]> | undefined;
+
+    regionFilter?.addEventListener("change", () => {
+      const selectedRegion = regionFilter.value;
+
+      if (provinceFilter) {
+        provinceFilter.innerHTML = '<option value="all">Todas las provincias</option>';
+
+        if (selectedRegion !== "all" && provincesData?.[selectedRegion]) {
+          for (const p of provincesData[selectedRegion]) {
+            const opt = document.createElement("option");
+            opt.value = p.code;
+            opt.textContent = p.name;
+            provinceFilter.appendChild(opt);
+          }
+          provinceFilter.disabled = false;
+        } else {
+          provinceFilter.disabled = true;
+        }
+        provinceFilter.value = "all";
+      }
+
+      updateRows();
+    });
+
+    provinceFilter?.addEventListener("change", updateRows);
+
     updateRows();
+    refreshMasterDetailTableSort();
   </script>
 
   <style>

@@ -72,7 +72,7 @@ export default function TitlesApp() {
                           <article
                             key={`${t.title}-${t.index}`}
                             className={
-                              "card card-compact bg-base-100 border border-base-300 h-full transition-all duration-200 hover:shadow-lg hover:border-primary cursor-pointer" +
+                              "card card-compact bg-base-100 border border-base-300 h-full shadow-md transition-all duration-200 hover:border-primary cursor-pointer" +
                               (copiedIndex === t.index
                                 ? " bg-primary border-primary"
                                 : "")

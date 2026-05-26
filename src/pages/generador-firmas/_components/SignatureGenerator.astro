@@ -20,7 +20,7 @@ const { origin = "" } = Astro.props;
   data-logo3={logoFirma3.src}
 >
   <!-- Columna Izquierda: Formulario -->
-  <section class="card bg-base-100 border border-base-300 shadow-sm overflow-hidden">
+  <section class="card bg-base-100 border border-base-300 shadow-md overflow-hidden">
     <div class="card-body ">
       <div class="flex items-center gap-2 mb-2">
         <div class="p-2 bg-primary/10 rounded-lg text-primary">
@@ -32,7 +32,7 @@ const { origin = "" } = Astro.props;
       <form id="signature-form" class="space-y-6 mb-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <fieldset class="fieldset w-full">
-            <legend class="fieldset-legend font-semibold">Nombre y Apellido</legend>
+            <legend class="fieldset-legend font-semibold">Nombre y Apellido <span class="text-error">*</span></legend>
             <input
               type="text"
               name="name"
@@ -43,7 +43,7 @@ const { origin = "" } = Astro.props;
             />
           </fieldset>
           <fieldset class="fieldset w-full">
-            <legend class="fieldset-legend font-semibold">Puesto / Cargo</legend>
+            <legend class="fieldset-legend font-semibold">Puesto / Cargo <span class="text-error">*</span></legend>
             <input
               type="text"
               name="role"
@@ -56,7 +56,7 @@ const { origin = "" } = Astro.props;
         </div>
 
         <fieldset class="fieldset w-full">
-          <legend class="fieldset-legend font-semibold">Departamento / Gerencia</legend>
+          <legend class="fieldset-legend font-semibold">Departamento / Gerencia <span class="text-error">*</span></legend>
           <input
             type="text"
             name="department"
@@ -69,7 +69,7 @@ const { origin = "" } = Astro.props;
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <fieldset class="fieldset w-full">
-            <legend class="fieldset-legend font-semibold">Dirección (Línea 1)</legend>
+            <legend class="fieldset-legend font-semibold">Dirección (Línea 1) <span class="text-error">*</span></legend>
             <input
               type="text"
               name="address1"
@@ -177,6 +177,9 @@ const { origin = "" } = Astro.props;
             Copia la firma visual y pégala directamente en la configuración
             de firmas de Outlook.
           </span>
+          <span class="block mt-1 text-xs font-semibold text-warning">
+            * Completa todos los campos obligatorios (marcados con *) para habilitar los botones de descarga y copia.
+          </span>
         </div>
       </div>
 
@@ -218,7 +221,7 @@ const { origin = "" } = Astro.props;
       </button>
     </div>
 
-    <div class="card bg-base-100 border border-base-300 shadow-sm min-h-[300px]">
+    <div class="card bg-base-100 border border-base-300 shadow-md min-h-[300px]">
       <div class="card-body p-0">
         <!-- Vista Visual -->
         <div id="section-visual" class="flex flex-col h-full p-6">
@@ -277,7 +280,7 @@ const { origin = "" } = Astro.props;
 <script>
   import { toPng } from "html-to-image";
 
-  // Elementos del DOM con tipado
+
   const container = document.getElementById('signature-generator-container');
   const origin = container?.dataset.origin || "";
   const logos: Record<string, string> = {
@@ -312,7 +315,7 @@ const { origin = "" } = Astro.props;
   const downloadSpinner = document.getElementById('download-spinner');
   const downloadIcon = document.getElementById('download-icon');
 
-  // Estado local
+
   let formData = {
     name: "",
     role: "",
@@ -362,7 +365,7 @@ const { origin = "" } = Astro.props;
     if (!previewContainer || !codeOutput) return;
 
     const logoPath = logos[formData.selectedLogo];
-    const fullLogoUrl = logoPath.startsWith('http') ? logoPath : `${origin}${logoPath}`;
+    const fullLogoUrl = logoPath.startsWith('http') ? logoPath : `${window.location.origin}${logoPath}`;
 
     const imageHtml = formData.includeImage
       ? `
@@ -406,7 +409,7 @@ const { origin = "" } = Astro.props;
     codeOutput.textContent = signatureHtml;
   }
 
-  // Manejo de Inputs con formateo
+
   inputName?.addEventListener('input', (e) => {
     const target = e.target as HTMLInputElement;
     target.value = target.value.replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
@@ -429,7 +432,7 @@ const { origin = "" } = Astro.props;
     radio.addEventListener('change', updateFormData);
   });
 
-  // Manejo de Tabs
+
   tabVisual?.addEventListener('click', () => {
     tabVisual.classList.add('tab-active');
     tabCode?.classList.remove('tab-active');
@@ -444,7 +447,7 @@ const { origin = "" } = Astro.props;
     sectionVisual?.classList.add('hidden');
   });
 
-  // Acciones: Copiar y Descargar
+
   btnCopyVisual?.addEventListener('click', async () => {
     if (!previewContainer) return;
     
@@ -477,7 +480,7 @@ const { origin = "" } = Astro.props;
     } catch (err) {
       console.error("Error al copiar firma visual:", err);
       
-      // Fallback legacy si falla el Clipboard API moderno
+
       try {
         const selection = window.getSelection();
         if (!selection) return;
@@ -551,6 +554,6 @@ const { origin = "" } = Astro.props;
     }
   });
 
-  // Inicializar
+
   renderSignature();
 </script>

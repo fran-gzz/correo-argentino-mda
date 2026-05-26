@@ -1,0 +1,24 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import CronogramaDashboard from "@components/cronograma/CronogramaDashboard.astro";
+import { Icon } from "astro-icon/components";
+import PageContainer from "@components/ui/PageContainer.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
+---
+
+<BaseLayout>
+  <PageContainer width="wide">
+    <a href={`${cleanBase}supervision`} class="btn btn-ghost btn-sm mb-2 w-fit pl-2 transition-colors duration-200">
+      <Icon name="boxicons:chevron-left" size={16} />
+      Volver a Supervisión
+    </a>
+
+    <PageHeader
+      description="Gestión integral de asistencia y modalidades del equipo MDA."
+    />
+
+    <CronogramaDashboard />
+  </PageContainer>
+</BaseLayout>

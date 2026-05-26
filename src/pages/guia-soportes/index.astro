@@ -13,7 +13,7 @@ const guiaHeaderGridClass = "grid-cols-12 gap-4";
 const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
 ---
 
-<BaseLayout title="Guía de soportes">
+<BaseLayout>
   <PageContainer class="animate-fade-in">
     <!-- Page Header -->
     <section class="space-y-4">
@@ -21,7 +21,6 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
         class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4"
       >
         <PageHeader
-          title="Guía de soportes"
           description="Matriz unificada de equivalencias y derivación técnica de la Mesa de Ayuda."
           class="max-w-2xl"
         />
@@ -48,27 +47,27 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
     <!-- Unified Table View -->
     <div class="space-y-8">
       <section
-        class="bg-base-100 rounded-xl shadow-sm overflow-hidden border border-base-content/10"
+        class="bg-base-100 rounded-xl shadow-md overflow-hidden border border-base-content/10"
       >
         <DataTable
-          ariaLabel="Guia de soportes"
+          ariaLabel="Guía de soportes"
           minWidthClass="min-w-240"
           headerGridClass={guiaHeaderGridClass}
           rowGridClass={guiaRowGridClass}
           id="table-guia-root"
         >
           <div slot="header" class="col-span-3">
-            <DataTableHeaderCell sortKey="sm_groups" id="header-sm_groups">
+            <DataTableHeaderCell sortKey="sm_groups">
               Service Manager
             </DataTableHeaderCell>
           </div>
           <div slot="header" class="col-span-2">
-            <DataTableHeaderCell sortKey="invgate" id="header-invgate">
+            <DataTableHeaderCell sortKey="invgate">
               Invgate
             </DataTableHeaderCell>
           </div>
           <div slot="header" class="col-span-5">
-            <DataTableHeaderCell sortKey="ruta" id="header-ruta">
+            <DataTableHeaderCell sortKey="ruta">
               Ruta de búsqueda
             </DataTableHeaderCell>
           </div>
@@ -120,7 +119,7 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
     <!-- ===== NUEVA SECCIÓN DE DETALLES DEL SOPORTE ===== -->
     <section
       id="support-details-card"
-      class="hidden mt-6 bg-base-100 rounded-2xl shadow-lg border-l-4 border-l-primary border-y border-y-base-content/5 border-r border-r-base-content/5 p-6 animate-slide-up relative overflow-hidden"
+      class="hidden mt-6 bg-base-100 rounded-2xl shadow-md border-l-4 border-l-primary border-y border-y-base-content/5 border-r border-r-base-content/5 p-6 animate-slide-up relative overflow-hidden"
     >
       <!-- Decoración de fondo -->
       <div class="absolute inset-0 bg-linear-to-r from-primary/5 to-transparent pointer-events-none"></div>
@@ -167,11 +166,11 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
 
 
     <script is:inline>
-      // Initialize data from window
+
       const baseData = window._GUIA_DATA || [];
       const infoSoportes = window._INFO_SOPORTES_DATA || {};
 
-      // States
+
       let currentPage = 1;
       const rowsPerPage = 12;
       let filteredData = [...baseData];
@@ -239,7 +238,7 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
 
         const info = llaveCorrecta ? infoSoportes[llaveCorrecta] : null;
 
-        // Actualizamos el título siempre con el nombre exacto que se clickeó
+
         title.textContent = nombreGrupo;
 
         if (info) {
@@ -250,7 +249,7 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
 
         card.classList.remove('hidden');
         
-        // Hacemos scroll suave hacia la tarjeta para que el usuario la vea
+
         setTimeout(() => {
           card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 50);
@@ -356,17 +355,11 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
         const paginatedItems = filteredData.slice(start, end);
         const maxPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
 
+        const emptyState = document.getElementById('table-guia-root')?.querySelector('[data-table-empty-state]');
+
         if (filteredData.length === 0) {
-          tbody.innerHTML = `
-          <div class="px-6 py-12 text-center w-full">
-            <div class="flex flex-col items-center justify-center text-base-content/40 space-y-3 animate-fade-in">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-18 h-18 opacity-50">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <p class="text-sm font-medium">No se encontraron resultados para "<span class="font-bold text-base-content/80">${escapeHTML(currentSearchQuery)}</span>"</p>
-            </div>
-          </div>
-        `;
+          tbody.innerHTML = '';
+          if (emptyState) emptyState.classList.remove('hidden');
 
           if (document.getElementById("page-indicator"))
             document.getElementById("page-indicator").textContent = "Página 0";
@@ -380,7 +373,10 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
           return;
         }
 
-        // Update UI Controls
+        if (emptyState) emptyState.classList.add('hidden');
+
+
+
         const indicator = document.getElementById("page-indicator");
         const info = document.getElementById("pagination-info");
         const btnPrev = document.getElementById("btn-prev");
@@ -393,7 +389,7 @@ const guiaRowGridClass = "grid grid-cols-12 items-start gap-4";
         if (info)
           info.textContent = `Mostrando ${paginatedItems.length} de ${filteredData.length} registros`;
 
-        // Build rows
+
         tbody.innerHTML = paginatedItems
           .map((item, idx) => {
             const groups = item.sm_groups || [];

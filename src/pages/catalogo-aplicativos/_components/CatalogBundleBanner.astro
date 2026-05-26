@@ -8,9 +8,21 @@ interface Props {
 
 const { bundle } = Astro.props;
 
-const bundleUrl = bundle.url?.trim() ?? "";
-const hasBundleUrl = bundleUrl.length > 0;
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
 const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
+
+const resolveUrl = (path: string): string => {
+  if (!path) return "";
+  if (isWebUrl(path) || path.startsWith('mailto:') || path.startsWith('tel:') || path.startsWith(cleanBase)) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`;
+};
+
+const bundleUrl = resolveUrl(bundle.url?.trim() ?? "");
+const hasBundleUrl = bundleUrl.length > 0;
 ---
 
 <article class="rounded-lg border border-primary/30 bg-primary/10 p-4 sm:p-5">
@@ -22,7 +34,7 @@ const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
         class="mt-0.5 inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-content"
         aria-hidden="true"
       >
-        <Icon name="boxicons:package-filled" class="size-5" />
+        <Icon name="boxicons:package-filled" size={24} />
       </span>
 
       <div class="min-w-0 space-y-1">
@@ -42,10 +54,11 @@ const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
           class="btn btn-primary btn-sm shrink-0 gap-2 sm:btn-md"
           target={isWebUrl(bundleUrl) ? "_blank" : undefined}
           rel={isWebUrl(bundleUrl) ? "noopener noreferrer" : undefined}
+          download={!isWebUrl(bundleUrl) ? "" : undefined}
         >
           <Icon
-            name="boxicons:arrow-up-right-square-filled"
-            class="size-4"
+            name="boxicons:arrow-to-bottom-stroke"
+            size={18}
             aria-hidden="true"
           />
           <span>Descargar .zip</span>
@@ -56,7 +69,7 @@ const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
           class="btn btn-primary btn-disabled btn-sm shrink-0 gap-2 sm:btn-md"
           disabled
         >
-          <Icon name="boxicons:calendar-filled" class="size-4" aria-hidden="true" />
+          <Icon name="boxicons:calendar-filled" size={18} aria-hidden="true" />
           <span>Disponible pronto</span>
         </button>
       )

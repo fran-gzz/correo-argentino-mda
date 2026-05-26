@@ -10,13 +10,13 @@ import CopyButton from "@components/ui/CopyButton.astro";
 import ViewSwitcher from "@components/ui/ViewSwitcher.astro";
 import inventoryRows from "../../data/inventario_terminales.json";
 import {
-  cubicMachines,
   getActiveMachineCount,
   type CubicShift,
   type CubicStatus,
 } from "@lib/cubics";
+import { db } from "@db/index";
 
-// --- Lógica de Terminales ---
+
 type OsFamily = "windows" | "linux" | "legacy";
 type BoxiconName = `boxicons:${string}`;
 
@@ -96,7 +96,21 @@ const parseLastContact = (
   return { date: `${day} ${month} ${year}`, time: `${hours}:${minutes}` };
 };
 
-const terminals: TerminalItem[] = (inventoryRows as CsvTerminalRow[])
+const formatLastPing = (lastPing: Date | string | null | undefined): string => {
+  if (!lastPing) return "Pendiente";
+  const dateObj = new Date(lastPing);
+  if (Number.isNaN(dateObj.getTime())) return "Pendiente";
+
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const year = dateObj.getFullYear();
+  const hours = String(dateObj.getHours()).padStart(2, "0");
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+
+  return `${day}/${month}/${year} - ${hours}:${minutes} hs`;
+};
+
+const terminals: TerminalItem[] = (inventoryRows as unknown as CsvTerminalRow[])
   .slice(0, 50)
   .map((row) => {
     const lastContact = parseLastContact(row["Last-Contact"]);
@@ -154,8 +168,19 @@ const rowIcons: Record<
 const terminalHeaderGridClass = "grid-cols-12 gap-4";
 const terminalRowGridClass = "grid grid-cols-12 items-start gap-4";
 
-// --- Lógica de Cúbics ---
-const onlineCount = getActiveMachineCount(cubicMachines);
+
+const cubicMachines = await db.query.cubics.findMany({
+  with: {
+    assignments: {
+      with: {
+        agent: true,
+      },
+    },
+  },
+});
+
+
+const onlineCount = getActiveMachineCount(cubicMachines as any);
 const totalMachines = cubicMachines.length;
 
 const statusCopy: Record<CubicStatus, string> = {
@@ -186,10 +211,9 @@ const inventoryTabs = [
 ];
 ---
 
-<BaseLayout title="Inventario de Equipos">
+<BaseLayout>
   <PageContainer>
     <PageHeader
-      title="Inventario de Equipos"
       description="Gestión centralizada del parque operativo: terminales y estaciones de trabajo."
     />
 
@@ -204,26 +228,14 @@ const inventoryTabs = [
       <div class="w-full max-w-md">
         <SearchInput
           id="terminal-search"
-          label="Buscar terminal por hostname, direccion IP, MAC o sucursal"
+          label="Buscar terminal por hostname, dirección IP, MAC o sucursal"
           placeholder="Buscar por hostname, IP, MAC o sucursal"
         />
       </div>
 
       <section class="space-y-3">
-        <div
-          id="terminal-empty-state"
-          class="alert alert-warning hidden"
-          role="status"
-        >
-          <Icon
-            name="boxicons:alert-triangle-filled"
-            class="size-5"
-            aria-hidden="true"
-          />
-          <span>No se encontraron resultados para la busqueda actual.</span>
-        </div>
-
         <DataTable
+          id="table-terminales"
           ariaLabel="Inventario de terminales"
           minWidthClass="min-w-280"
           headerGridClass={terminalHeaderGridClass}
@@ -246,12 +258,12 @@ const inventoryTabs = [
           </div>
           <div slot="header" class="col-span-2">
             <DataTableHeaderCell sortKey="location"
-              >Ubicacion</DataTableHeaderCell
+              >Ubicación</DataTableHeaderCell
             >
           </div>
           <div slot="header" class="col-span-2">
             <DataTableHeaderCell align="right"
-              >Ultimo contacto</DataTableHeaderCell
+              >Último contacto</DataTableHeaderCell
             >
           </div>
 
@@ -264,9 +276,13 @@ const inventoryTabs = [
                 data-ip={terminal.ip}
                 data-mac={terminal.mac}
                 data-branch={terminal.branch}
+                data-sort-hostname={terminal.hostname}
+                data-sort-hardware={`${terminal.manufacturer} ${terminal.model}`}
+                data-sort-os={terminal.osName}
+                data-sort-location={terminal.branch}
                 class:list={[
                   terminalRowGridClass,
-                  "border-b border-base-300 px-4 py-3 transition-colors hover:bg-base-300/50 last:border-b-0",
+                  "border-b border-base-300 px-4 py-3 transition-colors hover:bg-base-200/50 last:border-b-0",
                 ]}
               >
                 <div class="col-span-3 min-w-0">
@@ -396,7 +412,7 @@ const inventoryTabs = [
         class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
       >
         <aside
-          class="card w-full border border-base-300 bg-base-100 shadow-sm lg:max-w-xs"
+          class="card w-full border border-base-300 bg-base-100 shadow-md lg:max-w-xs"
           aria-label="Resumen de conectividad"
         >
           <div class="card-body gap-2 p-4">
@@ -420,7 +436,7 @@ const inventoryTabs = [
           <div class="w-full max-w-md">
             <SearchInput
               id="machine-search"
-              label="Buscar cubic por hostname, direccion IP o usuario asignado"
+              label="Buscar cubic por hostname, dirección IP o usuario asignado"
               placeholder="Buscar por hostname, IP o usuario"
             />
           </div>
@@ -459,20 +475,8 @@ const inventoryTabs = [
       </div>
 
       <section class="space-y-3">
-        <div
-          id="cubics-empty-state"
-          class="alert alert-warning hidden"
-          role="status"
-        >
-          <Icon
-            name="boxicons:alert-triangle-filled"
-            class="size-5"
-            aria-hidden="true"
-          />
-          <span>No se encontraron resultados para la busqueda actual.</span>
-        </div>
-
         <DataTable
+          id="table-cubics"
           ariaLabel="Listado de cubics"
           minWidthClass="min-w-220 md:min-w-full"
           headerGridClass={cubicHeaderGridClass}
@@ -484,14 +488,12 @@ const inventoryTabs = [
             >
           </div>
           <div slot="header" class="col-span-3">
-            <DataTableHeaderCell sortKey="ip"
-              >Direccion IP</DataTableHeaderCell
-            >
-          </div>
-          <div slot="header" class="col-span-2">
-            <DataTableHeaderCell>Estado</DataTableHeaderCell>
+            <DataTableHeaderCell sortKey="ip">Dirección IP</DataTableHeaderCell>
           </div>
           <div slot="header" class="col-span-3">
+            <DataTableHeaderCell>Estado</DataTableHeaderCell>
+          </div>
+          <div slot="header" class="col-span-2">
             <DataTableHeaderCell>Asignado a</DataTableHeaderCell>
           </div>
 
@@ -509,6 +511,8 @@ const inventoryTabs = [
                   data-ip={machine.ip}
                   data-agent={assignmentSearchValue}
                   data-status={machine.status}
+                  data-sort-hostname={machine.name}
+                  data-sort-ip={machine.ip ?? ""}
                   class:list={[
                     cubicRowGridClass,
                     "border-b border-base-300 px-4 py-4 transition-colors hover:bg-base-300/50 last:border-b-0",
@@ -536,44 +540,49 @@ const inventoryTabs = [
                   </div>
                   <div class="col-span-3 min-w-0">
                     <CopyButton
-                      value={machine.ip}
+                      value={machine.ip ?? ""}
                       variant="value"
                       appearance="ghost"
-                      label={machine.ip}
-                      ariaLabel={`Copiar ${machine.ip}`}
+                      label={machine.ip ?? "Sin IP"}
+                      ariaLabel={`Copiar ${machine.ip ?? "IP"}`}
                       monospace
                       fullWidth
                       highlightable
                       class="-ml-2"
                     />
                   </div>
-                  <div class="col-span-2 min-w-0">
-                    <div class="flex items-center gap-2">
-                      <div class="inline-grid *:[grid-area:1/1]">
-                        <div
-                          class:list={[
-                            "status",
-                            machine.status === "online"
-                              ? "status-success"
-                              : "status-error",
-                            "animate-ping",
-                          ]}
-                        />
-                        <div
-                          class:list={[
-                            "status",
-                            machine.status === "online"
-                              ? "status-success"
-                              : "status-error",
-                          ]}
-                        />
+                  <div class="col-span-3 min-w-0">
+                    <div class="flex flex-col gap-0.5">
+                      <div class="flex items-center gap-2">
+                        <div class="inline-grid *:[grid-area:1/1]">
+                          <div
+                            class:list={[
+                              "status",
+                              machine.status === "online"
+                                ? "status-success"
+                                : "status-error",
+                              "animate-ping",
+                            ]}
+                          />
+                          <div
+                            class:list={[
+                              "status",
+                              machine.status === "online"
+                                ? "status-success"
+                                : "status-error",
+                            ]}
+                          />
+                        </div>
+                        <span class="text-sm text-base-content/80">
+                          {statusCopy[machine.status as CubicStatus]}
+                        </span>
                       </div>
-                      <span class="text-sm text-base-content/80">
-                        {statusCopy[machine.status]}
-                      </span>
+                      <p class="text-[10px] text-base-content/50">
+                        Último ping: {formatLastPing((machine as any).lastPing)}
+                      </p>
                     </div>
                   </div>
-                  <div class="col-span-3 min-w-0">
+                  <div class="col-span-2 min-w-0">
                     <div class="flex items-center gap-2">
                       {machine.assignments.length > 0 ? (
                         machine.assignments.map((assignment) => (
@@ -597,11 +606,11 @@ const inventoryTabs = [
                               <span
                                 class:list={[
                                   "pointer-events-none absolute -bottom-1 -right-1 z-0 inline-flex size-4 items-center justify-center rounded-full border",
-                                  shiftIconTone[assignment.shift],
+                                  shiftIconTone[assignment.shift as CubicShift],
                                 ]}
                               >
                                 <Icon
-                                  name={shiftIcon[assignment.shift]}
+                                  name={shiftIcon[assignment.shift as CubicShift]}
                                   class="size-2.5"
                                 />
                               </span>
@@ -644,7 +653,7 @@ const inventoryTabs = [
       matchesSearchQuery,
     } from "@lib/clientSearch";
 
-    // --- Tab Switching Logic ---
+
     const switcher = document.getElementById("inventory-view-switcher");
     const viewTerminales = document.getElementById("view-terminales");
     const viewCubics = document.getElementById("view-cubics");
@@ -659,14 +668,11 @@ const inventoryTabs = [
       updateTabs(e.detail.value);
     });
 
-    // --- Terminal Search Logic ---
+
     const terminalSearchInput =
       document.querySelector<HTMLInputElement>("#terminal-search");
     const terminalRows = Array.from(
       document.querySelectorAll<HTMLElement>("[data-terminal-row]"),
-    );
-    const terminalEmptyState = document.querySelector<HTMLElement>(
-      "#terminal-empty-state",
     );
 
     const updateTerminalRows = () => {
@@ -683,14 +689,12 @@ const inventoryTabs = [
         ]);
         row.classList.toggle("hidden", !isVisible);
         highlightSearchTargets(row, isVisible ? query : "");
-        if (isVisible) visibleCount++;
       });
-      terminalEmptyState?.classList.toggle("hidden", visibleCount > 0);
     };
 
     terminalSearchInput?.addEventListener("input", updateTerminalRows);
 
-    // --- Cubics Logic (Search + Filter) ---
+
     const machineSearchInput =
       document.querySelector<HTMLInputElement>("#machine-search");
     const filterTabs = Array.from(
@@ -698,9 +702,6 @@ const inventoryTabs = [
     );
     const machineRows = Array.from(
       document.querySelectorAll<HTMLElement>("[data-machine-row]"),
-    );
-    const cubicsEmptyState = document.querySelector<HTMLElement>(
-      "#cubics-empty-state",
     );
     let selectedCubicFilter = "all";
 
@@ -722,9 +723,7 @@ const inventoryTabs = [
         const isVisible = matchesSearch && matchesFilter;
         row.classList.toggle("hidden", !isVisible);
         highlightSearchTargets(row, isVisible ? query : "");
-        if (isVisible) visibleCount++;
       });
-      cubicsEmptyState?.classList.toggle("hidden", visibleCount > 0);
     };
 
     machineSearchInput?.addEventListener("input", updateMachineRows);
@@ -737,7 +736,94 @@ const inventoryTabs = [
       });
     });
 
-    // Initialize searches
+
+    function bindSorting(tableId: string, rows: HTMLElement[]) {
+      const table = document.getElementById(tableId);
+      if (!table || rows.length === 0) return;
+
+      const headerCells = table.querySelectorAll("[data-table-sort-key]");
+      let currentSortColumn: string | null = null;
+      let currentSortDirection: "asc" | "desc" | null = null;
+
+      table.addEventListener("click", (e) => {
+        const btn = (e.target as HTMLElement).closest("[data-table-sort-key]");
+        if (!btn) return;
+
+        const key = (btn as HTMLElement).dataset.tableSortKey;
+        if (!key) return;
+
+        if (currentSortColumn === key) {
+          if (currentSortDirection === "asc") {
+            currentSortDirection = "desc";
+          } else {
+            currentSortColumn = null;
+            currentSortDirection = null;
+          }
+        } else {
+          currentSortColumn = key;
+          currentSortDirection = "asc";
+        }
+
+
+        headerCells.forEach((cell) => {
+          const cellKey = (cell as HTMLElement).dataset.tableSortKey;
+          const isActive = cellKey === currentSortColumn;
+          const direction = isActive
+            ? (currentSortDirection === "asc" ? "ascending" : "descending")
+            : "none";
+
+          (cell as HTMLElement).dataset.tableSortDirection = direction;
+          cell.setAttribute("aria-sort", direction);
+
+          const icons = cell.querySelectorAll("[data-table-sort-icon]");
+          icons.forEach((icon) => {
+            const shouldShow = (icon as HTMLElement).dataset.tableSortIcon === direction;
+            (icon as HTMLElement).classList.toggle("hidden", !shouldShow);
+            (icon as HTMLElement).classList.toggle("opacity-0", !shouldShow);
+          });
+        });
+
+
+        if (currentSortColumn) {
+          const dataKey = `sort${currentSortColumn.charAt(0).toUpperCase()}${currentSortColumn.slice(1)}`;
+          rows.sort((a, b) => {
+            const valA = a.dataset[dataKey] || "";
+            const valB = b.dataset[dataKey] || "";
+
+            if (currentSortColumn === "ip") {
+              const aParts = valA.split('.').map(Number);
+              const bParts = valB.split('.').map(Number);
+              for (let i = 0; i < 4; i++) {
+                const numA = aParts[i] || 0;
+                const numB = bParts[i] || 0;
+                if (numA !== numB) {
+                  return currentSortDirection === "asc" ? numA - numB : numB - numA;
+                }
+              }
+              return 0;
+            }
+
+            const valALower = valA.toLowerCase();
+            const valBLower = valB.toLowerCase();
+
+            if (valALower < valBLower) return currentSortDirection === "asc" ? -1 : 1;
+            if (valALower > valBLower) return currentSortDirection === "asc" ? 1 : -1;
+            return 0;
+          });
+
+
+          const parent = rows[0].parentElement;
+          if (parent) {
+            rows.forEach((row) => parent.appendChild(row));
+          }
+        }
+      });
+    }
+
+    bindSorting("table-terminales", terminalRows);
+    bindSorting("table-cubics", machineRows);
+
+
     updateTerminalRows();
     updateMachineRows();
   </script>

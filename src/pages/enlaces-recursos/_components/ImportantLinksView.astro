@@ -11,12 +11,14 @@ interface Props {
 }
 
 const { categories } = Astro.props;
+
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
 ---
 
 <PageContainer>
   <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <PageHeader
-      title="Enlaces y recursos"
       description="Accesos clave para resolver tareas operativas de soporte con menos fricción."
       class="max-w-3xl"
     />
@@ -47,12 +49,12 @@ const { categories } = Astro.props;
   </div>
 
   <AnnouncementBanner
-    title="Nuevo catalogo de aplicativos"
+    title="Nuevo catálogo de aplicativos"
     description="Descarga herramientas de mesa de ayuda desde un paquete .zip o por aplicativo individual para mantener la operatoria diaria."
     icon="boxicons:link-filled"
     badgeLabel="Nuevo"
-    href="/catalogo-aplicativos"
-    ctaLabel="Ir al catalogo"
+    href={`${cleanBase}catalogo-aplicativos`}
+    ctaLabel="Ir al catálogo"
     tone="primary"
   />
 

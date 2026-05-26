@@ -6,7 +6,16 @@ import icon from "astro-icon";
 
 import react from "@astrojs/react";
 
+import node from "@astrojs/node";
+
 export default defineConfig({
+  site: "http://mda.correo.local",
+  base: "/",
+
+  security: {
+    checkOrigin: false,
+  },
+
   devToolbar: {
     enabled: false,
   },
@@ -22,6 +31,10 @@ export default defineConfig({
     },
   },
 
-  output: "static",
+  output: "server",
   integrations: [icon(), react()],
+
+  adapter: node({
+    mode: "standalone",
+  }),
 });

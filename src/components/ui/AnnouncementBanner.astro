@@ -76,6 +76,12 @@ const headingId = `${title
   .replace(/^-|-$/g, "")}-announcement-title`;
 const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 const isExternal = isWebUrl(href);
+
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
+const resolvedHref = (isExternal || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith(cleanBase))
+  ? href
+  : `${cleanBase}${href.startsWith('/') ? href.slice(1) : href}`;
 ---
 
 <section
@@ -93,7 +99,7 @@ const isExternal = isWebUrl(href);
         ]}
         aria-hidden="true"
       >
-        <Icon name={icon} class="size-5" />
+        <Icon name={icon} size={24} />
       </span>
 
       <div class="min-w-0 space-y-1">
@@ -120,12 +126,12 @@ const isExternal = isWebUrl(href);
     </div>
 
     <a
-      href={href}
+      href={resolvedHref}
       class:list={["btn btn-sm shrink-0 gap-2 sm:btn-md", classes.button]}
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noopener noreferrer" : undefined}
     >
-      <Icon name={ctaIcon} class="size-4" aria-hidden="true" />
+      <Icon name={ctaIcon} size={16} aria-hidden="true" />
       <span>{ctaLabel}</span>
     </a>
   </div>

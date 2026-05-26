@@ -1,37 +1,44 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "baseUrl": ".",
+    "target": "ESNext",
+    "module": "ESNext",
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ],
       "@components/*": [
-        "src/components/*"
+        "./src/components/*"
       ],
       "@db/*": [
-        "src/db/*"
+        "./src/db/*"
       ],
       "@content/*": [
-        "src/content/*"
+        "./src/content/*"
       ],
       "@layouts/*": [
-        "src/layouts/*"
+        "./src/layouts/*"
       ],
       "@pages/*": [
-        "src/pages/*"
+        "./src/pages/*"
       ],
       "@styles/*": [
-        "src/styles/*"
+        "./src/styles/*"
       ],
       "@assets/*": [
-        "src/assets/*"
+        "./src/assets/*"
       ],
       "@lib/*": [
-        "src/lib/*"
+        "./src/lib/*"
       ],
       "@types/*": [
-        "src/types/*"
+        "./src/types/*"
+      ],
+      "@middleware/*": [
+        "./src/middleware/*"
+      ],
+      "@data/*": [
+        "./src/data/*"
       ]
     },
     "jsx": "react-jsx",
@@ -39,7 +46,8 @@
   },
   "include": [
     ".astro/types.d.ts",
-    "**/*"
+    "**/*",
+    "./src/env.d.ts"
   ],
   "exclude": [
     "dist"

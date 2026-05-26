@@ -11,20 +11,20 @@ import type { CatalogViewModel } from "./_components/types";
 const { bundle, items } = catalogData as CatalogViewModel;
 ---
 
-<BaseLayout title="Catalogo de aplicativos | Portal Mesa de Ayuda">
+<BaseLayout>
   <PageContainer>
     <PageHeader
-      title="Catalogo de aplicativos"
-      description="Descarga herramientas de operatoria diaria de mesa de ayuda en formato paquete .zip o por aplicativo individual segun tu necesidad."
+      description="Descarga herramientas de operatoria diaria de mesa de ayuda en formato paquete .zip o por aplicativo individual según tu necesidad."
     />
 
     <CatalogBundleBanner bundle={bundle} />
 
-    <section class="space-y-3" aria-labelledby="catalogo-individual-title">
+    <section class="space-y-3" aria-labelledby="catálogo-individual-title">
       <div class="flex items-center gap-2">
         <Icon
           name="boxicons:link-filled"
-          class="size-5 text-base-content/70"
+          size={20}
+          class="text-base-content/70"
           aria-hidden="true"
         />
         <h2
@@ -36,11 +36,7 @@ const { bundle, items } = catalogData as CatalogViewModel;
       </div>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {
-          items.map((item) => (
-            <CatalogAppCard item={item} />
-          ))
-        }
+        {items.map((item) => <CatalogAppCard item={item} />)}
       </div>
     </section>
   </PageContainer>

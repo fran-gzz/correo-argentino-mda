@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
-import Button from "@components/ui/Button.astro";
 import ColorSwatch from "@components/ui/ColorSwatch.astro";
 import CopyButton from "@components/ui/CopyButton.astro";
 import DataTable from "@components/ui/DataTable.astro";
@@ -68,7 +67,7 @@ const reservedSwatches: Swatch[] = [
     description: "Clasificación de negocio; no representa estado del sistema.",
   },
   {
-    name: "Logistica",
+    name: "Logística",
     role: "línea reservada",
     value: "bg-logistica",
     sampleClass: "bg-logistica text-platinum",
@@ -110,7 +109,7 @@ const semanticSwatches: Swatch[] = [
     role: "warning",
     value: "bg-warning",
     sampleClass: "bg-warning text-warning-content",
-    description: "Riesgo recuperable, revision pendiente o cautela.",
+    description: "Riesgo recuperable, revisión pendiente o cautela.",
   },
   {
     name: "Error",
@@ -168,7 +167,7 @@ const tableRows = [
     host: "SUC-ROS-IMP-03",
     ip: "10.22.8.103",
     area: "Rosario centro",
-    owner: "Logistica",
+    owner: "Logística",
     status: "Revisar",
     badge: "badge-warning",
     icon: "boxicons:server-filled" as BoxiconName,
@@ -188,7 +187,7 @@ const designTableHeaderGridClass = "grid-cols-12 gap-4";
 const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
 ---
 
-<BaseLayout title="Estándar de diseño | Portal Mesa de Ayuda">
+<BaseLayout>
   <PageContainer>
     <header
       class="flex flex-col gap-5 border-b border-base-300 pb-6 lg:flex-row lg:items-end lg:justify-between"
@@ -242,7 +241,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
     >
       <div class="grid gap-4 lg:grid-cols-2">
         <article
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <p
             class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
@@ -268,7 +267,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
         </article>
 
         <article
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <p
             class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
@@ -344,7 +343,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
     >
       <div class="grid gap-4 lg:grid-cols-2">
         <article
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <div class="space-y-4">
             <div>
@@ -373,7 +372,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
         </article>
 
         <article
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <p
             class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
@@ -415,7 +414,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
     >
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <section
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <h3 class="text-sm font-semibold text-base-content">
             Encabezado de página
@@ -425,39 +424,33 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
           >
             <PageHeader
               title="Inventario de Terminales"
-              description="Vista consolidada del parque operativo para diagnostico rapido."
+              description="Vista consolidada del parque operativo para diagnóstico rápido."
               headingLevel="h2"
             />
           </div>
         </section>
 
         <section
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <h3 class="text-sm font-semibold text-base-content">Botones</h3>
           <div class="mt-4 flex flex-wrap gap-2">
-            <Button variant="primary" size="md">Guardar</Button>
-            <Button variant="secondary" size="md">Volver</Button>
-            <Button variant="accent" appearance="outline" size="md">
-              Ver detalle
-            </Button>
-            <Button variant="neutral" appearance="ghost" size="md">
-              Cancelar
-            </Button>
+            <button class="btn btn-primary btn-md rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Guardar</button>
+            <button class="btn btn-secondary btn-md rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Volver</button>
+            <button class="btn btn-outline btn-accent btn-md rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Ver detalle</button>
+            <button class="btn btn-ghost text-neutral btn-md rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Cancelar</button>
           </div>
 
           <div class="mt-5 flex flex-wrap gap-2">
-            <Button variant="info" size="sm">Info</Button>
-            <Button variant="success" size="sm">Éxito</Button>
-            <Button variant="warning" size="sm">Advertencia</Button>
-            <Button variant="error" appearance="outline" size="sm">
-              Error
-            </Button>
+            <button class="btn btn-info btn-sm rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Info</button>
+            <button class="btn btn-success btn-sm rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Éxito</button>
+            <button class="btn btn-warning btn-sm rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Advertencia</button>
+            <button class="btn btn-outline btn-error btn-sm rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Error</button>
           </div>
         </section>
 
         <section
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <h3 class="text-sm font-semibold text-base-content">Inputs</h3>
           <div class="mt-4 grid gap-3">
@@ -484,7 +477,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
         </section>
 
         <section
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <h3 class="text-sm font-semibold text-base-content">
             Interacción de copia
@@ -529,7 +522,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
         </section>
 
         <section
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <h3 class="text-sm font-semibold text-base-content">
             Celdas copiables
@@ -570,7 +563,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
     >
       <div class="grid gap-4 xl:grid-cols-3">
         <section
-          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-5 shadow-md"
         >
           <h3 class="text-sm font-semibold text-base-content">Etiquetas</h3>
           <div class="mt-4 flex flex-wrap gap-2">
@@ -586,7 +579,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
         </section>
 
         <article
-          class="card rounded-lg border border-base-300 bg-base-100 shadow-sm"
+          class="card rounded-lg border border-base-300 bg-base-100 shadow-md"
         >
           <div class="card-body gap-4 p-5">
             <div class="flex items-start justify-between gap-3">
@@ -619,19 +612,19 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
 
         <section class="space-y-3">
           <div role="alert" class="alert alert-info">
-            <Icon name="boxicons:info-circle-filled" class="size-5" />
+            <Icon name="boxicons:info-circle-filled" size={24} />
             <span>La consulta se actualiza cada 15 minutos.</span>
           </div>
           <div role="alert" class="alert alert-success">
-            <Icon name="boxicons:check-circle-filled" class="size-5" />
+            <Icon name="boxicons:check-circle-filled" size={24} />
             <span>La operación finalizó correctamente.</span>
           </div>
           <div role="alert" class="alert alert-warning">
-            <Icon name="boxicons:alert-triangle-filled" class="size-5" />
+            <Icon name="boxicons:alert-triangle-filled" size={24} />
             <span>Revisá la IP antes de continuar.</span>
           </div>
           <div role="alert" class="alert alert-error">
-            <Icon name="boxicons:x-circle-filled" class="size-5" />
+            <Icon name="boxicons:x-circle-filled" size={24} />
             <span>No se pudo completar la acción.</span>
           </div>
         </section>
@@ -740,7 +733,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
 
       <div class="mt-5 grid gap-3 lg:grid-cols-[0.8fr_1.2fr]">
         <div
-          class="rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
+          class="rounded-lg border border-base-300 bg-base-100 p-4 shadow-md"
         >
           <h3 class="text-sm font-semibold text-base-content">
             Tabla con detalle expandible
@@ -835,7 +828,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {
           iconExamples.map((item) => (
-            <article class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm transition-colors hover:border-base-content/25">
+            <article class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 p-4 shadow-md transition-colors hover:border-base-content/25">
               <span
                 class:list={[
                   "inline-flex size-10 shrink-0 items-center justify-center rounded-lg",
@@ -843,7 +836,7 @@ const designTableRowGridClass = "grid grid-cols-12 items-center gap-4";
                 ]}
                 aria-hidden="true"
               >
-                <Icon name={item.icon} class="size-5" />
+                <Icon name={item.icon} size={24} />
               </span>
               <div>
                 <p class="text-sm font-semibold text-base-content">

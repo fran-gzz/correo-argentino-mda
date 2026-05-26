@@ -6,28 +6,17 @@ import logo from "@assets/logo.svg";
 import geistLatinWoff2 from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
 import geistMonoLatinWoff2 from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 import packageJson from "../../package.json";
+import { navSections, getSectionTitle, type NavItem } from "@lib/navigation";
 
 interface Props {
   title?: string;
 }
 
-interface NavItem {
-  href: string;
-  label: string;
-  icon: string;
-  children?: NavItem[];
-  parentLabel?: string;
-  nested?: boolean;
-}
 
-interface NavSection {
-  id: string;
-  label: string;
-  items: NavItem[];
-}
 
-const { title = "Portal Mesa de Ayuda" } = Astro.props;
+const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
+const inferredTitle = title || getSectionTitle(currentPath) || "Portal Mesa de Ayuda";
 const globalFontFaceCss = `
   @font-face {
     font-family: "Geist Variable";
@@ -53,112 +42,7 @@ const aboutProjectOwners: string[] = [
   "Darío Altamirano",
 ];
 
-const navSections: NavSection[] = [
-  {
-    id: "mesa-ayuda",
-    label: "Mesa de ayuda",
-    items: [
-      {
-        href: "/supervision",
-        label: "Supervisión",
-        icon: "boxicons:shield-quarter-filled",
-        children: [
-          {
-            href: "/cronograma",
-            label: "Cronograma",
-            icon: "boxicons:calendar-filled",
-          },
-          {
-            href: "/calidad-operadores",
-            label: "Calidad de operadores",
-            icon: "boxicons:bar-chart-big-filled",
-          },
-          {
-            href: "/asignacion-autogestiones",
-            label: "Asignación de autogestiones",
-            icon: "boxicons:git-branch-filled",
-          },
-        ],
-      },
-      {
-        href: "/titulos-tickets",
-        label: "Titulos de tickets",
-        icon: "boxicons:list-ul-filled",
-      },
-      {
-        href: "/guia-soportes",
-        label: "Guia de soportes",
-        icon: "boxicons:buoy-filled",
-      },
-    ],
-  },
-  {
-    id: "consultas-recursos",
-    label: "Consultas y recursos",
-    items: [
-      {
-        href: "/buscador-usuarios",
-        label: "Buscador de usuarios",
-        icon: "boxicons:group-filled",
-      },
-      {
-        href: "/generador-firmas",
-        label: "Generador de firmas",
-        icon: "boxicons:pencil-draw-filled",
-      },
-      {
-        href: "/contactos",
-        label: "Contactos",
-        icon: "boxicons:phone-filled",
-      },
-      {
-        href: "/enlaces-recursos",
-        label: "Enlaces y recursos",
-        icon: "boxicons:link-filled",
-        children: [
-          {
-            href: "/catalogo-aplicativos",
-            label: "Catalogo de aplicativos",
-            icon: "boxicons:link-filled",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "referencia",
-    label: "Referencia",
-    items: [
-      {
-        href: "/design-system",
-        label: "Estándar de diseño",
-        icon: "boxicons:palette-filled",
-      },
-    ],
-  },
-  {
-    id: "directorio-oficinas",
-    label: "Directorio de oficinas",
-    items: [
-      {
-        href: "/directorio-oficinas",
-        label: "Directorio de oficinas",
-        icon: "boxicons:building-filled",
-      },
-    ],
-  },
-  {
-    id: "terminales",
-    label: "Inventario",
-    items: [
-      {
-        href: "/inventario-equipos",
-        label: "Inventario de equipos",
-        icon: "boxicons:desktop-filled",
-      },
-    ],
-  },
-];
+
 
 const flattenQuickAccessItems = (items: NavItem[]): NavItem[] =>
   items.flatMap((item) => {
@@ -180,10 +64,68 @@ const quickAccessItems: NavItem[] = navSections.flatMap((section) =>
   flattenQuickAccessItems(section.items),
 );
 
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith('/') ? base : base + '/';
+
+const getRelativePath = (path: string) => {
+  if (path.startsWith(cleanBase)) {
+    return '/' + path.slice(cleanBase.length);
+  }
+  if (path === cleanBase.slice(0, -1)) {
+    return '/';
+  }
+  return path;
+};
+
+const resolveUrl = (path: string) => {
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`;
+};
+
+const relativeCurrentPath = getRelativePath(currentPath);
+
 const isActiveRoute = (href: string) =>
   href === "/"
-    ? currentPath === "/"
-    : currentPath === href || currentPath.startsWith(`${href}/`);
+    ? relativeCurrentPath === "/"
+    : relativeCurrentPath === href || relativeCurrentPath.startsWith(`${href}/`);
+
+const user = Astro.locals.user;
+const userInitials = user.username.slice(0, 2).toUpperCase();
+
+const roleAvatarClasses: Record<string, string> = {
+  admin: "bg-error text-error-content",
+  supervisor: "bg-info text-info-content",
+  referent: "bg-warning text-warning-content",
+  agent: "bg-neutral text-neutral-content",
+};
+
+const roleLabelMap: Record<string, string> = {
+  admin: "Administrador",
+  supervisor: "Supervisor",
+  referent: "Referente",
+  agent: "Agente",
+};
+
+const avatarClass = roleAvatarClasses[user.role] ?? roleAvatarClasses.agent;
+const roleLabel = roleLabelMap[user.role] ?? "Agente";
+
+const isRouteLocked = (href: string): boolean => {
+  const role = user.role;
+
+  if (href === "/design-system" || href.startsWith("/admin")) {
+    return role !== "admin";
+  }
+
+  if (href === "/supervision/asignacion-autogestiones") {
+    return !["admin", "supervisor", "referent"].includes(role);
+  }
+
+  if (href.startsWith("/supervision") || href === "/supervision/cronograma" || href === "/supervision/calidad-operadores") {
+    return !["admin", "supervisor"].includes(role);
+  }
+
+  return false;
+};
 ---
 
 <html lang="es">
@@ -221,16 +163,16 @@ const isActiveRoute = (href: string) =>
       crossorigin
     />
 
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href={`${cleanBase}favicon-96x96.png`} sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href={`${cleanBase}favicon.svg`} />
+    <link rel="shortcut icon" href={`${cleanBase}favicon.ico`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${cleanBase}apple-touch-icon.png`} />
     <meta name="apple-mobile-web-app-title" content="MDA" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="manifest" href={`${cleanBase}site.webmanifest`} />
 
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+    <title>{inferredTitle}</title>
   </head>
   <body class="min-h-screen bg-base-100 text-base-content">
     <div class="drawer lg:drawer-open">
@@ -253,7 +195,7 @@ const isActiveRoute = (href: string) =>
               tabindex="0"
               class="btn btn-ghost btn-circle drawer-button lg:hidden"
             >
-              <Icon name="boxicons:menu-filled" class="size-5" />
+              <Icon name="boxicons:menu-filled" size={24} />
             </label>
           </div>
 
@@ -261,10 +203,10 @@ const isActiveRoute = (href: string) =>
             <button
               type="button"
               data-open-command-palette
-              aria-label="Abrir busqueda maestra"
+              aria-label="Abrir búsqueda maestra"
               class="btn btn-ghost inline-flex w-full max-w-2xl items-center justify-start gap-2 border border-base-300 bg-base-100 px-4 font-normal normal-case"
             >
-              <Icon name="boxicons:search" class="size-4" />
+              <Icon name="boxicons:search" size={16} />
               <span class="text-sm text-base-content/70">Buscar</span>
               <kbd class="kbd kbd-sm">Ctrl</kbd>
               <kbd class="kbd kbd-sm">K</kbd>
@@ -275,10 +217,10 @@ const isActiveRoute = (href: string) =>
             <button
               type="button"
               data-open-command-palette
-              aria-label="Abrir busqueda maestra"
+              aria-label="Abrir búsqueda maestra"
               class="btn btn-ghost btn-circle md:hidden"
             >
-              <Icon name="boxicons:search" class="size-5" />
+              <Icon name="boxicons:search" size={24} />
             </button>
 
             <div class="divider divider-horizontal m-0 md:hidden"></div>
@@ -296,12 +238,14 @@ const isActiveRoute = (href: string) =>
 
               <Icon
                 name="boxicons:sun-filled"
-                class="swap-off size-5"
+                class="swap-off"
+                size={20}
                 aria-hidden="true"
               />
               <Icon
                 name="boxicons:moon-filled"
-                class="swap-on size-5"
+                class="swap-on"
+                size={20}
                 aria-hidden="true"
               />
             </label>
@@ -313,7 +257,7 @@ const isActiveRoute = (href: string) =>
               aria-label="Acerca de este proyecto"
               class="btn btn-ghost btn-circle"
             >
-              <Icon name="boxicons:help-circle-filled" class="size-5" />
+              <Icon name="boxicons:help-circle-filled" size={24} />
             </button>
           </div>
         </header>
@@ -333,7 +277,7 @@ const isActiveRoute = (href: string) =>
           class="flex min-h-full flex-col items-start bg-secondary is-drawer-close:w-16 xl:is-drawer-close:w-16 is-drawer-open:w-56 md:is-drawer-open:w-64 xl:is-drawer-open:w-72 transition-all duration-300 ease-in-out"
         >
           <a
-            href="/"
+            href={resolveUrl("/")}
             aria-label="Ir al dashboard"
             class="flex min-h-16 w-full items-center gap-2.5 border-b border-secondary-content/10 px-3 is-drawer-close:justify-center is-drawer-close:px-0"
           >
@@ -374,28 +318,42 @@ const isActiveRoute = (href: string) =>
                     </li>
                     {section.items.map((item) => {
                       const isActive = isActiveRoute(item.href);
+                      const isLocked = isRouteLocked(item.href);
                       return (
                         <li>
                           <a
-                            href={item.href}
+                            href={isLocked ? undefined : resolveUrl(item.href)}
                             aria-label={item.label}
-                            data-tip={item.label}
+                            aria-disabled={isLocked ? "true" : undefined}
+                            data-tip={isLocked ? `${item.label} (restringido)` : item.label}
+                            tabindex={isLocked ? -1 : undefined}
                             class:list={[
                               "group flex items-center gap-2.5 rounded-lg text-xs p-2.5 font-medium transition",
                               "is-drawer-close:justify-center is-drawer-close:px-0",
                               "is-drawer-close:tooltip is-drawer-close:tooltip-right",
-                              isActive
-                                ? "bg-primary text-primary-content shadow-sm"
-                                : "text-secondary-content/70 hover:bg-white/10 hover:text-white",
+                              isLocked
+                                ? "opacity-40 cursor-not-allowed pointer-events-none grayscale select-none"
+                                : isActive
+                                  ? "bg-primary text-primary-content shadow-sm"
+                                  : "text-secondary-content/70 hover:bg-white/10 hover:text-white",
                             ]}
                           >
                             <Icon
                               name={item.icon}
-                              class="size-5 shrink-0 opacity-80 transition group-hover:opacity-100 lg:size-6"
+                              size={24}
+                              class="shrink-0 opacity-80 transition group-hover:opacity-100"
                             />
                             <span class="truncate is-drawer-close:hidden">
                               {item.label}
                             </span>
+                            {isLocked && (
+                              <Icon
+                                name="boxicons:lock"
+                                size={14}
+                                class="ml-auto shrink-0 opacity-60 is-drawer-close:hidden"
+                                aria-hidden="true"
+                              />
+                            )}
                           </a>
                         </li>
                       );
@@ -409,6 +367,79 @@ const isActiveRoute = (href: string) =>
                   )}
                 </>
               ))
+            }
+          </div>
+
+          <div class="w-full border-t border-secondary-content/10 p-2">
+            {
+              user.id === 0 ? (
+                <a
+                  href={resolveUrl("/login")}
+                  aria-label="Iniciar sesión"
+                  data-tip="Iniciar sesión"
+                  class:list={[
+                    "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
+                    "text-secondary-content/70 hover:bg-white/10 hover:text-white",
+                    "is-drawer-close:justify-center is-drawer-close:px-0",
+                    "is-drawer-close:tooltip is-drawer-close:tooltip-right",
+                  ]}
+                >
+                  <Icon
+                    name="boxicons:arrow-out-right-stroke-circle-half-filled"
+                    size={24}
+                    class="shrink-0 opacity-80 transition group-hover:opacity-100"
+                  />
+                  <span class="truncate is-drawer-close:hidden">
+                    Iniciar sesión
+                  </span>
+                </a>
+              ) : (
+                <div class="flex flex-col gap-1.5">
+                  <div
+                    class:list={[
+                      "flex items-center gap-2.5 rounded-lg p-2 is-drawer-close:justify-center is-drawer-close:p-2",
+                    ]}
+                  >
+                    <div
+                      class:list={[
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm",
+                        avatarClass,
+                      ]}
+                      aria-hidden="true"
+                    >
+                      {userInitials}
+                    </div>
+                    <div class="min-w-0 is-drawer-close:hidden">
+                      <p class="truncate text-xs font-semibold leading-tight text-secondary-content">
+                        {user.username}
+                      </p>
+                      <p class="truncate text-xs font-medium uppercase tracking-wider text-secondary-content/50">
+                        {roleLabel}
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href={resolveUrl("/logout")}
+                    aria-label="Cerrar sesión"
+                    data-tip="Cerrar sesión"
+                    class:list={[
+                      "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
+                      "text-secondary-content/70 hover:bg-white/10 hover:text-white",
+                      "is-drawer-close:justify-center is-drawer-close:px-0",
+                      "is-drawer-close:tooltip is-drawer-close:tooltip-right",
+                    ]}
+                  >
+                    <Icon
+                      name="boxicons:door-open-alt-filled"
+                      size={24}
+                      class="shrink-0 opacity-80 transition group-hover:opacity-100"
+                    />
+                    <span class="truncate is-drawer-close:hidden">
+                      Cerrar sesión
+                    </span>
+                  </a>
+                </div>
+              )
             }
           </div>
         </div>
@@ -425,7 +456,11 @@ const isActiveRoute = (href: string) =>
           >
 
           <label class="input w-full">
-            <Icon name="boxicons:search" class="size-5 text-base-content/60" />
+            <Icon
+              name="boxicons:search"
+              size={20}
+              class="shrink-0 text-base-content/60"
+            />
             <input
               type="search"
               placeholder="Search"
@@ -440,32 +475,43 @@ const isActiveRoute = (href: string) =>
 
         <ul class="menu w-full">
           {
-            quickAccessItems.map((item) => (
-              <li
-                data-command-item
-                data-search-text={`${item.label} ${item.href} ${item.parentLabel ?? ""}`.toLowerCase()}
-              >
-                <a href={item.href} class="justify-between gap-3">
-                  <span
-                    class:list={[
-                      "flex min-w-0 items-center gap-2",
-                      item.nested && "pl-5",
-                    ]}
+            quickAccessItems.map((item) => {
+              const isLocked = isRouteLocked(item.href);
+              return (
+                <li
+                  data-command-item
+                  data-search-text={`${item.label} ${item.href} ${item.parentLabel ?? ""}`.toLowerCase()}
+                  class:list={[isLocked && "opacity-40 grayscale select-none cursor-not-allowed"]}
+                >
+                  <a
+                    href={isLocked ? undefined : resolveUrl(item.href)}
+                    class="justify-between gap-3"
+                    tabindex={isLocked ? -1 : undefined}
                   >
-                    <Icon name={item.icon} class="size-4 shrink-0" />
-                    <span class="min-w-0">
-                      {item.parentLabel && (
-                        <span class="block text-xs text-base-content/50">
-                          {item.parentLabel}
-                        </span>
-                      )}
-                      <span class="block truncate">{item.label}</span>
+                    <span
+                      class:list={[
+                        "flex min-w-0 items-center gap-2",
+                        item.nested && "pl-5",
+                      ]}
+                    >
+                      <Icon name={item.icon} size={14} class="shrink-0" />
+                      <span class="min-w-0">
+                        {item.parentLabel && (
+                          <span class="block text-xs text-base-content/50">
+                            {item.parentLabel}
+                          </span>
+                        )}
+                        <span class="block truncate">{item.label}</span>
+                      </span>
                     </span>
-                  </span>
-                  <span class="text-xs text-base-content/60">{item.href}</span>
-                </a>
-              </li>
-            ))
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class="text-xs text-base-content/60">{item.href}</span>
+                      {isLocked && <Icon name="boxicons:lock" size={12} class="opacity-60" />}
+                    </div>
+                  </a>
+                </li>
+              );
+            })
           }
         </ul>
 
@@ -478,13 +524,13 @@ const isActiveRoute = (href: string) =>
       </div>
 
       <form method="dialog" class="modal-backdrop">
-        <button aria-label="Cerrar busqueda">close</button>
+        <button aria-label="Cerrar búsqueda">close</button>
       </form>
     </dialog>
 
     <dialog id="about-project-dialog" class="modal">
       <div
-        class="modal-box w-11/12 max-w-md overflow-hidden rounded-lg border-0 bg-base-100 p-0 shadow-2xl"
+        class="modal-box w-11/12 max-w-md overflow-hidden rounded-lg border-0 bg-base-100 p-0 shadow-md"
       >
         <div
           class="relative flex flex-col items-center justify-center overflow-hidden bg-secondary p-8 text-center"
@@ -492,7 +538,8 @@ const isActiveRoute = (href: string) =>
           <div class="pointer-events-none absolute -top-8 -right-8 opacity-10">
             <Icon
               name="boxicons:network-chart-filled"
-              class="size-40 text-white"
+              size={200}
+              class="text-white"
               aria-hidden="true"
             />
           </div>
@@ -513,7 +560,8 @@ const isActiveRoute = (href: string) =>
             >
               <Icon
                 name="boxicons:building-house-filled"
-                class="size-7 text-white"
+                class="text-white"
+                size={30}
               />
             </div>
 
@@ -535,15 +583,15 @@ const isActiveRoute = (href: string) =>
             <div
               class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary"
             >
-              <Icon name="boxicons:code-alt-filled" class="size-5" />
+              <Icon name="boxicons:code-alt-filled" size={24} />
             </div>
             <div>
               <h4 class="text-sm font-semibold text-base-content">
                 Desarrollo y arquitectura
               </h4>
               <p class="mt-1 text-sm leading-relaxed text-base-content/70">
-                Plataforma construida para optimizar la gestion de tickets,
-                visualizacion de infraestructura y monitoreo tecnico.
+                Plataforma construida para optimizar la gestión de tickets,
+                visualización de infraestructura y monitoreo técnico.
               </p>
             </div>
           </div>
@@ -552,7 +600,7 @@ const isActiveRoute = (href: string) =>
             <div
               class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary"
             >
-              <Icon name="boxicons:group-filled" class="size-5" />
+              <Icon name="boxicons:group-filled" size={24} />
             </div>
             <div class="w-full">
               <h4 class="mb-3 text-sm font-semibold text-base-content">
@@ -565,7 +613,7 @@ const isActiveRoute = (href: string) =>
                       <div class="mb-1.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-content shadow-sm">
                         <Icon
                           name="boxicons:user-filled"
-                          class="size-3.5"
+                          size={14}
                           aria-hidden="true"
                         />
                       </div>

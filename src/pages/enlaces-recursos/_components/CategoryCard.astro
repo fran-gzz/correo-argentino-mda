@@ -47,6 +47,24 @@ const toneClasses: Record<CategoryTone, CategoryToneClasses> = {
     iconClass: "border-success/40 bg-success/15 text-success",
     badgeClass: "badge-success",
   },
+  info: {
+    borderClass: "border-t-info",
+    headerClass: "bg-info/10",
+    iconClass: "border-info/40 bg-info/15 text-info",
+    badgeClass: "badge-info",
+  },
+  warning: {
+    borderClass: "border-t-warning",
+    headerClass: "bg-warning/10",
+    iconClass: "border-warning/40 bg-warning/15 text-warning",
+    badgeClass: "badge-warning",
+  },
+  error: {
+    borderClass: "border-t-error",
+    headerClass: "bg-error/10",
+    iconClass: "border-error/40 bg-error/15 text-error",
+    badgeClass: "badge-error",
+  },
 };
 
 const classes = toneClasses[category.tone];
@@ -55,7 +73,7 @@ const categorySearchText = category.category;
 
 <article
   class:list={[
-    "card mb-5 w-full break-inside-avoid overflow-hidden border border-t-4 border-base-300 bg-base-100 shadow-sm",
+    "card mb-5 w-full break-inside-avoid overflow-hidden border border-t-4 border-base-300 bg-base-100 shadow-md",
     classes.borderClass,
   ]}
   data-link-category
@@ -74,7 +92,7 @@ const categorySearchText = category.category;
       ]}
       aria-hidden="true"
     >
-      <Icon name={category.icon} class="size-5" />
+      <Icon name={category.icon} size={24} />
     </span>
 
     <div class="min-w-0 flex-1">
