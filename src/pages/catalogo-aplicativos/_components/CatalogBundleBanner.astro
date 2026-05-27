@@ -1,27 +1,33 @@
 ---
 import { Icon } from "astro-icon/components";
-import type { CatalogBundle } from "./types";
 
 interface Props {
-  bundle: CatalogBundle;
+  title: string;
+  description: string;
+  filePath?: string | null;
 }
 
-const { bundle } = Astro.props;
+const { title, description, filePath } = Astro.props;
 
 const base = import.meta.env.BASE_URL || "/";
-const cleanBase = base.endsWith('/') ? base : base + '/';
+const cleanBase = base.endsWith("/") ? base : base + "/";
 const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 
 const resolveUrl = (path: string): string => {
   if (!path) return "";
-  if (isWebUrl(path) || path.startsWith('mailto:') || path.startsWith('tel:') || path.startsWith(cleanBase)) {
+  if (
+    isWebUrl(path) ||
+    path.startsWith("mailto:") ||
+    path.startsWith("tel:") ||
+    path.startsWith(cleanBase)
+  ) {
     return path;
   }
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   return `${cleanBase}${cleanPath}`;
 };
 
-const bundleUrl = resolveUrl(bundle.url?.trim() ?? "");
+const bundleUrl = resolveUrl(filePath?.trim() ?? "");
 const hasBundleUrl = bundleUrl.length > 0;
 ---
 
@@ -39,10 +45,10 @@ const hasBundleUrl = bundleUrl.length > 0;
 
       <div class="min-w-0 space-y-1">
         <h2 class="text-base font-semibold text-base-content sm:text-lg">
-          {bundle.title}
+          {title}
         </h2>
         <p class="text-sm leading-relaxed text-base-content/70">
-          {bundle.description}
+          {description}
         </p>
       </div>
     </div>

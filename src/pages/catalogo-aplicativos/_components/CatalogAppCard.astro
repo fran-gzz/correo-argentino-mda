@@ -1,39 +1,46 @@
 ---
 import { Icon } from "astro-icon/components";
 import CatalogSoftBadge from "./CatalogSoftBadge.astro";
-import type { CatalogItem } from "./types";
 
 interface Props {
-  item: CatalogItem;
+  title: string;
+  description?: string | null;
+  version?: string | null;
+  filePath?: string | null;
+  categoryTitle?: string | null;
 }
 
 type BadgeTone = "primary" | "secondary" | "accent" | "neutral" | "warning";
 
-const { item } = Astro.props;
+const { title, description, version, filePath, categoryTitle } = Astro.props;
 
 const base = import.meta.env.BASE_URL || "/";
-const cleanBase = base.endsWith('/') ? base : base + '/';
+const cleanBase = base.endsWith("/") ? base : base + "/";
 const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 
 const resolveUrl = (path: string): string => {
   if (!path) return "";
-  if (isWebUrl(path) || path.startsWith('mailto:') || path.startsWith('tel:') || path.startsWith(cleanBase)) {
+  if (
+    isWebUrl(path) ||
+    path.startsWith("mailto:") ||
+    path.startsWith("tel:") ||
+    path.startsWith(cleanBase)
+  ) {
     return path;
   }
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   return `${cleanBase}${cleanPath}`;
 };
 
-const itemUrl = resolveUrl(item.url?.trim() ?? "");
+const itemUrl = resolveUrl(filePath?.trim() ?? "");
 const hasItemUrl = itemUrl.length > 0;
 const isExternal = hasItemUrl && isWebUrl(itemUrl);
-const variants = Array.isArray(item.variants) ? item.variants : [];
-const hasVariants = variants.length > 0;
+
 const typeToneMap: Partial<Record<string, BadgeTone>> = {
   Programa: "secondary",
   Extensión: "accent",
 };
-const typeTone = typeToneMap[item.type] ?? "neutral";
+const typeTone = typeToneMap[categoryTitle ?? ""] ?? "neutral";
 ---
 
 <article
@@ -41,135 +48,66 @@ const typeTone = typeToneMap[item.type] ?? "neutral";
 >
   <div class="card-body gap-4 p-4 sm:p-5">
     <div class="flex items-start justify-between gap-3">
-      <CatalogSoftBadge tone={typeTone}>{item.type}</CatalogSoftBadge>
+      {
+        categoryTitle && (
+          <CatalogSoftBadge tone={typeTone}>{categoryTitle}</CatalogSoftBadge>
+        )
+      }
 
       {
-        hasVariants ? (
-          <CatalogSoftBadge tone="primary" class="shrink-0">
-            {variants.length} versiones
+        version && (
+          <CatalogSoftBadge tone="neutral" class="shrink-0">
+            {version}
           </CatalogSoftBadge>
-        ) : (
-          item.version && (
-            <CatalogSoftBadge tone="neutral" class="shrink-0">
-              {item.version}
-            </CatalogSoftBadge>
-          )
         )
       }
     </div>
 
     <div class="min-w-0 space-y-2">
       <h3 class="text-base font-semibold leading-tight text-base-content">
-        {item.title}
+        {title}
       </h3>
-      <p class="text-sm leading-relaxed text-base-content/70">
-        {item.description}
-      </p>
+      {
+        description && (
+          <p class="text-sm leading-relaxed text-base-content/70">
+            {description}
+          </p>
+        )
+      }
     </div>
 
-    {
-      hasVariants ? (
-        <div class="dropdown dropdown-bottom w-full">
-          <div
-            tabindex="0"
-            role="button"
-            class="btn btn-outline btn-sm w-full justify-between border-base-300 bg-base-100 text-base-content shadow-none hover:bg-base-200"
+    <div class="card-actions mt-auto justify-end pt-1">
+      {
+        hasItemUrl ? (
+          <a
+            href={itemUrl}
+            class="btn btn-secondary btn-sm gap-2"
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noopener noreferrer" : undefined}
+            download={!isExternal ? "" : undefined}
           >
-            <span>Ver versiones disponibles</span>
             <Icon
-              name="boxicons:chevron-down-filled"
+              name="boxicons:arrow-to-bottom-stroke"
               size={18}
-              class="shrink-0"
               aria-hidden="true"
             />
-          </div>
-
-          <ul
-            tabindex="-1"
-            class="dropdown-content menu bg-base-100 rounded-box z-10 mt-2 w-full border border-base-300 p-2 shadow-md"
+            <span>Descargar</span>
+          </a>
+        ) : (
+          <button
+            type="button"
+            class="btn btn-ghost btn-disabled btn-sm gap-2"
+            disabled
           >
-            {variants.map((variant) => {
-              const variantUrl = resolveUrl(variant.url?.trim() ?? "");
-              const hasVariantUrl = variantUrl.length > 0;
-              const isVariantExternal = hasVariantUrl && isWebUrl(variantUrl);
-
-              return (
-                <li class="rounded-lg">
-                  {hasVariantUrl ? (
-                    <a
-                      href={variantUrl}
-                      class="flex items-start gap-3 rounded-lg px-3 py-3 transition hover:bg-base-100"
-                      target={isVariantExternal ? "_blank" : undefined}
-                      rel={
-                        isVariantExternal ? "noopener noreferrer" : undefined
-                      }
-                      download={!isVariantExternal ? "" : undefined}
-                    >
-                      <CatalogSoftBadge tone="neutral" class="shrink-0">
-                        {variant.version}
-                      </CatalogSoftBadge>
-                      <span class="min-w-0">
-                        <span class="block text-sm font-medium text-base-content">
-                          Descargar versión {variant.version}
-                        </span>
-                        <span class="mt-1 block text-xs leading-relaxed text-base-content/70">
-                          {variant.description}
-                        </span>
-                      </span>
-                    </a>
-                  ) : (
-                    <div class="flex items-start gap-3 rounded-lg px-3 py-3">
-                      <CatalogSoftBadge tone="warning" class="shrink-0">
-                        {variant.version}
-                      </CatalogSoftBadge>
-                      <span class="min-w-0">
-                        <span class="block text-sm font-medium text-base-content">
-                          Versión pendiente
-                        </span>
-                        <span class="mt-1 block text-xs leading-relaxed text-base-content/70">
-                          {variant.description}
-                        </span>
-                      </span>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : (
-        <div class="card-actions mt-auto justify-end pt-1">
-          {hasItemUrl ? (
-            <a
-              href={itemUrl}
-              class="btn btn-secondary btn-sm gap-2"
-              target={isExternal ? "_blank" : undefined}
-              rel={isExternal ? "noopener noreferrer" : undefined}
-              download={!isExternal ? "" : undefined}
-            >
-              <Icon
-                name="boxicons:arrow-to-bottom-stroke"
-                size={18}
-                aria-hidden="true"
-              />
-              <span>Descargar</span>
-            </a>
-          ) : (
-            <button
-              type="button"
-              class="btn btn-ghost btn-disabled btn-sm gap-2"
-              disabled
-            >
-              <Icon
-                name="boxicons:calendar-filled"
-                size={18}
-                aria-hidden="true"
-              />
-              <span>Pendiente</span>
-            </button>
-          )}
-        </div>
-      )
-    }
+            <Icon
+              name="boxicons:calendar-filled"
+              size={18}
+              aria-hidden="true"
+            />
+            <span>Pendiente</span>
+          </button>
+        )
+      }
+    </div>
   </div>
 </article>
