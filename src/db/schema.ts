@@ -178,10 +178,18 @@ export const agents = sqliteTable("agents", {
   notes: text("notes"),
   location: text("location").notNull().default("Monte Grande"),
   horarioDefault: text("horario_default").notNull().default("08:00 - 17:00"),
-  esquemaSemanal: text("esquema_semanal", { mode: "json" }).$type<Record<string, string>>(),
-  esquemaHorario: text("esquema_horario", { mode: "json" }).$type<Record<string, string>>(),
-  esquemaBreakInicio: text("esquema_break_inicio", { mode: "json" }).$type<Record<string, string>>(),
-  esquemaBreakFin: text("esquema_break_fin", { mode: "json" }).$type<Record<string, string>>(),
+  esquemaSemanal: text("esquema_semanal", { mode: "json" }).$type<
+    Record<string, string>
+  >(),
+  esquemaHorario: text("esquema_horario", { mode: "json" }).$type<
+    Record<string, string>
+  >(),
+  esquemaBreakInicio: text("esquema_break_inicio", { mode: "json" }).$type<
+    Record<string, string>
+  >(),
+  esquemaBreakFin: text("esquema_break_fin", { mode: "json" }).$type<
+    Record<string, string>
+  >(),
   maxConsecutiveHO: integer("max_consecutive_ho"),
   minPWeek: integer("min_p_week"),
 });
@@ -330,12 +338,15 @@ export const operatorShiftsRelations = relations(operatorShifts, ({ one }) => ({
   }),
 }));
 
-export const operatorSchedulesRelations = relations(operatorSchedules, ({ one }) => ({
-  operator: one(operators, {
-    fields: [operatorSchedules.operatorId],
-    references: [operators.id],
+export const operatorSchedulesRelations = relations(
+  operatorSchedules,
+  ({ one }) => ({
+    operator: one(operators, {
+      fields: [operatorSchedules.operatorId],
+      references: [operators.id],
+    }),
   }),
-}));
+);
 
 // 12. TABLA DE AUDITORIAS DE CALIDAD
 export const qualityAudits = sqliteTable("quality_audits", {
@@ -352,7 +363,9 @@ export const qualityAudits = sqliteTable("quality_audits", {
   section1Score: integer("section1_score").notNull(),
   section2Score: integer("section2_score").notNull(),
   notes: text("notes"),
-  isCriticalFailure: integer("is_critical_failure", { mode: "boolean" }).notNull().default(false),
+  isCriticalFailure: integer("is_critical_failure", { mode: "boolean" })
+    .notNull()
+    .default(false),
 });
 
 export const auditParameters = sqliteTable("audit_parameters", {
@@ -363,46 +376,63 @@ export const auditParameters = sqliteTable("audit_parameters", {
   category: text("category").notNull(), // 'Interacción con Usuario' | 'Gestión del Ticket'
 });
 
-export const auditScores = sqliteTable("audit_scores", {
-  auditId: integer("audit_id")
-    .notNull()
-    .references(() => qualityAudits.id, { onDelete: "cascade" }),
-  parameterId: integer("parameter_id")
-    .notNull()
-    .references(() => auditParameters.id, { onDelete: "cascade" }),
-  score: integer("score", { mode: "boolean" }).notNull().default(false),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.auditId, table.parameterId] }),
-}));
-
-export const qualityAuditsRelations = relations(qualityAudits, ({ one, many }) => ({
-  agent: one(agents, {
-    fields: [qualityAudits.agentId],
-    references: [agents.id],
+export const auditScores = sqliteTable(
+  "audit_scores",
+  {
+    auditId: integer("audit_id")
+      .notNull()
+      .references(() => qualityAudits.id, { onDelete: "cascade" }),
+    parameterId: integer("parameter_id")
+      .notNull()
+      .references(() => auditParameters.id, { onDelete: "cascade" }),
+    score: integer("score", { mode: "boolean" }).notNull().default(false),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.auditId, table.parameterId] }),
   }),
-  scores: many(auditScores),
-}));
+);
 
-export const monthlySummaries = sqliteTable("monthly_summaries", {
-  agentId: integer("agent_id")
-    .notNull()
-    .references(() => agents.id, { onDelete: "cascade" }),
-  month: text("month").notNull(),
-  summary: text("summary").notNull(),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.agentId, table.month] }),
-}));
-
-export const monthlySummariesRelations = relations(monthlySummaries, ({ one }) => ({
-  agent: one(agents, {
-    fields: [monthlySummaries.agentId],
-    references: [agents.id],
+export const qualityAuditsRelations = relations(
+  qualityAudits,
+  ({ one, many }) => ({
+    agent: one(agents, {
+      fields: [qualityAudits.agentId],
+      references: [agents.id],
+    }),
+    scores: many(auditScores),
   }),
-}));
+);
 
-export const auditParametersRelations = relations(auditParameters, ({ many }) => ({
-  scores: many(auditScores),
-}));
+export const monthlySummaries = sqliteTable(
+  "monthly_summaries",
+  {
+    agentId: integer("agent_id")
+      .notNull()
+      .references(() => agents.id, { onDelete: "cascade" }),
+    month: text("month").notNull(),
+    summary: text("summary").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.agentId, table.month] }),
+  }),
+);
+
+export const monthlySummariesRelations = relations(
+  monthlySummaries,
+  ({ one }) => ({
+    agent: one(agents, {
+      fields: [monthlySummaries.agentId],
+      references: [agents.id],
+    }),
+  }),
+);
+
+export const auditParametersRelations = relations(
+  auditParameters,
+  ({ many }) => ({
+    scores: many(auditScores),
+  }),
+);
 
 export const auditScoresRelations = relations(auditScores, ({ one }) => ({
   audit: one(qualityAudits, {
@@ -415,3 +445,30 @@ export const auditScoresRelations = relations(auditScores, ({ one }) => ({
   }),
 }));
 
+export const applicationCategories = sqliteTable("application_categories", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+});
+
+export const applications = sqliteTable("applications", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  categoryId: text("category_id").references(() => applicationCategories.id),
+  description: text("description"),
+  version: text("version"),
+  filePath: text("file_path"),
+});
+
+export const applicationCategoriesRelations = relations(
+  applicationCategories,
+  ({ many }) => ({
+    applications: many(applications),
+  }),
+);
+
+export const applicationsRelations = relations(applications, ({ one }) => ({
+  category: one(applicationCategories, {
+    fields: [applications.categoryId],
+    references: [applicationCategories.id],
+  }),
+}));

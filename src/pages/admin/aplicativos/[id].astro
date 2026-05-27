@@ -1,0 +1,285 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import PageContainer from "@components/ui/PageContainer.astro";
+import { Icon } from "astro-icon/components";
+import { db } from "@db/index";
+import { applications, applicationCategories } from "@db/schema";
+import { eq } from "drizzle-orm";
+import fs from "node:fs";
+import path from "node:path";
+
+const { id } = Astro.params;
+const isNew = id === "nuevo";
+
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith("/") ? base : base + "/";
+const resolveUrl = (p: string) => {
+  const cleanPath = p.startsWith("/") ? p.slice(1) : p;
+  return `${cleanBase}${cleanPath}`;
+};
+
+let errorMsg = "";
+let app = {
+  id: 0,
+  title: "",
+  categoryId: "",
+  description: "",
+  version: "",
+  filePath: "",
+};
+
+const categories = await db.select().from(applicationCategories);
+
+if (!isNew && id) {
+  const numericId = Number(id);
+  if (Number.isNaN(numericId)) {
+    return Astro.redirect(resolveUrl("/admin/aplicativos"));
+  }
+
+  const existing = await db.query.applications.findFirst({
+    where: eq(applications.id, numericId),
+  });
+
+  if (existing) {
+    app = {
+      id: existing.id,
+      title: existing.title,
+      categoryId: existing.categoryId || "",
+      description: existing.description || "",
+      version: existing.version || "",
+      filePath: existing.filePath || "",
+    };
+  } else {
+    return Astro.redirect(resolveUrl("/admin/aplicativos"));
+  }
+}
+
+let formSnapshot: FormData | null = null;
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    formSnapshot = formData;
+
+    const title = formData.get("title")?.toString().trim();
+    const categoryId = formData.get("categoryId")?.toString().trim() || null;
+    const description = formData.get("description")?.toString().trim() || null;
+    const version = formData.get("version")?.toString().trim() || null;
+    const file = formData.get("file") as File | null;
+
+    if (!title) {
+      throw new Error("El título es obligatorio.");
+    }
+
+    let filePath = app.filePath || null;
+
+    if (file && file.size > 0) {
+      const uploadsDir = path.join(
+        process.cwd(),
+        "public",
+        "descargas",
+        "aplicativos",
+      );
+      fs.mkdirSync(uploadsDir, { recursive: true });
+
+      const ext = path.extname(file.name);
+      const baseName = path
+        .basename(file.name, ext)
+        .replace(/[^a-zA-Z0-9_\-\.]/g, "_")
+        .replace(/_+/g, "_");
+      const safeFileName = `${Date.now()}_${baseName}${ext}`;
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      fs.writeFileSync(path.join(uploadsDir, safeFileName), buffer);
+
+      if (app.filePath) {
+        const oldAbsPath = path.join(process.cwd(), "public", app.filePath);
+        if (fs.existsSync(oldAbsPath)) {
+          fs.unlinkSync(oldAbsPath);
+        }
+      }
+
+      filePath = `/descargas/aplicativos/${safeFileName}`;
+    }
+
+    if (isNew) {
+      await db.insert(applications).values({
+        title,
+        categoryId,
+        description,
+        version,
+        filePath,
+      });
+    } else {
+      await db
+        .update(applications)
+        .set({
+          title,
+          categoryId,
+          description,
+          version,
+          filePath,
+        })
+        .where(eq(applications.id, app.id));
+    }
+
+    return Astro.redirect(resolveUrl("/admin/aplicativos"));
+  } catch (error: any) {
+    errorMsg = error.message || "Error al guardar el aplicativo.";
+    if (formSnapshot) {
+      app.title = formSnapshot.get("title")?.toString() || "";
+      app.categoryId = formSnapshot.get("categoryId")?.toString() || "";
+      app.description = formSnapshot.get("description")?.toString() || "";
+      app.version = formSnapshot.get("version")?.toString() || "";
+    }
+  }
+}
+---
+
+<BaseLayout title={isNew ? "Nuevo aplicativo" : "Editar aplicativo"}>
+  <PageContainer>
+    <div class="max-w-2xl mx-auto py-4 sm:py-8">
+      <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body p-6 sm:p-8">
+          <div class="flex items-start justify-between mb-6 border-b border-base-200 pb-4">
+            <div>
+              <h1 class="text-xl font-bold text-base-content">
+                {isNew ? "Nuevo aplicativo" : "Editar aplicativo"}
+              </h1>
+              <p class="text-sm text-base-content/60 mt-1">
+                {isNew
+                  ? "Registrá un nuevo aplicativo disponible para descarga."
+                  : "Modificá los datos del aplicativo seleccionado."}
+              </p>
+            </div>
+            <a
+              href={resolveUrl("/admin/aplicativos")}
+              class="btn btn-sm btn-ghost btn-square text-base-content/60 hover:bg-base-200"
+              title="Cerrar"
+            >
+              <Icon name="boxicons:x" size={24} />
+            </a>
+          </div>
+
+          {
+            errorMsg && (
+              <div role="alert" class="alert alert-error alert-soft text-sm mb-6">
+                <Icon name="boxicons:alert-circle-filled" size={20} class="shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )
+          }
+
+          <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend font-semibold uppercase tracking-wide text-xs">
+                  Título
+                </legend>
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  value={app.title}
+                  placeholder="Ej: ShareX"
+                  class="input input-bordered w-full"
+                  autofocus={isNew}
+                />
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend font-semibold uppercase tracking-wide text-xs">
+                  Categoría
+                </legend>
+                <select name="categoryId" class="select select-bordered w-full font-medium">
+                  <option value="" selected={!app.categoryId}>Sin categoría</option>
+                  {
+                    categories.map((cat) => (
+                      <option value={cat.id} selected={cat.id === app.categoryId}>
+                        {cat.title}
+                      </option>
+                    ))
+                  }
+                </select>
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend font-semibold uppercase tracking-wide text-xs">
+                  Versión
+                  <span class="text-base-content/40 font-normal normal-case ml-1">(Opcional)</span>
+                </legend>
+                <input
+                  type="text"
+                  name="version"
+                  value={app.version}
+                  placeholder="Ej: 1.2.0"
+                  class="input input-bordered w-full font-mono text-sm"
+                />
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend font-semibold uppercase tracking-wide text-xs">
+                  Archivo
+                  <span class="text-base-content/40 font-normal normal-case ml-1">(.zip, .exe, .msi, .rar)</span>
+                </legend>
+                <input
+                  type="file"
+                  name="file"
+                  accept=".zip,.exe,.msi,.rar"
+                  class="file-input file-input-bordered w-full"
+                />
+              </fieldset>
+
+              {
+                !isNew && app.filePath && (
+                  <div class="sm:col-span-2">
+                    <div class="flex items-center gap-3 rounded-lg bg-success/10 border border-success/20 px-4 py-3">
+                      <Icon name="boxicons:file-filled" size={20} class="text-success shrink-0" />
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-base-content">Archivo actual cargado</p>
+                        <p class="text-xs text-base-content/60 font-mono truncate">{app.filePath}</p>
+                      </div>
+                      <a
+                        href={app.filePath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-ghost btn-xs gap-1"
+                      >
+                        <Icon name="boxicons:arrow-in-down-square-half-filled" size={14} />
+                        Descargar
+                      </a>
+                    </div>
+                    <p class="text-xs text-base-content/40 mt-1.5">
+                      Si subís un nuevo archivo, el anterior se reemplazará automáticamente.
+                    </p>
+                  </div>
+                )
+              }
+
+              <fieldset class="fieldset sm:col-span-2">
+                <legend class="fieldset-legend font-semibold uppercase tracking-wide text-xs">
+                  Descripción
+                  <span class="text-base-content/40 font-normal normal-case ml-1">(Opcional)</span>
+                </legend>
+                <textarea
+                  name="description"
+                  rows="3"
+                  placeholder="Breve descripción del aplicativo y su uso operativo."
+                  class="textarea textarea-bordered w-full"
+                >{app.description}</textarea>
+              </fieldset>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-6 mt-2 border-t border-base-200">
+              <a href={resolveUrl("/admin/aplicativos")} class="btn btn-ghost">Cancelar</a>
+              <button type="submit" class="btn btn-primary gap-2">
+                <Icon name="boxicons:save" size={18} />
+                Guardar aplicativo
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </PageContainer>
+</BaseLayout>
