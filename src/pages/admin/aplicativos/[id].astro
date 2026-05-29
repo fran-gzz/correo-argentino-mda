@@ -5,13 +5,6 @@ import { Icon } from "astro-icon/components";
 import { db } from "@db/index";
 import { applications, applicationCategories } from "@db/schema";
 import { eq } from "drizzle-orm";
-import fs from "node:fs";
-import path from "node:path";
-
-const STORAGE_DIR = path.resolve(
-  process.env.EXTERNAL_STORAGE_DIR ||
-    "C:/Projects/correo-argentino-mda-programs",
-);
 
 const { id } = Astro.params;
 const isNew = id === "nuevo";
@@ -93,7 +86,14 @@ if (Astro.request.method === "POST") {
       const file = formData.get("file") as File | null;
 
       if (file && file.size > 0 && file.name) {
-        const uploadDir = STORAGE_DIR;
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+
+        const uploadDir = path.resolve(
+          process.env.EXTERNAL_STORAGE_DIR ||
+            (import.meta.env.EXTERNAL_STORAGE_DIR as string) ||
+            "C:/Projects/correo-argentino-mda-programs",
+        );
 
         try {
           fs.mkdirSync(uploadDir, { recursive: true });
@@ -101,7 +101,7 @@ if (Astro.request.method === "POST") {
           if (dirError.code !== "EACCES" && dirError.code !== "EPERM") {
             throw dirError;
           }
-          console.warn(
+          console.error(
             `[aplicativos] No se pudo crear el directorio "${uploadDir}": ${dirError.message}. Asegurate de que exista y tenga permisos de escritura.`,
           );
         }
@@ -113,8 +113,17 @@ if (Astro.request.method === "POST") {
           .replace(/_+/g, "_");
         const safeFileName = `${Date.now()}_${baseName}${ext}`;
 
-        const buffer = Buffer.from(await file.arrayBuffer());
-        fs.writeFileSync(path.join(uploadDir, safeFileName), buffer);
+        try {
+          const buffer = Buffer.from(await file.arrayBuffer());
+          fs.writeFileSync(path.join(uploadDir, safeFileName), buffer);
+        } catch (writeError: any) {
+          console.error(
+            `[aplicativos] Error al escribir el archivo "${safeFileName}": ${writeError.message}`,
+          );
+          throw new Error(
+            `No se pudo guardar el archivo en el servidor. Verificá los permisos de la carpeta de almacenamiento.`,
+          );
+        }
 
         if (app.filePath && !app.filePath.startsWith("http")) {
           const downloadPrefix = resolveUrl("api/download/");
@@ -123,9 +132,12 @@ if (Astro.request.method === "POST") {
             : null;
 
           if (oldFileName) {
-            const oldAbsPath = path.join(uploadDir, oldFileName);
-            if (fs.existsSync(oldAbsPath)) {
-              fs.unlinkSync(oldAbsPath);
+            try {
+              const oldAbsPath = path.join(uploadDir, oldFileName);
+              if (fs.existsSync(oldAbsPath)) {
+                fs.unlinkSync(oldAbsPath);
+              }
+            } catch {
             }
           }
         }
@@ -374,7 +386,7 @@ const isExternal = formUploadType
                 <input
                   type="url"
                   name="externalUrl"
-                  value={isExternal ? formExternalUrl || app.filePath : ""}
+                  value={formExternalUrl || (/^https?:\/\//i.test(app.filePath) ? app.filePath : "")}
                   placeholder="https://ejemplo.com/descarga/archivo.zip"
                   class="input input-bordered w-full font-mono text-sm"
                 />

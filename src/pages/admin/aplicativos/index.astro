@@ -9,12 +9,6 @@ import { Icon } from "astro-icon/components";
 import { db } from "@db/index";
 import { applications, applicationCategories } from "@db/schema";
 import { eq, asc } from "drizzle-orm";
-import fs from "node:fs";
-import path from "node:path";
-
-const STORAGE_DIR = path.resolve(
-  process.env.EXTERNAL_STORAGE_DIR || "C:/Projects/correo-argentino-mda-programs",
-);
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -38,15 +32,27 @@ if (Astro.request.method === "POST") {
         .where(eq(applications.id, appId));
 
       if (existing?.filePath && !existing.filePath.startsWith("http")) {
-        const storageDir = STORAGE_DIR;
-        const downloadPrefix = resolveUrl("api/download/");
-        const fileName = existing.filePath.startsWith(downloadPrefix)
-          ? existing.filePath.slice(downloadPrefix.length)
-          : path.basename(existing.filePath);
+        try {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const storageDir = path.resolve(
+            process.env.EXTERNAL_STORAGE_DIR ||
+              (import.meta.env.EXTERNAL_STORAGE_DIR as string) ||
+              "C:/Projects/correo-argentino-mda-programs",
+          );
+          const downloadPrefix = resolveUrl("api/download/");
+          const fileName = existing.filePath.startsWith(downloadPrefix)
+            ? existing.filePath.slice(downloadPrefix.length)
+            : path.basename(existing.filePath);
 
-        const absPath = path.join(storageDir, fileName);
-        if (fs.existsSync(absPath)) {
-          fs.unlinkSync(absPath);
+          const absPath = path.join(storageDir, fileName);
+          if (fs.existsSync(absPath)) {
+            fs.unlinkSync(absPath);
+          }
+        } catch (fsError: any) {
+          console.error(
+            `[aplicativos] No se pudo eliminar el archivo físico: ${fsError.message}`,
+          );
         }
       }
 
@@ -57,21 +63,35 @@ if (Astro.request.method === "POST") {
   }
 }
 
-// Consulta usando .leftJoin y ordenamiento alfabético
-const allApps = await db
-  .select({
-    id: applications.id,
-    title: applications.title,
-    version: applications.version,
-    filePath: applications.filePath,
-    categoryTitle: applicationCategories.title,
-  })
-  .from(applications)
-  .leftJoin(
-    applicationCategories,
-    eq(applications.categoryId, applicationCategories.id),
-  )
-  .orderBy(asc(applications.title));
+type AppRow = {
+  id: number;
+  title: string;
+  version: string | null;
+  filePath: string | null;
+  categoryTitle: string | null;
+};
+
+let allApps: AppRow[] = [];
+
+try {
+  allApps = await db
+    .select({
+      id: applications.id,
+      title: applications.title,
+      version: applications.version,
+      filePath: applications.filePath,
+      categoryTitle: applicationCategories.title,
+    })
+    .from(applications)
+    .leftJoin(
+      applicationCategories,
+      eq(applications.categoryId, applicationCategories.id),
+    )
+    .orderBy(asc(applications.title));
+} catch (dbError: any) {
+  console.error(`[aplicativos] Error al consultar la base de datos: ${dbError.message}`);
+  deleteMsg = deleteMsg || "No se pudieron cargar los aplicativos.";
+}
 
 const headerGridClass = "grid-cols-[1.5fr_1fr_80px_1.5fr_120px] gap-4";
 const rowGridClass = "grid grid-cols-[1.5fr_1fr_80px_1.5fr_120px] items-center gap-4";
