@@ -36,6 +36,21 @@ export const offices = sqliteTable("offices", {
   lng: real("lng"),
   email: text("email"),
   notes: text("notes"),
+  street: text("street"),
+  number: text("number"),
+  locality: text("locality"),
+  county: text("county"),
+  zone: text("zone"),
+  officeType: text("officeType"),
+  categoryClass: text("categoryClass"),
+  rubric: text("rubric"),
+  parentNis: text("parentNis"),
+  phone: text("phone"),
+  manager: text("manager"),
+  regionId: text("regionId"),
+  enRed: integer("enRed", { mode: "boolean" }).default(false),
+  paqarAdmision: integer("paqarAdmision", { mode: "boolean" }).default(false),
+  paqarEntrega: integer("paqarEntrega", { mode: "boolean" }).default(false),
 });
 
 export const contactCategories = sqliteTable("contact_categories", {
