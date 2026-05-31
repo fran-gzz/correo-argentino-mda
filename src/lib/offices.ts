@@ -4,11 +4,10 @@ import type {
   OfficeAssetType,
 } from "@/data/directorio_oficinas";
 
-export async function getTelegrafiaOfficesFromDB(): Promise<
+export async function getAllOfficesFromDB(): Promise<
   OfficeDirectoryItem[]
 > {
   const dbOffices = await db.query.offices.findMany({
-    where: (offices, { eq }) => eq(offices.type, "telegrafia"),
     orderBy: (offices, { asc }) => [asc(offices.code), asc(offices.name)],
     with: {
       assets: true,
@@ -18,8 +17,8 @@ export async function getTelegrafiaOfficesFromDB(): Promise<
   });
 
   return dbOffices.map((office) => ({
-    id: `teleg-${office.code.toLowerCase()}`,
-    type: "telegrafia" as const,
+    id: `office-${office.code.toLowerCase()}`,
+    type: office.type as OfficeType,
     code: office.code,
     name: office.name,
     provinceCode: office.provinceCode,
