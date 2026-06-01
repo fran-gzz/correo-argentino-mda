@@ -18,6 +18,7 @@ export interface OfficeAsset {
 
 export interface OfficeDirectoryItem {
   id: string;
+  dbId?: number;
   type: OfficeType;
   code: string;
   name: string;

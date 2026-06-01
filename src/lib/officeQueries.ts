@@ -161,6 +161,7 @@ export async function getOffices(params: GetOfficesParams) {
     }
     return {
       id: `office-${office.code.toLowerCase()}`,
+      dbId: office.id,
       type: mappedType as OfficeType,
       code: office.code,
       name: office.name,

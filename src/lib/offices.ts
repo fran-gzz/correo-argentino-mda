@@ -19,6 +19,7 @@ export async function getAllOfficesFromDB(): Promise<
 
   return dbOffices.map((office) => ({
     id: `office-${office.code.toLowerCase()}`,
+    dbId: office.id,
     type: office.type as OfficeType,
     code: office.code,
     name: office.name,
