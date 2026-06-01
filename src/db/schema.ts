@@ -4,6 +4,7 @@ import {
   integer,
   real,
   primaryKey,
+  index,
 } from "drizzle-orm/sqlite-core";
 
 import { relations } from "drizzle-orm";
@@ -51,7 +52,12 @@ export const offices = sqliteTable("offices", {
   enRed: integer("enRed", { mode: "boolean" }).default(false),
   paqarAdmision: integer("paqarAdmision", { mode: "boolean" }).default(false),
   paqarEntrega: integer("paqarEntrega", { mode: "boolean" }).default(false),
-});
+}, (table) => ({
+  nameIdx: index("name_idx").on(table.name),
+  localityIdx: index("locality_idx").on(table.locality),
+  provinceIdx: index("province_idx").on(table.provinceCode),
+  typeIdx: index("type_idx").on(table.type),
+}));
 
 export const contactCategories = sqliteTable("contact_categories", {
   id: text("id").primaryKey(),
