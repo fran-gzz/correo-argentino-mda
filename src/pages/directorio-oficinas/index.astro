@@ -8,21 +8,18 @@ import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import ViewSwitcher from "@components/ui/ViewSwitcher.astro";
 import FilterTabsBox from "@components/ui/FilterTabsBox.astro";
-import Pagination from "@components/ui/Pagination.astro";
-import type {
-  OfficeDirectoryItem,
-  OfficeAssetType,
-  OfficeType,
-} from "@/data/directorio_oficinas";
+import { getOffices } from "@lib/officeQueries";
+import OfficeRow from "@components/offices/OfficeRow.astro";
+import {
+  officeTypeLabelByType,
+  officeTypeTabActiveClassByType,
+  formatTypeLabel,
+} from "@lib/officeHelpers";
 import { db } from "@db/index";
 import { provinces, regions, offices } from "@db/schema";
-import { eq, like, or, and, sql, inArray } from "drizzle-orm";
-
-const PAGE_SIZE = 50;
+import { eq, sql } from "drizzle-orm";
 
 const searchParams = Astro.url.searchParams;
-const page = parseInt(searchParams.get("page") || "1", 10);
-const offset = (page - 1) * PAGE_SIZE;
 
 const typeFilter = searchParams.get("type") || "all";
 const regionFilter = searchParams.get("region") || "all";
@@ -58,134 +55,16 @@ if (regionFilter !== "all" && provinceFilter !== "all") {
   provinceFilter = "all";
 }
 
-const whereConditions = [];
-
-if (typeFilter !== "all") {
-  if (typeFilter === "SUCURSAL_AUTOMATIZADA") {
-    whereConditions.push(
-      and(eq(offices.type, "SUCURSAL"), eq(offices.officeType, "AUTOMATIZADA")),
-    );
-  } else if (typeFilter === "SUCURSAL_NO_AUTOMATIZADA") {
-    whereConditions.push(
-      and(
-        eq(offices.type, "SUCURSAL"),
-        or(
-          eq(offices.officeType, "NO AUTOMATIZADA"),
-          sql`${offices.officeType} IS NULL`,
-        ),
-      ),
-    );
-  } else {
-    whereConditions.push(eq(offices.type, typeFilter));
-  }
-}
-
-if (searchFilter) {
-  const likeSearch = `%${searchFilter}%`;
-  whereConditions.push(
-    or(
-      like(offices.name, likeSearch),
-      like(offices.code, likeSearch),
-      like(offices.address, likeSearch),
-    ),
-  );
-}
-
-if (provinceFilter !== "all") {
-  whereConditions.push(eq(offices.provinceCode, provinceFilter));
-} else if (regionFilter !== "all") {
-  const regionProvinces = provincesByRegion[regionFilter] || [];
-  if (regionProvinces.length > 0) {
-    whereConditions.push(
-      inArray(
-        offices.provinceCode,
-        regionProvinces.map((p) => p.code),
-      ),
-    );
-  } else {
-    whereConditions.push(eq(offices.provinceCode, "NONE_MATCH"));
-  }
-}
-
-if (zoneFilter !== "all") {
-  whereConditions.push(eq(offices.zone, zoneFilter));
-}
-
-if (paqarFilter !== "all") {
-  if (paqarFilter === "admision") {
-    whereConditions.push(eq(offices.paqarAdmision, true));
-  } else if (paqarFilter === "entrega") {
-    whereConditions.push(eq(offices.paqarEntrega, true));
-  } else if (paqarFilter === "ambos") {
-    whereConditions.push(
-      and(eq(offices.paqarAdmision, true), eq(offices.paqarEntrega, true)),
-    );
-  }
-}
-
-const whereClause =
-  whereConditions.length > 0 ? and(...whereConditions) : undefined;
-
-const [{ count }] = await db
-  .select({ count: sql<number>`count(*)` })
-  .from(offices)
-  .where(whereClause);
-
-const totalPages = Math.ceil(count / PAGE_SIZE) || 1;
-
-const dbOffices = await db.query.offices.findMany({
-  where: whereClause,
-  limit: PAGE_SIZE,
-  offset: offset,
-  orderBy: (offices, { asc }) => [asc(offices.code), asc(offices.name)],
-  with: {
-    assets: true,
-    contacts: { with: { contact: true } },
-    province: { with: { region: true } },
-  },
+const { data: officeDirectoryItems, hasMore } = await getOffices({
+  page: 1, // SSR siempre renderiza la primera página de 100 items
+  limit: 100,
+  type: typeFilter,
+  region: regionFilter,
+  province: provinceFilter,
+  zone: zoneFilter,
+  paqar: paqarFilter,
+  search: searchFilter,
 });
-
-const officeDirectoryItems: OfficeDirectoryItem[] = dbOffices.map((office) => {
-  let mappedType = office.type;
-  if (office.type === "SUCURSAL") {
-    mappedType =
-      office.officeType === "AUTOMATIZADA"
-        ? "SUCURSAL_AUTOMATIZADA"
-        : "SUCURSAL_NO_AUTOMATIZADA";
-  }
-  return {
-    id: `office-${office.code.toLowerCase()}`,
-    type: mappedType as OfficeType,
-    code: office.code,
-    name: office.name,
-    provinceCode: office.provinceCode,
-    provinceName: office.province?.name ?? "",
-    location: office.province?.name ?? "",
-    costCenter: "",
-    postalCode: "",
-    region: office.province?.region?.name ?? "",
-    address: office.address ?? "",
-    email: office.email ?? "",
-    notes: office.notes ?? "",
-    contacts: office.contacts.map((oc) => ({
-      name: oc.contact.name,
-      phone: oc.contact.phone ?? "",
-      timeSlot: oc.timeSlot ?? "",
-    })),
-    assets: office.assets.map((a) => ({
-      type: a.type as OfficeAssetType,
-      hostname: a.hostname ?? "",
-      ip: a.ip ?? "",
-    })),
-  };
-});
-
-type BoxiconName = `boxicons:${string}`;
-
-interface OfficeTypeTab {
-  type: string;
-  label: string;
-}
 
 const rawCounts = await db
   .select({
@@ -242,95 +121,13 @@ const officeCountByType = processedCounts.reduce(
   { all: 0 } as Record<string, number>,
 );
 
-function formatTypeLabel(type: string): string {
-  if (type.toLowerCase() === "cdd") return "CDD";
-  if (type.toLowerCase() === "ctp") return "CTP";
-  return (
-    type.charAt(0).toUpperCase() +
-    type.slice(1).toLowerCase().replace(/_/g, " ")
-  );
-}
-
-const officeTypeLabelByType: Record<string, string> = {
-  ADMINISTRACION: "Administración",
-  AGENCIA: "Agencia",
-  CDD: "CDD",
-  CDP: "CDP",
-  CTP: "CTP",
-  "CORREO COLABORATIVO": "Colaborativo",
-  ESPECIALES: "Especiales",
-  ESTAFETA: "Estafeta",
-  GENERAL: "General",
-  SUCURSAL_AUTOMATIZADA: "Sucursal Automatizada",
-  SUCURSAL_NO_AUTOMATIZADA: "Sucursal No Automatizada",
-  TELEGRAFIA: "Telegrafía",
-  "UNIDAD POSTAL": "Unidad Postal",
-};
-
 processedCounts.forEach((row) => {
   if (row.type && !officeTypeLabelByType[row.type]) {
     officeTypeLabelByType[row.type] = formatTypeLabel(row.type);
   }
 });
 
-const defaultChipClass =
-  "office-type-chip bg-base-300 text-base-content border-base-400";
-const officeTypeChipClassByType: Record<string, string> = {
-  ADMINISTRACION: "office-type-chip office-type-chip-administracion",
-  AGENCIA: "office-type-chip office-type-chip-agencia",
-  CDD: "office-type-chip office-type-chip-cdd",
-  CDP: "office-type-chip office-type-chip-cdp",
-  CTP: "office-type-chip office-type-chip-ctp",
-  "CORREO COLABORATIVO":
-    "office-type-chip office-type-chip-correo-colaborativo",
-  ESPECIALES: "office-type-chip office-type-chip-especiales",
-  ESTAFETA: "office-type-chip office-type-chip-estafeta",
-  GENERAL: "office-type-chip office-type-chip-general",
-  SUCURSAL_AUTOMATIZADA:
-    "office-type-chip office-type-chip-sucursal-automatizada",
-  SUCURSAL_NO_AUTOMATIZADA:
-    "office-type-chip office-type-chip-sucursal-no-automatizada",
-  TELEGRAFIA: "office-type-chip office-type-chip-telegrafia",
-  "UNIDAD POSTAL": "office-type-chip office-type-chip-unidad-postal",
-};
-
-processedCounts.forEach((row) => {
-  if (row.type && !officeTypeChipClassByType[row.type]) {
-    officeTypeChipClassByType[row.type] = defaultChipClass;
-  }
-});
-
-const defaultTabClass =
-  "office-tab-active bg-primary/10 border-primary text-primary font-bold";
-const officeTypeTabActiveClassByType: Record<string, string> = {
-  all: "office-tab-active office-tab-active-all",
-  ADMINISTRACION: "office-tab-active office-tab-active-administracion",
-  AGENCIA: "office-tab-active office-tab-active-agencia",
-  CDD: "office-tab-active office-tab-active-cdd",
-  CDP: "office-tab-active office-tab-active-cdp",
-  CTP: "office-tab-active office-tab-active-ctp",
-  "CORREO COLABORATIVO":
-    "office-tab-active office-tab-active-correo-colaborativo",
-  ESPECIALES: "office-tab-active office-tab-active-especiales",
-  ESTAFETA: "office-tab-active office-tab-active-estafeta",
-  GENERAL: "office-tab-active office-tab-active-general",
-  SUCURSAL_AUTOMATIZADA:
-    "office-tab-active office-tab-active-sucursal-automatizada",
-  SUCURSAL_NO_AUTOMATIZADA:
-    "office-tab-active office-tab-active-sucursal-no-automatizada",
-  TELEGRAFIA: "office-tab-active office-tab-active-telegrafia",
-  "UNIDAD POSTAL": "office-tab-active office-tab-active-unidad-postal",
-};
-
-processedCounts.forEach((row) => {
-  if (row.type && !officeTypeTabActiveClassByType[row.type]) {
-    officeTypeTabActiveClassByType[row.type] = defaultTabClass;
-  }
-});
-
-const defaultOfficeType = typeFilter || "all";
-
-const officeTypeTabs: OfficeTypeTab[] = [
+const officeTypeTabs = [
   { type: "all", label: "Todas" },
   ...processedCounts
     .sort((a, b) => b.count - a.count)
@@ -359,65 +156,7 @@ const uniqueZones = allZonesRaw
   .filter((z): z is string => Boolean(z))
   .sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
 
-const assetIconByType: Record<OfficeAssetType, BoxiconName> = {
-  server: "boxicons:server-filled",
-  printer: "boxicons:printer-filled",
-  desktop: "boxicons:desktop-filled",
-  client: "boxicons:desktop-filled",
-};
-
-const assetLabelByType: Record<OfficeAssetType, string> = {
-  server: "Servidor",
-  printer: "Impresora",
-  desktop: "Terminal",
-  client: "Cliente",
-};
-
-const assetColorByType: Record<OfficeAssetType, string> = {
-  server:
-    "bg-green-600 text-white border-green-700/30 shadow-sm shadow-green-500/20",
-  client:
-    "bg-blue-600 text-white border-blue-700/30 shadow-sm shadow-blue-500/20",
-  desktop:
-    "bg-blue-600 text-white border-blue-700/30 shadow-sm shadow-blue-500/20",
-  printer:
-    "bg-purple-600 text-white border-purple-700/30 shadow-sm shadow-purple-500/20",
-};
-
-const assetOrderByType: Record<OfficeAssetType, number> = {
-  server: 1,
-  client: 2,
-  desktop: 2,
-  printer: 3,
-};
-
 const officeDirectoryHeaderGridClass = "grid-cols-10 gap-4";
-const officeDirectoryRowGridClass = "grid grid-cols-10 items-center gap-4";
-
-const groupedOffices = Array.from(
-  officeDirectoryItems.reduce((groups, office) => {
-    const currentItems = groups.get(office.location) ?? [];
-    currentItems.push(office);
-    groups.set(office.location, currentItems);
-    return groups;
-  }, new Map<string, OfficeDirectoryItem[]>()),
-).map(([location, offices]) => ({
-  location,
-  searchText: offices
-    .map((office) =>
-      [
-        office.location,
-        office.region,
-        office.costCenter,
-        office.postalCode,
-        office.code,
-        office.name,
-        office.address,
-      ].join(" "),
-    )
-    .join(" "),
-  offices,
-}));
 
 const mainTabs = [
   { label: "Directorio de Oficinas", value: "directory" },
@@ -603,390 +342,57 @@ const sucursales: any[] = [];
             <DataTableHeaderCell sortKey="name">Nombre</DataTableHeaderCell>
           </div>
           <div slot="header" class="col-span-4">
-            <DataTableHeaderCell sortKey="address"
-              >Dirección</DataTableHeaderCell
-            >
+            <DataTableHeaderCell sortKey="address">Dirección</DataTableHeaderCell>
           </div>
-          {
-            groupedOffices.length === 0 ? (
-              <div class="py-24 flex flex-col items-center justify-center text-center px-4 animate-in fade-in duration-500">
-                <div class="relative size-24 mb-8 group">
-                  <div class="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse group-hover:bg-primary/30 transition-colors" />
-                  <div class="absolute inset-2 bg-secondary/10 rounded-full blur-md" />
-                  <div class="relative flex items-center justify-center w-full h-full bg-base-100/80 backdrop-blur-sm rounded-full border border-base-300 shadow-2xl transition-transform hover:scale-105">
-                    <Icon
-                      name="boxicons:map-filled"
-                      class="size-10 text-base-content/40"
-                    />
-                  </div>
-                </div>
-                <h3 class="text-2xl font-bold text-base-content mb-3 font-mono tracking-tight">
-                  No hay coincidencias
-                </h3>
-                <p class="text-base-content/60 max-w-md text-center mb-8 leading-relaxed text-sm">
-                  No hemos podido encontrar oficinas que coincidan con los
-                  filtros seleccionados. Probá modificando los criterios o
-                  restableciendo la búsqueda para explorar el directorio
-                  completo.
-                </p>
-                <a
-                  href="/directorio-oficinas"
-                  class="btn btn-primary rounded-full px-8 shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-transform duration-300"
-                >
-                  <Icon
-                    name="boxicons:refresh-ccw-filled"
-                    class="size-5 mr-1.5"
-                  />
-                  Restablecer filtros
-                </a>
-              </div>
-            ) : (
-              groupedOffices.map((group) =>
-                group.offices.map((office, index) => {
-                  const isVisibleByDefault =
-                    typeFilter === "all" || office.type === typeFilter;
-                  const searchText = `${office.name} ${office.code} ${office.region} ${office.provinceName} ${office.location} ${office.postalCode} ${officeTypeLabelByType[office.type] || office.type}`;
-                  const hasDetails =
-                    office.contacts.length > 0 || office.assets.length > 0;
-
-                  return (
-                    <>
-                      {index === 0 && (
-                        <div
-                          data-location-group-row
-                          data-master-detail-group-header={group.location}
-                          data-location-group={group.location}
-                          data-search-text={group.searchText}
-                          class="hidden border-b border-base-300 bg-base-200/80 px-5 py-3"
-                        >
-                          <div class="flex items-center justify-between gap-3">
-                            <div class="min-w-0">
-                              <p class="flex items-center gap-2 text-sm font-semibold text-base-content">
-                                <Icon
-                                  name="boxicons:buildings-filled"
-                                  class="size-4 shrink-0 text-secondary"
-                                  aria-hidden="true"
-                                />
-                                <span>{group.location}</span>
-                              </p>
-                              <p class="mt-1 text-xs text-base-content/60">
-                                {group.offices.length} oficinas en esta locación
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <article
-                        data-master-detail-sort-item
-                        data-office-id={office.id}
-                        data-office-type={office.type}
-                        data-office-location={office.location}
-                        data-region={office.region}
-                        data-province-code={office.provinceCode}
-                        data-search-text={searchText}
-                        data-sort-code={office.code}
-                        data-sort-name={office.name}
-                        data-sort-address={`${office.address} ${office.location} ${office.region} ${office.postalCode}`}
-                        data-sort-group={office.location}
-                        class:list={["block", !isVisibleByDefault && "hidden"]}
-                      >
-                        <div
-                          data-office-master-row={hasDetails ? "" : undefined}
-                          data-office-id={office.id}
-                          role={hasDetails ? "button" : undefined}
-                          tabindex={hasDetails ? "0" : undefined}
-                          aria-expanded={hasDetails ? "false" : undefined}
-                          class:list={[
-                            officeDirectoryRowGridClass,
-                            "border-b border-base-300 px-4 py-3 transition-colors",
-                            hasDetails
-                              ? "cursor-pointer hover:bg-base-200/70 focus:outline-none focus-visible:bg-base-200/80 focus-visible:ring-2 focus-visible:ring-primary/50"
-                              : "",
-                          ]}
-                        >
-                          <div class="col-span-1">
-                            {hasDetails ? (
-                              <span
-                                class="inline-flex size-8 items-center justify-center rounded-lg border border-base-300 bg-base-200 text-base-content/70 transition-colors"
-                                aria-hidden="true"
-                              >
-                                <Icon
-                                  name="boxicons:chevron-down-filled"
-                                  data-chevron-closed
-                                  class="size-4"
-                                />
-                                <Icon
-                                  name="boxicons:chevron-up-filled"
-                                  data-chevron-open
-                                  class="hidden size-4"
-                                />
-                              </span>
-                            ) : (
-                              <span
-                                class="inline-flex size-8"
-                                aria-hidden="true"
-                              />
-                            )}
-                          </div>
-
-                          <div class="col-span-2">
-                            <span
-                              class:list={[
-                                "inline-flex px-2 py-1 font-mono text-sm font-semibold",
-                                officeTypeChipClassByType[office.type] ||
-                                  "office-type-chip bg-base-300 text-base-content",
-                              ]}
-                              data-highlight-target
-                            >
-                              {office.code}
-                            </span>
-                          </div>
-
-                          <div class="col-span-3 min-w-0">
-                            <div class="min-w-0">
-                              <p class="truncate text-sm font-semibold text-base-content">
-                                <span data-highlight-target>{office.name}</span>
-                              </p>
-                              <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-base-content/55">
-                                <span>
-                                  {officeTypeLabelByType[office.type] ||
-                                    office.type}
-                                </span>
-                                <span class="text-base-content/35">/</span>
-                                <span>{office.contacts.length} contactos</span>
-                                <span class="text-base-content/35">/</span>
-                                <span>{office.assets.length} activos</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="col-span-4 min-w-0">
-                            <div class="min-w-0 space-y-1">
-                              <p class="flex min-w-0 items-center gap-2 text-sm text-base-content/75">
-                                <Icon
-                                  name="boxicons:location-pin-filled"
-                                  class="size-4 shrink-0 text-secondary"
-                                  aria-hidden="true"
-                                />
-                                <span class="truncate" title={office.address}>
-                                  {office.address}
-                                </span>
-                              </p>
-                              <p class="truncate text-xs text-base-content/55">
-                                {office.location}
-                              </p>
-                              <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-base-content/60">
-                                <span data-highlight-target>
-                                  {office.region}
-                                </span>
-                                {office.postalCode && (
-                                  <>
-                                    <span class="text-base-content/35">/</span>
-                                    <span
-                                      class="font-mono"
-                                      data-highlight-target
-                                    >
-                                      CP {office.postalCode}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div
-                          data-office-detail-row
-                          data-office-id={office.id}
-                          class="hidden border-b border-base-300 bg-base-200/20"
-                        >
-                          <div class="office-detail-panel m-3 rounded-lg border border-base-300 bg-base-200/60 p-4 md:p-5">
-                            <div class="grid gap-5 lg:grid-cols-2">
-                              <div class="space-y-5">
-                                {/* --- Sección de correo y notas --- */}
-                                {(office.email || office.notes) && (
-                                  <section class="space-y-3">
-                                    <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-base-content/70">
-                                      <Icon
-                                        name="boxicons:info-circle-filled"
-                                        class="size-4 text-secondary"
-                                        aria-hidden="true"
-                                      />
-                                      Informacion de la oficina
-                                    </h2>
-                                    <div class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-md space-y-2">
-                                      {office.email && (
-                                        <p class="flex items-center gap-2 text-sm text-base-content/80">
-                                          <Icon
-                                            name="boxicons:envelope-filled"
-                                            class="size-4 shrink-0 text-base-content/50"
-                                            aria-hidden="true"
-                                          />
-                                          <span class="font-mono text-xs break-all">
-                                            {office.email}
-                                          </span>
-                                        </p>
-                                      )}
-                                      {office.notes && (
-                                        <p class="flex items-start gap-2 text-xs text-base-content/60">
-                                          <Icon
-                                            name="boxicons:note-filled"
-                                            class="mt-0.5 size-4 shrink-0 text-base-content/40"
-                                            aria-hidden="true"
-                                          />
-                                          <span>{office.notes}</span>
-                                        </p>
-                                      )}
-                                    </div>
-                                  </section>
-                                )}
-
-                                {/* --- Sección de contactos --- */}
-                                <section class="min-w-0 space-y-3">
-                                  <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-base-content/70">
-                                    <Icon
-                                      name="boxicons:user-filled"
-                                      class="size-4 text-secondary"
-                                      aria-hidden="true"
-                                    />
-                                    Contactos de la oficina
-                                  </h2>
-
-                                  {office.contacts.length > 0 ? (
-                                    <div class="grid gap-3 sm:grid-cols-2">
-                                      {office.contacts.map((contact) => (
-                                        <article class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-md">
-                                          <h3 class="truncate text-sm font-semibold text-base-content">
-                                            {contact.name}
-                                          </h3>
-                                          <div class="mt-3 space-y-2 text-xs text-base-content/70">
-                                            {contact.timeSlot && (
-                                              <p class="flex items-center gap-2">
-                                                <Icon
-                                                  name="boxicons:clock-filled"
-                                                  class="size-4 shrink-0 text-base-content/50"
-                                                  aria-hidden="true"
-                                                />
-                                                <span>{contact.timeSlot}</span>
-                                              </p>
-                                            )}
-                                            {contact.phone && (
-                                              <p class="flex items-center gap-2">
-                                                <Icon
-                                                  name="boxicons:phone-filled"
-                                                  class="size-4 shrink-0 text-base-content/50"
-                                                  aria-hidden="true"
-                                                />
-                                                <span class="font-mono">
-                                                  {contact.phone}
-                                                </span>
-                                              </p>
-                                            )}
-                                          </div>
-                                        </article>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <p class="rounded-lg border border-base-300 bg-base-100 p-4 text-sm italic text-base-content/60">
-                                      Sin contactos cargados para esta oficina.
-                                    </p>
-                                  )}
-                                </section>
-                              </div>
-
-                              <section class="min-w-0 space-y-3">
-                                <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-base-content/70">
-                                  <Icon
-                                    name="boxicons:desktop-filled"
-                                    class="size-4 text-secondary"
-                                    aria-hidden="true"
-                                  />
-                                  Activos tecnológicos
-                                </h2>
-
-                                {office.assets.length > 0 ? (
-                                  <div class="overflow-x-auto rounded-lg border border-base-300 bg-base-100 shadow-md">
-                                    <table class="table table-sm">
-                                      <thead>
-                                        <tr class="text-xs uppercase tracking-wide text-base-content/60">
-                                          <th>Tipo / Hostname</th>
-                                          <th>Dirección IP</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {[...office.assets]
-                                          .sort(
-                                            (a, b) =>
-                                              assetOrderByType[a.type] -
-                                              assetOrderByType[b.type],
-                                          )
-                                          .map((asset) => (
-                                            <tr>
-                                              <td>
-                                                <div class="flex min-w-0 items-center gap-3">
-                                                  <span
-                                                    class:list={[
-                                                      "inline-flex size-9 shrink-0 items-center justify-center rounded-lg border",
-                                                      assetColorByType[
-                                                        asset.type
-                                                      ],
-                                                    ]}
-                                                    aria-hidden="true"
-                                                  >
-                                                    <Icon
-                                                      name={
-                                                        assetIconByType[
-                                                          asset.type
-                                                        ] ||
-                                                        "boxicons:info-circle-filled"
-                                                      }
-                                                      class="size-4"
-                                                    />
-                                                  </span>
-                                                  <div class="min-w-0">
-                                                    <p class="text-xs font-medium text-base-content/60">
-                                                      {
-                                                        assetLabelByType[
-                                                          asset.type
-                                                        ]
-                                                      }
-                                                    </p>
-                                                    <p class="truncate font-mono text-sm font-semibold text-base-content">
-                                                      {asset.hostname}
-                                                    </p>
-                                                  </div>
-                                                </div>
-                                              </td>
-                                              <td class="font-mono text-sm">
-                                                {asset.ip}
-                                              </td>
-                                            </tr>
-                                          ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                ) : (
-                                  <p class="rounded-lg border border-base-300 bg-base-100 p-4 text-sm italic text-base-content/60">
-                                    Sin activos tecnológicos registrados.
-                                  </p>
-                                )}
-                              </section>
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    </>
-                  );
-                }),
-              )
-            )
-          }
+            {
+              officeDirectoryItems.map((office) => (
+                <OfficeRow office={office} />
+              ))
+            }
         </MasterDetailTable>
 
-        <div class="mt-6 flex items-center justify-center">
-          <Pagination totalPages={totalPages} currentPage={page} />
+        <div
+          id="no-results-state"
+          class:list={[
+            "py-24 flex flex-col items-center justify-center text-center px-4 animate-in fade-in duration-500",
+            officeDirectoryItems.length > 0 && "hidden"
+          ]}
+        >
+          <div class="relative size-24 mb-8 group">
+            <div class="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse group-hover:bg-primary/30 transition-colors" />
+            <div class="absolute inset-2 bg-secondary/10 rounded-full blur-md" />
+            <div class="relative flex items-center justify-center w-full h-full bg-base-100/80 backdrop-blur-sm rounded-full border border-base-300 shadow-2xl transition-transform hover:scale-105">
+              <Icon
+                name="boxicons:map-filled"
+                class="size-10 text-base-content/40"
+              />
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-base-content mb-3 font-mono tracking-tight">
+            No hay coincidencias
+          </h3>
+          <p class="text-base-content/60 max-w-md text-center mb-8 leading-relaxed text-sm">
+            No hemos podido encontrar oficinas que coincidan con los
+            filtros seleccionados. Probá modificando los criterios o
+            restableciendo la búsqueda para explorar el directorio
+            completo.
+          </p>
+          <a
+            href={import.meta.env.BASE_URL + "directorio-oficinas"}
+            class="btn btn-primary rounded-full px-8 shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-transform duration-300"
+          >
+            <Icon
+              name="boxicons:refresh-ccw-filled"
+              class="size-5 mr-1.5"
+            />
+            Restablecer filtros
+          </a>
         </div>
+
+        <div id="scroll-sentinel" class="py-8 text-center flex justify-center" data-has-more={hasMore ? "true" : "false"}>
+          <span class="loading loading-spinner loading-md text-primary hidden" id="loading-spinner"></span>
+        </div>
+      </div> </div>
       </div>
     </div>
 
@@ -1049,7 +455,6 @@ const sucursales: any[] = [];
   window._TYPE_FILTER = typeFilter;
 </script>
 
-<!-- Script de Leaflet (CDN) y lógica combinada -->
 <script
   is:inline
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -1057,138 +462,156 @@ const sucursales: any[] = [];
   crossorigin=""></script>
 
 <script>
+  import { highlightSearchTargets } from "@lib/clientSearch";
   import {
-    highlightSearchTargets,
-    matchesSearchQuery,
-  } from "@lib/clientSearch";
-  import { refreshMasterDetailTableSort } from "@lib/clientMasterDetailTableSort";
+    bindMasterDetailTableSort,
+    refreshMasterDetailTableSort,
+  } from "@lib/clientMasterDetailTableSort";
 
   declare const L: any;
 
   const mainViewDir = document.getElementById("main-view-directory");
   const mainViewMap = document.getElementById("main-view-map");
 
-  const tableRoot = document.querySelector<HTMLElement>(
-    "[data-master-detail-table-root]",
-  );
-  const officeItems = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-master-detail-sort-item]"),
-  );
-  const masterRows = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-office-master-row]"),
-  );
-  const detailRows = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-office-detail-row]"),
-  );
-  const locationGroupRows = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-location-group-row]"),
-  );
-  const searchInput =
-    document.querySelector<HTMLInputElement>("#office-search");
-  const regionFilter =
-    document.querySelector<HTMLSelectElement>("#regionFilter");
-  const provinceFilter =
-    document.querySelector<HTMLSelectElement>("#provinceFilter");
-  const categoryEmptyState = document.querySelector<HTMLElement>(
-    "#office-category-empty-state",
-  );
+  const tableRoot = document.querySelector<HTMLElement>("[data-master-detail-table-root]");
+  const container = tableRoot?.querySelector<HTMLElement>("[data-master-detail-table-body]");
+  const sentinel = document.getElementById("scroll-sentinel");
+  const spinner = document.getElementById("loading-spinner");
+  const noResultsState = document.getElementById("no-results-state");
+  const searchInput = document.querySelector<HTMLInputElement>("#office-search");
+  const form = document.querySelector<HTMLFormElement>("form");
 
-  let selectedOfficeType = (window as any)._TYPE_FILTER || "all";
-  let expandedOfficeId: string | null = null;
+  let currentPage = 1;
+  let currentSearch = searchInput?.value.trim() || "";
+  let isLoading = false;
+  let hasMore = sentinel?.getAttribute("data-has-more") === "true";
 
-  const detailRowById = new Map(
-    detailRows.map((row) => [row.dataset.officeId ?? "", row]),
-  );
-  const masterRowById = new Map(
-    masterRows.map((row) => [row.dataset.officeId ?? "", row]),
-  );
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+  });
 
-  const isItemVisible = (item: HTMLElement): boolean => {
-    const matchesType =
-      selectedOfficeType === "all" ||
-      item.dataset.officeType === selectedOfficeType;
+  const bindRowEvents = (parent: HTMLElement | Document = document) => {
+    const masterRows = Array.from(
+      parent.querySelectorAll<HTMLElement>("[data-office-master-row]")
+    );
 
-    const regionValue = regionFilter?.value || "all";
-    const matchesRegion =
-      regionValue === "all" || item.dataset.region === regionValue;
+    masterRows.forEach((row) => {
+      if (row.dataset.eventsBound === "true") return;
+      row.dataset.eventsBound = "true";
 
-    const provinceValue = provinceFilter?.value || "all";
-    const matchesProvince =
-      provinceValue === "all" || item.dataset.provinceCode === provinceValue;
+      const officeId = row.dataset.officeId ?? "";
+      const detailRow = document.querySelector<HTMLElement>(
+        `[data-office-detail-row][data-office-id="${officeId}"]`
+      );
 
-    const matchesSearch = matchesSearchQuery(searchInput?.value.trim(), [
-      item.dataset.searchText,
-    ]);
+      const toggleRow = (): void => {
+        const isExpanded = row.getAttribute("aria-expanded") === "true";
+        const newExpanded = !isExpanded;
 
-    return matchesType && matchesRegion && matchesProvince && matchesSearch;
+        row.classList.toggle("bg-base-200/70", newExpanded);
+        row.setAttribute("aria-expanded", newExpanded ? "true" : "false");
+
+        const openIcon = row.querySelector<HTMLElement>("[data-chevron-open]");
+        const closedIcon = row.querySelector<HTMLElement>("[data-chevron-closed]");
+
+        openIcon?.classList.toggle("hidden", !newExpanded);
+        closedIcon?.classList.toggle("hidden", newExpanded);
+        detailRow?.classList.toggle("hidden", !newExpanded);
+      };
+
+      row.addEventListener("click", toggleRow);
+      row.addEventListener("keydown", (event) => {
+        const shouldToggle = event.key === "Enter" || event.key === " ";
+        if (!shouldToggle) return;
+        event.preventDefault();
+        toggleRow();
+      });
+    });
   };
 
-  const updateRows = (): void => {
-    const rawSearchValue = searchInput?.value.trim() ?? "";
-    let visibleRows = 0;
-    let expandedRowIsVisible = false;
-
-    if (tableRoot) {
-      tableRoot.dataset.masterDetailView =
-        selectedOfficeType === "all" ? "grouped" : "flat";
+  const getQueryParams = (pageNumber: number) => {
+    const params = new URLSearchParams();
+    if (form) {
+      const formData = new FormData(form);
+      for (const [key, value] of formData.entries()) {
+        if (value && value !== "all" && key !== "search") {
+          params.set(key, value.toString());
+        }
+      }
     }
+    params.set("page", pageNumber.toString());
+    params.set("limit", "100");
+    if (currentSearch) {
+      params.set("search", currentSearch);
+    }
+    return params.toString();
+  };
 
-    officeItems.forEach((item) => {
-      const itemIsVisible = isItemVisible(item);
+  const fetchOffices = async (isNewSearch: boolean) => {
+    if (isLoading) return;
+    isLoading = true;
+    spinner?.classList.remove("hidden");
 
-      if (itemIsVisible) {
-        visibleRows += 1;
+    try {
+      const query = getQueryParams(currentPage);
+      const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const response = await fetch(`${baseUrl}/api/offices?${query}`);
+      if (!response.ok) throw new Error("API call failed");
+
+      const html = await response.text();
+      const newHasMore = response.headers.get("X-Has-More") === "true";
+      const totalCount = parseInt(response.headers.get("X-Total-Count") || "0", 10);
+
+      hasMore = newHasMore;
+
+      if (container) {
+        if (isNewSearch) {
+          const oldItems = container.querySelectorAll("[data-master-detail-sort-item], [data-office-detail-row]");
+          oldItems.forEach((el) => el.remove());
+          container.insertAdjacentHTML("beforeend", html);
+        } else {
+          container.insertAdjacentHTML("beforeend", html);
+        }
       }
 
-      if (itemIsVisible && item.dataset.officeId === expandedOfficeId) {
-        expandedRowIsVisible = true;
+      if (noResultsState) {
+        if (totalCount === 0) {
+          noResultsState.classList.remove("hidden");
+        } else {
+          noResultsState.classList.add("hidden");
+        }
       }
-    });
 
-    if (!expandedRowIsVisible) {
-      expandedOfficeId = null;
+      bindRowEvents(container || document);
+
+      if (tableRoot) {
+        tableRoot.dataset.masterDetailView = "flat";
+        delete tableRoot.dataset.masterDetailTableSortBound;
+        delete tableRoot.dataset.tableEmptyStateBound;
+        bindMasterDetailTableSort(tableRoot);
+        // We explicitly refresh to force a DOM re-arrange if needed and re-apply active sort
+        refreshMasterDetailTableSort(tableRoot);
+      }
+
+      if (currentSearch && container) {
+        const newArticles = Array.from(container.querySelectorAll<HTMLElement>("[data-master-detail-sort-item]"));
+        newArticles.forEach((item) => {
+          highlightSearchTargets(item, currentSearch);
+        });
+      }
+
+      if (!hasMore) {
+        sentinel?.classList.add("hidden");
+      } else {
+        sentinel?.classList.remove("hidden");
+      }
+
+    } catch (err) {
+      console.error("Error fetching offices:", err);
+    } finally {
+      isLoading = false;
+      spinner?.classList.add("hidden");
     }
-
-    officeItems.forEach((item) => {
-      const officeId = item.dataset.officeId ?? "";
-      const itemIsVisible = isItemVisible(item);
-      const rowIsExpanded = itemIsVisible && officeId === expandedOfficeId;
-      const row = masterRowById.get(officeId);
-      const detailRow = detailRowById.get(officeId);
-      const openIcon = row?.querySelector<HTMLElement>("[data-chevron-open]");
-      const closedIcon = row?.querySelector<HTMLElement>(
-        "[data-chevron-closed]",
-      );
-
-      item.classList.toggle("hidden", !itemIsVisible);
-      row?.classList.toggle("bg-base-200/70", rowIsExpanded);
-      row?.setAttribute("aria-expanded", rowIsExpanded ? "true" : "false");
-      highlightSearchTargets(item, itemIsVisible ? rawSearchValue : "");
-
-      openIcon?.classList.toggle("hidden", !rowIsExpanded);
-      closedIcon?.classList.toggle("hidden", rowIsExpanded);
-      detailRow?.classList.toggle("hidden", !rowIsExpanded);
-    });
-
-    locationGroupRows.forEach((groupRow) => {
-      const location = groupRow.dataset.locationGroup ?? "";
-      const hasVisibleRows = officeItems.some((item) => {
-        const isVisible = !item.classList.contains("hidden");
-        return isVisible && item.dataset.officeLocation === location;
-      });
-      const showGroup = selectedOfficeType === "all" && hasVisibleRows;
-
-      groupRow.classList.toggle("hidden", !showGroup);
-    });
-
-    const hasItemsInType =
-      selectedOfficeType === "all" ||
-      officeItems.some(
-        (item) => item.dataset.officeType === selectedOfficeType,
-      );
-    const showCategoryEmpty = !hasItemsInType;
-
-    categoryEmptyState?.classList.toggle("hidden", !showCategoryEmpty);
   };
 
   let map: any = null;
@@ -1207,16 +630,8 @@ const sucursales: any[] = [];
     }
 
     const regionColors = [
-      "#003B71", // Azul Institucional
-      "#FFCC00", // Amarillo Institucional
-      "#2ECC71", // Verde
-      "#E74C3C", // Rojo
-      "#9B59B6", // Púrpura
-      "#F39C12", // Naranja
-      "#1ABC9C", // Turquesa
-      "#34495E", // Gris oscuro
-      "#D35400", // Naranja oscuro
-      "#2980B9", // Azul claro
+      "#003B71", "#FFCC00", "#2ECC71", "#E74C3C", "#9B59B6", 
+      "#F39C12", "#1ABC9C", "#34495E", "#D35400", "#2980B9",
     ];
 
     const normalizeProvinceName = (geoName: string) => {
@@ -1229,15 +644,12 @@ const sucursales: any[] = [];
     const getRegionColor = (provinceName: string) => {
       const dbName = normalizeProvinceName(provinceName);
       const region = provinceToRegion[dbName];
-      if (!region) return "#7F8C8D"; // Gris default si no tiene región
+      if (!region) return "#7F8C8D";
       const idx = regionsArray.indexOf(region);
       return regionColors[idx % regionColors.length];
     };
 
-    const bounds = [
-      [-56.0, -74.0],
-      [-21.0, -53.0],
-    ];
+    const bounds = [[-56.0, -74.0], [-21.0, -53.0]];
 
     map = L.map("mapa-sucursales", {
       maxBounds: bounds as any,
@@ -1249,8 +661,6 @@ const sucursales: any[] = [];
       {
         maxZoom: 18,
         minZoom: 3,
-        attribution:
-          '&copy; <a href="https://www.ign.gob.ar/AreaServicios/Argenmap/IntroduccionV2" target="_blank">Instituto Geográfico Nacional</a> + <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
       },
     ).addTo(map);
 
@@ -1391,8 +801,7 @@ const sucursales: any[] = [];
               color: color,
               weight: 1.5,
               fillColor: color,
-              fillOpacity:
-                name === "Ciudad Autónoma de Buenos Aires" ? 0.35 : 0.15,
+              fillOpacity: name === "Ciudad Autónoma de Buenos Aires" ? 0.35 : 0.15,
             };
           },
           onEachFeature: function (feature: any, layer: any) {
@@ -1408,14 +817,14 @@ const sucursales: any[] = [];
             if (letter) {
               const centroid = feature.properties.centroide;
               const pos = labelOverrides[name] || [centroid.lat, centroid.lon];
-              const shadow = "rgba(255,255,255,0.8)";
+              const color = getRegionColor(name);
               let fontSize = "3.5rem";
               if (letter === "C") fontSize = "2rem";
               if (["B", "S", "X"].includes(letter)) fontSize = "4.2rem";
               L.marker(pos as any, {
                 icon: L.divIcon({
                   className: "bg-transparent",
-                  html: `<div class="polygon-label font-black text-secondary opacity-80 pointer-events-none transition-all duration-300" style="transform: translate(-50%, -50%); text-shadow: 0 2px 8px ${shadow}; line-height: 1; color: ${color}; font-size: ${fontSize};">${letter}</div>`,
+                  html: `<div class="polygon-label font-black text-secondary opacity-80 pointer-events-none transition-all duration-300" style="transform: translate(-50%, -50%); line-height: 1; color: ${color}; font-size: ${fontSize};">${letter}</div>`,
                   iconSize: [0, 0],
                 }),
                 interactive: false,
@@ -1436,7 +845,6 @@ const sucursales: any[] = [];
   };
 
   const switcher = document.getElementById("main-view-switcher");
-
   switcher?.addEventListener("view-change", (e: any) => {
     const value = e.detail.value;
     if (value === "directory") {
@@ -1446,67 +854,35 @@ const sucursales: any[] = [];
       mainViewDir?.classList.add("hidden");
       mainViewMap?.classList.remove("hidden");
       initializeMap();
-      setTimeout(() => {
-        if (map) map.invalidateSize();
-      }, 100);
+      setTimeout(() => { if (map) map.invalidateSize(); }, 100);
     }
   });
 
-
-
-  masterRows.forEach((row) => {
-    const toggleRow = (): void => {
-      const officeId = row.dataset.officeId ?? "";
-      expandedOfficeId = expandedOfficeId === officeId ? null : officeId;
-      updateRows();
-    };
-    row.addEventListener("click", toggleRow);
-    row.addEventListener("keydown", (event) => {
-      const shouldToggle = event.key === "Enter" || event.key === " ";
-      if (!shouldToggle) return;
-      event.preventDefault();
-      toggleRow();
-    });
-  });
-
-  searchInput?.addEventListener("input", updateRows);
-
-  const provincesData = (window as any)._PROVINCES_BY_REGION as
-    | Record<string, { code: string; name: string }[]>
-    | undefined;
-
-  regionFilter?.addEventListener("change", () => {
-    const selectedRegion = regionFilter.value;
-
-    if (provinceFilter) {
-      provinceFilter.innerHTML =
-        '<option value="all">Todas las provincias</option>';
-
-      if (selectedRegion !== "all" && provincesData?.[selectedRegion]) {
-        for (const p of provincesData[selectedRegion]) {
-          const opt = document.createElement("option");
-          opt.value = p.code;
-          opt.textContent = p.name;
-          provinceFilter.appendChild(opt);
-        }
-        provinceFilter.disabled = false;
-      } else {
-        provinceFilter.disabled = true;
+  if (sentinel) {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !isLoading && hasMore) {
+        currentPage++;
+        fetchOffices(false);
       }
-      provinceFilter.value = "all";
-    }
+    }, { rootMargin: "200px" });
+    observer.observe(sentinel);
+  }
 
-    updateRows();
+  let debounceTimeout: number;
+  searchInput?.addEventListener("input", () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = window.setTimeout(() => {
+      currentPage = 1;
+      currentSearch = searchInput.value.trim();
+      fetchOffices(true);
+    }, 300);
   });
 
-  provinceFilter?.addEventListener("change", updateRows);
-
-  updateRows();
+  bindRowEvents();
   refreshMasterDetailTableSort();
 </script>
 
-<style>
-  /* Estilos del Directorio */
+<style is:global>
   .office-type-chip {
     border-width: 1px;
     box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.04);

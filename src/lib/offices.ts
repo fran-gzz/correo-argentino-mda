@@ -2,6 +2,7 @@ import { db } from "@db/index";
 import type {
   OfficeDirectoryItem,
   OfficeAssetType,
+  OfficeType,
 } from "@/data/directorio_oficinas";
 
 export async function getAllOfficesFromDB(): Promise<
@@ -30,6 +31,7 @@ export async function getAllOfficesFromDB(): Promise<
     address: office.address ?? "",
     email: office.email ?? "",
     notes: office.notes ?? "",
+    officeType: office.officeType,
     contacts: office.contacts.map((oc) => ({
       name: oc.contact.name,
       phone: oc.contact.phone ?? "",

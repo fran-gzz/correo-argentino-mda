@@ -1,10 +1,6 @@
 import { getAllOfficesFromDB } from "@lib/offices";
 
-export type OfficeType =
-  | "comercial"
-  | "telegrafia"
-  | "distribucion"
-  | "paqueteria";
+export type OfficeType = string;
 
 export type OfficeAssetType = "server" | "printer" | "desktop" | "client";
 
@@ -34,6 +30,7 @@ export interface OfficeDirectoryItem {
   address: string;
   email: string;
   notes: string;
+  officeType?: string | null;
   contacts: OfficeContact[];
   assets: OfficeAsset[];
 }
