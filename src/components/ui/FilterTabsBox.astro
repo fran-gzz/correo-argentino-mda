@@ -11,6 +11,8 @@ interface Props {
   name?: string;
   activeClasses?: Record<string, string>;
   class?: string;
+  id?: string;
+  submitOnChange?: boolean;
 }
 
 const {
@@ -19,16 +21,21 @@ const {
   name = "type",
   activeClasses = {},
   class: className,
+  id,
+  submitOnChange = true,
 } = Astro.props;
 ---
 
-<input
-  type="hidden"
-  name={name}
-  value={activeValue}
-  id={`filter-tabs-hidden-${name}`}
-/>
+{submitOnChange && (
+  <input
+    type="hidden"
+    name={name}
+    value={activeValue}
+    id={`filter-tabs-hidden-${name}`}
+  />
+)}
 <div
+  id={id}
   class:list={["tabs tabs-box gap-1.5 filter-tabs-box", className]}
   role="tablist"
 >
@@ -41,13 +48,14 @@ const {
         <button
           type="button"
           role="tab"
+          data-tab-value={tab.value}
           aria-selected={isActive ? "true" : "false"}
           class:list={[
             "tab transition-all duration-200 flex items-center gap-2",
             officeClass,
             isActive ? "tab-active" : "",
           ]}
-          onclick={`document.getElementById('filter-tabs-hidden-${name}').value = '${tab.value}'; this.form.submit();`}
+          onclick={submitOnChange ? `document.getElementById('filter-tabs-hidden-${name}').value = '${tab.value}'; this.form.submit();` : undefined}
         >
           <span>{tab.label}</span>
           {tab.count !== undefined && (

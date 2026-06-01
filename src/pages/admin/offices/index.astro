@@ -8,6 +8,10 @@ import PageHeader from "@components/ui/PageHeader.astro";
 import DataTable from "@components/ui/DataTable.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
+import FilterTabsBox from "@components/ui/FilterTabsBox.astro";
+import AdminOfficeRow from "@components/admin/AdminOfficeRow.astro";
+import { getOffices } from "@lib/officeQueries";
+import { officeTypeTabActiveClassByType } from "@lib/officeHelpers";
 
 import { Icon } from "astro-icon/components";
 
@@ -39,71 +43,71 @@ if (Astro.request.method === "POST") {
   }
 }
 
-const allOfficesRaw = await db
+const searchParams = Astro.url.searchParams;
+
+const typeFilter = searchParams.get("type") || "all";
+const regionFilter = searchParams.get("region") || "all";
+let provinceFilter = searchParams.get("province") || "all";
+const zoneFilter = searchParams.get("zone") || "all";
+const paqarFilter = searchParams.get("paqar") || "all";
+const searchFilter = searchParams.get("search") || "";
+
+const allProvincesWithRegion = await db
   .select({
-    id: offices.id,
-    code: offices.code,
-    name: offices.name,
-    type: offices.type,
-    officeType: offices.officeType,
-    provinceCode: offices.provinceCode,
-    address: offices.address,
-    email: offices.email,
-    notes: offices.notes,
-    zone: offices.zone,
-    paqarAdmision: offices.paqarAdmision,
-    paqarEntrega: offices.paqarEntrega,
-    provinceName: provinces.name,
+    code: provinces.code,
+    name: provinces.name,
+    regionId: provinces.regionId,
     regionName: regions.name,
   })
-  .from(offices)
-  .leftJoin(provinces, eq(offices.provinceCode, provinces.code))
+  .from(provinces)
   .leftJoin(regions, eq(provinces.regionId, regions.id))
-  .orderBy(asc(offices.code), asc(offices.name));
-
-const allOffices = allOfficesRaw.map((o) => {
-  let mappedType = o.type;
-  if (o.type === "SUCURSAL") {
-    mappedType =
-      o.officeType === "AUTOMATIZADA"
-        ? "SUCURSAL_AUTOMATIZADA"
-        : "SUCURSAL_NO_AUTOMATIZADA";
-  }
-  return {
-    ...o,
-    mappedType,
-    provinceName: o.provinceName ?? "",
-    regionName: o.regionName ?? "",
-    zone: o.zone ?? "",
-    paqarAdmision: o.paqarAdmision ?? false,
-    paqarEntrega: o.paqarEntrega ?? false,
-  };
-});
+  .orderBy(regions.name, provinces.name);
 
 const provincesByRegion: Record<string, { code: string; name: string }[]> = {};
-for (const o of allOfficesRaw) {
-  const rName = o.regionName ?? "Sin región";
+for (const p of allProvincesWithRegion) {
+  const rName = p.regionName ?? "Sin región";
   if (!provincesByRegion[rName]) provincesByRegion[rName] = [];
-  if (!provincesByRegion[rName].find((x) => x.code === o.provinceCode)) {
-    provincesByRegion[rName].push({
-      code: o.provinceCode,
-      name: o.provinceName ?? "",
-    });
-  }
+  provincesByRegion[rName].push({ code: p.code, name: p.name });
 }
-Object.values(provincesByRegion).forEach((provs) =>
-  provs.sort((a, b) =>
-    a.name.localeCompare(b.name, "es", { sensitivity: "base" }),
-  ),
-);
+
+if (regionFilter !== "all" && provinceFilter !== "all") {
+  const regionProvinces = provincesByRegion[regionFilter] || [];
+  if (!regionProvinces.find((p) => p.code === provinceFilter)) {
+    provinceFilter = "all";
+  }
+} else if (regionFilter === "all") {
+  provinceFilter = "all";
+}
 
 const uniqueRegions = [
-  ...new Set(allOffices.map((o) => o.regionName).filter(Boolean)),
+  ...new Set(
+    allProvincesWithRegion
+      .map((p) => p.regionName)
+      .filter((r): r is string => Boolean(r)),
+  ),
 ].sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
-const uniqueZones = [
-  ...new Set(allOffices.map((o) => o.zone).filter(Boolean)),
-].sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
+const allZonesRaw = await db
+  .select({ zone: offices.zone })
+  .from(offices)
+  .where(sql`${offices.zone} IS NOT NULL AND ${offices.zone} != ''`)
+  .groupBy(offices.zone);
+
+const uniqueZones = allZonesRaw
+  .map((z) => z.zone)
+  .filter((z): z is string => Boolean(z))
+  .sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
+
+const { data: allOffices, count: totalOfficesCount, hasMore } = await getOffices({
+  page: 1,
+  limit: 100,
+  search: searchFilter,
+  type: typeFilter,
+  region: regionFilter,
+  province: provinceFilter,
+  zone: zoneFilter,
+  paqar: paqarFilter,
+});
 
 const rawCounts = await db
   .select({
@@ -244,31 +248,20 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
       class="flex flex-col gap-4 rounded-box border border-base-300 bg-base-100 p-4 shadow-md"
       aria-label="Filtros de oficinas"
     >
-      {/* Tabs por tipo */}
-      <div
-        id="admin-office-type-tabs"
-        class="tabs tabs-box gap-1.5 flex-wrap bg-base-200/50 p-2"
-        role="tablist"
-      >
-        {officeTypeTabs.map((tab) => (
-          <button
-            type="button"
-            role="tab"
-            data-admin-type-tab={tab.value}
-            aria-selected={tab.value === "all" ? "true" : "false"}
-            class:list={[
-              "tab transition-all duration-200 flex items-center gap-2",
-              tab.value === "all" ? "tab-active" : "",
-            ]}
-          >
-            <span>{tab.label}</span>
-            {tab.count !== undefined && (
-              <span class="badge badge-sm bg-base-200 text-current border-none">
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
+      <div class="w-full">
+        <FilterTabsBox
+          id="admin-office-type-tabs"
+          tabs={officeTypeTabs.map((tab) => ({
+            value: tab.value,
+            label: tab.label,
+            count: tab.count,
+          }))}
+          activeValue={typeFilter}
+          name="type"
+          activeClasses={officeTypeTabActiveClassByType}
+          class="flex-wrap bg-base-200/50 p-2"
+          submitOnChange={false}
+        />
       </div>
 
       {/* Fila de selects + búsqueda + acción */}
@@ -278,9 +271,9 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           class="select border-base-300 flex-1 min-w-40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           aria-label="Filtrar por región"
         >
-          <option value="all">Regiones (Todas)</option>
+          <option value="all" selected={regionFilter === "all"}>Regiones (Todas)</option>
           {uniqueRegions.map((region) => (
-            <option value={region}>{region}</option>
+            <option value={region} selected={regionFilter === region}>{region}</option>
           ))}
         </select>
 
@@ -290,7 +283,13 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           aria-label="Filtrar por provincia"
           disabled
         >
-          <option value="all">Provincias (Todas)</option>
+          <option value="all" selected={provinceFilter === "all"}>Provincias (Todas)</option>
+          {regionFilter !== "all" &&
+            (provincesByRegion[regionFilter] || []).map((prov) => (
+              <option value={prov.code} selected={provinceFilter === prov.code}>
+                {prov.name}
+              </option>
+            ))}
         </select>
 
         <select
@@ -298,9 +297,9 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           class="select border-base-300 flex-1 min-w-40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           aria-label="Filtrar por zona"
         >
-          <option value="all">Zonas (Todas)</option>
+          <option value="all" selected={zoneFilter === "all"}>Zonas (Todas)</option>
           {uniqueZones.map((zone) => (
-            <option value={zone}>{zone}</option>
+            <option value={zone} selected={zoneFilter === zone}>{zone}</option>
           ))}
         </select>
 
@@ -309,28 +308,39 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           class="select border-base-300 flex-1 min-w-40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           aria-label="Filtrar por servicios Paq.AR"
         >
-          <option value="all">Paq.AR (Todos)</option>
-          <option value="admision">Admite Paq.AR</option>
-          <option value="entrega">Entrega Paq.AR</option>
-          <option value="ambos">Admite y Entrega</option>
+          <option value="all" selected={paqarFilter === "all"}>Paq.AR (Todos)</option>
+          <option value="admision" selected={paqarFilter === "admision"}>Admite Paq.AR</option>
+          <option value="entrega" selected={paqarFilter === "entrega"}>Entrega Paq.AR</option>
+          <option value="ambos" selected={paqarFilter === "ambos"}>Admite y Entrega</option>
         </select>
 
         <div class="flex-2 min-w-70 flex gap-2">
           <SearchInput
             id="admin-office-search"
+            name="search"
+            value={searchFilter}
             label="Buscar oficina por nombre, código o dirección"
             placeholder="Buscar por código, nombre o dirección"
             class="flex-1"
           />
-          <button
-            id="admin-office-clear-filters"
-            type="button"
-            class="btn btn-soft text-base-content/70 hover:text-base-content hidden"
-            aria-label="Limpiar filtros"
-            title="Limpiar todos los filtros"
-          >
-            Limpiar
-          </button>
+          {
+            (typeFilter !== "all" ||
+              regionFilter !== "all" ||
+              provinceFilter !== "all" ||
+              zoneFilter !== "all" ||
+              paqarFilter !== "all" ||
+              searchFilter !== "") && (
+              <a
+                id="admin-office-clear-filters"
+                href={`${cleanBase}admin/offices`}
+                class="btn btn-soft text-base-content/70 hover:text-base-content"
+                aria-label="Limpiar filtros"
+                title="Limpiar todos los filtros"
+              >
+                Limpiar
+              </a>
+            )
+          }
         </div>
       </div>
     </div>
@@ -341,14 +351,12 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
         <h2 class="text-lg font-semibold text-base-content">
           Oficinas registradas
         </h2>
-        {allOffices.length > 0 && (
           <span
             id="office-count-badge"
             class="badge badge-neutral badge-sm font-mono"
           >
-            {allOffices.length}
+            {totalOfficesCount}
           </span>
-        )}
       </div>
       <a
         href={`${cleanBase}admin/offices/new`}
@@ -382,262 +390,172 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
         <DataTableHeaderCell align="right">Acciones</DataTableHeaderCell>
       </div>
 
-      {allOffices.length === 0 ? (
-        <div class="flex flex-col items-center gap-3 py-16 text-base-content/50">
-          <div class="rounded-full bg-base-200 p-4">
-            <Icon
-              name="boxicons:building-filled"
-              size={32}
-              class="opacity-30"
-              aria-hidden="true"
-            />
+      <div id="admin-offices-container" class="contents">
+        {allOffices.length === 0 ? (
+          <div class="flex flex-col items-center gap-3 py-16 text-base-content/50 col-span-5">
+            <div class="rounded-full bg-base-200 p-4">
+              <Icon
+                name="boxicons:building-filled"
+                size={32}
+                class="opacity-30"
+                aria-hidden="true"
+              />
+            </div>
+            <div class="space-y-1 text-center">
+              <p class="text-sm font-semibold">No hay oficinas que coincidan con la búsqueda</p>
+              <p class="text-xs">
+                Modificá los filtros o limpiá la búsqueda para ver más resultados.
+              </p>
+            </div>
           </div>
-          <div class="space-y-1 text-center">
-            <p class="text-sm font-semibold">No hay oficinas registradas</p>
-            <p class="text-xs">
-              Comenzá cargando la primera oficina desde el botón superior.
-            </p>
-          </div>
-        </div>
-      ) : (
-        <>
-          {allOffices.map((office) => (
-            <article
-              data-table-row
-              data-sort-code={office.code}
-              data-sort-name={office.name}
-              data-sort-type={office.mappedType}
-              data-sort-region={office.regionName}
-              data-sort-province-code={office.provinceCode}
-              data-sort-zone={office.zone}
-              data-paqar-admision={office.paqarAdmision ? "true" : "false"}
-              data-paqar-entrega={office.paqarEntrega ? "true" : "false"}
-              data-search-text={`${office.code} ${office.name} ${office.address ?? ""} ${office.regionName} ${office.provinceName} ${officeTypeLabelByType[office.mappedType] ?? office.mappedType}`.toLowerCase()}
-              class:list={[
-                rowGridClass,
-                "border-b border-base-300 px-4 py-3 transition-colors hover:bg-base-200/50 last:border-b-0",
-              ]}
-            >
-              {/* Código */}
-              <div>
-                <span
-                  data-highlight-target
-                  class:list={[
-                    "inline-flex px-2 py-1 font-mono text-sm font-semibold",
-                    officeTypeChipClassByType[office.mappedType] || defaultChipClass,
-                  ]}
-                >
-                  {office.code}
-                </span>
-              </div>
-
-              {/* Nombre + Dirección */}
-              <div class="min-w-0">
-                <p
-                  data-highlight-target
-                  class="truncate text-sm font-semibold text-base-content"
-                >
-                  {office.name}
-                </p>
-                {office.address && (
-                  <p
-                    data-highlight-target
-                    class="mt-0.5 truncate text-xs text-base-content/50"
-                  >
-                    {office.address}
-                  </p>
-                )}
-              </div>
-
-              {/* Tipo */}
-              <div class="min-w-0">
-                <span
-                  data-highlight-target
-                  class:list={[
-                    "inline-flex px-2 py-1 text-xs font-bold uppercase tracking-wide",
-                    officeTypeChipClassByType[office.mappedType] || defaultChipClass,
-                  ]}
-                >
-                  {officeTypeLabelByType[office.mappedType] ?? office.mappedType}
-                </span>
-              </div>
-
-              {/* Provincia / Región */}
-              <div class="min-w-0">
-                <span
-                  data-highlight-target
-                  class="truncate text-sm text-base-content/70"
-                >
-                  {office.provinceName || (
-                    <span class="text-base-content/30">&mdash;</span>
-                  )}
-                </span>
-                {office.regionName && (
-                  <p class="mt-0.5 truncate text-xs text-base-content/50">
-                    {office.regionName}
-                  </p>
-                )}
-              </div>
-
-              {/* Acciones */}
-              <div class="flex items-center justify-end gap-1">
-                <a
-                  href={`${cleanBase}admin/offices/${office.id}`}
-                  class="btn btn-sm btn-ghost h-7 px-2 text-base-content/60 hover:text-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  aria-label={`Editar ${office.name}`}
-                >
-                  <Icon name="boxicons:pencil-filled" size={14} />
-                  <span class="hidden sm:inline">Editar</span>
-                </a>
-
-                <form
-                  method="POST"
-                  class="inline"
-                  onsubmit="return confirm('¿Estás seguro de que querés eliminar esta oficina? Se borrarán también sus contactos y activos vinculados.')"
-                >
-                  <input type="hidden" name="action" value="delete_office" />
-                  <input type="hidden" name="officeId" value={office.id} />
-                  <button
-                    type="submit"
-                    class="btn btn-ghost btn-sm h-7 rounded-lg px-2 text-base-content/60 hover:text-error hover:bg-error/10 transition-all duration-200"
-                    aria-label={`Eliminar ${office.name}`}
-                  >
-                    <Icon name="boxicons:trash-filled" size={14} />
-                    <span class="hidden sm:inline">Eliminar</span>
-                  </button>
-                </form>
-              </div>
-            </article>
-          ))}
-        </>
-      )}
+        ) : (
+          allOffices.map((office) => (
+            <AdminOfficeRow office={office} />
+          ))
+        )}
+      </div>
     </DataTable>
+    
+    <div id="scroll-sentinel" class="py-8 text-center flex justify-center w-full" data-has-more={hasMore ? "true" : "false"}>
+      <span class="loading loading-spinner loading-md text-primary hidden" id="loading-spinner"></span>
+    </div>
 
     <script is:inline define:vars={{ provincesByRegion }}>
       window._ADMIN_PROVINCES_BY_REGION = provincesByRegion;
     </script>
     <script>
-      import {
-        matchesSearchQuery,
-        highlightSearchTargets,
-      } from "@lib/clientSearch";
+      import { highlightSearchTargets } from "@lib/clientSearch";
 
-      const searchInput = document.querySelector<HTMLInputElement>(
-        "#admin-office-search",
-      );
-      const typeTabs = document.querySelectorAll<HTMLElement>(
-        "#admin-office-type-tabs [data-admin-type-tab]",
-      );
-      const regionFilter = document.querySelector<HTMLSelectElement>(
-        "#admin-office-region-filter",
-      );
-      const provinceFilter = document.querySelector<HTMLSelectElement>(
-        "#admin-office-province-filter",
-      );
-      const zoneFilter = document.querySelector<HTMLSelectElement>(
-        "#admin-office-zone-filter",
-      );
-      const paqarFilter = document.querySelector<HTMLSelectElement>(
-        "#admin-office-paqar-filter",
-      );
-      const clearBtn = document.querySelector<HTMLButtonElement>(
-        "#admin-office-clear-filters",
-      );
-      const rows =
-        document.querySelectorAll<HTMLElement>("[data-table-row]");
-      const countBadge =
-        document.querySelector<HTMLElement>("#office-count-badge");
+      const searchInput = document.querySelector<HTMLInputElement>("#admin-office-search");
+      const typeTabs = document.querySelectorAll<HTMLElement>("#admin-office-type-tabs [data-tab-value]");
+      const regionFilter = document.querySelector<HTMLSelectElement>("#admin-office-region-filter");
+      const provinceFilter = document.querySelector<HTMLSelectElement>("#admin-office-province-filter");
+      const zoneFilter = document.querySelector<HTMLSelectElement>("#admin-office-zone-filter");
+      const paqarFilter = document.querySelector<HTMLSelectElement>("#admin-office-paqar-filter");
+      const container = document.getElementById("admin-offices-container");
+      const sentinel = document.getElementById("scroll-sentinel");
+      const spinner = document.getElementById("loading-spinner");
+      const countBadge = document.querySelector<HTMLElement>("#office-count-badge");
+      const clearBtn = document.querySelector<HTMLElement>("#admin-office-clear-filters");
 
-      let activeType = "all";
+      let activeType = new URLSearchParams(window.location.search).get("type") || "all";
+      let currentPage = 1;
+      let currentSearch = searchInput?.value.trim() || "";
+      let isLoading = false;
+      let hasMore = sentinel?.getAttribute("data-has-more") === "true";
 
-      function updateClearButton() {
-        const hasFilters =
-          activeType !== "all" ||
-          (regionFilter?.value ?? "all") !== "all" ||
-          (provinceFilter?.value ?? "all") !== "all" ||
-          (zoneFilter?.value ?? "all") !== "all" ||
-          (paqarFilter?.value ?? "all") !== "all" ||
-          (searchInput?.value.trim() ?? "") !== "";
+      const getQueryParams = (pageNumber: number) => {
+        const params = new URLSearchParams();
+        params.set("view", "admin");
+        params.set("page", pageNumber.toString());
+        params.set("limit", "100");
+        
+        if (activeType !== "all") params.set("type", activeType);
+        if (regionFilter && regionFilter.value !== "all") params.set("region", regionFilter.value);
+        if (provinceFilter && provinceFilter.value !== "all") params.set("province", provinceFilter.value);
+        if (zoneFilter && zoneFilter.value !== "all") params.set("zone", zoneFilter.value);
+        if (paqarFilter && paqarFilter.value !== "all") params.set("paqar", paqarFilter.value);
+        if (currentSearch) params.set("search", currentSearch);
+        
+        return params.toString();
+      };
 
-        clearBtn?.classList.toggle("hidden", !hasFilters);
-      }
+      const updateURL = () => {
+        const params = new URLSearchParams();
+        if (activeType !== "all") params.set("type", activeType);
+        if (regionFilter && regionFilter.value !== "all") params.set("region", regionFilter.value);
+        if (provinceFilter && provinceFilter.value !== "all") params.set("province", provinceFilter.value);
+        if (zoneFilter && zoneFilter.value !== "all") params.set("zone", zoneFilter.value);
+        if (paqarFilter && paqarFilter.value !== "all") params.set("paqar", paqarFilter.value);
+        if (currentSearch) params.set("search", currentSearch);
+        
+        const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+        window.history.replaceState({}, '', newUrl);
+      };
 
-      function applyFilters() {
-        const query = searchInput?.value.trim() || "";
-        const regionValue = regionFilter?.value || "all";
-        const provinceValue = provinceFilter?.value || "all";
-        const zoneValue = zoneFilter?.value || "all";
-        const paqarValue = paqarFilter?.value || "all";
-        let visibleCount = 0;
+      const fetchOffices = async (isNewSearch: boolean) => {
+        if (isLoading) return;
+        isLoading = true;
+        spinner?.classList.remove("hidden");
 
-        rows.forEach((row) => {
-          const searchText = row.dataset.searchText || "";
-          const rowType = row.dataset.sortType || "";
-          const rowRegion = row.dataset.sortRegion || "";
-          const rowProvinceCode = row.dataset.sortProvinceCode || "";
-          const rowZone = row.dataset.sortZone || "";
-          const rowPaqarAdmision = row.dataset.paqarAdmision === "true";
-          const rowPaqarEntrega = row.dataset.paqarEntrega === "true";
+        try {
+          const query = getQueryParams(currentPage);
+          const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+          const response = await fetch(`${baseUrl}/api/offices?${query}`);
+          if (!response.ok) throw new Error("API call failed");
 
-          const matchSearch = matchesSearchQuery(query, [searchText]);
-          const matchType = activeType === "all" || rowType === activeType;
-          const matchRegion =
-            regionValue === "all" || rowRegion === regionValue;
-          const matchProvince =
-            provinceValue === "all" || rowProvinceCode === provinceValue;
-          const matchZone = zoneValue === "all" || rowZone === zoneValue;
+          const html = await response.text();
+          const newHasMore = response.headers.get("X-Has-More") === "true";
+          const totalCount = parseInt(response.headers.get("X-Total-Count") || "0", 10);
 
-          let matchPaqar = true;
-          if (paqarValue === "admision") matchPaqar = rowPaqarAdmision;
-          else if (paqarValue === "entrega") matchPaqar = rowPaqarEntrega;
-          else if (paqarValue === "ambos")
-            matchPaqar = rowPaqarAdmision && rowPaqarEntrega;
+          hasMore = newHasMore;
 
-          const isVisible =
-            matchSearch &&
-            matchType &&
-            matchRegion &&
-            matchProvince &&
-            matchZone &&
-            matchPaqar;
+          if (container) {
+            if (isNewSearch) {
+              container.innerHTML = html;
+            } else {
+              container.insertAdjacentHTML("beforeend", html);
+            }
 
-          row.classList.toggle("hidden", !isVisible);
-          highlightSearchTargets(row, isVisible ? query : "");
+            if (totalCount === 0 && isNewSearch) {
+              // Same empty state structure
+              container.innerHTML = `
+                <div class="flex flex-col items-center gap-3 py-16 text-base-content/50 col-span-5 w-full">
+                  <div class="rounded-full bg-base-200 p-4">
+                    <svg viewBox="0 0 24 24" class="opacity-30 size-8 fill-current"><path d="M19 2H9c-1.103 0-2 .897-2 2v5.586l-4.707 4.707A1 1 0 0 0 2 15v5c0 1.103.897 2 2 2h15c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm-8 18H4v-4.586l3-3V20h4v-2h2v2h4V4h-6v16z"></path><path d="M11 6h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2z"></path></svg>
+                  </div>
+                  <div class="space-y-1 text-center">
+                    <p class="text-sm font-semibold">No hay oficinas que coincidan con la búsqueda</p>
+                    <p class="text-xs">Modificá los filtros o limpiá la búsqueda para ver más resultados.</p>
+                  </div>
+                </div>
+              `;
+            }
+          }
 
-          if (isVisible) visibleCount++;
-        });
+          if (countBadge) {
+            countBadge.textContent = totalCount.toString();
+          }
 
-        if (countBadge) countBadge.textContent = visibleCount.toString();
-        updateClearButton();
-      }
+          if (currentSearch && container) {
+            const newArticles = Array.from(container.querySelectorAll<HTMLElement>("[data-table-row]"));
+            newArticles.forEach((item) => {
+              highlightSearchTargets(item, currentSearch);
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching offices:", error);
+        } finally {
+          isLoading = false;
+          spinner?.classList.add("hidden");
+        }
+      };
 
-      typeTabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          activeType = (tab as HTMLElement).dataset.adminTypeTab || "all";
-          typeTabs.forEach((t) => {
-            const isActive = (t as HTMLElement).dataset.adminTypeTab === activeType;
-            t.setAttribute("aria-selected", isActive ? "true" : "false");
-            t.classList.toggle("tab-active", isActive);
-          });
-          applyFilters();
-        });
+      const handleSearch = () => {
+        currentPage = 1;
+        updateURL();
+        fetchOffices(true);
+      };
+
+      let searchTimeout: ReturnType<typeof setTimeout>;
+      searchInput?.addEventListener("input", (e) => {
+        clearTimeout(searchTimeout);
+        currentSearch = (e.target as HTMLInputElement).value.trim();
+        searchTimeout = setTimeout(handleSearch, 300);
       });
 
-      searchInput?.addEventListener("input", applyFilters);
-      zoneFilter?.addEventListener("change", applyFilters);
-      paqarFilter?.addEventListener("change", applyFilters);
-
-      const provincesData = (window as any)._ADMIN_PROVINCES_BY_REGION as
-        | Record<string, { code: string; name: string }[]>
-        | undefined;
+      const onFilterChange = () => {
+        currentPage = 1;
+        updateURL();
+        fetchOffices(true);
+      };
 
       regionFilter?.addEventListener("change", () => {
+        const provincesData = (window as any)._ADMIN_PROVINCES_BY_REGION;
         const selectedRegion = regionFilter.value;
 
         if (provinceFilter) {
-          provinceFilter.innerHTML =
-            '<option value="all">Provincias (Todas)</option>';
-
+          provinceFilter.innerHTML = '<option value="all">Provincias (Todas)</option>';
           if (selectedRegion !== "all" && provincesData?.[selectedRegion]) {
             for (const p of provincesData[selectedRegion]) {
               const opt = document.createElement("option");
@@ -651,31 +569,62 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           }
           provinceFilter.value = "all";
         }
-
-        applyFilters();
+        onFilterChange();
       });
 
-      provinceFilter?.addEventListener("change", applyFilters);
+      provinceFilter?.addEventListener("change", onFilterChange);
+      zoneFilter?.addEventListener("change", onFilterChange);
+      paqarFilter?.addEventListener("change", onFilterChange);
 
-      clearBtn?.addEventListener("click", () => {
-        activeType = "all";
-        typeTabs.forEach((tab) => {
-          const isAll = (tab as HTMLElement).dataset.adminTypeTab === "all";
-          tab.setAttribute("aria-selected", isAll ? "true" : "false");
-          tab.classList.toggle("tab-active", isAll);
+      if (clearBtn) {
+        clearBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          activeType = "all";
+          typeTabs.forEach((t) => {
+            const isActive = (t as HTMLElement).dataset.tabValue === activeType;
+            t.setAttribute("aria-selected", isActive ? "true" : "false");
+            t.classList.toggle("tab-active", isActive);
+          });
+          
+          if (regionFilter) regionFilter.value = "all";
+          if (provinceFilter) {
+            provinceFilter.innerHTML = '<option value="all">Provincias (Todas)</option>';
+            provinceFilter.disabled = true;
+            provinceFilter.value = "all";
+          }
+          if (zoneFilter) zoneFilter.value = "all";
+          if (paqarFilter) paqarFilter.value = "all";
+          if (searchInput) searchInput.value = "";
+          
+          onFilterChange();
         });
-        if (regionFilter) regionFilter.value = "all";
-        if (provinceFilter) {
-          provinceFilter.innerHTML =
-            '<option value="all">Provincias (Todas)</option>';
-          provinceFilter.disabled = true;
-          provinceFilter.value = "all";
-        }
-        if (zoneFilter) zoneFilter.value = "all";
-        if (paqarFilter) paqarFilter.value = "all";
-        if (searchInput) searchInput.value = "";
-        applyFilters();
+      }
+
+      typeTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          activeType = (tab as HTMLElement).dataset.tabValue || "all";
+          typeTabs.forEach((t) => {
+            const isActive = (t as HTMLElement).dataset.tabValue === activeType;
+            t.setAttribute("aria-selected", isActive ? "true" : "false");
+            t.classList.toggle("tab-active", isActive);
+          });
+          onFilterChange();
+        });
       });
+
+      if (sentinel) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            const entry = entries[0];
+            if (entry.isIntersecting && !isLoading && hasMore) {
+              currentPage++;
+              fetchOffices(false);
+            }
+          },
+          { rootMargin: "100px" }
+        );
+        observer.observe(sentinel);
+      }
     </script>
   </PageContainer>
 </BaseLayout>
