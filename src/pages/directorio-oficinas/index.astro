@@ -156,7 +156,7 @@ const uniqueZones = allZonesRaw
   .filter((z): z is string => Boolean(z))
   .sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
 
-const officeDirectoryHeaderGridClass = "grid-cols-12 gap-4";
+const officeDirectoryHeaderGridClass = "grid-cols-[48px_80px_1.2fr_90px_1.8fr] gap-4";
 
 const mainTabs = [
   { label: "Directorio de Oficinas", value: "directory" },
@@ -330,21 +330,21 @@ const sucursales: any[] = [];
           headerGridClass={officeDirectoryHeaderGridClass}
           class="bg-base-100"
         >
-          <div slot="header" class="col-span-1">
+          <div slot="header">
             <DataTableHeaderCell>
               <span class="sr-only">Expandir detalle</span>
             </DataTableHeaderCell>
           </div>
-          <div slot="header" class="col-span-2">
+          <div slot="header">
             <DataTableHeaderCell sortKey="code"> Código </DataTableHeaderCell>
           </div>
-          <div slot="header" class="col-span-3">
+          <div slot="header">
             <DataTableHeaderCell sortKey="name">Nombre</DataTableHeaderCell>
           </div>
-          <div slot="header" class="col-span-2">
+          <div slot="header">
             <DataTableHeaderCell sortKey="parent-nis">Dependencia</DataTableHeaderCell>
           </div>
-          <div slot="header" class="col-span-4">
+          <div slot="header">
             <DataTableHeaderCell sortKey="address">Dirección</DataTableHeaderCell>
           </div>
             {
