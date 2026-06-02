@@ -110,18 +110,25 @@ const avatarClass = roleAvatarClasses[user.role] ?? roleAvatarClasses.agent;
 const roleLabel = roleLabelMap[user.role] ?? "Agente";
 
 const isRouteLocked = (href: string): boolean => {
-  const role = user.role;
+  const role = (user.role || "").toLowerCase().trim();
 
-  if (href === "/design-system" || href.startsWith("/admin")) {
-    return role !== "admin";
-  }
+    if (href === "/design-system") {
+      return role !== "admin";
+    }
 
-  if (href === "/supervision/asignacion-autogestiones") {
-    return !["admin", "supervisor", "referent"].includes(role);
-  }
+    if (href.startsWith("/admin")) {
+      if (href === "/admin/users") {
+        return role !== "admin";
+      }
+      return !["admin", "supervisor"].includes(role);
+    }
 
-  if (href.startsWith("/supervision") || href === "/supervision/cronograma" || href === "/supervision/calidad-operadores") {
+  if (href === "/supervision/cronograma") {
     return !["admin", "supervisor"].includes(role);
+  }
+
+  if (href.startsWith("/supervision")) {
+    return !["admin", "supervisor", "referent", "referente"].includes(role);
   }
 
   return false;
@@ -174,7 +181,7 @@ const isRouteLocked = (href: string): boolean => {
     <meta name="generator" content={Astro.generator} />
     <title>{inferredTitle}</title>
   </head>
-  <body class="min-h-screen bg-base-100 text-base-content">
+  <body class="min-h-screen max-w-full overflow-x-hidden bg-base-100 text-base-content">
     <div class="drawer lg:drawer-open">
       <input
         id="main-drawer"
@@ -182,9 +189,9 @@ const isRouteLocked = (href: string): boolean => {
         class="drawer-toggle"
         aria-label="toggle sidebar"
       />
-      <div class="drawer-content flex min-h-screen flex-col">
+      <div class="drawer-content flex min-h-screen max-w-full flex-col">
         <header
-          class="navbar sticky top-0 z-30 min-h-16 border-b border-base-300 bg-base-100/95 px-3 text-base-content backdrop-blur sm:px-4"
+          class="navbar sticky top-0 z-30 min-h-16 border-b border-base-300 bg-base-100/95 p-2 md:p-4 text-sm md:text-base text-base-content backdrop-blur"
         >
           <div class="flex items-center gap-2">
             <label
@@ -262,24 +269,24 @@ const isRouteLocked = (href: string): boolean => {
           </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-4 md:p-6">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6">
           <slot />
         </main>
       </div>
 
-      <div class="drawer-side is-drawer-close:overflow-visible">
+      <div class="drawer-side z-40 lg:z-auto">
         <label
           for="main-drawer"
           aria-label="close sidebar"
           class="drawer-overlay"></label>
 
         <div
-          class="flex min-h-full flex-col items-start bg-secondary is-drawer-close:w-16 xl:is-drawer-close:w-16 is-drawer-open:w-56 md:is-drawer-open:w-64 xl:is-drawer-open:w-72 transition-all duration-300 ease-in-out"
+          class="flex h-full min-h-full w-64 lg:w-fit flex-col items-start bg-secondary transition-all duration-300 ease-in-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <a
             href={resolveUrl("/")}
             aria-label="Ir al dashboard"
-            class="flex min-h-16 w-full items-center gap-2.5 border-b border-secondary-content/10 px-3 is-drawer-close:justify-center is-drawer-close:px-0"
+            class="flex min-h-16 w-full items-center gap-2.5 border-b border-secondary-content/10 px-3 lg:justify-center lg:px-2"
           >
             <div class="avatar avatar-placeholder">
               <div
@@ -292,7 +299,7 @@ const isRouteLocked = (href: string): boolean => {
                 />
               </div>
             </div>
-            <div class="is-drawer-close:hidden min-w-0">
+            <div class="lg:hidden min-w-0">
               <p
                 class="text-xs uppercase font-black tracking-widest text-primary truncate leading-tight"
               >
@@ -306,12 +313,12 @@ const isRouteLocked = (href: string): boolean => {
             </div>
           </a>
 
-          <div class="w-full grow py-2">
+          <div class="w-full grow overflow-y-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {
               navSections.map((section, sectionIndex) => (
                 <>
                   <ul class="menu w-full gap-1 p-2">
-                    <li class="menu-title is-drawer-close:hidden mb-1">
+                    <li class="menu-title lg:hidden mb-1">
                       <span class="text-xs font-bold uppercase tracking-wider text-secondary-content/40">
                         {section.label}
                       </span>
@@ -329,8 +336,8 @@ const isRouteLocked = (href: string): boolean => {
                             tabindex={isLocked ? -1 : undefined}
                             class:list={[
                               "group flex items-center gap-2.5 rounded-lg text-xs p-2.5 font-medium transition",
-                              "is-drawer-close:justify-center is-drawer-close:px-0",
-                              "is-drawer-close:tooltip is-drawer-close:tooltip-right",
+                              "lg:justify-center lg:px-2.5",
+                              "lg:tooltip lg:tooltip-right",
                               isLocked
                                 ? "opacity-40 cursor-not-allowed pointer-events-none grayscale select-none"
                                 : isActive
@@ -343,14 +350,14 @@ const isRouteLocked = (href: string): boolean => {
                               size={24}
                               class="shrink-0 opacity-80 transition group-hover:opacity-100"
                             />
-                            <span class="truncate is-drawer-close:hidden">
+                            <span class="truncate lg:hidden">
                               {item.label}
                             </span>
                             {isLocked && (
                               <Icon
                                 name="boxicons:lock"
                                 size={14}
-                                class="ml-auto shrink-0 opacity-60 is-drawer-close:hidden"
+                                class="ml-auto shrink-0 opacity-60 lg:hidden"
                                 aria-hidden="true"
                               />
                             )}
@@ -361,7 +368,7 @@ const isRouteLocked = (href: string): boolean => {
                   </ul>
 
                   {sectionIndex < navSections.length - 1 && (
-                    <div class="px-4 my-1">
+                    <div class="px-4 my-1 lg:px-2">
                       <div class="h-px bg-secondary-content/10" />
                     </div>
                   )}
@@ -380,8 +387,8 @@ const isRouteLocked = (href: string): boolean => {
                   class:list={[
                     "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
                     "text-secondary-content/70 hover:bg-white/10 hover:text-white",
-                    "is-drawer-close:justify-center is-drawer-close:px-0",
-                    "is-drawer-close:tooltip is-drawer-close:tooltip-right",
+                    "lg:justify-center lg:px-2.5",
+                    "lg:tooltip lg:tooltip-right",
                   ]}
                 >
                   <Icon
@@ -389,7 +396,7 @@ const isRouteLocked = (href: string): boolean => {
                     size={24}
                     class="shrink-0 opacity-80 transition group-hover:opacity-100"
                   />
-                  <span class="truncate is-drawer-close:hidden">
+                  <span class="truncate lg:hidden">
                     Iniciar sesión
                   </span>
                 </a>
@@ -397,7 +404,7 @@ const isRouteLocked = (href: string): boolean => {
                 <div class="flex flex-col gap-1.5">
                   <div
                     class:list={[
-                      "flex items-center gap-2.5 rounded-lg p-2 is-drawer-close:justify-center is-drawer-close:p-2",
+                      "flex items-center gap-2.5 rounded-lg p-2 lg:justify-center lg:p-0",
                     ]}
                   >
                     <div
@@ -409,7 +416,7 @@ const isRouteLocked = (href: string): boolean => {
                     >
                       {userInitials}
                     </div>
-                    <div class="min-w-0 is-drawer-close:hidden">
+                    <div class="min-w-0 lg:hidden">
                       <p class="truncate text-xs font-semibold leading-tight text-secondary-content">
                         {user.username}
                       </p>
@@ -425,8 +432,8 @@ const isRouteLocked = (href: string): boolean => {
                     class:list={[
                       "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
                       "text-secondary-content/70 hover:bg-white/10 hover:text-white",
-                      "is-drawer-close:justify-center is-drawer-close:px-0",
-                      "is-drawer-close:tooltip is-drawer-close:tooltip-right",
+                      "lg:justify-center lg:px-2.5",
+                      "lg:tooltip lg:tooltip-right",
                     ]}
                   >
                     <Icon
@@ -434,7 +441,7 @@ const isRouteLocked = (href: string): boolean => {
                       size={24}
                       class="shrink-0 opacity-80 transition group-hover:opacity-100"
                     />
-                    <span class="truncate is-drawer-close:hidden">
+                    <span class="truncate lg:hidden">
                       Cerrar sesión
                     </span>
                   </a>
