@@ -530,3 +530,10 @@ export const supportGuides = sqliteTable("support_guides", {
   referents: text("referents"),
   notes: text("notes"),
 });
+
+export const auditLogs = sqliteTable("audit_logs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  username: text("username").notNull(),
+  action: text("action").notNull(),
+  timestamp: text("timestamp").notNull(),
+});
