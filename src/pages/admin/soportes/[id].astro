@@ -6,6 +6,7 @@ import { Icon } from "astro-icon/components";
 import { db } from "@db/index";
 import { supportGuides } from "@db/schema";
 import { eq } from "drizzle-orm";
+import { logAdminAction } from "@lib/auditLogger";
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -38,6 +39,12 @@ if (Astro.request.method === "POST") {
     if (!helpDeskName.trim()) {
       errorMsg = "El campo Mesa de Ayuda es obligatorio.";
     } else {
+      const [existing] = await db
+        .select({ helpDeskName: supportGuides.helpDeskName })
+        .from(supportGuides)
+        .where(eq(supportGuides.id, numericId));
+      const oldName = existing?.helpDeskName || "desconocido";
+
       await db
         .update(supportGuides)
         .set({
@@ -52,6 +59,11 @@ if (Astro.request.method === "POST") {
         })
         .where(eq(supportGuides.id, numericId));
 
+      if (oldName !== helpDeskName) {
+        await logAdminAction(user?.username || 'Sistema', `Actualizó el soporte ID ${numericId} (de "${oldName}" a "${helpDeskName}")`);
+      } else {
+        await logAdminAction(user?.username || 'Sistema', `Actualizó el soporte "${helpDeskName}" (ID ${numericId})`);
+      }
       return Astro.redirect(`${cleanBase}admin/soportes`);
     }
   } catch (err) {
