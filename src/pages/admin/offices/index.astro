@@ -419,7 +419,14 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
       </div>
     </DataTable>
     
-    <div id="scroll-sentinel" class="py-8 text-center flex justify-center w-full" data-has-more={hasMore ? "true" : "false"}>
+    <div
+      id="scroll-sentinel"
+      class:list={[
+        "py-8 text-center flex justify-center w-full",
+        !hasMore && "hidden",
+      ]}
+      data-has-more={hasMore ? "true" : "false"}
+    >
       <span class="loading loading-spinner loading-md text-primary hidden" id="loading-spinner"></span>
     </div>
 
@@ -492,6 +499,12 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           const totalCount = parseInt(response.headers.get("X-Total-Count") || "0", 10);
 
           hasMore = newHasMore;
+
+          if (!hasMore) {
+            sentinel?.classList.add("hidden");
+          } else {
+            sentinel?.classList.remove("hidden");
+          }
 
           if (container) {
             if (isNewSearch) {
