@@ -57,9 +57,9 @@ const flattenQuickAccessItems = (items: NavItem[]): NavItem[] =>
 const drawerNavItems = navSections.flatMap((section) =>
   section.items.map((item) => ({ ...item, children: undefined })),
 );
-const quickAccessItems: NavItem[] = navSections.flatMap((section) =>
-  flattenQuickAccessItems(section.items),
-);
+const quickAccessItems: NavItem[] = navSections
+  .flatMap((section) => flattenQuickAccessItems(section.items))
+  .filter((item) => !item.href.startsWith("/admin/"));
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -276,14 +276,14 @@ const isRouteLocked = (href: string): boolean => {
         </main>
       </div>
 
-      <div class="drawer-side z-40 lg:z-auto">
+      <div class="drawer-side z-40 lg:z-auto lg:overflow-visible">
         <label
           for="main-drawer"
           aria-label="close sidebar"
           class="drawer-overlay"></label>
 
         <div
-          class="flex h-full min-h-full w-64 lg:w-fit flex-col items-start bg-secondary transition-all duration-300 ease-in-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          class="flex h-full min-h-full w-64 lg:w-fit lg:overflow-visible flex-col items-start bg-secondary transition-all duration-300 ease-in-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <a
             href={resolveUrl("/")}
@@ -316,7 +316,7 @@ const isRouteLocked = (href: string): boolean => {
           </a>
 
           <div
-            class="w-full grow overflow-y-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            class="w-full grow overflow-y-auto lg:overflow-visible py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {
               navSections.map((section, sectionIndex) => (
@@ -345,7 +345,7 @@ const isRouteLocked = (href: string): boolean => {
                             class:list={[
                               "group flex items-center gap-2.5 rounded-lg text-xs p-2.5 font-medium transition",
                               "lg:justify-center lg:px-2.5",
-                              "lg:tooltip lg:tooltip-right",
+                              "tooltip tooltip-right tooltip-neutral",
                               isLocked
                                 ? "opacity-40 cursor-not-allowed pointer-events-none grayscale select-none"
                                 : isActive
@@ -394,7 +394,7 @@ const isRouteLocked = (href: string): boolean => {
                     "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
                     "text-secondary-content/70 hover:bg-white/10 hover:text-white",
                     "lg:justify-center lg:px-2.5",
-                    "lg:tooltip lg:tooltip-right",
+                    "tooltip tooltip-right tooltip-neutral",
                   ]}
                 >
                   <Icon
@@ -406,29 +406,34 @@ const isRouteLocked = (href: string): boolean => {
                 </a>
               ) : (
                 <div class="flex flex-col gap-1.5">
-                  <div
+                  <a
+                    href={resolveUrl("/profile")}
+                    aria-label="Ver perfil de usuario"
+                    data-tip="Ver perfil"
                     class:list={[
-                      "flex items-center gap-2.5 rounded-lg p-2 lg:justify-center lg:p-0",
+                      "group flex items-center gap-2.5 rounded-lg p-2 lg:justify-center lg:p-2.5 transition",
+                      "hover:bg-white/10 text-secondary-content hover:text-white",
+                      "tooltip tooltip-right tooltip-neutral",
                     ]}
                   >
                     <div
                       class:list={[
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm",
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm group-hover:ring-2 ring-white/20 transition-all",
                         avatarClass,
                       ]}
                       aria-hidden="true"
                     >
                       {userInitials}
                     </div>
-                    <div class="min-w-0 lg:hidden">
-                      <p class="truncate text-xs font-semibold leading-tight text-secondary-content">
+                    <div class="min-w-0 lg:hidden text-left">
+                      <p class="truncate text-xs font-semibold leading-tight text-secondary-content group-hover:text-white transition-colors">
                         {user.username}
                       </p>
-                      <p class="truncate text-xs font-medium uppercase tracking-wider text-secondary-content/50">
+                      <p class="truncate text-xs font-medium uppercase tracking-wider text-secondary-content/50 group-hover:text-white/70 transition-colors">
                         {roleLabel}
                       </p>
                     </div>
-                  </div>
+                  </a>
                   <a
                     href={resolveUrl("/logout")}
                     aria-label="Cerrar sesión"
@@ -437,7 +442,7 @@ const isRouteLocked = (href: string): boolean => {
                       "group flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition",
                       "text-secondary-content/70 hover:bg-white/10 hover:text-white",
                       "lg:justify-center lg:px-2.5",
-                      "lg:tooltip lg:tooltip-right",
+                      "tooltip tooltip-right tooltip-neutral",
                     ]}
                   >
                     <Icon

@@ -13,11 +13,11 @@ interface Props {
   containerClass?: string;
 }
 
-const { tabs, activeValue, name, id } = Astro.props;
+const { tabs, activeValue, name, id, class: className = "", containerClass = "flex justify-center" } = Astro.props;
 ---
 
-<div id={id} class="flex justify-center mb-6">
-  <div class="tabs tabs-box" data-view-switcher>
+<div id={id} class={containerClass}>
+  <div class:list={["tabs tabs-box", className]} data-view-switcher>
     {
       tabs.map((tab) => (
         <input
