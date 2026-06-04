@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { db } from "../src/db/index";
-import { terminals } from "../src/db/schema";
+import { terminals, offices } from "../src/db/schema";
 
 const LEGACY_URL = "http://b1842zacs0255/mda/terminales_consulta.php";
 
@@ -31,7 +31,7 @@ function isCubicHostname(hostname: string): boolean {
   return CUBIC_HOSTNAME_PATTERN.test(hostname);
 }
 
-function mapRecord(raw: Record<string, unknown>): TerminalRecord | null {
+function mapRecord(raw: Record<string, unknown>, validNisSet: Set<string>): TerminalRecord | null {
   const rawHostname =
     typeof raw.hostname === "string" ? raw.hostname : String(raw.hostname ?? "");
   
@@ -50,6 +50,11 @@ function mapRecord(raw: Record<string, unknown>): TerminalRecord | null {
     return trimmed === "" ? null : trimmed;
   };
 
+  let mappedNis = str("nis");
+  if (mappedNis && !validNisSet.has(mappedNis)) {
+    mappedNis = null;
+  }
+
   return {
     hostname,
     macAddress: str("mac", "macAddress"),
@@ -60,13 +65,13 @@ function mapRecord(raw: Record<string, unknown>): TerminalRecord | null {
     serialNumber: str("serial", "serialNumber"),
     manufacturer: str("manufacturer"),
     model: str("model"),
-    nis: str("nis"),
+    nis: mappedNis,
     nis2: str("nis2"),
     lastContact: str("TimeStamp", "lastContact"),
   };
 }
 
-function parseJsonPayload(data: unknown): TerminalRecord[] {
+function parseJsonPayload(data: unknown, validNisSet: Set<string>): TerminalRecord[] {
   let payload = data;
 
   if (data && typeof data === "object" && "data" in data) {
@@ -81,7 +86,7 @@ function parseJsonPayload(data: unknown): TerminalRecord[] {
 
   for (const entry of payload) {
     if (entry && typeof entry === "object") {
-      const record = mapRecord(entry as Record<string, unknown>);
+      const record = mapRecord(entry as Record<string, unknown>, validNisSet);
       if (record && !isCubicHostname(record.hostname)) {
         records.push(record);
       }
@@ -131,7 +136,7 @@ async function upsertRecord(
     });
 }
 
-async function fetchRemoteRecords(): Promise<TerminalRecord[]> {
+async function fetchRemoteRecords(validNisSet: Set<string>): Promise<TerminalRecord[]> {
   const response = await fetch(LEGACY_URL, {
     headers: { "User-Agent": USER_AGENT },
   });
@@ -141,7 +146,7 @@ async function fetchRemoteRecords(): Promise<TerminalRecord[]> {
   }
 
   const data: unknown = await response.json();
-  const records = parseJsonPayload(data);
+  const records = parseJsonPayload(data, validNisSet);
 
   console.log(
     `[Sync] Respuesta obtenida y procesada. Registros válidos: ${records.length}`,
@@ -150,13 +155,13 @@ async function fetchRemoteRecords(): Promise<TerminalRecord[]> {
   return records;
 }
 
-async function loadFallbackRecords(): Promise<TerminalRecord[]> {
+async function loadFallbackRecords(validNisSet: Set<string>): Promise<TerminalRecord[]> {
   console.log(`[Sync] Leyendo archivo de contingencia: ${FALLBACK_PATH}`);
 
   const raw = await readFile(FALLBACK_PATH, "utf-8");
   const data: unknown = JSON.parse(raw);
 
-  const records = parseJsonPayload(data);
+  const records = parseJsonPayload(data, validNisSet);
 
   console.log(`[Sync] Registros válidos del archivo local: ${records.length}`);
 
@@ -169,10 +174,14 @@ async function syncLegacyInventory(): Promise<void> {
     `[Sync] Sincronización de inventario legacy iniciada: ${startTime.toISOString()}`,
   );
 
+  const officesList = await db.select({ code: offices.code }).from(offices);
+  const validNisSet = new Set<string>(officesList.map((o) => o.code));
+  console.log(`[Sync] Códigos NIS (oficinas) cargados en memoria: ${validNisSet.size}`);
+
   let records: TerminalRecord[];
 
   try {
-    records = await fetchRemoteRecords();
+    records = await fetchRemoteRecords(validNisSet);
   } catch (fetchError) {
     console.warn(
       "[Sync] Advertencia: Servidor remoto inaccesible. Iniciando modo de contingencia con datos locales.",
@@ -180,7 +189,7 @@ async function syncLegacyInventory(): Promise<void> {
     console.warn(
       `[Sync] Detalle: ${fetchError instanceof Error ? fetchError.message : fetchError}`,
     );
-    records = await loadFallbackRecords();
+    records = await loadFallbackRecords(validNisSet);
   }
 
   if (records.length === 0) {
