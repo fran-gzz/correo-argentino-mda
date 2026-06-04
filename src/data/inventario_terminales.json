@@ -9,7 +9,7 @@
     "serialNumber": "SN-987654321",
     "manufacturer": "HP",
     "model": "ProDesk 600 G3",
-    "nis": null,
+    "nis": "A0000",
     "nis2": null,
     "lastContact": "2026-06-04 12:00:00"
   },
@@ -23,7 +23,7 @@
     "serialNumber": "SN-123456789",
     "manufacturer": "Dell",
     "model": "OptiPlex 7090",
-    "nis": 2,
+    "nis": "A0006",
     "nis2": null,
     "lastContact": "2026-06-04 12:05:00"
   },
@@ -40,5 +40,19 @@
     "nis": null,
     "nis2": null,
     "lastContact": "2026-06-03 18:30:00"
+  },
+  {
+    "hostname": "b1842zacw9999.correo.local",
+    "macAddress": "00:50:56:c0:00:FF",
+    "ipAddress": "10.254.59.99",
+    "operatingSystem": "Windows 10 Pro",
+    "osArchitecture": "64-bit",
+    "ram": "8 GB",
+    "serialNumber": "SN-CUBIC-TEST",
+    "manufacturer": "HP",
+    "model": "ProDesk 400 G6",
+    "nis": null,
+    "nis2": null,
+    "lastContact": "2026-06-04 10:00:00"
   }
 ]

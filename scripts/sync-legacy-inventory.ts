@@ -1,18 +1,16 @@
-import * as cheerio from "cheerio";
-import type { AnyNode } from "domhandler";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { db } from "../src/db/index";
 import { terminals } from "../src/db/schema";
 
-const LEGACY_URL = "http://b1842zacs0255/mda/index.php";
+const LEGACY_URL = "http://b1842zacs0255/mda/terminales_consulta.php";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-const ROW_SELECTOR = "#content > div table tbody tr";
-
 const FALLBACK_PATH = resolve("src/data/inventario_terminales.json");
+
+const CUBIC_HOSTNAME_PATTERN = /^b\d{4}zacw\d+/i;
 
 interface TerminalRecord {
   hostname: string;
@@ -29,40 +27,24 @@ interface TerminalRecord {
   lastContact: string | null;
 }
 
-function cleanValue(raw: string | undefined): string | null {
-  const trimmed = raw?.trim() ?? "";
-  return trimmed === "" ? null : trimmed;
+function isCubicHostname(hostname: string): boolean {
+  return CUBIC_HOSTNAME_PATTERN.test(hostname);
 }
 
-function parseRow(
-  cells: cheerio.Cheerio<AnyNode>,
-  $: cheerio.CheerioAPI,
-): TerminalRecord | null {
-  const hostname = cleanValue($(cells[0]).text());
+function mapRecord(raw: Record<string, unknown>): TerminalRecord | null {
+  const rawHostname =
+    typeof raw.hostname === "string" ? raw.hostname : String(raw.hostname ?? "");
+  
+  const hostname = rawHostname.replace(/<[^>]+>/g, "").trim();
+
   if (!hostname) return null;
 
-  return {
-    hostname,
-    macAddress: cleanValue($(cells[1]).text()),
-    ipAddress: cleanValue($(cells[2]).text()),
-    operatingSystem: cleanValue($(cells[3]).text()),
-    osArchitecture: cleanValue($(cells[4]).text()),
-    ram: cleanValue($(cells[5]).text()),
-    serialNumber: cleanValue($(cells[6]).text()),
-    manufacturer: cleanValue($(cells[7]).text()),
-    model: cleanValue($(cells[8]).text()),
-    nis: cleanValue($(cells[12]).text()),
-    nis2: cleanValue($(cells[13]).text()),
-    lastContact: cleanValue($(cells[14]).text()),
-  };
-}
-
-function mapJsonRecord(raw: Record<string, unknown>): TerminalRecord | null {
-  const hostname = typeof raw.hostname === "string" ? raw.hostname.trim() : "";
-  if (!hostname) return null;
-
-  const str = (key: string): string | null => {
-    const val = raw[key];
+  const str = (key: string, altKey?: string): string | null => {
+    let val = raw[key];
+    if (val === undefined && altKey) {
+      val = raw[altKey];
+    }
+    if (typeof val === "number") return String(val).trim();
     if (typeof val !== "string") return null;
     const trimmed = val.trim();
     return trimmed === "" ? null : trimmed;
@@ -70,18 +52,43 @@ function mapJsonRecord(raw: Record<string, unknown>): TerminalRecord | null {
 
   return {
     hostname,
-    macAddress: str("macAddress"),
-    ipAddress: str("ipAddress"),
-    operatingSystem: str("operatingSystem"),
-    osArchitecture: str("osArchitecture"),
-    ram: str("ram"),
-    serialNumber: str("serialNumber"),
+    macAddress: str("mac", "macAddress"),
+    ipAddress: str("IP", "ipAddress"),
+    operatingSystem: str("os_details", "operatingSystem"),
+    osArchitecture: str("os_arch", "osArchitecture"),
+    ram: str("capacity", "ram"),
+    serialNumber: str("serial", "serialNumber"),
     manufacturer: str("manufacturer"),
     model: str("model"),
     nis: str("nis"),
     nis2: str("nis2"),
-    lastContact: str("lastContact"),
+    lastContact: str("TimeStamp", "lastContact"),
   };
+}
+
+function parseJsonPayload(data: unknown): TerminalRecord[] {
+  let payload = data;
+
+  if (data && typeof data === "object" && "data" in data) {
+    payload = (data as Record<string, unknown>).data;
+  }
+
+  if (!Array.isArray(payload)) {
+    throw new Error("El JSON no contiene un array de registros.");
+  }
+
+  const records: TerminalRecord[] = [];
+
+  for (const entry of payload) {
+    if (entry && typeof entry === "object") {
+      const record = mapRecord(entry as Record<string, unknown>);
+      if (record && !isCubicHostname(record.hostname)) {
+        records.push(record);
+      }
+    }
+  }
+
+  return records;
 }
 
 async function upsertRecord(
@@ -133,32 +140,12 @@ async function fetchRemoteRecords(): Promise<TerminalRecord[]> {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
 
-  const html = await response.text();
-
-  if (!html || html.trim().length === 0) {
-    throw new Error("El cuerpo de la respuesta está vacío.");
-  }
+  const data: unknown = await response.json();
+  const records = parseJsonPayload(data);
 
   console.log(
-    `[Sync] HTML obtenido correctamente (${(html.length / 1024).toFixed(1)} KB).`,
+    `[Sync] Respuesta obtenida y procesada. Registros válidos: ${records.length}`,
   );
-
-  const $ = cheerio.load(html);
-  const rows = $(ROW_SELECTOR);
-
-  if (rows.length === 0) {
-    throw new Error("No se encontraron filas en el selector especificado.");
-  }
-
-  console.log(`[Sync] Filas encontradas en el HTML: ${rows.length}`);
-
-  const records: TerminalRecord[] = [];
-
-  for (let i = 0; i < rows.length; i++) {
-    const cells = $(rows[i]).find("td");
-    const record = parseRow(cells, $);
-    if (record) records.push(record);
-  }
 
   return records;
 }
@@ -169,20 +156,9 @@ async function loadFallbackRecords(): Promise<TerminalRecord[]> {
   const raw = await readFile(FALLBACK_PATH, "utf-8");
   const data: unknown = JSON.parse(raw);
 
-  if (!Array.isArray(data)) {
-    throw new Error("El JSON de contingencia no contiene un array.");
-  }
+  const records = parseJsonPayload(data);
 
-  const records: TerminalRecord[] = [];
-
-  for (const entry of data) {
-    const record = mapJsonRecord(entry as Record<string, unknown>);
-    if (record) records.push(record);
-  }
-
-  console.log(
-    `[Sync] Registros válidos del archivo local: ${records.length}`,
-  );
+  console.log(`[Sync] Registros válidos del archivo local: ${records.length}`);
 
   return records;
 }
@@ -201,7 +177,9 @@ async function syncLegacyInventory(): Promise<void> {
     console.warn(
       "[Sync] Advertencia: Servidor remoto inaccesible. Iniciando modo de contingencia con datos locales.",
     );
-    console.warn(`[Sync] Detalle: ${fetchError instanceof Error ? fetchError.message : fetchError}`);
+    console.warn(
+      `[Sync] Detalle: ${fetchError instanceof Error ? fetchError.message : fetchError}`,
+    );
     records = await loadFallbackRecords();
   }
 
@@ -230,4 +208,3 @@ try {
   console.error("[Sync] Error crítico:", error);
   process.exit(1);
 }
-
