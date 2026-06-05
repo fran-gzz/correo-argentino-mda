@@ -41,3 +41,8 @@ database/mda.db
 # Aplicativos
 /correo-argentino-mda-programs/
 /public/descargas/aplicativos/
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/

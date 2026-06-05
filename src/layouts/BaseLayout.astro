@@ -110,7 +110,14 @@ const roleLabel = roleLabelMap[user.role] ?? "Agente";
 const isRouteLocked = (href: string): boolean => {
   const role = (user.role || "").toLowerCase().trim();
 
-  if (href === "/design-system" || href.startsWith("/admin")) {
+  if (href.startsWith("/admin")) {
+    if (href === "/admin/users" || href.startsWith("/admin/users/")) {
+      return role !== "admin";
+    }
+    return !["admin", "supervisor"].includes(role);
+  }
+
+  if (href === "/design-system") {
     return role !== "admin";
   }
 
