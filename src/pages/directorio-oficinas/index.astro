@@ -316,35 +316,26 @@ const sucursales: any[] = [];
               >
             </select>
           </div>
+          <a
+            href={import.meta.env.BASE_URL + "directorio-oficinas"}
+            class="btn btn-outline btn-error font-semibold gap-2"
+            aria-label="Limpiar todos los filtros"
+            title="Limpiar todos los filtros"
+          >
+            <Icon name="boxicons:trash" class="size-4" />
+            Limpiar Filtros
+          </a>
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full">
-          <div class="w-full flex gap-2">
+          <div class="w-full">
             <SearchInput
               id="office-search"
               name="search"
               value={searchFilter}
               label="Buscar oficina por nombre, código, región o código postal"
               placeholder="Buscar por nombre, código, región o CP"
-              class="flex-1"
             />
-            {
-              (typeFilter !== "all" ||
-                regionFilter !== "all" ||
-                provinceFilter !== "all" ||
-                zoneFilter !== "all" ||
-                paqarFilter !== "all" ||
-                searchFilter !== "") && (
-                <a
-                  href="/directorio-oficinas"
-                  class="btn btn-soft text-base-content/70 hover:text-base-content"
-                  aria-label="Limpiar filtros"
-                  title="Limpiar todos los filtros"
-                >
-                  Limpiar
-                </a>
-              )
-            }
           </div>
         </div>
       </form>
