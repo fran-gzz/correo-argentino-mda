@@ -135,7 +135,7 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           class="text-xl font-bold flex items-center gap-2"
           id="results-title"
         >
-          Usuarios Sugeridos <span
+          Usuarios sugeridos <span
             class="badge badge-sm badge-neutral"
             id="results-count">0</span
           >
@@ -187,7 +187,6 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
         showClearButton={true}
         clearButtonText="Limpiar búsqueda"
         clearButtonId="clear-search"
-        class="w-full max-w-2xl mx-auto mt-4"
       />
     </section>
   </PageContainer>
@@ -1290,8 +1289,11 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
       if (users.length === 0) {
         resultsGrid.classList.add("hidden");
         emptyState?.classList.remove("hidden");
+        emptyState?.classList.add("flex");
 
-        const emptyIconSearch = document.getElementById("empty-state-icon-search");
+        const emptyIconSearch = document.getElementById(
+          "empty-state-icon-search",
+        );
         const emptyIconNotfound = document.getElementById(
           "empty-state-icon-notfound",
         );
@@ -1303,9 +1305,12 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
         if (!searchInput?.value.trim()) {
           emptyIconSearch?.classList.remove("hidden");
           emptyIconNotfound?.classList.add("hidden");
-          
+
           glow1?.classList.replace("bg-error/10", "bg-primary/10");
-          glow1?.classList.replace("group-hover:bg-error/20", "group-hover:bg-primary/20");
+          glow1?.classList.replace(
+            "group-hover:bg-error/20",
+            "group-hover:bg-primary/20",
+          );
           glow2?.classList.replace("bg-error/10", "bg-secondary/15");
 
           if (emptyTitle) emptyTitle.textContent = "Comienza tu búsqueda";
@@ -1317,9 +1322,12 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
         } else {
           emptyIconSearch?.classList.add("hidden");
           emptyIconNotfound?.classList.remove("hidden");
-          
+
           glow1?.classList.replace("bg-primary/10", "bg-error/10");
-          glow1?.classList.replace("group-hover:bg-primary/20", "group-hover:bg-error/20");
+          glow1?.classList.replace(
+            "group-hover:bg-primary/20",
+            "group-hover:bg-error/20",
+          );
           glow2?.classList.replace("bg-secondary/15", "bg-error/10");
 
           if (emptyTitle) emptyTitle.textContent = "No se encontraron usuarios";
@@ -1332,6 +1340,7 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
       }
       resultsGrid.classList.remove("hidden");
       emptyState?.classList.add("hidden");
+      emptyState?.classList.remove("flex");
       const fragment = document.createDocumentFragment();
       const query = searchInput?.value || "";
       users.forEach((user) => {
