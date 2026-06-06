@@ -403,11 +403,6 @@ const isRouteLocked = (href: string): boolean => {
               visibleNavSections.map((section, sectionIndex) => (
                 <>
                   <ul class="menu w-full gap-1 p-2">
-                    <li class="menu-title lg:hidden mb-1">
-                      <span class="text-xs font-bold uppercase tracking-wider text-secondary-content/40">
-                        {section.label}
-                      </span>
-                    </li>
                     {section.items.map((item) => {
                       const isActive = isActiveRoute(item.href);
                       const isLocked = isRouteLocked(item.href);
