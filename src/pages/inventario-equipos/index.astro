@@ -1,9 +1,8 @@
 ---
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import DataTable from "@components/ui/DataTable.astro";
+import SearchEmptyState from "@components/ui/SearchEmptyState.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
@@ -17,40 +16,9 @@ import {
   type CubicStatus,
 } from "@lib/cubics";
 import { db } from "@db/index";
-import {
-  terminals as terminalsTable,
-  offices,
-  provinces,
-  regions,
-} from "@db/schema";
+import { terminals as terminalsTable } from "@db/schema";
 import { getTerminals } from "@lib/terminalQueries";
 import type { TerminalSortKey, SortOrder } from "@lib/terminalQueries";
-import { sql } from "drizzle-orm";
-
-let lastSyncInfo = null;
-try {
-  const statusPath = resolve("src/data/last-sync-status.json");
-  const rawStatus = await readFile(statusPath, "utf-8");
-  lastSyncInfo = JSON.parse(rawStatus);
-} catch (e) {
-  // Ignored if file does not exist
-}
-
-const formatLastSync = (isoString: string | null | undefined): string => {
-  if (!isoString) return "Nunca (sin registro)";
-  const dateObj = new Date(isoString);
-  if (Number.isNaN(dateObj.getTime())) return "Nunca (sin registro)";
-
-  const day = String(dateObj.getDate()).padStart(2, "0");
-  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const year = dateObj.getFullYear();
-  const hours = String(dateObj.getHours()).padStart(2, "0");
-  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-
-  return `${day}/${month}/${year} a las ${hours}:${minutes} hs`;
-};
-
-type BoxiconName = `boxicons:${string}`;
 
 const terminalHeaderGridClass = "grid-cols-12 gap-4";
 const terminalRowGridClass = "grid grid-cols-12 items-start gap-4";
@@ -382,76 +350,78 @@ const inventoryTabs = [
               </h3>
               <p class="text-sm text-base-content/70 max-w-md mt-1 leading-relaxed">
                 El servicio no pudo obtener datos de las terminales. Por favor,
-                verifique el estado del script de sincronización.
               </p>
-              <div class="divider my-2 opacity-50" />
-              <div class="flex flex-col items-center gap-1">
-                <span class="text-xs uppercase font-semibold tracking-wider text-base-content/50">
-                  Última utilización del script
-                </span>
-                <span class="font-mono text-sm bg-base-200 text-base-content border border-base-300 rounded px-2.5 py-1 mt-1">
-                  {formatLastSync(lastSyncInfo?.lastExecution)}
-                </span>
-              </div>
             </div>
           </div>
         ) : (
           <section class="space-y-3">
-            <DataTable
-              id="table-terminales"
-              ariaLabel="Inventario de terminales"
-              minWidthClass="min-w-280"
-              headerGridClass={terminalHeaderGridClass}
-              rowGridClass={terminalRowGridClass}
-            >
-              <div slot="header" class="col-span-2">
-                <DataTableHeaderCell sortKey="hostname">
-                  Hostname
-                </DataTableHeaderCell>
-              </div>
-              <div slot="header" class="col-span-3">
-                <DataTableHeaderCell sortKey="hardware">
-                  Hardware
-                </DataTableHeaderCell>
-              </div>
-              <div slot="header" class="col-span-3">
-                <DataTableHeaderCell sortKey="os">
-                  Sistema operativo
-                </DataTableHeaderCell>
-              </div>
-              <div slot="header" class="col-span-2">
-                <DataTableHeaderCell sortKey="location">
-                  Ubicación
-                </DataTableHeaderCell>
-              </div>
-              <div slot="header" class="col-span-2">
-                <DataTableHeaderCell align="right">
-                  Último contacto
-                </DataTableHeaderCell>
-              </div>
-              <div id="table-terminales-body" class="contents">
-                {terminals.map((terminal) => (
-                  <TerminalRow
-                    terminal={terminal}
-                    terminalRowGridClass={terminalRowGridClass}
-                  />
-                ))}
-              </div>
-            </DataTable>
+            <div id="terminals-table-wrapper">
+              <DataTable
+                id="table-terminales"
+                ariaLabel="Inventario de terminales"
+                minWidthClass="min-w-280"
+                headerGridClass={terminalHeaderGridClass}
+                rowGridClass={terminalRowGridClass}
+              >
+                <div slot="header" class="col-span-2">
+                  <DataTableHeaderCell sortKey="hostname">
+                    Hostname
+                  </DataTableHeaderCell>
+                </div>
+                <div slot="header" class="col-span-3">
+                  <DataTableHeaderCell sortKey="hardware">
+                    Hardware
+                  </DataTableHeaderCell>
+                </div>
+                <div slot="header" class="col-span-3">
+                  <DataTableHeaderCell sortKey="os">
+                    Sistema operativo
+                  </DataTableHeaderCell>
+                </div>
+                <div slot="header" class="col-span-2">
+                  <DataTableHeaderCell sortKey="location">
+                    Ubicación
+                  </DataTableHeaderCell>
+                </div>
+                <div slot="header" class="col-span-2">
+                  <DataTableHeaderCell align="right">
+                    Último contacto
+                  </DataTableHeaderCell>
+                </div>
+                <div id="table-terminales-body" class="contents">
+                  {terminals.map((terminal) => (
+                    <TerminalRow
+                      terminal={terminal}
+                      terminalRowGridClass={terminalRowGridClass}
+                    />
+                  ))}
+                </div>
+              </DataTable>
 
-            <div
-              id="scroll-sentinel-terminales"
-              class:list={[
-                "py-8 text-center flex justify-center",
-                !hasMore && "hidden",
-              ]}
-              data-has-more={hasMore ? "true" : "false"}
-            >
-              <span
-                class="loading loading-spinner loading-md text-primary hidden"
-                id="loading-spinner-terminales"
-              />
+              <div
+                id="scroll-sentinel-terminales"
+                class:list={[
+                  "py-8 text-center flex justify-center",
+                  !hasMore && "hidden",
+                ]}
+                data-has-more={hasMore ? "true" : "false"}
+              >
+                <span
+                  class="loading loading-spinner loading-md text-primary hidden"
+                  id="loading-spinner-terminales"
+                />
+              </div>
             </div>
+
+            <SearchEmptyState
+              id="no-results-state-terminales"
+              class="hidden"
+              title="No hay coincidencias"
+              description="No hemos podido encontrar terminales que coincidan con los filtros seleccionados. Probá modificando los criterios o limpiando los filtros."
+              showClearButton={true}
+              clearButtonId="btn-clear-empty-terminales"
+              clearButtonText="Limpiar filtros"
+            />
           </section>
         )
       }
@@ -801,6 +771,22 @@ const inventoryTabs = [
           }
         }
 
+        const rowCount = terminalsContainer?.querySelectorAll("[data-terminal-row]").length ?? 0;
+        const noResultsState = document.getElementById("no-results-state-terminales");
+        const tableWrapper = document.getElementById("terminals-table-wrapper");
+
+        if (noResultsState && tableWrapper) {
+          if (rowCount === 0) {
+            noResultsState.classList.remove("hidden");
+            noResultsState.classList.add("flex");
+            tableWrapper.classList.add("hidden");
+          } else {
+            noResultsState.classList.add("hidden");
+            noResultsState.classList.remove("flex");
+            tableWrapper.classList.remove("hidden");
+          }
+        }
+
         if (currentSearch && terminalsContainer) {
           const newArticles = Array.from(
             terminalsContainer.querySelectorAll<HTMLElement>(
@@ -863,12 +849,15 @@ const inventoryTabs = [
 
     terminalSearchInput?.addEventListener("input", triggerSearch);
 
-    const btnClearTerminales = document.getElementById("btn-clear-filters-terminales");
+    const btnClearTerminales = document.getElementById(
+      "btn-clear-filters-terminales",
+    );
     btnClearTerminales?.addEventListener("click", () => {
       if (terminalSearchInput) terminalSearchInput.value = "";
       if (osFilterSelect) osFilterSelect.value = "all";
       if (osVariantFilterSelect) {
-        osVariantFilterSelect.innerHTML = '<option value="all">Variante (Todas)</option>';
+        osVariantFilterSelect.innerHTML =
+          '<option value="all">Variante (Todas)</option>';
         osVariantFilterSelect.disabled = true;
         osVariantFilterSelect.value = "all";
       }
@@ -887,6 +876,11 @@ const inventoryTabs = [
       currentRam = "all";
       currentStatus = "all";
       fetchTerminals(true);
+    });
+
+    const btnClearEmptyTerminales = document.getElementById("btn-clear-empty-terminales");
+    btnClearEmptyTerminales?.addEventListener("click", () => {
+      btnClearTerminales?.click();
     });
 
     const btnClearCubics = document.getElementById("btn-clear-filters-cubics");
