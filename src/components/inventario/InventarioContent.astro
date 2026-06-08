@@ -11,13 +11,15 @@ import ViewSwitcher from "@components/ui/ViewSwitcher.astro";
 import TerminalRow from "@components/inventario/TerminalRow.astro";
 import {
   getActiveMachineCount,
-  type CubicShift,
   type CubicStatus,
 } from "@lib/cubics";
 import { db } from "@db/index";
-import { terminals as terminalsTable } from "@db/schema";
+import { terminals as terminalsTable, agents, operatorAttendance } from "@db/schema";
 import { getTerminals } from "@lib/terminalQueries";
 import type { TerminalSortKey, SortOrder } from "@lib/terminalQueries";
+import { and, eq } from "drizzle-orm";
+import { getShiftType } from "@lib/cubics";
+import OperatorAvatar from "@components/cubics/OperatorAvatar.astro";
 
 const terminalHeaderGridClass = "grid-cols-12 gap-4";
 const terminalRowGridClass = "grid grid-cols-12 items-start gap-4";
@@ -86,15 +88,28 @@ const statusCopy: Record<CubicStatus, string> = {
   offline: "Offline",
 };
 
-const shiftIcon: Record<CubicShift, string> = {
-  morning: "boxicons:sun-filled",
-  afternoon_night: "boxicons:moon-filled",
-};
+const todayStr = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
 
-const shiftIconTone: Record<CubicShift, string> = {
-  morning: "border-warning/40 bg-warning text-warning-content",
-  afternoon_night: "border-info/40 bg-info text-info-content",
-};
+const allAgents = await db
+  .select({
+    id: agents.id,
+    horarioDefault: agents.horarioDefault,
+    entradaReal: operatorAttendance.entradaReal,
+  })
+  .from(agents)
+  .leftJoin(
+    operatorAttendance,
+    and(
+      eq(operatorAttendance.agentId, agents.id),
+      eq(operatorAttendance.date, todayStr)
+    )
+  );
+
+const agentShiftMap = new Map<number, "Diurno" | "Nocturno">();
+for (const agent of allAgents) {
+  const shiftType = getShiftType(agent.entradaReal, agent.horarioDefault);
+  agentShiftMap.set(agent.id, shiftType);
+}
 
 const cubicHeaderGridClass = "grid-cols-12 gap-4";
 const cubicRowGridClass = "grid grid-cols-12 items-center gap-4";
@@ -537,40 +552,17 @@ const inventoryTabs = [
                 <div class="col-span-2 min-w-0">
                   <div class="flex items-center gap-2">
                     {machine.assignments.length > 0 ? (
-                      machine.assignments.map((assignment) => (
-                        <div
-                          class="tooltip tooltip-top tooltip-neutral z-20"
-                          data-tip={assignment.agent.name}
-                        >
-                          <div class="relative inline-flex overflow-visible">
-                            <div
-                              class="avatar avatar-placeholder"
-                              role="img"
-                              tabindex="0"
-                              aria-label={`Usuario asignado: ${assignment.agent.name}`}
-                            >
-                              <div class="w-9 rounded-full bg-base-200 text-base-content/70">
-                                <span class="text-xs font-semibold select-none">
-                                  {assignment.agent.avatarInitials}
-                                </span>
-                              </div>
-                            </div>
-                            <span
-                              class:list={[
-                                "pointer-events-none absolute -bottom-1 -right-1 z-0 inline-flex size-4 items-center justify-center rounded-full border",
-                                shiftIconTone[assignment.shift as CubicShift],
-                              ]}
-                            >
-                              <Icon
-                                name={
-                                  shiftIcon[assignment.shift as CubicShift]
-                                }
-                                class="size-2.5"
-                              />
-                            </span>
-                          </div>
-                        </div>
-                      ))
+                      machine.assignments.map((assignment) => {
+                        const shift = agentShiftMap.get(assignment.agent.id) || "Diurno";
+                        return (
+                          <OperatorAvatar
+                            name={assignment.agent.name}
+                            avatarInitials={assignment.agent.avatarInitials}
+                            shiftType={shift}
+                            size="md"
+                          />
+                        );
+                      })
                     ) : (
                       <div
                         class="tooltip tooltip-top tooltip-neutral z-20"

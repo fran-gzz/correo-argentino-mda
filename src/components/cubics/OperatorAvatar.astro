@@ -1,0 +1,52 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  name: string;
+  avatarInitials?: string | null;
+  shiftType: "Diurno" | "Nocturno";
+  size?: "sm" | "md";
+}
+
+const { name, avatarInitials, shiftType, size = "md" } = Astro.props;
+
+const initials = avatarInitials || name.slice(0, 2).toUpperCase();
+const isDiurno = shiftType === "Diurno";
+
+const sizeClasses = {
+  sm: "w-8 h-8 text-xs",
+  md: "w-9 h-9 text-xs",
+};
+
+const iconName = isDiurno ? "boxicons:sun-filled" : "boxicons:moon-filled";
+const badgeClasses = isDiurno
+  ? "border-warning/40 bg-warning text-warning-content"
+  : "border-info/40 bg-info text-info-content";
+---
+
+<div class="tooltip tooltip-top tooltip-neutral z-20" data-tip={name}>
+  <div class="relative inline-flex overflow-visible">
+    <div
+      class="avatar avatar-placeholder"
+      role="img"
+      aria-label={`Usuario asignado: ${name}`}
+    >
+      <div class:list={["rounded-full bg-base-200 text-base-content/70 flex items-center justify-center font-semibold select-none", sizeClasses[size]]}>
+        <span>{initials}</span>
+      </div>
+    </div>
+    <span
+      class:list={[
+        "pointer-events-none absolute -bottom-1 -right-1 z-10 inline-flex items-center justify-center rounded-full border shadow-sm",
+        size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4",
+        badgeClasses,
+      ]}
+    >
+      <Icon
+        name={iconName}
+        size={size === "sm" ? 8 : 10}
+        aria-hidden="true"
+      />
+    </span>
+  </div>
+</div>

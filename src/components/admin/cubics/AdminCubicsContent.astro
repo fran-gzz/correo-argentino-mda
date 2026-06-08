@@ -1,12 +1,15 @@
 ---
 import { db } from "@db/index";
-import { cubics } from "@db/schema";
-import { asc } from "drizzle-orm";
+import { cubics, agents, operatorAttendance } from "@db/schema";
+import { asc, and, eq } from "drizzle-orm";
 import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import DataTable from "@components/ui/DataTable.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import { Icon } from "astro-icon/components";
+import { getShiftType } from "@lib/cubics";
+import OperatorAvatar from "@components/cubics/OperatorAvatar.astro";
+
 
 interface Props {
   successMsg?: string;
@@ -25,6 +28,31 @@ const allCubics = await db.query.cubics.findMany({
     },
   },
 });
+
+const todayStr = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
+
+
+
+const allAgents = await db
+  .select({
+    id: agents.id,
+    horarioDefault: agents.horarioDefault,
+    entradaReal: operatorAttendance.entradaReal,
+  })
+  .from(agents)
+  .leftJoin(
+    operatorAttendance,
+    and(
+      eq(operatorAttendance.agentId, agents.id),
+      eq(operatorAttendance.date, todayStr)
+    )
+  );
+
+const agentShiftMap = new Map<number, "Diurno" | "Nocturno">();
+for (const agent of allAgents) {
+  const shiftType = getShiftType(agent.entradaReal, agent.horarioDefault);
+  agentShiftMap.set(agent.id, shiftType);
+}
 
 const statusLabel: Record<string, string> = {
   online: "Online",
@@ -193,24 +221,17 @@ const rowGridClass =
             <div class="min-w-0">
               {cubic.assignments.length > 0 ? (
                 <div class="flex flex-wrap items-center gap-1.5">
-                  {cubic.assignments.map((assignment) => (
-                    <div
-                      class="tooltip tooltip-top tooltip-neutral"
-                      data-tip={`${assignment.agent.name} — ${assignment.shift === "morning" ? "Mañana" : "Tarde/Noche"}`}
-                    >
-                      <div
-                        class="avatar avatar-placeholder"
-                        role="img"
-                        aria-label={assignment.agent.name}
-                      >
-                        <div class="w-8 rounded-full bg-base-200 text-base-content/70">
-                          <span class="text-xs font-semibold select-none">
-                            {assignment.agent.avatarInitials ?? assignment.agent.name.slice(0, 2).toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  {cubic.assignments.map((assignment) => {
+                    const shift = agentShiftMap.get(assignment.agent.id) || "Diurno";
+                    return (
+                      <OperatorAvatar
+                        name={`${assignment.agent.name} — ${shift}`}
+                        avatarInitials={assignment.agent.avatarInitials ?? assignment.agent.name.slice(0, 2).toUpperCase()}
+                        shiftType={shift}
+                        size="sm"
+                      />
+                    );
+                  })}
                 </div>
               ) : (
                 <span class="text-xs text-base-content/30">&mdash;</span>
@@ -260,3 +281,4 @@ const rowGridClass =
     window.location.reload();
   }, 300000);
 </script>
+

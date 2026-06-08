@@ -404,3 +404,30 @@ export const cubicTrend: CubicTrend = {
 
 export const getActiveMachineCount = (machines: CubicMachine[]): number =>
   machines.filter((machine) => machine.status === "online").length;
+
+export function getShiftType(
+  entradaReal: string | null | undefined,
+  horarioDefault: string | null | undefined
+): "Diurno" | "Nocturno" {
+  let timeStr = entradaReal || "";
+  if (!timeStr && horarioDefault) {
+    const parts = horarioDefault.split("-");
+    if (parts[0]) {
+      timeStr = parts[0].trim();
+    }
+  }
+  
+  if (timeStr) {
+    const hourMatch = timeStr.match(/^(\d{1,2})/);
+    if (hourMatch) {
+      const hour = parseInt(hourMatch[1], 10);
+      if (hour >= 6 && hour < 18) {
+        return "Diurno";
+      } else {
+        return "Nocturno";
+      }
+    }
+  }
+  return "Diurno";
+}
+

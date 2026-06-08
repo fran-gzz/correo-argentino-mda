@@ -1,7 +1,7 @@
 ---
 import { db } from "@db/index";
-import { cubics, agents, cubicAssignments } from "@db/schema";
-import { eq, asc } from "drizzle-orm";
+import { cubics, agents, cubicAssignments, operatorAttendance } from "@db/schema";
+import { eq, asc, and } from "drizzle-orm";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
@@ -18,6 +18,50 @@ const { id } = Astro.params;
 const isNew = id === "new";
 let successMsg = "";
 let errorMsg = "";
+
+const todayStr = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
+
+function getInitials(name: string): string {
+  if (!name) return "";
+  if (name.includes(",")) {
+    return name
+      .split(",")
+      .reverse()
+      .map((n) => n.trim()[0])
+      .join("")
+      .substring(0, 3)
+      .toUpperCase();
+  }
+  return name
+    .split(/\s+/)
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 3)
+    .toUpperCase();
+}
+
+function getShiftType(entradaReal: string | null | undefined, horarioDefault: string | null | undefined): "Diurno" | "Nocturno" {
+  let timeStr = entradaReal || "";
+  if (!timeStr && horarioDefault) {
+    const parts = horarioDefault.split("-");
+    if (parts[0]) {
+      timeStr = parts[0].trim();
+    }
+  }
+  
+  if (timeStr) {
+    const hourMatch = timeStr.match(/^(\d{1,2})/);
+    if (hourMatch) {
+      const hour = parseInt(hourMatch[1], 10);
+      if (hour >= 6 && hour < 18) {
+        return "Diurno";
+      } else {
+        return "Nocturno";
+      }
+    }
+  }
+  return "Diurno";
+}
 
 if (Astro.request.method === "POST") {
   try {
@@ -54,47 +98,40 @@ if (Astro.request.method === "POST") {
         .delete(cubicAssignments)
         .where(eq(cubicAssignments.cubicId, cubicId));
 
-      const aShifts = fd.getAll("assign_shift");
-      const aNames = fd.getAll("assign_agent_name");
-      const aInitials = fd.getAll("assign_agent_initials");
+      const aAgentIds = fd.getAll("assign_agent_id").slice(0, 4);
 
-      for (let i = 0; i < aShifts.length; i++) {
-        const shift = aShifts[i]?.toString().trim();
-        const agentName = aNames[i]?.toString().trim();
-        const agentInitials =
-          aInitials[i]?.toString().trim().toUpperCase() || null;
+      for (let i = 0; i < aAgentIds.length; i++) {
+        const agentIdStr = aAgentIds[i]?.toString().trim();
 
-        if (!shift || !agentName) continue;
+        if (!agentIdStr) continue;
 
-        let agentId: number;
-        const existing = await db
-          .select({ id: agents.id })
+        const agentId = Number(agentIdStr);
+        if (isNaN(agentId)) continue;
+
+        const agentData = db
+          .select({
+            horarioDefault: agents.horarioDefault,
+            entradaReal: operatorAttendance.entradaReal,
+          })
           .from(agents)
-          .where(eq(agents.name, agentName))
+          .leftJoin(
+            operatorAttendance,
+            and(
+              eq(operatorAttendance.agentId, agents.id),
+              eq(operatorAttendance.date, todayStr)
+            )
+          )
+          .where(eq(agents.id, agentId))
           .get();
 
-        if (existing) {
-          agentId = existing.id;
-
-          if (agentInitials) {
-            await db
-              .update(agents)
-              .set({ avatarInitials: agentInitials })
-              .where(eq(agents.id, agentId));
-          }
-        } else {
-          const [created] = await db
-            .insert(agents)
-            .values({ name: agentName, avatarInitials: agentInitials })
-            .returning({ id: agents.id });
-          agentId = created.id;
-        }
+        const shiftType = agentData ? getShiftType(agentData.entradaReal, agentData.horarioDefault) : "Diurno";
+        const dbShift = shiftType === "Diurno" ? "morning" : "afternoon_night";
 
         try {
           await db.insert(cubicAssignments).values({
             cubicId,
             agentId,
-            shift,
+            shift: dbShift,
           });
         } catch (e: any) {}
       }
@@ -148,10 +185,29 @@ if (!isNew) {
 
 const pageTitle = isNew ? "Nuevo cubic" : `Editar: ${cubic!.name}`;
 
-const shiftOptions = [
-  { value: "morning", label: "Mañana" },
-  { value: "afternoon_night", label: "Tarde / Noche" },
-];
+const allAgents = await db
+  .select({
+    id: agents.id,
+    name: agents.name,
+    avatarInitials: agents.avatarInitials,
+    horarioDefault: agents.horarioDefault,
+    entradaReal: operatorAttendance.entradaReal,
+  })
+  .from(agents)
+  .leftJoin(
+    operatorAttendance,
+    and(
+      eq(operatorAttendance.agentId, agents.id),
+      eq(operatorAttendance.date, todayStr)
+    )
+  )
+  .orderBy(asc(agents.name));
+
+const agentShiftMap = new Map<number, "Diurno" | "Nocturno">();
+for (const agent of allAgents) {
+  const shiftType = getShiftType(agent.entradaReal, agent.horarioDefault);
+  agentShiftMap.set(agent.id, shiftType);
+}
 ---
 
 <BaseLayout title={`${pageTitle}`}>
@@ -287,61 +343,72 @@ const shiftOptions = [
           >
             {
               (cubic?.assignments ?? []).map((a) => (
-                <div class="assignment-row relative rounded-lg bg-base-200/50 p-4 border border-base-300">
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-sm btn-square text-error/60 hover:text-error remove-row-btn absolute top-2 right-2"
-                    aria-label="Quitar asignación"
-                  >
-                    <Icon name="boxicons:trash" size={18} />
-                  </button>
-
-                  <div class="space-y-3 pr-6">
-                    <fieldset class="fieldset gap-1">
-                      <legend class="fieldset-legend text-xs font-bold">
-                        Turno
-                      </legend>
-                      <select
-                        name="assign_shift"
-                        class="select select-sm w-full"
+                <div class="assignment-row relative rounded-lg bg-base-200/50 p-4 border border-base-300" data-mode="read">
+                  {/* Read Mode */}
+                  <div class="read-mode flex items-center justify-between w-full">
+                    <div class="flex items-center gap-3">
+                      <div class="avatar placeholder">
+                        <div class="bg-secondary/10 text-secondary rounded-xl w-8 h-8 border border-secondary/20 flex items-center justify-center">
+                          <span class="text-xs font-bold">{getInitials(a.agent.name)}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <span class="font-bold text-base-content leading-tight">{a.agent.name}</span>
+                          <span class="flex items-center gap-1 text-[10px] text-base-content/60 bg-base-300/40 px-2 py-0.5 rounded border border-base-300 select-none">
+                            {agentShiftMap.get(a.agent.id) === "Diurno" ? (
+                              <Icon name="boxicons:sun" size={12} class="text-warning shrink-0" />
+                            ) : (
+                              <Icon name="boxicons:moon" size={12} class="text-info shrink-0" />
+                            )}
+                            <span>{agentShiftMap.get(a.agent.id) || "Diurno"}</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-xs edit-row-btn text-warning"
                       >
-                        {shiftOptions.map((opt) => (
-                          <option
-                            value={opt.value}
-                            selected={a.shift === opt.value}
-                          >
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                    </fieldset>
+                        <Icon name="boxicons:edit-alt" size={16} />
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-xs text-error remove-row-btn"
+                        aria-label="Quitar asignación"
+                      >
+                        <Icon name="boxicons:trash" size={16} />
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
 
-                    <fieldset class="fieldset gap-1">
-                      <legend class="fieldset-legend text-xs font-bold">
-                        Nombre del operador
-                      </legend>
-                      <input
-                        type="text"
-                        name="assign_agent_name"
-                        value={a.agent.name}
-                        class="input input-sm w-full"
-                        placeholder="Ana Rojas"
-                      />
-                    </fieldset>
-
-                    <fieldset class="fieldset gap-1">
-                      <legend class="fieldset-legend text-xs font-bold">
-                        Iniciales avatar
-                      </legend>
-                      <input
-                        type="text"
-                        name="assign_agent_initials"
-                        value={a.agent.avatarInitials ?? ""}
-                        maxlength={3}
-                        class="input input-sm w-20 text-center font-bold uppercase tracking-widest"
-                        placeholder="AR"
-                      />
-                    </fieldset>
+                  {/* Edit Mode */}
+                  <div class="edit-mode space-y-3 w-full">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-base-content/50">Modificar Asignación</span>
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-xs cancel-row-btn text-neutral"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-3">
+                      <fieldset class="fieldset gap-1">
+                        <legend class="fieldset-legend text-xs font-bold">Operador</legend>
+                        <select name="assign_agent_id" class="select select-sm w-full" required>
+                          {allAgents.map((agent) => (
+                            <option value={agent.id} selected={a.agent.id === agent.id}>
+                              {agent.name}
+                            </option>
+                          ))}
+                        </select>
+                      </fieldset>
+                    </div>
                   </div>
                 </div>
               ))
@@ -379,51 +446,46 @@ const shiftOptions = [
 <template id="tpl-assignment-row">
   <div
     class="assignment-row relative rounded-lg bg-base-200/50 p-4 border border-base-300"
+    data-mode="edit"
   >
-    <button
-      type="button"
-      class="btn btn-ghost btn-sm btn-square text-error/60 hover:text-error remove-row-btn absolute top-2 right-2"
-      aria-label="Quitar asignación"
-    >
-      <Icon name="boxicons:trash" size={18} />
-    </button>
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-xs font-bold text-base-content/50">Nueva Asignación</span>
+      <button
+        type="button"
+        class="btn btn-ghost btn-xs remove-row-btn text-error"
+      >
+        Quitar
+      </button>
+    </div>
 
-    <div class="space-y-3 pr-6">
+    <div class="space-y-3">
       <fieldset class="fieldset gap-1">
-        <legend class="fieldset-legend text-xs font-bold">Turno</legend>
-        <select name="assign_shift" class="select select-sm w-full">
-          <option value="morning">Mañana</option>
-          <option value="afternoon_night">Tarde / Noche</option>
+        <legend class="fieldset-legend text-xs font-bold">Operador</legend>
+        <select name="assign_agent_id" class="select select-sm w-full" required>
+          <option value="" disabled selected>Seleccione un operador...</option>
+          {allAgents.map((agent) => (
+            <option value={agent.id}>{agent.name}</option>
+          ))}
         </select>
-      </fieldset>
-
-      <fieldset class="fieldset gap-1">
-        <legend class="fieldset-legend text-xs font-bold"
-          >Nombre del operador</legend
-        >
-        <input
-          type="text"
-          name="assign_agent_name"
-          class="input input-sm w-full"
-          placeholder="Ana Rojas"
-        />
-      </fieldset>
-
-      <fieldset class="fieldset gap-1">
-        <legend class="fieldset-legend text-xs font-bold"
-          >Iniciales avatar</legend
-        >
-        <input
-          type="text"
-          name="assign_agent_initials"
-          maxlength="3"
-          class="input input-sm w-20 text-center font-bold uppercase tracking-widest"
-          placeholder="AR"
-        />
       </fieldset>
     </div>
   </div>
 </template>
+
+<style>
+  .assignment-row[data-mode="read"] .read-mode {
+    display: flex;
+  }
+  .assignment-row[data-mode="read"] .edit-mode {
+    display: none;
+  }
+  .assignment-row[data-mode="edit"] .read-mode {
+    display: none;
+  }
+  .assignment-row[data-mode="edit"] .edit-mode {
+    display: block;
+  }
+</style>
 
 <script>
   function initDynamicRows() {
@@ -431,24 +493,45 @@ const shiftOptions = [
     const tpl = document.getElementById(
       "tpl-assignment-row",
     ) as HTMLTemplateElement;
+    const btnAdd = document.getElementById("btn-add-assignment")!;
 
-    document
-      .getElementById("btn-add-assignment")
-      ?.addEventListener("click", () => {
-        container.appendChild(tpl.content.cloneNode(true));
-        bindRemoveButtons();
-      });
-
-    function bindRemoveButtons() {
-      container
-        .querySelectorAll<HTMLButtonElement>(".remove-row-btn")
-        .forEach((btn) => {
-          btn.onclick = () => btn.closest(".assignment-row")?.remove();
-        });
+    function updateAddButtonState() {
+      const rowCount = container.querySelectorAll(".assignment-row").length;
+      if (rowCount >= 4) {
+        btnAdd.setAttribute("disabled", "true");
+        btnAdd.classList.add("btn-disabled");
+      } else {
+        btnAdd.removeAttribute("disabled");
+        btnAdd.classList.remove("btn-disabled");
+      }
     }
 
-    bindRemoveButtons();
+    container.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const row = target.closest(".assignment-row") as HTMLElement;
+      if (!row) return;
+
+      if (target.closest(".edit-row-btn")) {
+        row.setAttribute("data-mode", "edit");
+      } else if (target.closest(".cancel-row-btn")) {
+        row.setAttribute("data-mode", "read");
+      } else if (target.closest(".remove-row-btn")) {
+        row.remove();
+        updateAddButtonState();
+      }
+    });
+
+    btnAdd?.addEventListener("click", () => {
+      const rowCount = container.querySelectorAll(".assignment-row").length;
+      if (rowCount < 4) {
+        container.appendChild(tpl.content.cloneNode(true));
+        updateAddButtonState();
+      }
+    });
+
+    updateAddButtonState();
   }
 
   initDynamicRows();
 </script>
+
