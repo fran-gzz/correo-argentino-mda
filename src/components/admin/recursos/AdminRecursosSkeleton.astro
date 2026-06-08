@@ -1,0 +1,78 @@
+---
+import PageContainer from "@components/ui/PageContainer.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
+
+const categoriesGridCols = "grid-cols-[60px_minmax(0,1.5fr)_100px_100px]";
+const linksGridCols = "grid-cols-[minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_100px]";
+---
+
+<PageContainer>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+    <PageHeader
+      description="Administración de enlaces y categorías útiles del portal."
+    />
+    <div class="flex gap-2 shrink-0 mt-4 sm:mt-0">
+      <div class="h-10 w-36 skeleton rounded-xl"></div>
+      <div class="h-10 w-40 skeleton rounded-xl"></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE CATEGORÍAS SKELETON -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold mb-4">Categorías</h2>
+    <div class="bg-base-100 p-4 rounded-box border border-base-300 mb-6 shadow-sm">
+      <div class="h-10 w-full max-w-xs skeleton rounded-lg"></div>
+    </div>
+
+    <div class="border border-base-300 rounded-xl overflow-hidden bg-base-100 shadow-sm">
+      <div class={`grid ${categoriesGridCols} border-b border-base-300 px-4 py-3 bg-base-200/50`}>
+        <div><div class="h-5 w-10 skeleton rounded"></div></div>
+        <div><div class="h-5 w-24 skeleton rounded"></div></div>
+        <div><div class="h-5 w-16 skeleton rounded"></div></div>
+        <div><div class="h-5 w-16 skeleton rounded justify-self-end"></div></div>
+      </div>
+      <div class="divide-y divide-base-300">
+        {Array.from({ length: 4 }).map(() => (
+          <div class={`grid ${categoriesGridCols} items-center px-4 py-4`}>
+            <div><div class="size-10 skeleton rounded-lg"></div></div>
+            <div><div class="h-4 w-32 skeleton rounded"></div></div>
+            <div><div class="h-6 w-16 skeleton rounded-full"></div></div>
+            <div class="flex justify-end"><div class="h-6 w-16 skeleton rounded"></div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE ENLACES SKELETON -->
+  <section>
+    <h2 class="text-xl font-bold mb-4">Sitios Web</h2>
+    <div class="bg-base-100 p-4 rounded-box border border-base-300 mb-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row gap-4 items-center">
+        <div class="h-10 w-full max-w-xs skeleton rounded-lg"></div>
+        <div class="h-10 w-full max-w-xs skeleton rounded-lg"></div>
+      </div>
+    </div>
+
+    <div class="border border-base-300 rounded-xl overflow-hidden bg-base-100 shadow-sm">
+      <div class={`grid ${linksGridCols} border-b border-base-300 px-4 py-3 bg-base-200/50`}>
+        <div><div class="h-5 w-16 skeleton rounded"></div></div>
+        <div><div class="h-5 w-24 skeleton rounded"></div></div>
+        <div><div class="h-5 w-20 skeleton rounded"></div></div>
+        <div><div class="h-5 w-16 skeleton rounded"></div></div>
+        <div><div class="h-5 w-16 skeleton rounded justify-self-end"></div></div>
+      </div>
+      <div class="divide-y divide-base-300">
+        {Array.from({ length: 6 }).map(() => (
+          <div class={`grid ${linksGridCols} items-center px-4 py-4`}>
+            <div><div class="h-4 w-28 skeleton rounded"></div></div>
+            <div><div class="h-4 w-44 skeleton rounded"></div></div>
+            <div><div class="h-4 w-40 skeleton rounded font-mono"></div></div>
+            <div><div class="h-6 w-20 skeleton rounded-full"></div></div>
+            <div class="flex justify-end"><div class="h-6 w-16 skeleton rounded"></div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</PageContainer>

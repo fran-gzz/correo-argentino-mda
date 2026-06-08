@@ -1,0 +1,52 @@
+---
+---
+
+<div class="w-full flex flex-col gap-6 animate-pulse">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex bg-base-200/60 p-1 rounded-xl border border-base-300 shadow-sm shrink-0 w-36 h-9">
+      <div class="w-full h-full skeleton rounded-lg"></div>
+    </div>
+    <div class="w-40 h-9 skeleton rounded-xl border border-base-300"></div>
+  </div>
+
+  <div class="bg-base-100 rounded-2xl border border-base-300 shadow-md overflow-hidden">
+    <div class="bg-base-200/70 border-b border-base-300 py-3.5 px-6 flex justify-between items-center gap-4">
+      <div class="h-5 w-40 skeleton rounded"></div>
+      <div class="h-8 w-48 skeleton rounded-lg"></div>
+    </div>
+    <div class="p-3">
+      <div class="overflow-x-auto rounded-xl border border-base-200 bg-base-100">
+        <table class="w-full text-sm text-left border-separate border-spacing-0">
+          <thead>
+            <tr class="border-b border-base-300">
+              <th class="w-64 py-3 px-6"><div class="h-4 w-24 skeleton rounded"></div></th>
+              <th class="w-44 py-3 px-4"><div class="h-4 w-20 skeleton rounded"></div></th>
+              <th class="py-3 px-6"><div class="h-4 w-full skeleton rounded"></div></th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 6 }).map(() => (
+              <tr class="border-b border-base-200 last:border-0">
+                <td class="w-64 px-6 py-4">
+                  <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-full skeleton shrink-0"></div>
+                    <div class="space-y-2 w-full">
+                      <div class="h-4 w-28 skeleton rounded"></div>
+                      <div class="h-3 w-16 skeleton rounded"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="w-44 px-4 py-4">
+                  <div class="h-6 w-24 skeleton rounded"></div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="h-8 w-full skeleton rounded-lg"></div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

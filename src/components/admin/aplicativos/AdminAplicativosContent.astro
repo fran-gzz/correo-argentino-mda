@@ -1,0 +1,369 @@
+---
+import PageContainer from "@components/ui/PageContainer.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
+import DataTable from "@components/ui/DataTable.astro";
+import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
+import SearchInput from "@components/ui/SearchInput.astro";
+import { Icon } from "astro-icon/components";
+import { db } from "@db/index";
+import { applications, applicationCategories } from "@db/schema";
+import { eq, asc } from "drizzle-orm";
+import { logAdminAction } from "@lib/auditLogger";
+
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith("/") ? base : base + "/";
+const resolveUrl = (p: string) => {
+  const cleanPath = p.startsWith("/") ? p.slice(1) : p;
+  return `${cleanBase}${cleanPath}`;
+};
+
+let deleteMsg = "";
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("_action")?.toString();
+    const appId = Number(formData.get("appId"));
+
+    if (action === "delete" && appId) {
+      const [existing] = await db
+        .select()
+        .from(applications)
+        .where(eq(applications.id, appId));
+
+      if (existing?.filePath && !existing.filePath.startsWith("http")) {
+        try {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const storageDir = path.resolve(
+            process.env.EXTERNAL_STORAGE_DIR ||
+              (import.meta.env.EXTERNAL_STORAGE_DIR as string) ||
+              "C:/Projects/correo-argentino-mda-programs",
+          );
+          const downloadPrefix = resolveUrl("api/download/");
+          const fileName = existing.filePath.startsWith(downloadPrefix)
+            ? existing.filePath.slice(downloadPrefix.length)
+            : path.basename(existing.filePath);
+
+          const absPath = path.join(storageDir, fileName);
+          if (fs.existsSync(absPath)) {
+            fs.unlinkSync(absPath);
+          }
+        } catch (fsError: any) {
+          console.error(
+            `[aplicativos] No se pudo eliminar el archivo físico: ${fsError.message}`,
+          );
+        }
+      }
+
+      await db.delete(applications).where(eq(applications.id, appId));
+      await logAdminAction(Astro.locals.user?.username || 'Sistema', `Eliminó el aplicativo "${existing?.title || appId}"`);
+    }
+  } catch (error: any) {
+    deleteMsg = error.message || "Error al eliminar el aplicativo.";
+  }
+}
+
+type AppRow = {
+  id: number;
+  title: string;
+  version: string | null;
+  filePath: string | null;
+  categoryTitle: string | null;
+};
+
+let allApps: AppRow[] = [];
+
+try {
+  allApps = await db
+    .select({
+      id: applications.id,
+      title: applications.title,
+      version: applications.version,
+      filePath: applications.filePath,
+      categoryTitle: applicationCategories.title,
+    })
+    .from(applications)
+    .leftJoin(
+      applicationCategories,
+      eq(applications.categoryId, applicationCategories.id),
+    )
+    .orderBy(asc(applications.title));
+} catch (dbError: any) {
+  console.error(
+    `[aplicativos] Error al consultar la base de datos: ${dbError.message}`,
+  );
+  deleteMsg = deleteMsg || "No se pudieron cargar los aplicativos.";
+}
+
+const headerGridClass = "grid-cols-[1.5fr_1fr_80px_1.5fr_120px] gap-4";
+const rowGridClass =
+  "grid grid-cols-[1.5fr_1fr_80px_1.5fr_120px] items-center gap-4";
+
+const categoryColors: Record<string, string> = {
+  programa: "badge-primary text-primary-content",
+  extensión: "badge-accent text-accent-content",
+  paquetes: "badge-secondary text-secondary-content",
+  extension: "badge-accent text-accent-content",
+};
+
+const getCategoryBadgeClass = (title: string | null) => {
+  if (!title) return "badge-ghost";
+  const key = title.trim().toLowerCase();
+  return categoryColors[key] || "badge-neutral text-neutral-content";
+};
+
+const truncatePath = (filePath: string | null) => {
+  if (!filePath) return "";
+  const maxLength = 30;
+  return filePath.length > maxLength
+    ? filePath.slice(0, maxLength) + "..."
+    : filePath;
+};
+---
+
+<PageContainer>
+  <PageHeader
+    description="Gestión de los aplicativos disponibles para descarga y distribución interna."
+  />
+
+  {
+    deleteMsg && (
+      <div role="alert" class="alert alert-error alert-soft text-sm">
+        <Icon
+          name="boxicons:alert-circle-filled"
+          size={20}
+          class="shrink-0"
+        />
+        <span>{deleteMsg}</span>
+      </div>
+    )
+  }
+
+  <div class="flex flex-col gap-4">
+    <div
+      class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+    >
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-semibold text-base-content">
+          Aplicativos registrados
+        </h2>
+        {
+          allApps.length > 0 && (
+            <span
+              id="app-count-badge"
+              class="badge badge-neutral badge-sm font-mono"
+            >
+              {allApps.length}
+            </span>
+          )
+        }
+      </div>
+
+      <div
+        class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto"
+      >
+        <SearchInput
+          id="admin-app-search"
+          label="Buscar aplicativo"
+          placeholder="Buscar por título, categoría o archivo"
+          class="w-full sm:w-64"
+        />
+        <a
+          href={resolveUrl("/admin/aplicativos/nuevo")}
+          class="btn btn-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent w-full sm:w-auto"
+        >
+          <Icon name="boxicons:plus" size={18} />
+          Nuevo aplicativo
+        </a>
+      </div>
+    </div>
+
+    <DataTable
+      ariaLabel="Listado de aplicativos registrados"
+      minWidthClass="min-w-[600px] md:min-w-full"
+      headerGridClass={headerGridClass}
+      rowGridClass={rowGridClass}
+    >
+      <div slot="header">
+        <DataTableHeaderCell sortKey="title">Título</DataTableHeaderCell>
+      </div>
+      <div slot="header">
+        <DataTableHeaderCell sortKey="category">Categoría</DataTableHeaderCell>
+      </div>
+      <div slot="header">
+        <DataTableHeaderCell sortKey="version">Versión</DataTableHeaderCell>
+      </div>
+      <div slot="header">
+        <DataTableHeaderCell sortKey="file"
+          >Ruta de Archivo</DataTableHeaderCell
+        >
+      </div>
+      <div slot="header" class="text-right flex justify-end">
+        <DataTableHeaderCell align="right">Acciones</DataTableHeaderCell>
+      </div>
+
+      {
+        allApps.length === 0 ? (
+          <div class="flex flex-col items-center gap-3 py-16 text-base-content/50">
+            <div class="rounded-full bg-base-200 p-4">
+              <Icon
+                name="boxicons:archive-in"
+                size={32}
+                class="opacity-30"
+                aria-hidden="true"
+              />
+            </div>
+            <div class="space-y-1 text-center">
+              <p class="text-sm font-semibold">
+                No hay aplicativos registrados todavía.
+              </p>
+              <p class="text-xs">
+                Comenzá cargando el primer aplicativo desde el botón superior.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {allApps.map((app) => (
+              <article
+                data-table-row
+                data-sort-title={app.title}
+                data-sort-category={app.categoryTitle}
+                data-sort-version={app.version}
+                data-sort-file={app.filePath}
+                data-search-text={`${app.title} ${app.categoryTitle || ""} ${app.version || ""} ${app.filePath || ""}`.toLowerCase()}
+                class:list={[
+                  rowGridClass,
+                  "border-b border-base-300 px-4 py-3 transition-colors hover:bg-base-200/50 last:border-b-0",
+                ]}
+              >
+                <div class="min-w-0">
+                  <p
+                    data-highlight-target
+                    class="truncate font-medium text-base-content text-sm"
+                  >
+                    {app.title}
+                  </p>
+                </div>
+                <div class="min-w-0">
+                  {app.categoryTitle ? (
+                    <span
+                      data-highlight-target
+                      class:list={[
+                        "badge badge-sm truncate block w-fit max-w-full",
+                        getCategoryBadgeClass(app.categoryTitle),
+                      ]}
+                    >
+                      {app.categoryTitle}
+                    </span>
+                  ) : (
+                    <span class="text-base-content/40 text-xs">
+                      Sin categoría
+                    </span>
+                  )}
+                </div>
+                <div class="min-w-0">
+                  <span
+                    data-highlight-target
+                    class="font-mono text-xs truncate block"
+                  >
+                    {app.version || "—"}
+                  </span>
+                </div>
+                <div class="min-w-0">
+                  {app.filePath ? (
+                    <span
+                      data-highlight-target
+                      class="truncate text-xs font-mono text-base-content/70 block"
+                      title={app.filePath}
+                    >
+                      {truncatePath(app.filePath)}
+                    </span>
+                  ) : (
+                    <span class="badge badge-sm badge-warning gap-1 whitespace-nowrap">
+                      Sin archivo
+                    </span>
+                  )}
+                </div>
+                <div class="flex items-center justify-end gap-1">
+                  <a
+                    href={resolveUrl(`/admin/aplicativos/${app.id}`)}
+                    class="btn btn-sm btn-ghost h-7 px-2 text-base-content/60 hover:text-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    title="Editar"
+                  >
+                    <Icon name="boxicons:pencil-filled" size={14} />
+                    <span class="hidden lg:inline">Editar</span>
+                  </a>
+                  <form
+                    method="POST"
+                    class="inline"
+                    onsubmit="return confirm('¿Eliminar este aplicativo?')"
+                  >
+                    <input type="hidden" name="_action" value="delete" />
+                    <input
+                      type="hidden"
+                      name="appId"
+                      value={String(app.id)}
+                    />
+                    <button
+                      type="submit"
+                      class="btn btn-ghost btn-sm h-7 rounded-lg px-2 text-base-content/60 hover:text-error hover:bg-error/10 transition-all duration-200"
+                      title="Eliminar"
+                    >
+                      <Icon name="boxicons:trash-filled" size={14} />
+                      <span class="hidden lg:inline">Eliminar</span>
+                    </button>
+                  </form>
+                </div>
+              </article>
+            ))}
+          </>
+        )
+      }
+    </DataTable>
+
+    <div class="flex justify-start pt-2">
+      <a href={resolveUrl("/admin")} class="btn btn-ghost btn-sm gap-2">
+        <Icon name="boxicons:arrow-left-stroke-filled" size={16} />
+        Volver a administración
+      </a>
+    </div>
+  </div>
+</PageContainer>
+
+<script>
+  import {
+    matchesSearchQuery,
+    highlightSearchTargets,
+  } from "@lib/clientSearch";
+
+  const searchInput =
+    document.querySelector<HTMLInputElement>("#admin-app-search");
+  const rows = document.querySelectorAll<HTMLElement>("[data-table-row]");
+  const countBadge =
+    document.querySelector<HTMLElement>("#app-count-badge");
+
+  function applyFilters() {
+    const query = searchInput?.value.trim() || "";
+    let visibleCount = 0;
+
+    rows.forEach((row) => {
+      const searchText = row.dataset.searchText || "";
+      const isVisible = matchesSearchQuery(query, [searchText]);
+
+      row.classList.toggle("hidden", !isVisible);
+      highlightSearchTargets(row, isVisible ? query : "");
+
+      if (isVisible) {
+        visibleCount++;
+      }
+    });
+
+    if (countBadge) {
+      countBadge.textContent = visibleCount.toString();
+    }
+  }
+
+  searchInput?.addEventListener("input", applyFilters);
+</script>

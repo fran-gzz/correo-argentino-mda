@@ -5,7 +5,7 @@ import { or, like, sql, asc, desc } from "drizzle-orm";
 export type SupportGuideSortKey = "legacy" | "invgate";
 export type SortOrder = "asc" | "desc";
 
-const guideSortColumns: Record<SupportGuideSortKey, (typeof supportGuides)[keyof typeof supportGuides]> = {
+const guideSortColumns: Record<SupportGuideSortKey, any> = {
   legacy: supportGuides.legacyName,
   invgate: supportGuides.invgateName,
 };

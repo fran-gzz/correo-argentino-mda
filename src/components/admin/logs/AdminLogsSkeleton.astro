@@ -1,0 +1,41 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<div class="mx-auto max-w-4xl w-full">
+  <div class="mb-8">
+    <div class="flex items-center gap-3">
+      <div
+        class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
+      >
+        <Icon name="boxicons:history" size={24} />
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-base-content">
+          Registro de Auditoría
+        </h1>
+        <p class="text-sm text-base-content/70">
+          Monitoreo cronológico de las acciones administrativas recientes.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {/* Timeline Skeleton */}
+  <div class="space-y-6">
+    {
+      Array.from({ length: 5 }).map(() => (
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <div class="size-8 rounded-full skeleton"></div>
+            <div class="w-0.5 h-12 bg-base-300"></div>
+          </div>
+          <div class="flex-1 space-y-2 py-1">
+            <div class="h-4 w-32 skeleton rounded"></div>
+            <div class="h-4 w-full skeleton rounded"></div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>

@@ -1,0 +1,69 @@
+---
+---
+
+<div class="flex flex-col gap-6 w-full pb-24 animate-pulse">
+  <!-- Controls & Filters Bar Skeleton -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-100 p-4 rounded-2xl border border-base-300 shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="h-4 w-32 skeleton rounded"></div>
+      <div class="h-9 w-40 skeleton rounded-xl"></div>
+    </div>
+  </div>
+
+  <!-- KPI Cards Skeleton -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+    {Array.from({ length: 4 }).map(() => (
+      <div class="bg-base-100 p-4 rounded-2xl border border-base-300 shadow-sm flex flex-col gap-3">
+        <div class="h-3 w-24 skeleton rounded"></div>
+        <div class="h-8 w-20 skeleton rounded-lg"></div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Charts Grid Skeleton -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+    <!-- Doughnut Chart Skeleton -->
+    <div class="bg-base-100 p-5 rounded-2xl border border-base-300 shadow-sm flex flex-col gap-4">
+      <div class="h-4 w-44 skeleton rounded"></div>
+      <div class="relative w-full h-[220px] flex items-center justify-center">
+        <div class="size-44 rounded-full skeleton"></div>
+      </div>
+    </div>
+    <!-- Bar Chart Skeleton -->
+    <div class="bg-base-100 p-5 rounded-2xl border border-base-300 shadow-sm flex flex-col gap-4 lg:col-span-2">
+      <div class="h-4 w-52 skeleton rounded"></div>
+      <div class="w-full h-[220px] skeleton rounded-xl"></div>
+    </div>
+  </div>
+
+  <!-- Ranking and Operator Profile Grid Skeleton -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+    <!-- Podio / Rankings Skeleton -->
+    <div class="bg-base-100 p-5 rounded-2xl border border-base-300 shadow-sm flex flex-col gap-4">
+      <div class="h-4 w-40 skeleton rounded"></div>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <div class="h-3 w-32 skeleton rounded"></div>
+          <div class="h-4 w-full skeleton rounded"></div>
+          <div class="h-4 w-full skeleton rounded"></div>
+        </div>
+        <div class="border-t border-base-200 pt-3 space-y-2">
+          <div class="h-3 w-36 skeleton rounded"></div>
+          <div class="h-4 w-full skeleton rounded"></div>
+          <div class="h-4 w-full skeleton rounded"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operator Details Sheet Skeleton -->
+    <div class="bg-base-100 p-5 rounded-2xl border border-base-300 shadow-sm flex flex-col gap-4 lg:col-span-2">
+      <div class="flex items-center justify-between border-b border-base-200 pb-3">
+        <div class="h-4 w-32 skeleton rounded"></div>
+        <div class="h-8 w-44 skeleton rounded-xl"></div>
+      </div>
+      <div class="py-12 text-center text-base-content/40 font-medium">
+        <div class="h-4 w-72 skeleton rounded mx-auto"></div>
+      </div>
+    </div>
+  </div>
+</div>

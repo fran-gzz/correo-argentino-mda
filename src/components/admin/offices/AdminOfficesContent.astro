@@ -1,0 +1,654 @@
+---
+import { db } from "@db/index";
+import { offices, provinces, regions } from "@db/schema";
+import { eq, sql } from "drizzle-orm";
+import PageContainer from "@components/ui/PageContainer.astro";
+import PageHeader from "@components/ui/PageHeader.astro";
+import DataTable from "@components/ui/DataTable.astro";
+import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
+import SearchInput from "@components/ui/SearchInput.astro";
+import FilterTabsBox from "@components/ui/FilterTabsBox.astro";
+import AdminOfficeRow from "@components/admin/AdminOfficeRow.astro";
+import { getOffices } from "@lib/officeQueries";
+import { officeTypeTabActiveClassByType } from "@lib/officeHelpers";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  successMsg?: string;
+  errorMsg?: string;
+  typeFilter?: string;
+  regionFilter?: string;
+  provinceFilter?: string;
+  zoneFilter?: string;
+  paqarFilter?: string;
+  searchFilter?: string;
+}
+
+const {
+  successMsg = "",
+  errorMsg = "",
+  typeFilter = "all",
+  regionFilter = "all",
+  provinceFilter = "all",
+  zoneFilter = "all",
+  paqarFilter = "all",
+  searchFilter = "",
+} = Astro.props;
+
+let activeProvinceFilter = provinceFilter;
+
+const allProvincesWithRegion = await db
+  .select({
+    code: provinces.code,
+    name: provinces.name,
+    regionId: provinces.regionId,
+    regionName: regions.name,
+  })
+  .from(provinces)
+  .leftJoin(regions, eq(provinces.regionId, regions.id))
+  .orderBy(regions.name, provinces.name);
+
+const provincesByRegion: Record<string, { code: string; name: string }[]> = {};
+for (const p of allProvincesWithRegion) {
+  const rName = p.regionName ?? "Sin región";
+  if (!provincesByRegion[rName]) provincesByRegion[rName] = [];
+  provincesByRegion[rName].push({ code: p.code, name: p.name });
+}
+
+if (regionFilter !== "all" && activeProvinceFilter !== "all") {
+  const regionProvinces = provincesByRegion[regionFilter] || [];
+  if (!regionProvinces.find((p) => p.code === activeProvinceFilter)) {
+    activeProvinceFilter = "all";
+  }
+} else if (regionFilter === "all") {
+  activeProvinceFilter = "all";
+}
+
+const uniqueRegions = [
+  ...new Set(
+    allProvincesWithRegion
+      .map((p) => p.regionName)
+      .filter((r): r is string => Boolean(r)),
+  ),
+].sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+
+const allZonesRaw = await db
+  .select({ zone: offices.zone })
+  .from(offices)
+  .where(sql`${offices.zone} IS NOT NULL AND ${offices.zone} != ''`)
+  .groupBy(offices.zone);
+
+const uniqueZones = allZonesRaw
+  .map((z) => z.zone)
+  .filter((z): z is string => Boolean(z))
+  .sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
+
+const { data: allOffices, count: totalOfficesCount, hasMore } = await getOffices({
+  page: 1,
+  limit: 100,
+  search: searchFilter,
+  type: typeFilter,
+  region: regionFilter,
+  province: activeProvinceFilter,
+  zone: zoneFilter,
+  paqar: paqarFilter,
+});
+
+const rawCounts = await db
+  .select({
+    type: offices.type,
+    officeType: offices.officeType,
+    count: sql<number>`count(*)`,
+  })
+  .from(offices)
+  .groupBy(offices.type, offices.officeType);
+
+const processedCounts: { type: string; count: number }[] = [];
+let sucursalAutoCount = 0;
+let sucursalNoAutoCount = 0;
+
+for (const row of rawCounts) {
+  if (!row.type) continue;
+  if (row.type === "SUCURSAL") {
+    if (row.officeType === "AUTOMATIZADA") {
+      sucursalAutoCount += row.count;
+    } else {
+      sucursalNoAutoCount += row.count;
+    }
+  } else {
+    const existing = processedCounts.find((p) => p.type === row.type);
+    if (existing) {
+      existing.count += row.count;
+    } else {
+      processedCounts.push({ type: row.type, count: row.count });
+    }
+  }
+}
+
+if (sucursalAutoCount > 0)
+  processedCounts.push({ type: "SUCURSAL_AUTOMATIZADA", count: sucursalAutoCount });
+if (sucursalNoAutoCount > 0)
+  processedCounts.push({ type: "SUCURSAL_NO_AUTOMATIZADA", count: sucursalNoAutoCount });
+
+const officeCountByType = processedCounts.reduce(
+  (acc, row) => {
+    acc.all += row.count;
+    acc[row.type] = row.count;
+    return acc;
+  },
+  { all: 0 } as Record<string, number>,
+);
+
+const officeTypeLabelByType: Record<string, string> = {
+  ADMINISTRACION: "Administración",
+  AGENCIA: "Agencia",
+  CDD: "CDD",
+  CDP: "CDP",
+  CTP: "CTP",
+  "CORREO COLABORATIVO": "Colaborativo",
+  ESPECIALES: "Especiales",
+  ESTAFETA: "Estafeta",
+  GENERAL: "General",
+  SUCURSAL_AUTOMATIZADA: "Sucursal Automatizada",
+  SUCURSAL_NO_AUTOMATIZADA: "Sucursal No Automatizada",
+  TELEGRAFIA: "Telegrafía",
+  "UNIDAD POSTAL": "Unidad Postal",
+};
+
+function formatTypeLabel(type: string): string {
+  if (type.toLowerCase() === "cdd") return "CDD";
+  if (type.toLowerCase() === "ctp") return "CTP";
+  return (
+    type.charAt(0).toUpperCase() +
+    type.slice(1).toLowerCase().replace(/_/g, " ")
+  );
+}
+
+processedCounts.forEach((row) => {
+  if (row.type && !officeTypeLabelByType[row.type]) {
+    officeTypeLabelByType[row.type] = formatTypeLabel(row.type);
+  }
+});
+
+const officeTypeTabs = [
+  { value: "all", label: "Todas", count: officeCountByType.all },
+  ...processedCounts
+    .sort((a, b) => b.count - a.count)
+    .map((row) => ({
+      value: row.type,
+      label: officeTypeLabelByType[row.type] || formatTypeLabel(row.type),
+      count: row.count,
+    })),
+];
+
+const headerGridClass = "grid-cols-[80px_1fr_90px_150px_1fr_140px] gap-4";
+const rowGridClass =
+  "grid grid-cols-[80px_1fr_90px_150px_1fr_140px] items-center gap-4";
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith("/") ? base : base + "/";
+---
+
+<PageContainer>
+  <PageHeader
+    description="Administración del directorio operativo de oficinas, contactos y activos tecnológicos."
+  />
+
+  {errorMsg && (
+    <div role="alert" class="alert alert-error alert-soft text-sm">
+      <Icon name="boxicons:alert-circle-filled" size={20} class="shrink-0" />
+      <span>{errorMsg}</span>
+    </div>
+  )}
+  {successMsg && (
+    <div role="alert" class="alert alert-success alert-soft text-sm">
+      <Icon name="boxicons:check-circle-filled" size={20} class="shrink-0" />
+      <span>{successMsg}</span>
+    </div>
+  )}
+
+  {/* ── Filtros ── */}
+  <div
+    class="flex flex-col gap-4 rounded-box border border-base-300 bg-base-100 p-4 shadow-md"
+    aria-label="Filtros de oficinas"
+  >
+    <div class="w-full">
+      <FilterTabsBox
+        id="admin-office-type-tabs"
+        tabs={officeTypeTabs.map((tab) => ({
+          value: tab.value,
+          label: tab.label,
+          count: tab.count,
+        }))}
+        activeValue={typeFilter}
+        name="type"
+        activeClasses={officeTypeTabActiveClassByType}
+        class="flex-wrap bg-base-200/50 p-2"
+        submitOnChange={false}
+      />
+    </div>
+
+    {/* Fila de selects + búsqueda + acción */}
+    <div class="flex flex-wrap items-center gap-3 w-full">
+      <select
+        id="admin-office-region-filter"
+        class="select border-base-300 flex-1 min-w-40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        aria-label="Filtrar por región"
+      >
+        <option value="all" selected={regionFilter === "all"}>Regiones (Todas)</option>
+        {uniqueRegions.map((region) => (
+          <option value={region} selected={regionFilter === region}>{region}</option>
+        ))}
+      </select>
+
+      <select
+        id="admin-office-province-filter"
+        class="select border-base-300 flex-1 min-w-40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        aria-label="Filtrar por provincia"
+        disabled={regionFilter === "all"}
+      >
+        <option value="all" selected={activeProvinceFilter === "all"}>Provincias (Todas)</option>
+        {regionFilter !== "all" &&
+          (provincesByRegion[regionFilter] || []).map((prov) => (
+            <option value={prov.code} selected={activeProvinceFilter === prov.code}>
+              {prov.name}
+            </option>
+          ))}
+      </select>
+
+      <select
+        id="admin-office-zone-filter"
+        class="select border-base-300 flex-1 min-w-40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        aria-label="Filtrar por zona"
+      >
+        <option value="all" selected={zoneFilter === "all"}>Zonas (Todas)</option>
+        {uniqueZones.map((zone) => (
+          <option value={zone} selected={zoneFilter === zone}>{zone}</option>
+        ))}
+      </select>
+
+      <select
+        id="admin-office-paqar-filter"
+        class="select border-base-300 flex-1 min-w-40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        aria-label="Filtrar por servicios Paq.AR"
+      >
+        <option value="all" selected={paqarFilter === "all"}>Paq.AR (Todos)</option>
+        <option value="admision" selected={paqarFilter === "admision"}>Admite Paq.AR</option>
+        <option value="entrega" selected={paqarFilter === "entrega"}>Entrega Paq.AR</option>
+        <option value="ambos" selected={paqarFilter === "ambos"}>Admite y Entrega</option>
+      </select>
+
+      <div class="flex-2 min-w-70 flex gap-2">
+        <SearchInput
+          id="admin-office-search"
+          name="search"
+          value={searchFilter}
+          label="Buscar oficina por nombre, código o dirección"
+          placeholder="Buscar por código, nombre o dirección"
+          class="flex-1"
+        />
+        {
+          (typeFilter !== "all" ||
+            regionFilter !== "all" ||
+            activeProvinceFilter !== "all" ||
+            zoneFilter !== "all" ||
+            paqarFilter !== "all" ||
+            searchFilter !== "") && (
+            <a
+              id="admin-office-clear-filters"
+              href={`${cleanBase}admin/offices`}
+              class="btn btn-soft text-base-content/70 hover:text-base-content"
+              aria-label="Limpiar filtros"
+              title="Limpiar todos los filtros"
+            >
+              Limpiar
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+
+  {/* ── Toolbar superior ── */}
+  <div class="flex items-center justify-between gap-4 mt-6">
+    <div class="flex items-center gap-3">
+      <h2 class="text-lg font-semibold text-base-content">
+        Oficinas registradas
+      </h2>
+      <span
+        id="office-count-badge"
+        class="badge badge-neutral badge-sm font-mono"
+      >
+        {totalOfficesCount}
+      </span>
+    </div>
+    <a
+      href={`${cleanBase}admin/offices/new`}
+      class="btn btn-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
+      <Icon name="boxicons:plus" size={18} />
+      Nueva sucursal
+    </a>
+  </div>
+
+  {/* ── Tabla ── */}
+  <DataTable
+    ariaLabel="Listado de oficinas registradas"
+    minWidthClass="min-w-200"
+    headerGridClass={headerGridClass}
+    rowGridClass={rowGridClass}
+  >
+    <div slot="header">
+      <DataTableHeaderCell sortKey="code">Código</DataTableHeaderCell>
+    </div>
+    <div slot="header">
+      <DataTableHeaderCell sortKey="name">Nombre</DataTableHeaderCell>
+    </div>
+    <div slot="header">
+      <DataTableHeaderCell sortKey="parent-nis">NIS Padre</DataTableHeaderCell>
+    </div>
+    <div slot="header">
+      <DataTableHeaderCell sortKey="type">Tipo</DataTableHeaderCell>
+    </div>
+    <div slot="header">
+      <DataTableHeaderCell sortKey="region">Provincia / Región</DataTableHeaderCell>
+    </div>
+    <div slot="header" class="text-right">
+      <DataTableHeaderCell align="right">Acciones</DataTableHeaderCell>
+    </div>
+
+    <div id="admin-offices-container" class="contents">
+      {allOffices.length === 0 ? (
+        <div class="flex flex-col items-center gap-3 py-16 text-base-content/50 col-span-5">
+          <div class="rounded-full bg-base-200 p-4">
+            <Icon
+              name="boxicons:building-filled"
+              size={32}
+              class="opacity-30"
+              aria-hidden="true"
+            />
+          </div>
+          <div class="space-y-1 text-center">
+            <p class="text-sm font-semibold">No hay oficinas que coincidan con la búsqueda</p>
+            <p class="text-xs">
+              Modificá los filtros o limpiá la búsqueda para ver más resultados.
+            </p>
+          </div>
+        </div>
+      ) : (
+        allOffices.map((office) => (
+          <AdminOfficeRow office={office} />
+        ))
+      )}
+    </div>
+  </DataTable>
+
+  <div
+    id="scroll-sentinel"
+    class:list={[
+      "py-8 text-center flex justify-center w-full",
+      !hasMore && "hidden",
+    ]}
+    data-has-more={hasMore ? "true" : "false"}
+  >
+    <span class="loading loading-spinner loading-md text-primary hidden" id="loading-spinner"></span>
+  </div>
+</PageContainer>
+
+<script is:inline define:vars={{ provincesByRegion }}>
+  window._ADMIN_PROVINCES_BY_REGION = provincesByRegion;
+</script>
+<script>
+  import { highlightSearchTargets } from "@lib/clientSearch";
+
+  const searchInput = document.querySelector<HTMLInputElement>("#admin-office-search");
+  const typeTabs = document.querySelectorAll<HTMLElement>("#admin-office-type-tabs [data-tab-value]");
+  const regionFilter = document.querySelector<HTMLSelectElement>("#admin-office-region-filter");
+  const provinceFilter = document.querySelector<HTMLSelectElement>("#admin-office-province-filter");
+  const zoneFilter = document.querySelector<HTMLSelectElement>("#admin-office-zone-filter");
+  const paqarFilter = document.querySelector<HTMLSelectElement>("#admin-office-paqar-filter");
+  const container = document.getElementById("admin-offices-container");
+  const sentinel = document.getElementById("scroll-sentinel");
+  const spinner = document.getElementById("loading-spinner");
+  const countBadge = document.querySelector<HTMLElement>("#office-count-badge");
+  const clearBtn = document.querySelector<HTMLElement>("#admin-office-clear-filters");
+
+  let activeType = new URLSearchParams(window.location.search).get("type") || "all";
+  let currentPage = 1;
+  let currentSearch = searchInput?.value.trim() || "";
+  let isLoading = false;
+  let hasMore = sentinel?.getAttribute("data-has-more") === "true";
+
+  const getQueryParams = (pageNumber: number) => {
+    const params = new URLSearchParams();
+    params.set("view", "admin");
+    params.set("page", pageNumber.toString());
+    params.set("limit", "100");
+    
+    if (activeType !== "all") params.set("type", activeType);
+    if (regionFilter && regionFilter.value !== "all") params.set("region", regionFilter.value);
+    if (provinceFilter && provinceFilter.value !== "all") params.set("province", provinceFilter.value);
+    if (zoneFilter && zoneFilter.value !== "all") params.set("zone", zoneFilter.value);
+    if (paqarFilter && paqarFilter.value !== "all") params.set("paqar", paqarFilter.value);
+    if (currentSearch) params.set("search", currentSearch);
+    
+    return params.toString();
+  };
+
+  const updateURL = () => {
+    const params = new URLSearchParams();
+    if (activeType !== "all") params.set("type", activeType);
+    if (regionFilter && regionFilter.value !== "all") params.set("region", regionFilter.value);
+    if (provinceFilter && provinceFilter.value !== "all") params.set("province", provinceFilter.value);
+    if (zoneFilter && zoneFilter.value !== "all") params.set("zone", zoneFilter.value);
+    if (paqarFilter && paqarFilter.value !== "all") params.set("paqar", paqarFilter.value);
+    if (currentSearch) params.set("search", currentSearch);
+    
+    const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    window.history.replaceState({}, '', newUrl);
+  };
+
+  const fetchOffices = async (isNewSearch: boolean) => {
+    if (isLoading) return;
+    isLoading = true;
+    spinner?.classList.remove("hidden");
+
+    try {
+      const query = getQueryParams(currentPage);
+      const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const response = await fetch(`${baseUrl}/api/offices?${query}`);
+      if (!response.ok) throw new Error("API call failed");
+
+      const html = await response.text();
+      const newHasMore = response.headers.get("X-Has-More") === "true";
+      const totalCount = parseInt(response.headers.get("X-Total-Count") || "0", 10);
+
+      hasMore = newHasMore;
+
+      if (!hasMore) {
+        sentinel?.classList.add("hidden");
+      } else {
+        sentinel?.classList.remove("hidden");
+      }
+
+      if (container) {
+        if (isNewSearch) {
+          container.innerHTML = html;
+        } else {
+          container.insertAdjacentHTML("beforeend", html);
+        }
+
+        if (totalCount === 0 && isNewSearch) {
+          container.innerHTML = `
+            <div class="flex flex-col items-center gap-3 py-16 text-base-content/50 col-span-5 w-full">
+              <div class="rounded-full bg-base-200 p-4">
+                <svg viewBox="0 0 24 24" class="opacity-30 size-8 fill-current"><path d="M19 2H9c-1.103 0-2 .897-2 2v5.586l-4.707 4.707A1 1 0 0 0 2 15v5c0 1.103.897 2 2 2h15c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm-8 18H4v-4.586l3-3V20h4v-2h2v2h4V4h-6v16z"></path><path d="M11 6h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2z"></path></svg>
+              </div>
+              <div class="space-y-1 text-center">
+                <p class="text-sm font-semibold">No hay oficinas que coincidan con la búsqueda</p>
+                <p class="text-xs">Modificá los filtros o limpiá la búsqueda para ver más resultados.</p>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      if (countBadge) {
+        countBadge.textContent = totalCount.toString();
+      }
+
+      if (currentSearch && container) {
+        const newArticles = Array.from(container.querySelectorAll<HTMLElement>("[data-table-row]"));
+        newArticles.forEach((item) => {
+          highlightSearchTargets(item, currentSearch);
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching offices:", error);
+    } finally {
+      isLoading = false;
+      spinner?.classList.add("hidden");
+    }
+  };
+
+  const handleSearch = () => {
+    currentPage = 1;
+    updateURL();
+    fetchOffices(true);
+  };
+
+  let searchTimeout: ReturnType<typeof setTimeout>;
+  searchInput?.addEventListener("input", (e) => {
+    clearTimeout(searchTimeout);
+    currentSearch = (e.target as HTMLInputElement).value.trim();
+    searchTimeout = setTimeout(handleSearch, 300);
+  });
+
+  const onFilterChange = () => {
+    currentPage = 1;
+    updateURL();
+    fetchOffices(true);
+  };
+
+  regionFilter?.addEventListener("change", () => {
+    const provincesData = (window as any)._ADMIN_PROVINCES_BY_REGION;
+    const selectedRegion = regionFilter.value;
+
+    if (provinceFilter) {
+      provinceFilter.innerHTML = '<option value="all">Provincias (Todas)</option>';
+      if (selectedRegion !== "all" && provincesData?.[selectedRegion]) {
+        for (const p of provincesData[selectedRegion]) {
+          const opt = document.createElement("option");
+          opt.value = p.code;
+          opt.textContent = p.name;
+          provinceFilter.appendChild(opt);
+        }
+        provinceFilter.disabled = false;
+      } else {
+        provinceFilter.disabled = true;
+      }
+      provinceFilter.value = "all";
+    }
+    onFilterChange();
+  });
+
+  provinceFilter?.addEventListener("change", onFilterChange);
+  zoneFilter?.addEventListener("change", onFilterChange);
+  paqarFilter?.addEventListener("change", onFilterChange);
+
+  if (clearBtn) {
+    clearBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      activeType = "all";
+      typeTabs.forEach((t) => {
+        const isActive = (t as HTMLElement).dataset.tabValue === activeType;
+        t.setAttribute("aria-selected", isActive ? "true" : "false");
+        t.classList.toggle("tab-active", isActive);
+      });
+      
+      if (regionFilter) regionFilter.value = "all";
+      if (provinceFilter) {
+        provinceFilter.innerHTML = '<option value="all">Provincias (Todas)</option>';
+        provinceFilter.disabled = true;
+        provinceFilter.value = "all";
+      }
+      if (zoneFilter) zoneFilter.value = "all";
+      if (paqarFilter) paqarFilter.value = "all";
+      if (searchInput) searchInput.value = "";
+      
+      onFilterChange();
+    });
+  }
+
+  typeTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      activeType = (tab as HTMLElement).dataset.tabValue || "all";
+      typeTabs.forEach((t) => {
+        const isActive = (t as HTMLElement).dataset.tabValue === activeType;
+        t.setAttribute("aria-selected", isActive ? "true" : "false");
+        t.classList.toggle("tab-active", isActive);
+      });
+      onFilterChange();
+    });
+  });
+
+  if (sentinel) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !isLoading && hasMore) {
+          currentPage++;
+          fetchOffices(false);
+        }
+      },
+      { rootMargin: "100px" }
+    );
+    observer.observe(sentinel);
+  }
+</script>
+
+<style is:global>
+  .office-type-chip {
+    border-width: 1px;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.04);
+    border-radius: 0.5rem;
+  }
+
+  .office-type-chip-administracion { background-color: var(--color-indigo-100, #e0e7ff); border-color: var(--color-indigo-300, #a5b4fc); color: var(--color-indigo-900, #1e1b4b); }
+  [data-theme="dark"] .office-type-chip-administracion { background-color: #1e1b4b; border-color: #4338ca; color: #e0e7ff; }
+
+  .office-type-chip-agencia { background-color: var(--color-amber-100, #fef3c7); border-color: var(--color-amber-300, #fcd34d); color: var(--color-amber-900, #78350f); }
+  [data-theme="dark"] .office-type-chip-agencia { background-color: #78350f; border-color: #b45309; color: #fef3c7; }
+
+  .office-type-chip-cdd { background-color: var(--color-blue-100, #dbeafe); border-color: var(--color-blue-300, #93c5fd); color: var(--color-blue-900, #1e3a8a); }
+  [data-theme="dark"] .office-type-chip-cdd { background-color: #1e3a8a; border-color: #1d4ed8; color: #dbeafe; }
+
+  .office-type-chip-cdp { background-color: var(--color-red-100, #fee2e2); border-color: var(--color-red-300, #fca5a5); color: var(--color-red-900, #7f1d1d); }
+  [data-theme="dark"] .office-type-chip-cdp { background-color: #7f1d1d; border-color: #b91c1c; color: #fee2e2; }
+
+  .office-type-chip-ctp { background-color: var(--color-green-100, #dcfce7); border-color: var(--color-green-300, #86efac); color: var(--color-green-900, #14532d); }
+  [data-theme="dark"] .office-type-chip-ctp { background-color: #14532d; border-color: #15803d; color: #dcfce7; }
+
+  .office-type-chip-correo-colaborativo { background-color: var(--color-cyan-100, #cffafe); border-color: var(--color-cyan-300, #67e8f9); color: var(--color-cyan-900, #164e63); }
+  [data-theme="dark"] .office-type-chip-correo-colaborativo { background-color: #164e63; border-color: #0e7490; color: #cffafe; }
+
+  .office-type-chip-especiales { background-color: var(--color-purple-100, #f3e8ff); border-color: var(--color-purple-300, #d8b4fe); color: var(--color-purple-900, #581c87); }
+  [data-theme="dark"] .office-type-chip-especiales { background-color: #581c87; border-color: #7e22ce; color: #f3e8ff; }
+
+  .office-type-chip-estafeta { background-color: var(--color-lime-100, #f7fee7); border-color: var(--color-lime-300, #bef264); color: var(--color-lime-900, #365314); }
+  [data-theme="dark"] .office-type-chip-estafeta { background-color: #365314; border-color: #4d7c0f; color: #bef264; }
+
+  .office-type-chip-general { background-color: var(--color-stone-200, #e7e5e4); border-color: var(--color-stone-300, #d6d3d1); color: var(--color-stone-900, #1c1917); }
+  [data-theme="dark"] .office-type-chip-general { background-color: #292524; border-color: #44403c; color: #e7e5e4; }
+
+  .office-type-chip-sucursal-automatizada { background-color: var(--color-yellow-100, #fef9c3); border-color: var(--color-yellow-300, #fde047); color: var(--color-yellow-900, #713f12); }
+  [data-theme="dark"] .office-type-chip-sucursal-automatizada { background-color: #713f12; border-color: #a16207; color: #fef9c3; }
+
+  .office-type-chip-sucursal-no-automatizada { background-color: var(--color-orange-100, #ffedd5); border-color: var(--color-orange-300, #fdba74); color: var(--color-orange-900, #7c2d12); }
+  [data-theme="dark"] .office-type-chip-sucursal-no-automatizada { background-color: #7c2d12; border-color: #ea580c; color: #ffedd5; }
+
+  .office-type-chip-telegrafia { background-color: var(--color-emerald-100, #d1fae5); border-color: var(--color-emerald-300, #6ee7b7); color: var(--color-emerald-900, #064e3b); }
+  [data-theme="dark"] .office-type-chip-telegrafia { background-color: #064e3b; border-color: #047857; color: #d1fae5; }
+
+  .office-type-chip-unidad-postal { background-color: var(--color-rose-100, #ffe4e6); border-color: var(--color-rose-300, #fda4af); color: var(--color-rose-900, #4c0519); }
+  [data-theme="dark"] .office-type-chip-unidad-postal { background-color: #4c0519; border-color: #9f1239; color: #ffe4e6; }
+</style>

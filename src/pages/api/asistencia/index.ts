@@ -83,7 +83,6 @@ export function calculateCompliance(
 export const GET: APIRoute = async ({ url }) => {
   try {
     const startDate = url.searchParams.get("startDate") || url.searchParams.get("date");
-    const endDate = url.searchParams.get("endDate") || startDate;
 
     if (!startDate) {
       return new Response(JSON.stringify({ error: "Missing date parameter" }), {
@@ -92,6 +91,7 @@ export const GET: APIRoute = async ({ url }) => {
       });
     }
 
+    const endDate = url.searchParams.get("endDate") || startDate;
     const dates = getDatesInRange(startDate, endDate);
 
     // 1. Fetch all agents

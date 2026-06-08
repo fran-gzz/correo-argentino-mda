@@ -7,6 +7,8 @@ import MonthlyDetailModal from "./subcomponents/MonthlyDetailModal.astro";
 import RulesSettingsModal from "./subcomponents/RulesSettingsModal.astro";
 import NewMonthModal from "./subcomponents/NewMonthModal.astro";
 import OperatorFormModal from "./subcomponents/OperatorFormModal.astro";
+import DailyTableSkeleton from "./subcomponents/DailyTableSkeleton.astro";
+import MonthlyTableSkeleton from "./subcomponents/MonthlyTableSkeleton.astro";
 ---
 
 <div id="cronograma-container" class="animate-in fade-in duration-700 w-full pb-12 space-y-8">
@@ -124,7 +126,7 @@ import OperatorFormModal from "./subcomponents/OperatorFormModal.astro";
               <thead class="sticky top-0 z-50 bg-base-100/98 backdrop-blur-sm shadow-sm text-xs uppercase font-bold text-base-content/50 tracking-widest border-b border-base-300">
                 <tr>
                   <th class="sticky left-0 bg-base-100 z-50 w-64 min-w-[16rem] py-3 px-6 border-r border-b border-base-200/70">Operador</th>
-                  <th class="sticky left-[16rem] bg-base-100 z-50 w-44 min-w-[11rem] py-3 px-4 border-r border-b border-base-200/70 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.1)]">Modalidad</th>
+                  <th class="sticky left-64 bg-base-100 z-50 w-44 min-w-44 py-3 px-4 border-r border-b border-base-200/70 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.1)]">Modalidad</th>
                   <th class="py-3 px-6 border-b border-base-200/70">
                     <div class="flex justify-between w-full text-[10px] font-black text-base-content/40 px-2 select-none">
                       <span>00:00</span>
@@ -145,7 +147,7 @@ import OperatorFormModal from "./subcomponents/OperatorFormModal.astro";
                 </tr>
               </thead>
               <tbody id="operators-table-body" class="divide-y divide-base-200 bg-base-100">
-                <!-- Inyectado dinámicamente -->
+                <DailyTableSkeleton />
               </tbody>
             </table>
           </div>
@@ -288,7 +290,7 @@ import OperatorFormModal from "./subcomponents/OperatorFormModal.astro";
                     <span id="current-month-display">-</span>
                     <svg class="w-2.5 h-2.5 opacity-60 ml-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                   </div>
-                  <ul tabindex="0" id="month-dropdown-list" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-xl z-[100] w-48 border border-base-200 max-h-60 overflow-y-auto mt-1">
+                  <ul tabindex="0" id="month-dropdown-list" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-xl z-100 w-48 border border-base-200 max-h-60 overflow-y-auto mt-1">
                     <!-- Dynamic months list here -->
                   </ul>
                 </div>
@@ -396,10 +398,10 @@ import OperatorFormModal from "./subcomponents/OperatorFormModal.astro";
           <div class="overflow-x-auto max-h-[580px] overflow-y-auto scrollbar-thin rounded-xl border border-base-200 bg-base-100">
             <table class="w-full text-sm text-left border-separate border-spacing-0" id="monthly-table">
               <thead class="sticky top-0 z-30 bg-base-100/98 backdrop-blur-sm shadow-sm" id="monthly-thead">
-                <!-- Headers injected here -->
+                <MonthlyTableSkeleton part="thead" />
               </thead>
               <tbody id="monthly-tbody">
-                <!-- Matrix injected here -->
+                <MonthlyTableSkeleton part="tbody" />
               </tbody>
               <tfoot id="monthly-tfoot" class="sticky bottom-0 z-40 bg-base-100/95 backdrop-blur-md border-t-2 border-base-300">
                 <!-- Coverage stats injected here -->
@@ -534,7 +536,7 @@ import OperatorFormModal from "./subcomponents/OperatorFormModal.astro";
 <!-- Quick Edit Context Menu -->
 <div 
   id="quick-edit-menu" 
-  class="fixed z-[100] hidden min-w-[160px] bg-base-100/90 backdrop-blur-xl border border-base-300 rounded-xl shadow-2xl p-1.5 animate-in fade-in zoom-in-95 duration-100"
+  class="fixed z-100 hidden min-w-[160px] bg-base-100/90 backdrop-blur-xl border border-base-300 rounded-xl shadow-2xl p-1.5 animate-in fade-in zoom-in-95 duration-100"
 >
   <div class="px-3 py-2 border-b border-base-200 mb-1">
     <p class="text-[9px] font-black uppercase tracking-widest text-base-content/40" id="quick-edit-target-name">Cambiar Estado</p>
@@ -591,7 +593,7 @@ import OperatorFormModal from "./subcomponents/OperatorFormModal.astro";
 <MonthlyDetailModal />
 
 <!-- Edit Mode Toolbar -->
-<div id="edit-mode-toolbar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-base-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-base-300 p-3 flex items-center gap-4 z-[100] transition-all duration-500 translate-y-32 opacity-0 pointer-events-none">
+<div id="edit-mode-toolbar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-base-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-base-300 p-3 flex items-center gap-4 z-100 transition-all duration-500 translate-y-32 opacity-0 pointer-events-none">
     
     <!-- Brush Tools -->
     <div class="flex items-center gap-1.5 bg-base-200/50 p-1.5 rounded-xl border border-base-300/50">

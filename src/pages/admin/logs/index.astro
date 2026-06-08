@@ -1,44 +1,11 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import { db } from "@db/index";
-import { auditLogs } from "@db/schema";
-import { desc } from "drizzle-orm";
-import { Icon } from "astro-icon/components";
-import AuditLogsTimeline from "@components/admin/AuditLogsTimeline.astro";
-
-// FASE 3: Recuperar los últimos 100 registros, ordenados de forma descendente por timestamp
-let logs: (typeof auditLogs.$inferSelect)[] = [];
-try {
-  logs = await db
-    .select()
-    .from(auditLogs)
-    .orderBy(desc(auditLogs.timestamp))
-    .limit(100);
-} catch (error) {
-  console.error("Error al obtener los logs de auditoría:", error);
-}
+import AdminLogsContent from "@components/admin/logs/AdminLogsContent.astro";
+import AdminLogsSkeleton from "@components/admin/logs/AdminLogsSkeleton.astro";
 ---
 
 <BaseLayout title="Registro de auditoría">
-  <div class="mx-auto max-w-4xl w-full">
-    <div class="mb-8">
-      <div class="flex items-center gap-3">
-        <div
-          class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
-        >
-          <Icon name="boxicons:history" size={24} />
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold tracking-tight text-base-content">
-            Registro de Auditoría
-          </h1>
-          <p class="text-sm text-base-content/70">
-            Monitoreo cronológico de las acciones administrativas recientes.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <AuditLogsTimeline logs={logs} />
-  </div>
+  <AdminLogsContent server:defer>
+    <AdminLogsSkeleton slot="fallback" />
+  </AdminLogsContent>
 </BaseLayout>

@@ -18,6 +18,11 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export async function fetchCronogramaData(): Promise<OperatorData[]> {
+  if (typeof window !== 'undefined' && (window as any).__CRONOGRAMA_INITIAL_DATA__) {
+    const data = (window as any).__CRONOGRAMA_INITIAL_DATA__;
+    delete (window as any).__CRONOGRAMA_INITIAL_DATA__;
+    return data;
+  }
   return fetchJSON<OperatorData[]>('/api/cronograma');
 }
 
