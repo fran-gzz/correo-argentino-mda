@@ -20,21 +20,28 @@ const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 
 const resolveUrl = (path: string): string => {
   if (!path) return "";
-  if (
-    isWebUrl(path) ||
-    path.startsWith("mailto:") ||
-    path.startsWith("tel:") ||
-    path.startsWith(cleanBase)
-  ) {
+
+  if (isWebUrl(path)) {
+    if (path.includes("/api/download/")) {
+      const urlObj = new URL(path);
+      const fileName = urlObj.pathname.split(/[\/\\]/).pop() || "";
+      return `${cleanBase}api/download/${fileName}`;
+    }
     return path;
   }
-  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${cleanBase}${cleanPath}`;
+
+  if (path.startsWith("mailto:") || path.startsWith("tel:")) {
+    return path;
+  }
+
+  const pathWithoutQuery = path.split("?")[0] || "";
+  const fileName = pathWithoutQuery.split(/[\/\\]/).pop() || "";
+  return `${cleanBase}api/download/${fileName}`;
 };
 
 const itemUrl = resolveUrl(filePath?.trim() ?? "");
 const hasItemUrl = itemUrl.length > 0;
-const isExternal = hasItemUrl && isWebUrl(itemUrl);
+const isExternal = hasItemUrl && !itemUrl.includes("/api/download/") && isWebUrl(itemUrl);
 
 const typeToneMap: Partial<Record<string, BadgeTone>> = {
   Programa: "secondary",
