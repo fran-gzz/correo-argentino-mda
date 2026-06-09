@@ -18,8 +18,9 @@ import {
 import { db } from "@db/index";
 import { provinces, regions, offices } from "@db/schema";
 import { eq, sql } from "drizzle-orm";
+import { getResolvedSearchParams } from "@lib/navigation";
 
-const searchParams = Astro.url.searchParams;
+const searchParams = getResolvedSearchParams(Astro.request, Astro.url);
 
 const typeFilter = searchParams.get("type") || "all";
 const regionFilter = searchParams.get("region") || "all";
