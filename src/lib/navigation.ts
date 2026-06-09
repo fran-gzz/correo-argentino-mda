@@ -213,3 +213,33 @@ export function getSectionTitle(pathname: string): string {
 
   return "";
 }
+
+export function getResolvedPathname(request: Request, url: URL): string {
+  const pathname = url.pathname;
+  if (pathname.startsWith("/_server-islands/")) {
+    const referer = request.headers.get("referer");
+    if (referer) {
+      try {
+        const refererUrl = new URL(referer);
+        return refererUrl.pathname;
+      } catch (e) {
+      }
+    }
+  }
+  return pathname;
+}
+
+export function getResolvedSearchParams(request: Request, url: URL): URLSearchParams {
+  const pathname = url.pathname;
+  if (pathname.startsWith("/_server-islands/")) {
+    const referer = request.headers.get("referer");
+    if (referer) {
+      try {
+        const refererUrl = new URL(referer);
+        return refererUrl.searchParams;
+      } catch (e) {
+      }
+    }
+  }
+  return url.searchParams;
+}

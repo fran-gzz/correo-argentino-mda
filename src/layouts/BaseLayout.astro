@@ -6,16 +6,19 @@ import logo from "@assets/logo.svg";
 import geistLatinWoff2 from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
 import geistMonoLatinWoff2 from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 import packageJson from "../../package.json";
-import { navSections, getSectionTitle, type NavItem } from "@lib/navigation";
+import { navSections, getSectionTitle, getResolvedPathname, type NavItem } from "@lib/navigation";
 
 interface Props {
   title?: string;
 }
 
 const { title } = Astro.props;
-const currentPath = Astro.url.pathname;
-const inferredTitle =
-  title || getSectionTitle(currentPath) || "Portal Mesa de Ayuda";
+const resolvedPath = getResolvedPathname(Astro.request, Astro.url);
+const currentPath = resolvedPath;
+const rawTitle = title || getSectionTitle(resolvedPath) || "Portal Mesa de Ayuda";
+const inferredTitle = rawTitle && rawTitle !== "Portal MDA" && rawTitle !== "Portal Mesa de Ayuda" && rawTitle !== "Portal"
+  ? `Portal MDA | ${rawTitle}`
+  : "Portal MDA";
 const globalFontFaceCss = `
   @font-face {
     font-family: "Geist Variable";
