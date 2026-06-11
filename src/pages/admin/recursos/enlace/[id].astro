@@ -6,6 +6,7 @@ import { db } from "@db/index";
 import { resourceCategories, resourceLinks } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { logAdminAction } from "@lib/auditLogger";
+import { processIconUpload } from "@lib/iconUpload";
 
 const { id } = Astro.params;
 const isNew = id === "nuevo";
@@ -25,6 +26,7 @@ let link = {
   title: "",
   url: "",
   subtitle: "",
+  iconPath: "",
 };
 
 const categories = await db.select().from(resourceCategories);
@@ -37,6 +39,7 @@ if (!isNew && id) {
     link = {
       ...existingLink,
       subtitle: existingLink.subtitle || "",
+      iconPath: existingLink.iconPath || "",
     };
   } else {
     return Astro.redirect(resolveUrl("/admin/recursos"));
@@ -55,6 +58,16 @@ if (Astro.request.method === "POST") {
     const categoryId = formData.get("categoryId")?.toString().trim();
     const subtitle = formData.get("subtitle")?.toString().trim() || null;
 
+    let iconPath = link.iconPath || null;
+
+    const newIconPath = await processIconUpload({
+      iconFile: formData.get("iconFile") as File | null,
+      currentIconPath: link.iconPath || null,
+    });
+    if (newIconPath) {
+      iconPath = newIconPath;
+    }
+
     if (!title || !url || !categoryId) {
       throw new Error("El título, la url y la categoría son obligatorios.");
     }
@@ -67,6 +80,7 @@ if (Astro.request.method === "POST") {
         title,
         url,
         subtitle,
+        iconPath,
       });
       await logAdminAction(Astro.locals.user?.username || 'Sistema', `Creó el enlace "${title}"`);
     } else if (id) {
@@ -78,6 +92,7 @@ if (Astro.request.method === "POST") {
           title,
           url,
           subtitle,
+          iconPath,
         })
         .where(eq(resourceLinks.id, id));
       if (oldTitle && oldTitle !== title) {
@@ -124,7 +139,7 @@ if (Astro.request.method === "POST") {
             )
           }
 
-          <form method="POST" class="space-y-5">
+          <form method="POST" enctype="multipart/form-data" class="space-y-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
               <fieldset class="fieldset">
                 <legend class="fieldset-legend font-semibold uppercase tracking-wide text-xs">Título del Enlace</legend>
@@ -180,6 +195,36 @@ if (Astro.request.method === "POST") {
                 />
               </fieldset>
             </div>
+
+            <fieldset class="fieldset">
+              <legend
+                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
+              >
+                Ícono
+                <span class="text-base-content/40 font-normal normal-case ml-1"
+                  >(Opcional, .png, .jpg, .svg, .ico)</span
+                >
+              </legend>
+              <div class="flex items-center gap-4">
+                {
+                  link.iconPath && (
+                    <div class="w-12 h-12 shrink-0 rounded-box border border-base-300 bg-base-200 flex items-center justify-center overflow-hidden p-1">
+                      <img
+                        src={resolveUrl(`api/icons/${link.iconPath}`)}
+                        alt="Preview del ícono"
+                        class="w-full h-full object-contain"
+                      />
+                    </div>
+                  )
+                }
+                <input
+                  type="file"
+                  name="iconFile"
+                  accept="image/png, image/jpeg, image/svg+xml, .ico"
+                  class="file-input file-input-bordered w-full"
+                />
+              </div>
+            </fieldset>
 
             <div class="flex justify-end gap-3 pt-6 mt-2 border-t border-base-200">
               <a href={resolveUrl("/admin/recursos")} class="btn btn-ghost">Cancelar</a>

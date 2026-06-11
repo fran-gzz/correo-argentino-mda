@@ -6,6 +6,7 @@ import { db } from "@db/index";
 import { applications, applicationCategories } from "@db/schema";
 import { eq } from "drizzle-orm";
 import { logAdminAction } from "@lib/auditLogger";
+import { processIconUpload } from "@lib/iconUpload";
 
 const { id } = Astro.params;
 const isNew = id === "nuevo";
@@ -25,6 +26,7 @@ let app = {
   description: "",
   version: "",
   filePath: "",
+  iconPath: "",
 };
 
 const categories = await db.select().from(applicationCategories);
@@ -47,6 +49,7 @@ if (!isNew && id) {
       description: existing.description || "",
       version: existing.version || "",
       filePath: existing.filePath || "",
+      iconPath: existing.iconPath || "",
     };
   } else {
     return Astro.redirect(resolveUrl("/admin/aplicativos"));
@@ -76,6 +79,7 @@ if (Astro.request.method === "POST") {
     }
 
     let filePath = app.filePath || null;
+    let iconPath = app.iconPath || null;
 
     if (uploadType === "external") {
       const externalUrl =
@@ -147,6 +151,14 @@ if (Astro.request.method === "POST") {
       }
     }
 
+    const newIconPath = await processIconUpload({
+      iconFile: formData.get("icon") as File | null,
+      currentIconPath: app.iconPath || null,
+    });
+    if (newIconPath) {
+      iconPath = newIconPath;
+    }
+
     if (isNew) {
       await db.insert(applications).values({
         title,
@@ -154,6 +166,7 @@ if (Astro.request.method === "POST") {
         description,
         version,
         filePath,
+        iconPath,
       });
       await logAdminAction(Astro.locals.user?.username || 'Sistema', `Creó el aplicativo "${title}"`);
     } else {
@@ -166,6 +179,7 @@ if (Astro.request.method === "POST") {
           description,
           version,
           filePath,
+          iconPath,
         })
         .where(eq(applications.id, app.id));
       if (oldTitle && oldTitle !== title) {
@@ -303,6 +317,36 @@ const isExternal = formUploadType
                 />
               </fieldset>
             </div>
+
+            <fieldset class="fieldset">
+              <legend
+                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
+              >
+                Ícono
+                <span class="text-base-content/40 font-normal normal-case ml-1"
+                  >(Opcional, .png, .jpg, .svg, .ico)</span
+                >
+              </legend>
+              <div class="flex items-center gap-4">
+                {
+                  app.iconPath && (
+                    <div class="w-14 h-14 shrink-0 rounded-box border border-base-300 bg-base-200 flex items-center justify-center overflow-hidden p-1">
+                      <img
+                        src={resolveUrl(`api/icons/${app.iconPath}`)}
+                        alt="Icon preview"
+                        class="w-full h-full object-contain"
+                      />
+                    </div>
+                  )
+                }
+                <input
+                  type="file"
+                  name="icon"
+                  accept="image/png, image/jpeg, image/svg+xml, .ico"
+                  class="file-input file-input-bordered w-full"
+                />
+              </div>
+            </fieldset>
 
             <fieldset class="fieldset">
               <legend

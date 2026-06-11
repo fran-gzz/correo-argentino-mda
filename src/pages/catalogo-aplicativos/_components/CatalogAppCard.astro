@@ -8,11 +8,10 @@ interface Props {
   version?: string | null;
   filePath?: string | null;
   categoryTitle?: string | null;
+  iconPath?: string | null;
 }
 
-type BadgeTone = "primary" | "secondary" | "accent" | "neutral" | "warning";
-
-const { title, description, version, filePath, categoryTitle } = Astro.props;
+const { title, description, version, filePath, categoryTitle, iconPath } = Astro.props;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -43,78 +42,86 @@ const itemUrl = resolveUrl(filePath?.trim() ?? "");
 const hasItemUrl = itemUrl.length > 0;
 const isExternal = hasItemUrl && !itemUrl.includes("/api/download/") && isWebUrl(itemUrl);
 
-const typeToneMap: Partial<Record<string, BadgeTone>> = {
-  Programa: "secondary",
-  Extensión: "accent",
-};
-const typeTone = typeToneMap[categoryTitle ?? ""] ?? "neutral";
+const iconUrl = iconPath ? `${cleanBase}api/icons/${iconPath}` : null;
 ---
 
 <article
   class="card h-full border border-base-300 bg-base-100 shadow-md transition-colors hover:border-secondary/40"
 >
-  <div class="card-body gap-4 p-4 sm:p-5">
-    <div class="flex items-start justify-between gap-3">
+  <div class="card-body flex-row items-start gap-4 p-4 sm:p-5">
+    <div
+      class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-box border border-base-300 bg-base-200 p-1"
+    >
       {
-        categoryTitle && (
-          <CatalogSoftBadge tone={typeTone}>{categoryTitle}</CatalogSoftBadge>
+        iconUrl ? (
+          <img
+            src={iconUrl}
+            alt={`Ícono de ${title}`}
+            class="h-full w-full object-contain"
+          />
+        ) : (
+          <Icon name="boxicons:cube" class="h-8 w-8 text-base-content/40" />
         )
       }
+    </div>
 
+    <div class="flex min-w-0 flex-1 flex-col gap-4 h-full">
       {
         version && (
-          <CatalogSoftBadge tone="neutral" class="shrink-0">
-            {version}
-          </CatalogSoftBadge>
+          <div class="flex items-start justify-end gap-3">
+            <CatalogSoftBadge tone="neutral" class="shrink-0">
+              {version}
+            </CatalogSoftBadge>
+          </div>
         )
       }
-    </div>
 
-    <div class="min-w-0 space-y-2">
-      <h3 class="text-base font-semibold leading-tight text-base-content">
-        {title}
-      </h3>
-      {
-        description && (
-          <p class="text-sm leading-relaxed text-base-content/70">
-            {description}
-          </p>
-        )
-      }
-    </div>
+      <div class="min-w-0 space-y-2">
+        <h3 class="text-base font-semibold leading-tight text-base-content">
+          {title}
+        </h3>
+        {
+          description && (
+            <p class="text-sm leading-relaxed text-base-content/70">
+              {description}
+            </p>
+          )
+        }
+      </div>
 
-    <div class="card-actions mt-auto justify-end pt-1">
-      {
-        hasItemUrl ? (
-          <a
-            href={itemUrl}
-            class="btn btn-secondary btn-sm gap-2"
-            target={isExternal ? "_blank" : undefined}
-            rel={isExternal ? "noopener noreferrer" : undefined}
-            download={!isExternal ? "" : undefined}
-          >
-            <Icon
-              name="boxicons:arrow-to-bottom-stroke"
-              size={18}
-              aria-hidden="true"
-            />
-            <span>Descargar</span>
-          </a>
-        ) : (
-          <button
-            type="button"
-            class="btn btn-ghost btn-disabled btn-sm gap-2"
-            disabled
-          >
-            <Icon
-              name="boxicons:calendar-filled"
-              size={18}
-              aria-hidden="true"
-            />
-            <span>Pendiente</span>
-          </button>
-        )
-      }
+      <div class="card-actions mt-auto justify-end pt-1">
+        {
+          hasItemUrl ? (
+            <a
+              href={itemUrl}
+              class="btn btn-secondary btn-sm gap-2"
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
+              download={!isExternal ? "" : undefined}
+            >
+              <Icon
+                name="boxicons:arrow-to-bottom-stroke"
+                size={18}
+                aria-hidden="true"
+              />
+              <span>Descargar</span>
+            </a>
+          ) : (
+            <button
+              type="button"
+              class="btn btn-ghost btn-disabled btn-sm gap-2"
+              disabled
+            >
+              <Icon
+                name="boxicons:calendar-filled"
+                size={18}
+                aria-hidden="true"
+              />
+              <span>Pendiente</span>
+            </button>
+          )
+        }
+      </div>
     </div>
   </div>
 </article>

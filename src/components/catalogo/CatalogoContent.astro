@@ -18,6 +18,7 @@ interface AppRow {
   version: string | null;
   filePath: string | null;
   categoryTitle: string | null;
+  iconPath: string | null;
 }
 
 let allApps: AppRow[] = [];
@@ -33,6 +34,7 @@ try {
       description: applications.description,
       version: applications.version,
       filePath: applications.filePath,
+      iconPath: applications.iconPath,
       categoryTitle: applicationCategories.title,
     })
     .from(applications)
@@ -133,6 +135,7 @@ for (const app of regularApps) {
                 version={app.version}
                 filePath={app.filePath}
                 categoryTitle={app.categoryTitle}
+                iconPath={app.iconPath}
               />
             ))}
           </div>
@@ -167,6 +170,7 @@ for (const app of regularApps) {
                 version={app.version}
                 filePath={app.filePath}
                 categoryTitle={null}
+                iconPath={app.iconPath}
               />
           ))}
         </div>

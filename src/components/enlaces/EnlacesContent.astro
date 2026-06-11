@@ -23,6 +23,7 @@ const importantCategories = rawCategories.map(
     links: category.links.map((link) => ({
       ...link,
       subtitle: link.subtitle ?? undefined,
+      iconPath: link.iconPath ?? undefined,
     })),
   }),
 );

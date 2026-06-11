@@ -1,4 +1,5 @@
 ---
+import { Icon } from "astro-icon/components";
 import CopyButton from "@components/ui/CopyButton.astro";
 import OpenExternalUrlButton from "@components/ui/OpenExternalUrlButton.astro";
 import type { ImportantLink, LinkAlternative } from "./types";
@@ -64,6 +65,10 @@ const alternativeActions = alternatives.map((alternative) =>
   toAction(alternative, "alternative"),
 );
 const linkSubtitle = getDisplaySubtitle(link);
+
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith("/") ? base : base + "/";
+const iconUrl = link.iconPath ? `${cleanBase}api/icons/${link.iconPath}` : null;
 ---
 
 <li
@@ -72,6 +77,22 @@ const linkSubtitle = getDisplaySubtitle(link);
   data-link-search={searchText}
 >
   <div class="flex items-start gap-3 p-3">
+    <div
+      class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-200 p-1"
+    >
+      {
+        iconUrl ? (
+          <img
+            src={iconUrl}
+            alt={`Ícono de ${link.title}`}
+            class="h-full w-full object-contain"
+          />
+        ) : (
+          <Icon name="boxicons:link" class="h-5 w-5 text-base-content/40" aria-hidden="true" />
+        )
+      }
+    </div>
+
     <div class="min-w-0 flex-1">
       <span
         class="block truncate text-sm font-semibold text-base-content"

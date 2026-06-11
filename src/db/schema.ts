@@ -291,6 +291,7 @@ export const resourceLinks = sqliteTable("resource_links", {
   title: text("title").notNull(),
   url: text("url").notNull(),
   subtitle: text("subtitle"),
+  iconPath: text("icon_path"),
 });
 
 export const resourceCategoriesRelations = relations(
@@ -486,6 +487,7 @@ export const applications = sqliteTable("applications", {
   description: text("description"),
   version: text("version"),
   filePath: text("file_path"),
+  iconPath: text("icon_path"),
 });
 
 export const applicationCategoriesRelations = relations(
