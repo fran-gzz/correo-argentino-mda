@@ -59,10 +59,6 @@ const migratedRoutes = [
     "src/pages/guia-soportes/index.astro",
     /<PageContainer(?:\s|>)[\s\S]*width="xl"/,
   ],
-  [
-    "src/pages/design-system/index.astro",
-    /<PageContainer(?:\s|>)[\s\S]*width="xl"/,
-  ],
 ];
 
 for (const [path, matcher] of migratedRoutes) {
@@ -76,6 +72,3 @@ for (const [path, matcher] of migratedRoutes) {
   assert.match(source, matcher, `${path} should use the expected container`);
 }
 
-const designSystem = await read("src/pages/design-system/index.astro");
-assert.match(designSystem, /id="contenedores"/);
-assert.match(designSystem, /PageContainer/);

@@ -449,7 +449,6 @@ Paginas implementadas hoy (estado real del repo):
 - `/mapa-sucursales`
 - `/inventario-terminales`
 - `/enlaces-importantes`
-- `/design-system`
 - `/configuracion`
 
 Roadmap funcional objetivo (11 vistas):
