@@ -1,8 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
 import logoFirma from "@assets/firma.png";
-import logoFirma2 from "@assets/firma2.png";
-import logoFirma3 from "@assets/firma3.png";
 
 interface Props {
   origin?: string;
@@ -16,8 +14,6 @@ const { origin = "" } = Astro.props;
   id="signature-generator-container"
   data-origin={origin}
   data-logo-default={logoFirma.src}
-  data-logo2={logoFirma2.src}
-  data-logo3={logoFirma3.src}
 >
   <section
     class="card bg-base-100 border border-base-300 shadow-md overflow-hidden"
@@ -153,50 +149,6 @@ const { origin = "" } = Astro.props;
           </fieldset>
         </div>
 
-        <div class="divider text-xs opacity-50 uppercase tracking-widest">
-          Variante de Logo
-        </div>
-
-        <div class="grid grid-cols-3 gap-3">
-          <label
-            class="cursor-pointer border border-base-300 rounded-lg p-2 hover:bg-base-200 transition-colors flex flex-col items-center gap-2 has-checked:border-primary has-checked:bg-primary/5"
-          >
-            <input
-              type="radio"
-              name="logo-selection"
-              value="default"
-              class="radio radio-xs radio-primary"
-              checked
-            />
-            <img src={logoFirma.src} alt="Logo 1" class="h-8 object-contain" />
-            <span class="text-[10px] font-medium opacity-70">Opción 1</span>
-          </label>
-          <label
-            class="cursor-pointer border border-base-300 rounded-lg p-2 hover:bg-base-200 transition-colors flex flex-col items-center gap-2 has-checked:border-primary has-checked:bg-primary/5"
-          >
-            <input
-              type="radio"
-              name="logo-selection"
-              value="logo2"
-              class="radio radio-xs radio-primary"
-            />
-            <img src={logoFirma2.src} alt="Logo 2" class="h-8 object-contain" />
-            <span class="text-[10px] font-medium opacity-70">Opción 2</span>
-          </label>
-          <label
-            class="cursor-pointer border border-base-300 rounded-lg p-2 hover:bg-base-200 transition-colors flex flex-col items-center gap-2 has-checked:border-primary has-checked:bg-primary/5"
-          >
-            <input
-              type="radio"
-              name="logo-selection"
-              value="logo3"
-              class="radio radio-xs radio-primary"
-            />
-            <img src={logoFirma3.src} alt="Logo 3" class="h-8 object-contain" />
-            <span class="text-[10px] font-medium opacity-70">Opción 3</span>
-          </label>
-        </div>
-
         <div class="form-control mt-4 w-max">
           <label class="cursor-pointer label gap-3">
             <input
@@ -294,7 +246,7 @@ const { origin = "" } = Astro.props;
           </div>
         </div>
 
-        <div id="section-code" class="flex flex-col h-full p-6 hidden">
+        <div id="section-code" class="flex-col h-full p-6 hidden">
           <div
             class="flex-1 bg-neutral text-neutral-content p-4 rounded-lg overflow-auto font-mono text-xs max-h-[400px]"
           >
@@ -322,12 +274,7 @@ const { origin = "" } = Astro.props;
   import { toPng } from "html-to-image";
 
   const container = document.getElementById("signature-generator-container");
-  const origin = container?.dataset.origin || "";
-  const logos: Record<string, string> = {
-    default: container?.dataset.logoDefault || "",
-    logo2: container?.dataset.logo2 || "",
-    logo3: container?.dataset.logo3 || "",
-  };
+  const logoDefault = container?.dataset.logoDefault || "";
 
   const inputName = document.getElementById(
     "input-name",
@@ -356,9 +303,6 @@ const { origin = "" } = Astro.props;
   const inputIncludeImage = document.getElementById(
     "input-include-image",
   ) as HTMLInputElement | null;
-  const logoRadios = document.querySelectorAll(
-    'input[name="logo-selection"]',
-  ) as NodeListOf<HTMLInputElement>;
 
   const previewContainer = document.getElementById("preview-container");
   const codeOutput = document.getElementById("code-output");
@@ -390,7 +334,6 @@ const { origin = "" } = Astro.props;
     phone: "",
     internal: "",
     mobile: "",
-    selectedLogo: "default",
     includeImage: true,
   };
 
@@ -417,8 +360,6 @@ const { origin = "" } = Astro.props;
       phone: inputPhone.value,
       internal: inputInternal.value,
       mobile: inputMobile.value,
-      selectedLogo: (Array.from(logoRadios).find((r) => r.checked)?.value ||
-        "default") as "default" | "logo2" | "logo3",
       includeImage: inputIncludeImage.checked,
     };
     renderSignature();
@@ -442,7 +383,7 @@ const { origin = "" } = Astro.props;
   function renderSignature() {
     if (!previewContainer || !codeOutput) return;
 
-    const logoPath = logos[formData.selectedLogo];
+    const logoPath = logoDefault;
     const fullLogoUrl = logoPath.startsWith("http")
       ? logoPath
       : `${window.location.origin}${logoPath}`;
@@ -521,22 +462,24 @@ const { origin = "" } = Astro.props;
 
   inputIncludeImage?.addEventListener("change", updateFormData);
 
-  logoRadios.forEach((radio) => {
-    radio.addEventListener("change", updateFormData);
-  });
+  // Removed logoRadios event listeners
 
   tabVisual?.addEventListener("click", () => {
     tabVisual.classList.add("tab-active");
     tabCode?.classList.remove("tab-active");
     sectionVisual?.classList.remove("hidden");
+    sectionVisual?.classList.add("flex");
     sectionCode?.classList.add("hidden");
+    sectionCode?.classList.remove("flex");
   });
 
   tabCode?.addEventListener("click", () => {
     tabCode.classList.add("tab-active");
     tabVisual?.classList.remove("tab-active");
     sectionCode?.classList.remove("hidden");
+    sectionCode?.classList.add("flex");
     sectionVisual?.classList.add("hidden");
+    sectionVisual?.classList.remove("flex");
   });
 
   btnCopyVisual?.addEventListener("click", () => {
