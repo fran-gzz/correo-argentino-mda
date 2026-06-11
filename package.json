@@ -38,7 +38,8 @@
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.2",
     "theme-change": "^2.5.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@iconify-json/boxicons": "^1.2.0",
