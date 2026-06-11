@@ -191,14 +191,18 @@ if (office?.type === "SUCURSAL") {
 
           <fieldset class="fieldset gap-1">
             <legend class="fieldset-legend text-xs">Dirección *</legend>
-            <input
-              type="text"
-              name="address"
-              required
-              value={office?.address ?? ""}
-              placeholder="ej: Santa Fe 101"
-              class="input input-sm w-full"
-            />
+            <div class="relative w-full">
+              <input
+                type="text"
+                name="address"
+                required
+                value={office?.address ?? ""}
+                placeholder="ej: Santa Fe 101"
+                autocomplete="off"
+                class="input input-sm w-full"
+              />
+              <ul id="address-suggestions" class="menu bg-base-100 w-full rounded-box absolute top-full mt-1 z-50 shadow-lg hidden max-h-60 overflow-y-auto"></ul>
+            </div>
           </fieldset>
 
           <fieldset class="fieldset gap-1">
@@ -531,27 +535,45 @@ if (office?.type === "SUCURSAL") {
 </template>
 
 <script>
+  console.log("OfficeForm: client script module loaded");
+
   function initDynamicRows() {
-    const assetsContainer = document.getElementById("assets-container")!;
-    const contactsContainer = document.getElementById("contacts-container")!;
+    console.log("initDynamicRows: starting initialization");
+    const assetsContainer = document.getElementById("assets-container");
+    const contactsContainer = document.getElementById("contacts-container");
+    if (!assetsContainer || !contactsContainer) {
+      console.log("initDynamicRows: container elements not found, skipping");
+      return;
+    }
+
     const tplAsset = document.getElementById(
       "tpl-asset-row"
     ) as HTMLTemplateElement;
     const tplContact = document.getElementById(
       "tpl-contact-row"
     ) as HTMLTemplateElement;
+    if (!tplAsset || !tplContact) {
+      console.log("initDynamicRows: template elements not found, skipping");
+      return;
+    }
 
-    document.getElementById("btn-add-asset")?.addEventListener("click", () => {
-      assetsContainer.appendChild(tplAsset.content.cloneNode(true));
-      bindRemoveButtons(assetsContainer);
-    });
+    const addAssetBtn = document.getElementById("btn-add-asset");
+    if (addAssetBtn && !addAssetBtn.dataset.bound) {
+      addAssetBtn.dataset.bound = "true";
+      addAssetBtn.addEventListener("click", () => {
+        assetsContainer.appendChild(tplAsset.content.cloneNode(true));
+        bindRemoveButtons(assetsContainer);
+      });
+    }
 
-    document
-      .getElementById("btn-add-contact")
-      ?.addEventListener("click", () => {
+    const addContactBtn = document.getElementById("btn-add-contact");
+    if (addContactBtn && !addContactBtn.dataset.bound) {
+      addContactBtn.dataset.bound = "true";
+      addContactBtn.addEventListener("click", () => {
         contactsContainer.appendChild(tplContact.content.cloneNode(true));
         bindRemoveButtons(contactsContainer);
       });
+    }
 
     function bindRemoveButtons(container: HTMLElement) {
       container
@@ -563,9 +585,121 @@ if (office?.type === "SUCURSAL") {
 
     bindRemoveButtons(assetsContainer);
     bindRemoveButtons(contactsContainer);
+    console.log("initDynamicRows: completed successfully");
   }
 
-  // Initialize immediately and also on view transitions
-  initDynamicRows();
-  document.addEventListener("astro:page-load", initDynamicRows);
+  function initAddressAutocomplete() {
+    console.log("initAddressAutocomplete: starting initialization");
+    const input = document.querySelector('input[name="address"]') as HTMLInputElement;
+    if (!input) {
+      console.warn("initAddressAutocomplete: input[name='address'] not found");
+      return;
+    }
+
+    if (input.dataset.autocompleteBound === "true") {
+      console.log("initAddressAutocomplete: already bound, skipping");
+      return;
+    }
+    input.dataset.autocompleteBound = "true";
+
+    const container = input.closest('.relative');
+    if (!container) {
+      console.warn("initAddressAutocomplete: .relative wrapper not found for input");
+      return;
+    }
+    
+    const ul = document.getElementById("address-suggestions") as HTMLUListElement;
+    if (!ul) {
+      console.warn("initAddressAutocomplete: #address-suggestions ul not found");
+      return;
+    }
+
+    console.log("initAddressAutocomplete: binding input and click listeners");
+    let timeout: ReturnType<typeof setTimeout>;
+
+    input.addEventListener("input", () => {
+      clearTimeout(timeout);
+      const val = input.value.trim();
+      console.log("initAddressAutocomplete input value changed:", val);
+      
+      if (val.length < 3) {
+        ul.classList.add("hidden");
+        ul.innerHTML = "";
+        return;
+      }
+
+      timeout = setTimeout(async () => {
+        try {
+          const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+          const url = `${baseUrl}/api/offices/search-address?q=${encodeURIComponent(val)}`;
+          console.log("initAddressAutocomplete: fetching", url);
+          
+          const res = await fetch(url);
+          console.log("initAddressAutocomplete: response status is", res.status);
+          
+          if (!res.ok) {
+            const errText = await res.text();
+            console.error("API error response body:", errText);
+            throw new Error("API error: " + res.status);
+          }
+          
+          const data: { address: string; nis: string }[] = await res.json();
+          console.log("initAddressAutocomplete: received data:", data);
+          
+          ul.innerHTML = "";
+          if (data.length > 0) {
+            data.forEach(item => {
+              const li = document.createElement("li");
+              const a = document.createElement("a");
+              a.textContent = `${item.address} (NIS: ${item.nis})`;
+              a.addEventListener("click", (e) => {
+                e.preventDefault();
+                console.log("initAddressAutocomplete: suggestion clicked:", item.address);
+                input.value = item.address || "";
+                ul.classList.add("hidden");
+                ul.innerHTML = "";
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+              });
+              li.appendChild(a);
+              ul.appendChild(li);
+            });
+            ul.classList.remove("hidden");
+          } else {
+            ul.classList.add("hidden");
+          }
+        } catch (error) {
+          console.error("Error fetching addresses:", error);
+        }
+      }, 300);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!container.contains(e.target as Node)) {
+        ul.classList.add("hidden");
+      }
+    });
+    console.log("initAddressAutocomplete: completed successfully");
+  }
+
+  function runInitializations() {
+    try {
+      initDynamicRows();
+    } catch (e) {
+      console.error("Error running initDynamicRows:", e);
+    }
+    try {
+      initAddressAutocomplete();
+    } catch (e) {
+      console.error("Error running initAddressAutocomplete:", e);
+    }
+  }
+
+  // Initialize immediately
+  runInitializations();
+
+  // Initialize on page load (Astro View Transitions compatibility)
+  document.addEventListener("astro:page-load", () => {
+    console.log("OfficeForm: astro:page-load fired, re-initializing");
+    runInitializations();
+  });
 </script>
