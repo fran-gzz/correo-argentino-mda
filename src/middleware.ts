@@ -69,9 +69,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const role = (currentUser.role || "").toLowerCase().trim();
 
-  if (relativePath.startsWith("/design-system") && role !== "admin") {
-    return redirect(resolveUrl("/login"));
-  }
+
 
   if (relativePath.startsWith("/admin")) {
     if (relativePath.startsWith("/admin/users")) {

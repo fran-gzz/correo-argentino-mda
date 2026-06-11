@@ -114,11 +114,33 @@ const rowGridClass = "grid grid-cols-[1fr_140px_320px] items-center gap-4";
                 name="password"
                 required
                 autocomplete="new-password"
-                class="input input-bordered w-full"
+                class="input input-bordered w-full pwd-input-validate"
               />
-              <p class="fieldset-label text-xs text-base-content/50">
-                Se almacena de forma segura con hash bcrypt.
-              </p>
+              <div class="pwd-error hidden mt-2 alert alert-error alert-soft text-xs">
+                <Icon name="boxicons:alert-circle-filled" size={16} class="shrink-0" />
+                <span class="pwd-error-msg"></span>
+              </div>
+              <ul class="text-xs mt-2 space-y-1 pwd-req-list">
+                <li data-req="len" class="text-base-content/50 transition-colors">Mínimo 8 caracteres</li>
+                <li data-req="up" class="text-base-content/50 transition-colors">Al menos una mayúscula</li>
+                <li data-req="low" class="text-base-content/50 transition-colors">Al menos una minúscula</li>
+                <li data-req="num" class="text-base-content/50 transition-colors">Al menos un número</li>
+              </ul>
+            </fieldset>
+
+            <fieldset class="fieldset">
+              <legend
+                class="fieldset-legend text-xs font-bold uppercase tracking-wider"
+              >
+                Repetir contraseña
+              </legend>
+              <input
+                type="password"
+                id="admin-password-repeat"
+                required
+                autocomplete="new-password"
+                class="input input-bordered w-full pwd-input-repeat"
+              />
             </fieldset>
 
             <fieldset class="fieldset">
@@ -385,11 +407,30 @@ const rowGridClass = "grid grid-cols-[1fr_140px_320px] items-center gap-4";
                             name="newPassword"
                             required
                             autocomplete="new-password"
-                            class="input input-bordered input-sm w-full"
+                            class="input input-bordered input-sm w-full pwd-input-validate"
                           />
-                          <p class="fieldset-label text-xs text-base-content/50">
-                            Se almacena con hash bcrypt.
-                          </p>
+                          <div class="pwd-error hidden mt-2 alert alert-error alert-soft text-xs">
+                            <Icon name="boxicons:alert-circle-filled" size={16} class="shrink-0" />
+                            <span class="pwd-error-msg"></span>
+                          </div>
+                          <ul class="text-xs mt-2 space-y-1 pwd-req-list">
+                            <li data-req="len" class="text-base-content/50 transition-colors">Mínimo 8 caracteres</li>
+                            <li data-req="up" class="text-base-content/50 transition-colors">Al menos una mayúscula</li>
+                            <li data-req="low" class="text-base-content/50 transition-colors">Al menos una minúscula</li>
+                            <li data-req="num" class="text-base-content/50 transition-colors">Al menos un número</li>
+                          </ul>
+                        </fieldset>
+
+                        <fieldset class="fieldset mt-1">
+                          <legend class="fieldset-legend text-xs font-bold uppercase tracking-wider">
+                            Repetir nueva contraseña
+                          </legend>
+                          <input
+                            type="password"
+                            required
+                            autocomplete="new-password"
+                            class="input input-bordered input-sm w-full pwd-input-repeat"
+                          />
                         </fieldset>
                         <div class="modal-action mt-2 gap-2">
                           <button
@@ -610,6 +651,81 @@ const rowGridClass = "grid grid-cols-[1fr_140px_320px] items-center gap-4";
 </dialog>
 
 <script>
+  // Validación de política de contraseñas
+  const pwdRegex = {
+    up: /[A-Z]/,
+    low: /[a-z]/,
+    num: /[0-9]/
+  };
+
+  const validatePassword = (pwd: string) => {
+    return {
+      len: pwd.length >= 8,
+      up: pwdRegex.up.test(pwd),
+      low: pwdRegex.low.test(pwd),
+      num: pwdRegex.num.test(pwd)
+    };
+  };
+
+  document.querySelectorAll('.pwd-input-validate').forEach(input => {
+    const inputEl = input as HTMLInputElement;
+    const form = inputEl.closest('form');
+    const reqList = form?.querySelector('.pwd-req-list');
+    const reqItems = {
+      len: reqList?.querySelector('[data-req="len"]'),
+      up: reqList?.querySelector('[data-req="up"]'),
+      low: reqList?.querySelector('[data-req="low"]'),
+      num: reqList?.querySelector('[data-req="num"]')
+    };
+    const errorContainer = form?.querySelector('.pwd-error');
+    const errorMsgEl = form?.querySelector('.pwd-error-msg');
+
+    inputEl.addEventListener('input', (e) => {
+      const val = (e.target as HTMLInputElement).value;
+      const status = validatePassword(val);
+
+      // Limpiar error previo
+      if (errorContainer) {
+        errorContainer.classList.add('hidden');
+      }
+
+      // Actualizar colores
+      Object.keys(status).forEach(key => {
+        const li = reqItems[key as keyof typeof reqItems];
+        if (li) {
+          if (val.length === 0) {
+            li.className = "text-base-content/50 transition-colors";
+          } else if (status[key as keyof typeof status]) {
+            li.className = "text-success font-medium transition-colors";
+          } else {
+            li.className = "text-error transition-colors";
+          }
+        }
+      });
+    });
+
+    form?.addEventListener('submit', (e) => {
+      const val = inputEl.value;
+      const status = validatePassword(val);
+      const repeatInputEl = form?.querySelector('.pwd-input-repeat') as HTMLInputElement | null;
+      
+      let errorMsg = "";
+      if (!status.len) errorMsg = "La contraseña debe tener al menos 8 caracteres.";
+      else if (!status.up) errorMsg = "La contraseña debe contener al menos una mayúscula.";
+      else if (!status.low) errorMsg = "La contraseña debe contener al menos una minúscula.";
+      else if (!status.num) errorMsg = "La contraseña debe contener al menos un número.";
+      else if (repeatInputEl && val !== repeatInputEl.value) errorMsg = "Las contraseñas no coinciden.";
+
+      if (errorMsg) {
+        e.preventDefault(); // Detener envío
+        if (errorContainer && errorMsgEl) {
+          errorMsgEl.textContent = errorMsg;
+          errorContainer.classList.remove('hidden');
+        }
+      }
+    });
+  });
+
   const roleDescriptions = {
     admin:
       "Acceso total al sistema. Puede gestionar usuarios, configuraciones generales, ver el sistema de diseño y acceder a todas las herramientas de supervisión.",

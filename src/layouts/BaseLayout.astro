@@ -84,17 +84,7 @@ const isActiveRoute = (href: string) =>
       relativeCurrentPath.startsWith(`${href}/`);
 
 const user = Astro.locals.user;
-const visibleNavSections = navSections
-  .map((section) => ({
-    ...section,
-    items: section.items.filter((item) => {
-      if (item.href === "/design-system") {
-        return user.role === "admin";
-      }
-      return true;
-    }),
-  }))
-  .filter((section) => section.items.length > 0);
+const visibleNavSections = navSections.filter((section) => section.items.length > 0);
 
 const drawerNavItems = visibleNavSections.flatMap((section) =>
   section.items.map((item) => ({ ...item, children: undefined })),
@@ -131,9 +121,7 @@ const isRouteLocked = (href: string): boolean => {
     return !["admin", "supervisor"].includes(role);
   }
 
-  if (href === "/design-system") {
-    return role !== "admin";
-  }
+
 
   if (href === "/supervision/cronograma") {
     return !["admin", "supervisor"].includes(role);

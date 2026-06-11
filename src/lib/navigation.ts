@@ -85,17 +85,7 @@ export const navSections: NavSection[] = [
       },
     ],
   },
-  {
-    id: "referencia",
-    label: "Referencia",
-    items: [
-      {
-        href: "/design-system",
-        label: "Estándar de diseño",
-        icon: "boxicons:palette-filled",
-      },
-    ],
-  },
+
   {
     id: "directorio-oficinas",
     label: "Directorio de oficinas",
