@@ -327,7 +327,7 @@ const sucursales: any[] = [];
         </a>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3 w-full">
+      <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full">
         <div class="w-full">
           <SearchInput
             id="office-search"
@@ -337,11 +337,24 @@ const sucursales: any[] = [];
             placeholder="Buscar por nombre, código, región o CP"
           />
         </div>
+        <a
+          href={import.meta.env.BASE_URL + "api/export/offices"}
+          class="btn btn-primary font-semibold shadow-sm shrink-0 gap-2"
+          aria-label="Exportar directorio a CSV"
+          download
+        >
+          <Icon name="boxicons:file-detail-filled" class="size-5" />
+          <span class="hidden sm:inline">Exportar CSV</span>
+          <span class="sm:hidden">CSV</span>
+        </a>
       </div>
     </form>
 
     <div id="office-table-wrapper">
-      <div id="office-table-container" class:list={[officeDirectoryItems.length === 0 && "hidden"]}>
+      <div
+        id="office-table-container"
+        class:list={[officeDirectoryItems.length === 0 && "hidden"]}
+      >
         <MasterDetailTable
           ariaLabel="Directorio de oficinas"
           minWidthClass="min-w-280"
@@ -412,21 +425,12 @@ const sucursales: any[] = [];
 
       <!-- Controles del Mapa -->
       <div id="map-controls" class="flex flex-wrap justify-center gap-3 mt-6">
-        <button
-          id="toggle-polygons"
-          class="btn btn-sm btn-outline gap-2"
-        >
-          <Icon
-            name="boxicons:layers-alt-filled"
-            class="size-4 text-primary"
-          />
+        <button id="toggle-polygons" class="btn btn-sm btn-outline gap-2">
+          <Icon name="boxicons:layers-alt-filled" class="size-4 text-primary" />
           <span id="polygons-text">Ocultar Polígonos</span>
         </button>
 
-        <button
-          id="toggle-labels"
-          class="btn btn-sm btn-outline gap-2"
-        >
+        <button id="toggle-labels" class="btn btn-sm btn-outline gap-2">
           <Icon
             name="boxicons:font-family-filled"
             class="size-4 text-primary"
@@ -434,10 +438,7 @@ const sucursales: any[] = [];
           <span id="labels-text">Ocultar Letras</span>
         </button>
 
-        <button
-          id="toggle-markers"
-          class="btn btn-sm btn-outline gap-2"
-        >
+        <button id="toggle-markers" class="btn btn-sm btn-outline gap-2">
           <Icon
             name="boxicons:location-pin-filled"
             class="size-4 text-primary"
