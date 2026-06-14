@@ -47,6 +47,36 @@ function isHourCoveredBySchedule(scheduleStr: string, hourStart: number): boolea
   return startMin <= slotStartMin && endMin >= slotEndMin;
 }
 
+function isWeekend(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const dateObj = new Date(dateStr + "T12:00:00");
+  const day = dateObj.getDay();
+  return day === 6 || day === 0;
+}
+
+function resolveOperatorStatusAndHorario(op: OperatorData, dateStr: string): { status: OperatorStatus; horario: string } {
+  let status = op.asistencia[dateStr] || OperatorStatus.Franco;
+  let horario = (op.horarios_dias && op.horarios_dias[dateStr]) || op.horario || "";
+
+  const dateObj = new Date(dateStr + "T12:00:00");
+  const isWeekendDay = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+
+  if (isWeekendDay) {
+    const isSaturday = dateObj.getDay() === 6;
+    if (isSaturday && op.saturdayGroup) {
+      const activeGroup = getActiveGroupForDate(dateStr);
+      const isOverride = status === OperatorStatus.Vacaciones || status === OperatorStatus.Licencia;
+      
+      if (op.saturdayGroup === activeGroup && !isOverride) {
+        status = OperatorStatus.HomeOffice;
+        horario = op.saturdayHorario || "07:00 - 13:00";
+      }
+    }
+  }
+
+  return { status, horario };
+}
+
 function getActiveGroupForDate(dateStr: string): string | null {
   if (!activeRotationConfig) return null;
   const { startDate, startGroup, rotationOrder } = activeRotationConfig;
@@ -316,6 +346,20 @@ function updateNavigationButtons(): void {
   }
 }
 
+function updateGroupsActiveMonthBadge(): void {
+  const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+  const badge = document.getElementById('groups-active-month-badge');
+  if (badge && dateInput && dateInput.value) {
+    const currentYM = dateInput.value.slice(0, 7);
+    const [yearStr, monthStr] = currentYM.split('-');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10) - 1;
+    const dateObj = new Date(year, month, 15);
+    const formatter = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' });
+    badge.innerText = `Mes: ${formatter.format(dateObj)}`;
+  }
+}
+
 function updateMonthDisplay(): void {
   const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
   const display = document.getElementById('current-month-display');
@@ -336,6 +380,7 @@ function updateMonthDisplay(): void {
   display.innerText = formatter.format(dateObj);
 
   updateNavigationButtons();
+  updateGroupsActiveMonthBadge();
 }
 
 function renderMonthDropdown(): void {
@@ -371,9 +416,7 @@ function renderMonthDropdown(): void {
         if (dateInput) {
           dateInput.value = val;
           updateDateInputDisplay();
-          updateMonthDisplay();
-          renderDaily();
-          renderMonthly();
+          reloadDataForActiveMonth(val.slice(0, 7));
         }
       }
       // Force close dropdown by blurring active element
@@ -414,16 +457,69 @@ function changeMonth(offset: number): void {
   dateInput.value = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
   updateDateInputDisplay();
-  updateMonthDisplay();
-  renderDaily();
-  renderMonthly();
+  reloadDataForActiveMonth(targetYM);
+}
+
+async function loadRotationConfig(month: string): Promise<void> {
+  try {
+    const rotRes = await fetch(`/api/cronograma/rotation-config?month=${month}`);
+    if (rotRes.ok) {
+      activeRotationConfig = await rotRes.json();
+    } else {
+      activeRotationConfig = null;
+    }
+  } catch (err) {
+    console.warn("Failed to load rotation config:", err);
+    activeRotationConfig = null;
+  }
+}
+
+async function reloadDataForActiveMonth(targetMonth?: string): Promise<void> {
+  try {
+    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+    const monthToLoad = targetMonth || (dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7));
+
+    const payload = await fetchCronogramaFullData(monthToLoad);
+    state.cronoData = payload.operators;
+    overtimeConfigs = payload.weekendOvertimeConfigs;
+    state.availableMonths = payload.availableMonths || [];
+
+    await loadRotationConfig(monthToLoad);
+
+    renderDaily();
+    renderMonthly();
+    renderMonthDropdown();
+    updateMonthDisplay();
+
+    // Actualizar vista de grupos si está visible
+    const groupsView = document.getElementById('groups-view');
+    const isGroupsVisible = groupsView && !groupsView.classList.contains('hidden');
+    if (isGroupsVisible) {
+      await renderGroupsView();
+    }
+
+    // Actualizar vista de pasivas si está visible
+    const pasivaView = document.getElementById('pasiva-view');
+    const isPasivaVisible = pasivaView && !pasivaView.classList.contains('hidden');
+    if (isPasivaVisible) {
+      await renderPasivaView();
+    }
+  } catch (err) {
+    console.error("Error reloading data for month:", err);
+    showToast("Error al recargar datos del mes", "error");
+  }
 }
 
 async function init(): Promise<void> {
   try {
-    const payload = await fetchCronogramaFullData();
+    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+    const todayStr = formatYMD(new Date());
+    let initialMonth = dateInput?.value ? dateInput.value.slice(0, 7) : todayStr.slice(0, 7);
+
+    const payload = await fetchCronogramaFullData(initialMonth);
     state.cronoData = payload.operators;
     overtimeConfigs = payload.weekendOvertimeConfigs;
+    state.availableMonths = payload.availableMonths || [];
 
     try {
       const feriadosRes = await fetch('/api/cronograma/feriados');
@@ -434,17 +530,8 @@ async function init(): Promise<void> {
       console.warn("Failed to load holidays:", err);
     }
 
-    try {
-      const rotRes = await fetch('/api/cronograma/rotation-config');
-      if (rotRes.ok) {
-        activeRotationConfig = await rotRes.json();
-      }
-    } catch (err) {
-      console.warn("Failed to load rotation config:", err);
-    }
+    await loadRotationConfig(initialMonth);
 
-    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
-    const todayStr = formatYMD(new Date());
     const hasDataForToday = state.cronoData.some(op => op.asistencia[todayStr]);
     const initialDate = hasDataForToday ? todayStr : (state.uniqueDates[state.uniqueDates.length - 1] || todayStr);
 
@@ -488,7 +575,7 @@ function renderDaily(): void {
   }
 
   const filteredOps = state.cronoData.filter(op => {
-    const status = op.asistencia[selectedDateStr];
+    const { status } = resolveOperatorStatusAndHorario(op, selectedDateStr);
     if (!status) return false;
 
     // 1. Search Query filter (case-insensitive name check)
@@ -532,13 +619,12 @@ function renderDaily(): void {
     `;
   } else {
     sortedOps.forEach(op => {
-      const status = op.asistencia[selectedDateStr];
+      const { status, horario: dailyHorario } = resolveOperatorStatusAndHorario(op, selectedDateStr);
       const styles = getStatusStyles(status);
       const isAbsent = status === OperatorStatus.Licencia || status === OperatorStatus.Vacaciones;
       const isFranco = status === OperatorStatus.Franco;
       const initials = op.nombre.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
       const username = op.username || '';
-      const dailyHorario = (op.horarios_dias && op.horarios_dias[selectedDateStr]) || op.horario;
       const customBreakInicio = op.breaks_inicio?.[selectedDateStr] || '';
       const customBreakFin = op.breaks_fin?.[selectedDateStr] || '';
       
@@ -585,8 +671,8 @@ function renderDaily(): void {
       let breakBadgeHtml = '';
       if (breakStartHourStr && breakEndHourStr) {
         breakBadgeHtml = `
-          <span class="daily-break-badge px-1.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center gap-1 shadow-sm shrink-0" title="Break: ${breakStartHourStr} - ${breakEndHourStr}">
-            <svg class="w-3 h-3 text-purple-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <span class="daily-break-badge px-1.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center gap-1 shadow-sm shrink-0" title="Break: ${breakStartHourStr} - ${breakEndHourStr}">
+            <svg class="w-3 h-3 text-indigo-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
               <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
               <line x1="6" y1="2" x2="6" y2="4" />
@@ -1307,7 +1393,6 @@ function renderMonthly(): void {
       tbodyHtml += `<tr class="group ${(hoViolation || pWeekViolation) ? 'bg-error/[0.02]' : ''}" data-op-name="${op.nombre.toLowerCase()}">
         <td class="sticky left-0 bg-base-100 z-30 w-[200px] min-w-[200px] font-bold py-3 px-6 text-xs border-r border-b border-base-200/70 group-hover:bg-base-200 transition-colors ${opShadowClass}">
           <div class="flex items-center gap-3">
-            <input type="checkbox" class="op-checkbox checkbox checkbox-xs checkbox-primary ${state.isEditMode ? '' : 'hidden'}" data-op-checkbox="${escapeHtml(op.nombre)}" />
             <span class="w-2 h-2 rounded-full ${(hoViolation || pWeekViolation) ? 'bg-error animate-pulse' : 'bg-base-300 group-hover:bg-amber-500'} transition-all shadow-sm cursor-pointer hover:scale-125 hover:ring-2 hover:ring-secondary/50 op-row-dot ${state.isEditMode ? 'op-row-header' : ''}" title="${state.isEditMode ? 'Pintar toda la fila' : 'Destacar fila'}"></span>
             <div class="flex flex-col min-w-0 flex-1">
               <div class="flex items-center justify-between w-full">
@@ -1315,7 +1400,7 @@ function renderMonthly(): void {
                   ${op.nombre}
                 </button>
                 <div class="flex items-center gap-0.5 shrink-0 ml-1.5 no-print ${state.isEditMode ? '' : 'hidden'}">
-                  <button type="button" class="btn btn-ghost btn-square btn-xs w-5 h-5 text-base-content/50 hover:text-secondary edit-op-btn" data-edit-op-name="${escapeHtml(op.nombre)}" data-edit-op-username="${escapeHtml(username)}" data-edit-op-location="${escapeHtml(op.location || 'Monte Grande')}" data-edit-op-schedule="${escapeHtml(op.horario || '08:00 - 17:00')}" title="Editar operador">
+                  <button type="button" class="btn btn-ghost btn-square btn-xs w-5 h-5 text-base-content/50 hover:text-secondary edit-op-btn" data-edit-op-name="${escapeHtml(op.nombre)}" data-edit-op-username="${escapeHtml(username)}" data-edit-op-location="${escapeHtml(op.location || 'Monte Grande')}" data-edit-op-schedule="${escapeHtml(op.horario || '')}" title="Editar operador">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </button>
                   <button type="button" class="btn btn-ghost btn-square btn-xs w-5 h-5 text-base-content/50 hover:text-error delete-op-btn" data-delete-op-name="${escapeHtml(op.nombre)}" title="Eliminar operador">
@@ -1340,13 +1425,12 @@ function renderMonthly(): void {
         
       parsedDates.forEach(pd => {
         const date = pd.str;
-        const status = op.asistencia[date];
+        const { status, horario: dailyHorario } = resolveOperatorStatusAndHorario(op, date);
         const styles = getStatusStyles(status);
         const isTodayCell = pd.isToday;
         const safeName = escapeHtml(op.nombre);
         const safeDate = escapeHtml(date);
         const safeStatus = escapeHtml(status || 'Franco');
-        const dailyHorario = (op.horarios_dias && op.horarios_dias[date]) || op.horario;
         const safeHorario = escapeHtml(dailyHorario);
         const username = op.username || '';
 
@@ -1556,6 +1640,21 @@ function updateOperatorDailyHorario(op: OperatorData, date: string, status: stri
   const dayName = dayNames[dateObj.getDay()];
 
   op.horarios_dias = op.horarios_dias || {};
+  op.overrides = op.overrides || {};
+
+  const isWeekendDay = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+
+  if (isWeekendDay) {
+    if (status === OperatorStatus.Licencia || status === OperatorStatus.Vacaciones) {
+      op.weekendOvertimes = (op.weekendOvertimes || []).filter(s => s.date !== date);
+      op.overrides[date] = true;
+    } else if (status === OperatorStatus.Franco) {
+      delete op.overrides[date];
+    }
+  } else {
+    op.overrides[date] = true;
+  }
+
   if (status === "Franco") {
     op.horarios_dias[date] = "";
   } else {
@@ -1564,7 +1663,7 @@ function updateOperatorDailyHorario(op: OperatorData, date: string, status: stri
       if (op.esquema_horario?.[dayName]) {
         op.horarios_dias[date] = op.esquema_horario[dayName];
       } else {
-        op.horarios_dias[date] = op.horario || "08:00 - 17:00";
+        op.horarios_dias[date] = op.horario || "";
       }
     }
   }
@@ -1574,6 +1673,13 @@ function updateCellStatus(cell: HTMLElement, newStatus: string): void {
   const operator = cell.dataset.operator;
   const date = cell.dataset.date;
   if (!operator || !date) return;
+  if (isWeekend(date)) {
+    if (newStatus !== OperatorStatus.Licencia &&
+        newStatus !== OperatorStatus.Vacaciones &&
+        newStatus !== OperatorStatus.Franco) {
+      return;
+    }
+  }
 
   const existingIndex = state.modifiedSchedules.findIndex(e => e.agentName === operator && e.date === date);
   if (existingIndex !== -1) {
@@ -1607,11 +1713,26 @@ function updatePendingEditsUI(): void {
    if (countEl) countEl.innerText = `${count} cambios`;
    if (saveBtn) saveBtn.disabled = count === 0;
    if (discardBtn) discardBtn.disabled = count === 0;
+
+   const saveIndicator = document.getElementById('save-indicator');
+   if (saveIndicator) {
+     if (state.isEditMode) {
+       saveIndicator.classList.add('hidden');
+     } else {
+       if (count > 0) {
+         saveIndicator.classList.remove('hidden');
+       } else {
+         saveIndicator.classList.add('hidden');
+       }
+     }
+   }
 }
 
 async function discardChanges(): Promise<void> {
   try {
-    const data = await fetchCronogramaData();
+    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+    const currentMonth = dateInput?.value ? dateInput.value.slice(0, 7) : undefined;
+    const data = await fetchCronogramaData(currentMonth);
     state.cronoData = data;
     state.modifiedSchedules = [];
     
@@ -1646,7 +1767,9 @@ async function saveChangesToServer(): Promise<void> {
     }
 
     state.modifiedSchedules = [];
-    const data = await fetchCronogramaData();
+    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+    const currentMonth = dateInput?.value ? dateInput.value.slice(0, 7) : undefined;
+    const data = await fetchCronogramaData(currentMonth);
     state.cronoData = data;
 
     setTimeout(() => {
@@ -1682,32 +1805,46 @@ async function saveChangesToServer(): Promise<void> {
   }
 }
 
-function updateViewSwitcherUI(activeView: 'monthly' | 'daily' | 'groups' | 'overtime'): void {
+function updateViewSwitcherUI(activeView: 'monthly' | 'daily' | 'groups' | 'overtime' | 'pasiva'): void {
   const switchToMonthlyBtn = document.getElementById('switch-to-monthly-btn');
   const switchToDailyBtn = document.getElementById('switch-to-daily-btn');
   const switchToGroupsBtn = document.getElementById('switch-to-groups-btn');
   const switchToOvertimeBtn = document.getElementById('switch-to-overtime-btn');
+  const switchToPasivaBtn = document.getElementById('switch-to-pasiva-btn');
   
   const activeClasses = ['btn-secondary', 'shadow-sm', 'shadow-secondary/15'];
   const inactiveClasses = ['btn-outline', 'border-transparent', 'text-base-content/60', 'hover:bg-base-200/50'];
   
-  [switchToMonthlyBtn, switchToDailyBtn, switchToGroupsBtn, switchToOvertimeBtn].forEach(btn => {
+  [switchToMonthlyBtn, switchToDailyBtn, switchToGroupsBtn, switchToOvertimeBtn, switchToPasivaBtn].forEach(btn => {
     btn?.classList.remove(...activeClasses);
     btn?.classList.remove(...inactiveClasses);
   });
 
   if (activeView === 'monthly') {
     switchToMonthlyBtn?.classList.add(...activeClasses);
-    [switchToDailyBtn, switchToGroupsBtn, switchToOvertimeBtn].forEach(b => b?.classList.add(...inactiveClasses));
+    [switchToDailyBtn, switchToGroupsBtn, switchToOvertimeBtn, switchToPasivaBtn].forEach(b => b?.classList.add(...inactiveClasses));
   } else if (activeView === 'daily') {
     switchToDailyBtn?.classList.add(...activeClasses);
-    [switchToMonthlyBtn, switchToGroupsBtn, switchToOvertimeBtn].forEach(b => b?.classList.add(...inactiveClasses));
+    [switchToMonthlyBtn, switchToGroupsBtn, switchToOvertimeBtn, switchToPasivaBtn].forEach(b => b?.classList.add(...inactiveClasses));
   } else if (activeView === 'groups') {
     switchToGroupsBtn?.classList.add(...activeClasses);
-    [switchToMonthlyBtn, switchToDailyBtn, switchToOvertimeBtn].forEach(b => b?.classList.add(...inactiveClasses));
-  } else {
+    [switchToMonthlyBtn, switchToDailyBtn, switchToOvertimeBtn, switchToPasivaBtn].forEach(b => b?.classList.add(...inactiveClasses));
+  } else if (activeView === 'overtime') {
     switchToOvertimeBtn?.classList.add(...activeClasses);
-    [switchToMonthlyBtn, switchToDailyBtn, switchToGroupsBtn].forEach(b => b?.classList.add(...inactiveClasses));
+    [switchToMonthlyBtn, switchToDailyBtn, switchToGroupsBtn, switchToPasivaBtn].forEach(b => b?.classList.add(...inactiveClasses));
+  } else {
+    switchToPasivaBtn?.classList.add(...activeClasses);
+    [switchToMonthlyBtn, switchToDailyBtn, switchToGroupsBtn, switchToOvertimeBtn].forEach(b => b?.classList.add(...inactiveClasses));
+  }
+
+  // Hide toolbars if we switch away from their respective views
+  const editToolbar = document.getElementById('edit-mode-toolbar');
+  const pasivaToolbar = document.getElementById('pasiva-edit-toolbar');
+  if (editToolbar && activeView !== 'monthly' && activeView !== 'daily') {
+    editToolbar.classList.add('opacity-0', 'pointer-events-none', 'translate-y-32');
+  }
+  if (pasivaToolbar && activeView !== 'pasiva') {
+    pasivaToolbar.classList.add('opacity-0', 'pointer-events-none', 'translate-y-32');
   }
 }
 
@@ -1716,6 +1853,7 @@ function showDailyView(): void {
   const monthlyView = document.getElementById('monthly-view');
   const groupsView = document.getElementById('groups-view');
   const overtimeView = document.getElementById('overtime-view');
+  const pasivaView = document.getElementById('pasiva-view');
   const datePickerContainer = document.getElementById('date-picker-container');
   
   renderDaily();
@@ -1725,6 +1863,7 @@ function showDailyView(): void {
   if (monthlyView) monthlyView.classList.add('hidden');
   if (groupsView) groupsView.classList.add('hidden');
   if (overtimeView) overtimeView.classList.add('hidden');
+  if (pasivaView) pasivaView.classList.add('hidden');
   
   if (datePickerContainer) {
     datePickerContainer.classList.remove('hidden');
@@ -1739,6 +1878,7 @@ function showMonthlyView(): void {
   const monthlyView = document.getElementById('monthly-view');
   const groupsView = document.getElementById('groups-view');
   const overtimeView = document.getElementById('overtime-view');
+  const pasivaView = document.getElementById('pasiva-view');
   const datePickerContainer = document.getElementById('date-picker-container');
   
   updateViewSwitcherUI('monthly');
@@ -1747,6 +1887,7 @@ function showMonthlyView(): void {
   if (monthlyView) monthlyView.classList.remove('hidden');
   if (groupsView) groupsView.classList.add('hidden');
   if (overtimeView) overtimeView.classList.add('hidden');
+  if (pasivaView) pasivaView.classList.add('hidden');
   
   if (datePickerContainer) {
     datePickerContainer.classList.add('is-faded');
@@ -1761,6 +1902,7 @@ function showGroupsView(): void {
   const monthlyView = document.getElementById('monthly-view');
   const groupsView = document.getElementById('groups-view');
   const overtimeView = document.getElementById('overtime-view');
+  const pasivaView = document.getElementById('pasiva-view');
   const datePickerContainer = document.getElementById('date-picker-container');
   
   renderGroupsView();
@@ -1770,6 +1912,7 @@ function showGroupsView(): void {
   if (monthlyView) monthlyView.classList.add('hidden');
   if (groupsView) groupsView.classList.remove('hidden');
   if (overtimeView) overtimeView.classList.add('hidden');
+  if (pasivaView) pasivaView.classList.add('hidden');
   
   if (datePickerContainer) {
     datePickerContainer.classList.add('is-faded');
@@ -1781,7 +1924,9 @@ function showGroupsView(): void {
 
 async function renderGroupsView(): Promise<void> {
   try {
-    const res = await fetch('/api/cronograma/rotation-config');
+    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+    const month = dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7);
+    const res = await fetch(`/api/cronograma/rotation-config?month=${month}`);
     if (!res.ok) throw new Error("No se pudo cargar la configuración de rotación");
     const config = await res.json();
     
@@ -1919,7 +2064,6 @@ async function renderGroupsView(): Promise<void> {
     });
 
     // --- Initialize Saturday Rotation Timeline ---
-    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
     const activeDateStr = dateInput?.value || formatYMD(new Date());
     const activeMonthPrefix = activeDateStr.slice(0, 7);
 
@@ -2127,28 +2271,17 @@ function updateLocationFilterActiveStates(): void {
   updateButtonGroupState(dailyButtons, state.activeLocationFilter, LOCATION_FILTER_CONFIG);
 }
 
-function applyBrushToCell(cell: HTMLElement, bypassCheckboxes = false): void {
+function applyBrushToCell(cell: HTMLElement): void {
   const opName = cell.dataset.operator;
   const dateVal = cell.dataset.date;
   const currentStatus = cell.dataset.status;
   
-  if (!bypassCheckboxes) {
-     const checkedBoxes = Array.from(document.querySelectorAll('.op-checkbox:checked')) as HTMLInputElement[];
-     if (checkedBoxes.length > 0) {
-        let painted = false;
-        checkedBoxes.forEach(cb => {
-           const checkedOp = cb.dataset.opCheckbox;
-           if (checkedOp) {
-              const safeName = checkedOp.replace(/"/g, '\\"');
-              const targetCell = document.getElementById('monthly-tbody')?.querySelector(`[data-operator="${safeName}"][data-date="${dateVal}"]`);
-              if (targetCell) {
-                 applyBrushToCell(targetCell as HTMLElement, true);
-                 painted = true;
-              }
-           }
-        });
-        if (painted) return;
-     }
+  if (dateVal && isWeekend(dateVal)) {
+    if (state.activeBrush !== OperatorStatus.Licencia &&
+        state.activeBrush !== OperatorStatus.Vacaciones &&
+        state.activeBrush !== OperatorStatus.Franco) {
+      return;
+    }
   }
 
   if (!opName || !dateVal || !state.activeBrush || currentStatus === state.activeBrush) return;
@@ -2336,13 +2469,11 @@ function setupEventListeners(): void {
       const nameInput = document.getElementById('edit-op-name') as HTMLInputElement | null;
       const usernameInput = document.getElementById('edit-op-username') as HTMLInputElement | null;
       const locSelect = document.getElementById('edit-op-location') as HTMLSelectElement | null;
-      const scheduleInput = document.getElementById('edit-op-schedule') as HTMLInputElement | null;
 
       if (originalNameInput) originalNameInput.value = originalName || '';
       if (nameInput) nameInput.value = originalName || '';
       if (usernameInput) usernameInput.value = username || '';
       if (locSelect) locSelect.value = location || 'Monte Grande';
-      if (scheduleInput) scheduleInput.value = schedule || '08:00 - 17:00';
 
       const editOpModal = document.getElementById('edit-operator-modal') as HTMLDialogElement & { showModal: () => void } | null;
       editOpModal?.showModal();
@@ -2362,7 +2493,9 @@ function setupEventListeners(): void {
         try {
           await deleteOperator(opName);
           
-          const data = await fetchCronogramaData();
+          const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+          const currentMonth = dateInput?.value ? dateInput.value.slice(0, 7) : undefined;
+          const data = await fetchCronogramaData(currentMonth);
           state.cronoData = data;
 
           renderMonthly();
@@ -2518,6 +2651,15 @@ function setupEventListeners(): void {
     const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-monthly-detail]');
     if (!trigger || !quickEditMenu) return;
     
+    const dateVal = trigger.dataset.date;
+    if (dateVal && isWeekend(dateVal)) {
+      if (!state.isEditMode) {
+        e.preventDefault();
+        showToast("Los fines de semana se deben administrar desde las secciones de Grupos o Extras (active el Modo Editar para marcar Licencia/Vacación/Franco)", "warning");
+        return;
+      }
+    }
+    
     e.preventDefault();
     activeCell = trigger;
     
@@ -2525,6 +2667,25 @@ function setupEventListeners(): void {
     if (targetName) targetName.innerText = trigger.dataset.operator || 'Operador';
     
     quickEditMenu.classList.remove('hidden');
+
+    const isWk = dateVal && isWeekend(dateVal);
+    const optionsContainer = document.getElementById('quick-edit-options');
+    if (optionsContainer) {
+      const options = optionsContainer.querySelectorAll('[data-status]');
+      options.forEach(opt => {
+        const btn = opt as HTMLButtonElement;
+        const status = btn.dataset.status;
+        if (isWk) {
+          if (status === 'Licencia' || status === 'Vacaciones' || status === 'Franco') {
+            btn.classList.remove('hidden');
+          } else {
+            btn.classList.add('hidden');
+          }
+        } else {
+          btn.classList.remove('hidden');
+        }
+      });
+    }
 
     const rect = trigger.getBoundingClientRect();
     const menuWidth = quickEditMenu.offsetWidth || 160;
@@ -2614,8 +2775,9 @@ function setupEventListeners(): void {
     try {
       await deleteMonth(year, month);
 
-      const data = await fetchCronogramaData();
-      state.cronoData = data;
+      const payload = await fetchCronogramaFullData();
+      state.cronoData = payload.operators;
+      state.availableMonths = payload.availableMonths || [];
 
       if (state.uniqueDates.length > 0) {
         const targetDate = state.uniqueDates[state.uniqueDates.length - 1];
@@ -2627,6 +2789,16 @@ function setupEventListeners(): void {
         dateInput.value = todayStr;
         dateInput.removeAttribute('min');
         dateInput.removeAttribute('max');
+      }
+
+      const activeYM = dateInput.value.slice(0, 7);
+      try {
+        const rotRes = await fetch(`/api/cronograma/rotation-config?month=${activeYM}`);
+        if (rotRes.ok) {
+          activeRotationConfig = await rotRes.json();
+        }
+      } catch (err) {
+        console.warn("Failed to load rotation config:", err);
       }
 
       updateDateInputDisplay();
@@ -2650,6 +2822,102 @@ function setupEventListeners(): void {
   document.getElementById('add-month-btn')?.addEventListener('click', () => {
     newMonthModal?.showModal();
   });
+
+  // --- Import Handler ---
+  function handleImportCSV(e: Event) {
+    const target = e.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (!file) return;
+
+    target.value = ''; // Reset selection
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const btn = document.getElementById('import-csv-btn');
+    const originalContent = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.innerHTML = `<span class="loading loading-spinner loading-xs"></span> Procesando...`;
+      (btn as HTMLButtonElement).disabled = true;
+    }
+
+    fetch('/api/cronograma/import', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => {
+      if (!res.ok) return res.json().then(d => { throw new Error(d.error || 'Error en importación'); });
+      return res.json();
+    })
+    .then(data => {
+      if (data.edits && Array.isArray(data.edits)) {
+        const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+        const currentMonth = dateInput?.value ? dateInput.value.slice(0, 7) : ''; // "YYYY-MM"
+
+        // Filter edits that belong to the active month
+        const currentMonthEdits = data.edits.filter((edit: any) => edit.date && edit.date.startsWith(currentMonth));
+
+        if (data.edits.length > 0 && currentMonthEdits.length === 0) {
+          showToast("El archivo CSV no corresponde al mes seleccionado. Cambie de mes en el selector antes de importar.", "warning");
+          return;
+        }
+
+        let appliedCount = 0;
+        currentMonthEdits.forEach((edit: any) => {
+          const op = state.cronoData.find(o => o.nombre === edit.agentName);
+          if (op) {
+            const key = `${edit.agentName}_${edit.date}`;
+            const originalStatus = op.asistencia?.[edit.date] || 'Franco';
+            
+            if (edit.status !== originalStatus) {
+              state.pendingEdits[key] = {
+                agentName: edit.agentName,
+                date: edit.date,
+                status: edit.status,
+                originalStatus,
+                horario: edit.horario,
+                breakInicio: edit.breakInicio,
+                breakFin: edit.breakFin
+              };
+              
+              op.asistencia[edit.date] = edit.status;
+              if (edit.horario) {
+                if (!op.horarios_dias) op.horarios_dias = {};
+                op.horarios_dias[edit.date] = edit.horario;
+              }
+              if (edit.breakInicio !== undefined) {
+                if (!op.breaks_inicio) op.breaks_inicio = {};
+                op.breaks_inicio[edit.date] = edit.breakInicio;
+              }
+              if (edit.breakFin !== undefined) {
+                if (!op.breaks_fin) op.breaks_fin = {};
+                op.breaks_fin[edit.date] = edit.breakFin;
+              }
+              appliedCount++;
+            }
+          }
+        });
+
+        if (appliedCount > 0) {
+          updatePendingEditsUI();
+          renderMonthly();
+          showToast(`¡Se cargaron ${appliedCount} cambios desde el CSV! Revise y guarde.`, "success");
+        } else {
+          showToast("El archivo CSV no contiene cambios con respecto al cronograma actual.", "info");
+        }
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      showToast(err.message || "Error al importar CSV", "error");
+    })
+    .finally(() => {
+      if (btn) {
+        btn.innerHTML = originalContent;
+        (btn as HTMLButtonElement).disabled = false;
+      }
+    });
+  }
 
   // --- Premium Exporters ---
   function handleExportCSV() {
@@ -2708,6 +2976,13 @@ function setupEventListeners(): void {
 
   document.getElementById('export-csv-btn')?.addEventListener('click', handleExportCSV);
   document.getElementById('export-image-btn')?.addEventListener('click', handleExportAsImage);
+
+  const importBtn = document.getElementById('import-csv-btn');
+  const importInput = document.getElementById('import-csv-input') as HTMLInputElement | null;
+  if (importBtn && importInput) {
+    importBtn.addEventListener('click', () => importInput.click());
+    importInput.addEventListener('change', handleImportCSV);
+  }
 
   // --- Maximize Mode Handler ---
   const maxBtn = document.getElementById('maximize-cronograma-btn');
@@ -2897,20 +3172,19 @@ function setupEventListeners(): void {
       saveBtn.innerHTML = '<span class="loading loading-spinner loading-xs mr-1"></span> Guardando...';
     }
 
+    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+    const month = dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7);
+
     try {
       const res = await fetch('/api/cronograma/rotation-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ startDate, startGroup, rotationOrder })
+        body: JSON.stringify({ month, startDate, startGroup, rotationOrder })
       });
       if (!res.ok) throw new Error("Error al guardar la configuración");
       activeRotationConfig = { startDate, startGroup, rotationOrder };
       
-      const data = await fetchCronogramaData();
-      state.cronoData = data;
-
-      renderMonthly();
-      renderDaily();
+      await reloadDataForActiveMonth(month);
       renderGroupsView();
       showToast("Configuración de rotación guardada con éxito", "success");
     } catch (err: any) {
@@ -2931,22 +3205,21 @@ function setupEventListeners(): void {
       if (!agentIdStr) return;
       select.disabled = true;
 
+      const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+      const month = dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7);
+
       try {
         const res = await fetch('/api/cronograma/rotation-groups/members', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ agentId: parseInt(agentIdStr, 10), saturdayGroup: g })
+          body: JSON.stringify({ agentId: parseInt(agentIdStr, 10), saturdayGroup: g, month })
         });
         if (!res.ok) throw new Error("Error al asignar el operador al grupo");
         
-        const data = await fetchCronogramaData();
-        state.cronoData = data;
-        
-        renderMonthly();
-        renderDaily();
+        await reloadDataForActiveMonth(month);
         renderGroupsView();
         showToast("Operador asignado al grupo con éxito", "success");
-} catch (err: any) {
+      } catch (err: any) {
         console.error(err);
         showToast("Error al asignar operador al grupo", "error");
       } finally {
@@ -2970,19 +3243,19 @@ function setupEventListeners(): void {
       const confirmed = await showConfirm(`¿Estás seguro de que deseas quitar a ${agentName} de su grupo de rotación?`);
       if (confirmed) {
         removeBtn.disabled = true;
+
+        const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+        const month = dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7);
+
         try {
           const res = await fetch('/api/cronograma/rotation-groups/members', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ agentId: parseInt(agentIdStr, 10), saturdayGroup: null })
+            body: JSON.stringify({ agentId: parseInt(agentIdStr, 10), saturdayGroup: null, month })
           });
           if (!res.ok) throw new Error("Error al desasignar operador");
           
-          const data = await fetchCronogramaData();
-          state.cronoData = data;
-          
-          renderMonthly();
-          renderDaily();
+          await reloadDataForActiveMonth(month);
           renderGroupsView();
           showToast("Operador quitado del grupo con éxito", "success");
         } catch (err: any) {
@@ -3060,20 +3333,18 @@ function setupEventListeners(): void {
     }
 
     const saturdayHorario = `${start} - ${end}`;
+    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+    const month = dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7);
 
     try {
       const res = await fetch('/api/cronograma/rotation-groups/members', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: parseInt(agentIdStr, 10), saturdayGroup, saturdayHorario })
+        body: JSON.stringify({ agentId: parseInt(agentIdStr, 10), saturdayGroup, saturdayHorario, month })
       });
       if (!res.ok) throw new Error("Error al actualizar la configuración del operador");
       
-      const data = await fetchCronogramaData();
-      state.cronoData = data;
-      
-      renderMonthly();
-      renderDaily();
+      await reloadDataForActiveMonth(month);
       renderGroupsView();
       editSatModal?.close();
       showToast("Configuración de operador guardada con éxito", "success");
@@ -3098,6 +3369,7 @@ function showOvertimeView(): void {
   const monthlyView = document.getElementById('monthly-view');
   const groupsView = document.getElementById('groups-view');
   const overtimeView = document.getElementById('overtime-view');
+  const pasivaView = document.getElementById('pasiva-view');
   const datePickerContainer = document.getElementById('date-picker-container');
 
   updateViewSwitcherUI('overtime');
@@ -3106,6 +3378,7 @@ function showOvertimeView(): void {
   if (monthlyView) monthlyView.classList.add('hidden');
   if (groupsView) groupsView.classList.add('hidden');
   if (overtimeView) overtimeView.classList.remove('hidden');
+  if (pasivaView) pasivaView.classList.add('hidden');
 
   if (datePickerContainer) {
     datePickerContainer.classList.add('is-faded');
@@ -3498,10 +3771,7 @@ document.getElementById('overtime-shift-cancel-btn')?.addEventListener('click', 
 
 document.addEventListener('cronograma:data-changed', async () => {
   try {
-    const data = await fetchCronogramaData();
-    state.cronoData = data;
-    renderMonthly();
-    renderDaily();
+    await reloadDataForActiveMonth();
   } catch (err: unknown) {
     console.error("Error refreshing data:", err);
     showToast("Error al actualizar datos", "error");
@@ -3510,22 +3780,16 @@ document.addEventListener('cronograma:data-changed', async () => {
 
 document.addEventListener('cronograma:month-created', async (e: any) => {
   const { year, month } = e.detail;
-  try {
-    const data = await fetchCronogramaData();
-    state.cronoData = data;
+  const targetMonth = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+  
+  const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+  if (dateInput) {
+    dateInput.value = `${targetMonth}-01`;
+    updateDateInputDisplay();
+  }
 
-    const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
-    if (dateInput) {
-      dateInput.value = `${year}-${(month + 1).toString().padStart(2, '0')}-01`;
-      if (state.uniqueDates.length > 0) {
-        dateInput.min = state.uniqueDates[0];
-        dateInput.max = state.uniqueDates[state.uniqueDates.length - 1];
-      }
-      updateDateInputDisplay();
-      updateMonthDisplay();
-    }
-    renderMonthDropdown();
-    renderMonthly();
+  try {
+    await reloadDataForActiveMonth(targetMonth);
     showToast("Nuevo mes agregado con éxito", "success");
   } catch (err: unknown) {
     console.error("Error refreshing data after month creation:", err);
@@ -3565,5 +3829,276 @@ document.addEventListener('mouseout', (e) => {
 if (safeGetItem('cronoMaximized', 'false') === 'true') {
   updateMaximizeUI(true);
 }
+
+// ===================================================
+// PASIVA VIEW FUNCTIONS
+// ===================================================
+
+function hasPasivaChanges(): boolean {
+  if (state.pasivaState.operatorId !== state.pasivaState.originalOperatorId) {
+    return true;
+  }
+  for (const week of Object.values(state.pasivaState.weeklyAssignments)) {
+    if (
+      week.referenteId !== week.originalReferenteId ||
+      week.supervisorName !== week.originalSupervisorName
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function updatePasivaToolbarUI(): void {
+  const editToolbar = document.getElementById('pasiva-edit-toolbar');
+  const saveBtn = document.getElementById('pasiva-save-btn') as HTMLButtonElement | null;
+  const discardBtn = document.getElementById('pasiva-discard-btn') as HTMLButtonElement | null;
+  const hasChanges = hasPasivaChanges();
+
+  if (hasChanges) {
+    if (editToolbar) {
+      editToolbar.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-32');
+    }
+    if (saveBtn) saveBtn.disabled = false;
+    if (discardBtn) discardBtn.disabled = false;
+  } else {
+    if (editToolbar) {
+      editToolbar.classList.add('opacity-0', 'pointer-events-none', 'translate-y-32');
+    }
+  }
+}
+
+async function savePasivaChanges(btn: HTMLButtonElement): Promise<void> {
+  const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+  const month = dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7);
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loading loading-spinner loading-xs"></span>`;
+
+  const weeks = Object.values(state.pasivaState.weeklyAssignments).map(w => ({
+    startDate: w.startDate,
+    endDate: w.endDate,
+    supervisorName: w.supervisorName,
+    referenteId: w.referenteId,
+  }));
+
+  const payload = {
+    month,
+    operatorId: state.pasivaState.operatorId,
+    weeklyAssignments: weeks,
+  };
+
+  try {
+    const res = await fetch('/api/cronograma/guardia-pasiva', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error('Error al guardar cambios de guardia pasiva');
+    }
+
+    state.pasivaState.originalOperatorId = state.pasivaState.operatorId;
+    for (const week of Object.values(state.pasivaState.weeklyAssignments)) {
+      week.originalReferenteId = week.referenteId;
+      week.originalSupervisorName = week.supervisorName;
+    }
+
+    updatePasivaToolbarUI();
+
+    btn.innerText = "Guardado!";
+    setTimeout(() => { btn.innerText = "Guardar"; btn.disabled = false; }, 2000);
+    showToast("Guardia pasiva guardada con éxito", "success");
+
+    await renderPasivaView();
+  } catch (err) {
+    console.error(err);
+    btn.innerText = "Error";
+    btn.classList.add('btn-error');
+    setTimeout(() => {
+      btn.innerText = "Guardar";
+      btn.classList.remove('btn-error');
+      btn.disabled = false;
+    }, 2000);
+    const discardBtn = document.getElementById('pasiva-discard-btn') as HTMLButtonElement | null;
+    if (discardBtn) discardBtn.disabled = false;
+    showToast("Error al guardar cambios de guardia pasiva", "error");
+  }
+}
+
+function discardPasivaChanges(): void {
+  state.pasivaState.operatorId = state.pasivaState.originalOperatorId;
+  for (const week of Object.values(state.pasivaState.weeklyAssignments)) {
+    week.referenteId = week.originalReferenteId;
+    week.supervisorName = week.originalSupervisorName;
+  }
+  
+  const monthlyOperatorSelect = document.getElementById('pasiva-monthly-operator-select') as HTMLSelectElement | null;
+  if (monthlyOperatorSelect) {
+    monthlyOperatorSelect.value = state.pasivaState.operatorId ? String(state.pasivaState.operatorId) : '';
+  }
+
+  populatePasivaWeekInputs();
+  updatePasivaToolbarUI();
+  showToast("Cambios descartados", "info");
+}
+
+function showPasivaView(): void {
+  const dailyView = document.getElementById('daily-view');
+  const monthlyView = document.getElementById('monthly-view');
+  const groupsView = document.getElementById('groups-view');
+  const overtimeView = document.getElementById('overtime-view');
+  const pasivaView = document.getElementById('pasiva-view');
+  const datePickerContainer = document.getElementById('date-picker-container');
+  
+  updateViewSwitcherUI('pasiva');
+  
+  if (dailyView) dailyView.classList.add('hidden');
+  if (monthlyView) monthlyView.classList.add('hidden');
+  if (groupsView) groupsView.classList.add('hidden');
+  if (overtimeView) overtimeView.classList.add('hidden');
+  if (pasivaView) pasivaView.classList.remove('hidden');
+  
+  if (datePickerContainer) {
+    datePickerContainer.classList.add('is-faded');
+    setTimeout(() => {
+      datePickerContainer.classList.add('hidden');
+    }, 300);
+  }
+  
+  renderPasivaView();
+}
+
+async function renderPasivaView(): Promise<void> {
+  const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
+  const month = dateInput?.value ? dateInput.value.slice(0, 7) : new Date().toISOString().slice(0, 7);
+
+  const monthlyOperatorSelect = document.getElementById('pasiva-monthly-operator-select') as HTMLSelectElement | null;
+  if (monthlyOperatorSelect) {
+    monthlyOperatorSelect.innerHTML = '<option value="">SIN OPERADOR</option>';
+    state.cronoData.forEach(op => {
+      const opt = document.createElement('option');
+      opt.value = String(op.id ?? '');
+      opt.textContent = op.nombre;
+      monthlyOperatorSelect.appendChild(opt);
+    });
+  }
+
+  try {
+    const res = await fetch(`/api/cronograma/guardia-pasiva?month=${month}`);
+    if (!res.ok) throw new Error("No se pudo cargar la información de guardia pasiva");
+    const data = await res.json();
+
+    state.pasivaState.operatorId = data.operatorId;
+    state.pasivaState.originalOperatorId = data.operatorId;
+
+    if (monthlyOperatorSelect) {
+      monthlyOperatorSelect.value = data.operatorId ? String(data.operatorId) : '';
+    }
+
+    state.pasivaState.weeklyAssignments = {};
+    if (data.weeks) {
+      data.weeks.forEach((w: any) => {
+        state.pasivaState.weeklyAssignments[w.startDate] = {
+          startDate: w.startDate,
+          endDate: w.endDate,
+          supervisorName: w.supervisorName,
+          referenteId: w.referenteId,
+          originalSupervisorName: w.supervisorName,
+          originalReferenteId: w.referenteId,
+        };
+      });
+    }
+
+    populatePasivaWeekInputs();
+    updatePasivaToolbarUI();
+  } catch (err) {
+    console.error("Error loading pasiva data:", err);
+    showToast("Error al cargar datos de guardia pasiva", "error");
+  }
+}
+
+function populatePasivaWeekInputs(): void {
+  const tbody = document.getElementById('pasiva-weeks-tbody');
+  if (!tbody) return;
+  
+  tbody.innerHTML = '';
+  
+  const sortedWeeks = Object.values(state.pasivaState.weeklyAssignments).sort((a, b) => a.startDate.localeCompare(b.startDate));
+  
+  sortedWeeks.forEach(w => {
+    const tr = document.createElement('tr');
+    tr.className = 'group hover:bg-base-200/40 transition-colors duration-150 rounded-xl';
+    
+    const d1 = w.startDate.split('-')[2];
+    const m1 = w.startDate.split('-')[1];
+    const d2 = w.endDate.split('-')[2];
+    const m2 = w.endDate.split('-')[1];
+    const label = `${d1}/${m1} a ${d2}/${m2}`;
+    
+    const tdLabel = document.createElement('td');
+    tdLabel.className = 'py-3 pl-4 font-bold text-xs tabular-nums text-base-content/80';
+    tdLabel.textContent = label;
+    tr.appendChild(tdLabel);
+    
+    const tdSupervisor = document.createElement('td');
+    tdSupervisor.className = 'py-2';
+    const supervisorInput = document.createElement('input');
+    supervisorInput.type = 'text';
+    supervisorInput.className = 'input input-bordered input-sm font-bold text-xs h-9 w-full max-w-xs rounded-xl bg-base-100 focus:outline-none focus:border-secondary';
+    supervisorInput.value = w.supervisorName;
+    supervisorInput.addEventListener('input', () => {
+      w.supervisorName = supervisorInput.value;
+      updatePasivaToolbarUI();
+    });
+    tdSupervisor.appendChild(supervisorInput);
+    tr.appendChild(tdSupervisor);
+    
+    const tdReferente = document.createElement('td');
+    tdReferente.className = 'py-2 pr-4';
+    const referenteSelect = document.createElement('select');
+    referenteSelect.className = 'select select-bordered select-sm font-bold text-xs h-9 w-full max-w-xs rounded-xl bg-base-100 focus:outline-none focus:border-secondary';
+    
+    referenteSelect.innerHTML = '<option value="">SIN REFERENTE</option>';
+    state.cronoData.forEach(op => {
+      const opt = document.createElement('option');
+      opt.value = String(op.id ?? '');
+      opt.textContent = op.nombre;
+      referenteSelect.appendChild(opt);
+    });
+    referenteSelect.value = w.referenteId ? String(w.referenteId) : '';
+    referenteSelect.addEventListener('change', () => {
+      w.referenteId = referenteSelect.value ? parseInt(referenteSelect.value, 10) : null;
+      updatePasivaToolbarUI();
+    });
+    tdReferente.appendChild(referenteSelect);
+    tr.appendChild(tdReferente);
+    
+    tbody.appendChild(tr);
+  });
+}
+
+// Add event listeners for Pasiva view
+document.getElementById('switch-to-pasiva-btn')?.addEventListener('click', () => {
+  showPasivaView();
+});
+
+document.getElementById('pasiva-monthly-operator-select')?.addEventListener('change', (e) => {
+  const target = e.currentTarget as HTMLSelectElement;
+  state.pasivaState.operatorId = target.value ? parseInt(target.value, 10) : null;
+  updatePasivaToolbarUI();
+});
+
+document.getElementById('pasiva-discard-btn')?.addEventListener('click', () => {
+  discardPasivaChanges();
+});
+
+document.getElementById('pasiva-save-btn')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget as HTMLButtonElement;
+  await savePasivaChanges(btn);
+});
 
 init();
