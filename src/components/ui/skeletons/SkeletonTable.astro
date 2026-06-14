@@ -1,0 +1,50 @@
+---
+interface Props {
+  rows?: number;
+  columns?: number;
+  class?: string;
+}
+
+const { rows = 5, columns = 4, class: className = "" } = Astro.props;
+---
+
+<div class:list={["bg-base-100 rounded-2xl border border-base-300 shadow-md overflow-hidden", className]}>
+  <div class="overflow-x-auto min-h-[300px]">
+    <table class="w-full text-sm text-left border-collapse">
+      <thead class="bg-base-200/80 border-b border-base-300">
+        <tr>
+          {Array.from({ length: columns }).map(() => (
+            <th class="py-3.5 px-4">
+              <div class="h-4 w-20 skeleton rounded" />
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-base-200">
+        {Array.from({ length: rows }).map(() => (
+          <tr>
+            {Array.from({ length: columns }).map((_, colIndex) => (
+              <td class="py-4 px-4">
+                {colIndex === 0 ? (
+                  <div class="flex items-center gap-3">
+                    <div class="size-8 rounded-full skeleton shrink-0" />
+                    <div class="space-y-1.5 w-full">
+                      <div class="h-4 w-28 skeleton rounded" />
+                      <div class="h-3 w-20 skeleton rounded" />
+                    </div>
+                  </div>
+                ) : colIndex === columns - 1 ? (
+                  <div class="flex justify-end">
+                    <div class="h-8 w-16 skeleton rounded-lg" />
+                  </div>
+                ) : (
+                  <div class="h-4 w-24 skeleton rounded" />
+                )}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>

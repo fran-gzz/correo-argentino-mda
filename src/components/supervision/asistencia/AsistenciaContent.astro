@@ -292,8 +292,7 @@ for (const dateStr of dates) {
   </div>
 </div>
 
-<!-- Toast notification container -->
-<div id="toast-container" class="toast toast-end toast-bottom z-200"></div>
+
 
 <script>
   let attendanceData: any[] = [];
@@ -316,7 +315,6 @@ for (const dateStr of dates) {
   const pendingCountText = document.getElementById('pending-count-text');
   const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
   const discardBtn = document.getElementById('discard-btn') as HTMLButtonElement;
-  const toastContainer = document.getElementById('toast-container');
 
   const asistenciaOptions = [
     "HOME OFFICE",
@@ -362,21 +360,9 @@ for (const dateStr of dates) {
     "Sin Registro": "bg-base-300/40 text-base-content/50 border border-base-300 font-bold"
   };
 
-  function showToast(message: string, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${type} shadow-lg rounded-xl text-xs flex items-center gap-2 animate-in slide-in-from-bottom-5 duration-300`;
-    
-    toast.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      <span>${message}</span>
-    `;
-    
-    toastContainer?.appendChild(toast);
-    setTimeout(() => {
-      toast.classList.add('animate-out', 'fade-out', 'duration-300');
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
-  }
+  const showGlobalToast = (message: string, type: 'alert-success' | 'alert-error' | 'alert-info') => {
+    (window as any).showToast?.(message, type);
+  };
 
   function getSpanishDayName(dateStr: string) {
     const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -906,7 +892,7 @@ for (const dateStr of dates) {
 
   exportCsvBtn?.addEventListener('click', () => {
     if (renderedData.length === 0) {
-      showToast("No hay datos cargados para exportar.", "error");
+      showGlobalToast("No hay datos cargados para exportar.", "alert-error");
       return;
     }
 
@@ -959,14 +945,14 @@ for (const dateStr of dates) {
     link.click();
     document.body.removeChild(link);
 
-    showToast("Archivo CSV descargado correctamente.", "success");
+    showGlobalToast("Archivo CSV descargado correctamente.", "alert-success");
   });
 
   discardBtn?.addEventListener('click', () => {
     pendingEdits = {};
     updateToolbar();
     renderTable();
-    showToast("Cambios descartados.", "info");
+    showGlobalToast("Cambios descartados.", "alert-info");
   });
 
   saveBtn?.addEventListener('click', async () => {
@@ -992,13 +978,13 @@ for (const dateStr of dates) {
       const responseData = await response.json();
       if (!response.ok) throw new Error(responseData.error || "Failed to save");
 
-      showToast(`¡Se guardaron los cambios de ${editCount} operador(es) correctamente!`, "success");
+      showGlobalToast(`¡Se guardaron los cambios de ${editCount} operador(es) correctamente!`, "alert-success");
       pendingEdits = {};
       updateToolbar();
       await fetchAttendance(selectedDate);
     } catch (error: any) {
       console.error(error);
-      showToast(error.message || "Hubo un error al guardar los cambios en la base de datos.", "error");
+      showGlobalToast(error.message || "Hubo un error al guardar los cambios en la base de datos.", "alert-error");
     } finally {
       saveBtn.disabled = false;
       discardBtn.disabled = false;

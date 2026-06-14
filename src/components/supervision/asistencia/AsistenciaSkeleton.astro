@@ -1,7 +1,8 @@
 ---
+import SkeletonTable from "@components/ui/skeletons/SkeletonTable.astro";
 ---
 
-<div class="flex flex-col gap-6 w-full pb-24 animate-pulse">
+<div class="flex flex-col gap-6 w-full pb-24">
   <!-- Filters bar Skeleton -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-100 p-4 rounded-2xl border border-base-300 shadow-sm">
     <div class="flex items-center gap-3">
@@ -17,42 +18,6 @@
   </div>
 
   <!-- Main table Skeleton -->
-  <div class="bg-base-100 rounded-2xl border border-base-300 shadow-md overflow-hidden">
-    <div class="overflow-x-auto min-h-[300px]">
-      <table class="w-full text-xs text-left border-collapse">
-        <thead class="bg-base-200/80 border-b border-base-300">
-          <tr>
-            <th class="py-3.5 px-4 w-[28%]"><div class="h-4 w-20 skeleton rounded"></div></th>
-            <th class="py-3.5 px-3 w-[18%]"><div class="h-4 w-24 skeleton rounded"></div></th>
-            <th class="py-3.5 px-3 w-[18%]"><div class="h-4 w-28 skeleton rounded"></div></th>
-            <th class="py-3.5 px-3 w-[10%]"><div class="h-4 w-20 skeleton rounded"></div></th>
-            <th class="py-3.5 px-3 w-[8%]"><div class="h-4 w-16 skeleton rounded"></div></th>
-            <th class="py-3.5 px-3 w-[8%]"><div class="h-4 w-16 skeleton rounded"></div></th>
-            <th class="py-3.5 px-3 w-[10%]"><div class="h-4 w-20 skeleton rounded"></div></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-base-200">
-          {Array.from({ length: 6 }).map(() => (
-            <tr>
-              <td class="py-4 px-4">
-                <div class="flex items-center gap-3">
-                  <div class="size-8 rounded-xl skeleton"></div>
-                  <div class="space-y-1.5 w-full">
-                    <div class="h-4 w-28 skeleton rounded"></div>
-                    <div class="h-3 w-20 skeleton rounded"></div>
-                  </div>
-                </div>
-              </td>
-              <td class="py-4 px-3"><div class="h-8 w-36 skeleton rounded-lg"></div></td>
-              <td class="py-4 px-3"><div class="h-8 w-32 skeleton rounded-lg"></div></td>
-              <td class="py-4 px-3"><div class="h-6 w-16 skeleton rounded-md mx-auto"></div></td>
-              <td class="py-4 px-3"><div class="h-8 w-16 skeleton rounded-lg mx-auto"></div></td>
-              <td class="py-4 px-3"><div class="h-8 w-16 skeleton rounded-lg mx-auto"></div></td>
-              <td class="py-4 px-3"><div class="h-6 w-20 skeleton rounded-lg mx-auto"></div></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <SkeletonTable rows={6} columns={7} />
 </div>
+
