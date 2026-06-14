@@ -133,6 +133,7 @@ Notas de trazabilidad:
 1. Mantener consistencia modular visual en contenedores, tarjetas y limpieza de interfaz.
 2. Si se agrega una ruta o vista nueva, registrar el cambio en el archivo de navegación `@lib/navigation.ts` para que se propague automáticamente al sidebar, header y command palette.
 3. Componentes nuevos deben consumir referencias semanticas de color del sistema (tokens DaisyUI o variables de tema), evitando colores hardcodeados.
+4. Ante la creación de una nueva pantalla de gestión (CRUD) o modificación de tablas de la base de datos a nivel administrativo, se debe invocar explícitamente a `logAdminAction` (`@lib/auditLogger`) para dejar registro detallado y específico de la acción realizada en la tabla de auditoría (`audit_logs`).
 
 ---
 
