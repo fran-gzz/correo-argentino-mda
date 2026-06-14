@@ -9,8 +9,9 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
   if (!categoryId) return new Response("ID de categoría no proporcionado", { status: 400 });
 
   if (categoryId === "uncategorized") {
-    // Prevent deletion of the default fallback category
-    return new Response("No se puede eliminar la categoría por defecto", { status: 403 });
+    const base = import.meta.env.BASE_URL || "/";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    return redirect(`${cleanBase}/admin/recursos?toast_msg=${encodeURIComponent("No se puede eliminar la categoría por defecto")}&toast_type=error`);
   }
 
   const formData = await request.formData();
@@ -54,9 +55,11 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
 
     const base = import.meta.env.BASE_URL || "/";
     const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
-    return redirect(`${cleanBase}/admin/recursos`);
+    return redirect(`${cleanBase}/admin/recursos?toast_msg=${encodeURIComponent("Categoría eliminada con éxito")}&toast_type=success`);
   } catch (error) {
     console.error("Error al eliminar categoría:", error);
-    return new Response("Error interno del servidor", { status: 500 });
+    const base = import.meta.env.BASE_URL || "/";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    return redirect(`${cleanBase}/admin/recursos?toast_msg=${encodeURIComponent("Error al eliminar la categoría")}&toast_type=error`);
   }
 };

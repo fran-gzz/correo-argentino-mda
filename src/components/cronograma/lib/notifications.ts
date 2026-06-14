@@ -1,4 +1,15 @@
 export function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info'): void {
+  if (typeof window !== 'undefined' && (window as any).showToast) {
+    const typeMap: Record<string, string> = {
+      success: "alert-success",
+      error: "alert-error",
+      warning: "alert-warning",
+      info: "alert-info"
+    };
+    (window as any).showToast(message, typeMap[type] || "alert-info");
+    return;
+  }
+
   if (typeof document === 'undefined') return;
 
   let container = document.getElementById('crono-toast-container');

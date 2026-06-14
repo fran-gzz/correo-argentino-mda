@@ -7,8 +7,11 @@ import { logAdminAction } from "@lib/auditLogger";
 import AdminCubicsContent from "@components/admin/cubics/AdminCubicsContent.astro";
 import AdminCubicsSkeleton from "@components/admin/cubics/AdminCubicsSkeleton.astro";
 
-let successMsg = "";
-let errorMsg = "";
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith("/") ? base : base + "/";
+
+const user = Astro.locals.user;
+if (!user || !["admin", "supervisor"].includes(user.role)) return Astro.redirect(`${cleanBase}login`);
 
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
@@ -24,13 +27,14 @@ if (Astro.request.method === "POST") {
           .returning({ name: cubics.name });
 
         if (deleted) {
-          successMsg = `Ordenador "${deleted.name}" dado de baja con éxito.`;
+          const successMsg = `Ordenador "${deleted.name}" dado de baja con éxito.`;
           await logAdminAction(Astro.locals.user?.username || 'Sistema', `Eliminó el ordenador "${deleted.name}"`);
+          return Astro.redirect(`${cleanBase}admin/cubics?toast_msg=${encodeURIComponent(successMsg)}&toast_type=success`);
         } else {
-          errorMsg = "El ordenador indicado no existe.";
+          return Astro.redirect(`${cleanBase}admin/cubics?toast_msg=${encodeURIComponent("El ordenador indicado no existe.")}&toast_type=error`);
         }
       } catch (e) {
-        errorMsg = "Error al eliminar el ordenador.";
+        return Astro.redirect(`${cleanBase}admin/cubics?toast_msg=${encodeURIComponent("Error al eliminar el ordenador.")}&toast_type=error`);
       }
     }
   }
@@ -38,7 +42,7 @@ if (Astro.request.method === "POST") {
 ---
 
 <BaseLayout>
-  <AdminCubicsContent server:defer successMsg={successMsg} errorMsg={errorMsg}>
+  <AdminCubicsContent server:defer>
     <AdminCubicsSkeleton slot="fallback" />
   </AdminCubicsContent>
 </BaseLayout>

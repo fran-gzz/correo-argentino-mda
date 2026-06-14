@@ -14,8 +14,6 @@ import { officeTypeTabActiveClassByType } from "@lib/officeHelpers";
 import { Icon } from "astro-icon/components";
 
 interface Props {
-  successMsg?: string;
-  errorMsg?: string;
   typeFilter?: string;
   regionFilter?: string;
   provinceFilter?: string;
@@ -25,8 +23,6 @@ interface Props {
 }
 
 const {
-  successMsg = "",
-  errorMsg = "",
   typeFilter = "all",
   regionFilter = "all",
   provinceFilter = "all",
@@ -193,18 +189,7 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
     description="Administración del directorio operativo de oficinas, contactos y activos tecnológicos."
   />
 
-  {errorMsg && (
-    <div role="alert" class="alert alert-error alert-soft text-sm">
-      <Icon name="boxicons:alert-circle-filled" size={20} class="shrink-0" />
-      <span>{errorMsg}</span>
-    </div>
-  )}
-  {successMsg && (
-    <div role="alert" class="alert alert-success alert-soft text-sm">
-      <Icon name="boxicons:check-circle-filled" size={20} class="shrink-0" />
-      <span>{successMsg}</span>
-    </div>
-  )}
+
 
   {/* ── Filtros ── */}
   <div

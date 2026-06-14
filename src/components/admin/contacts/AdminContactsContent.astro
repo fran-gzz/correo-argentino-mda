@@ -9,12 +9,7 @@ import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import { Icon } from "astro-icon/components";
 
-interface Props {
-  successMsg?: string;
-  errorMsg?: string;
-}
 
-const { successMsg = "", errorMsg = "" } = Astro.props;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -59,31 +54,7 @@ const rowGridClass =
     description="Listar, crear, modificar y eliminar los contactos útiles de la mesa de ayuda."
   />
 
-  {/* ── Feedback de acciones ── */}
-  {
-    errorMsg && (
-      <div role="alert" class="alert alert-error alert-soft text-sm">
-        <Icon
-          name="boxicons:alert-circle-filled"
-          size={20}
-          class="shrink-0"
-        />
-        <span>{errorMsg}</span>
-      </div>
-    )
-  }
-  {
-    successMsg && (
-      <div role="alert" class="alert alert-success alert-soft text-sm">
-        <Icon
-          name="boxicons:check-circle-filled"
-          size={20}
-          class="shrink-0"
-        />
-        <span>{successMsg}</span>
-      </div>
-    )
-  }
+
 
   {/* ── Toolbar ── */}
   <div

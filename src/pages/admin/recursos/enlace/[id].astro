@@ -102,7 +102,8 @@ if (Astro.request.method === "POST") {
       }
     }
 
-    return Astro.redirect(resolveUrl("/admin/recursos"));
+    const successMsg = isNew ? "Enlace creado con éxito." : "Enlace actualizado con éxito.";
+    return Astro.redirect(resolveUrl(`/admin/recursos?toast_msg=${encodeURIComponent(successMsg)}&toast_type=success`));
   } catch (error: any) {
     errorMsg = error.message || "Error al guardar el enlace.";
     if (formSnapshot) {
@@ -132,10 +133,9 @@ if (Astro.request.method === "POST") {
 
           {
             errorMsg && (
-              <div role="alert" class="alert alert-error alert-soft text-sm mb-6">
-                <Icon name="boxicons:alert-circle-filled" size={20} class="shrink-0" />
-                <span>{errorMsg}</span>
-              </div>
+              <script is:inline define:vars={{ errorMsg }}>
+                window.showToast?.(errorMsg, "alert-error");
+              </script>
             )
           }
 

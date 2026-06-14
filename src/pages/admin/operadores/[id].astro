@@ -168,7 +168,8 @@ if (Astro.request.method === "POST") {
           await db.insert(schedules).values(inserts);
         }
 
-        return Astro.redirect(`${cleanBase}admin/operadores`);
+        const toastMessage = `Operador "${inserted?.name || name}" creado con éxito.`;
+        return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent(toastMessage)}&toast_type=success`);
       } else {
         const agentId = Number(id);
         const [original] = await db.select({ name: agents.name }).from(agents).where(eq(agents.id, agentId));
@@ -200,8 +201,8 @@ if (Astro.request.method === "POST") {
           logMessage = `Actualizó el operador ID ${agentId} (de "${original.name}" a "${name}")`;
         }
 
-        successMsg = "Operador y horarios actualizados con éxito.";
         await logAdminAction(user?.username || 'Sistema', logMessage);
+        return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent("Operador y horarios actualizados con éxito.")}&toast_type=success`);
       }
     }
   } catch (e: any) {
@@ -299,26 +300,16 @@ const pageTitle = isNew ? "Nuevo operador" : `Editar: ${operator!.name}`;
 
     {
       errorMsg && (
-        <div role="alert" class="alert alert-error alert-soft text-sm">
-          <Icon
-            name="boxicons:alert-circle-filled"
-            size={18}
-            class="shrink-0"
-          />
-          <span>{errorMsg}</span>
-        </div>
+        <script is:inline define:vars={{ errorMsg }}>
+          window.showToast?.(errorMsg, "alert-error");
+        </script>
       )
     }
     {
       successMsg && (
-        <div role="alert" class="alert alert-success alert-soft text-sm">
-          <Icon
-            name="boxicons:check-circle-filled"
-            size={18}
-            class="shrink-0"
-          />
-          <span>{successMsg}</span>
-        </div>
+        <script is:inline define:vars={{ successMsg }}>
+          window.showToast?.(successMsg, "alert-success");
+        </script>
       )
     }
 

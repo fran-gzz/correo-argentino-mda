@@ -6,7 +6,11 @@ import { logAdminAction } from "@lib/auditLogger";
 
 export const POST: APIRoute = async ({ params, redirect, locals }) => {
   const linkId = params.id;
-  if (!linkId) return new Response("ID de enlace no proporcionado", { status: 400 });
+  if (!linkId) {
+    const base = import.meta.env.BASE_URL || "/";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    return redirect(`${cleanBase}/admin/recursos?toast_msg=${encodeURIComponent("ID de enlace no proporcionado")}&toast_type=error`);
+  }
 
   try {
     const existing = await db.query.resourceLinks.findFirst({
@@ -20,9 +24,11 @@ export const POST: APIRoute = async ({ params, redirect, locals }) => {
 
     const base = import.meta.env.BASE_URL || "/";
     const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
-    return redirect(`${cleanBase}/admin/recursos`);
+    return redirect(`${cleanBase}/admin/recursos?toast_msg=${encodeURIComponent("Enlace eliminado con éxito")}&toast_type=success`);
   } catch (error) {
     console.error("Error al eliminar enlace:", error);
-    return new Response("Error interno del servidor", { status: 500 });
+    const base = import.meta.env.BASE_URL || "/";
+    const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;
+    return redirect(`${cleanBase}/admin/recursos?toast_msg=${encodeURIComponent("Error al eliminar el enlace")}&toast_type=error`);
   }
 };

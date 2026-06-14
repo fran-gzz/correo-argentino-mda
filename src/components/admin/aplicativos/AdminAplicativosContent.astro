@@ -17,7 +17,8 @@ const resolveUrl = (p: string) => {
   return `${cleanBase}${cleanPath}`;
 };
 
-let deleteMsg = "";
+let deleteSuccess = false;
+let deleteError = "";
 
 if (Astro.request.method === "POST") {
   try {
@@ -58,9 +59,10 @@ if (Astro.request.method === "POST") {
 
       await db.delete(applications).where(eq(applications.id, appId));
       await logAdminAction(Astro.locals.user?.username || 'Sistema', `Eliminó el aplicativo "${existing?.title || appId}"`);
+      deleteSuccess = true;
     }
   } catch (error: any) {
-    deleteMsg = error.message || "Error al eliminar el aplicativo.";
+    deleteError = error.message || "Error al eliminar el aplicativo.";
   }
 }
 
@@ -70,6 +72,7 @@ type AppRow = {
   version: string | null;
   filePath: string | null;
   categoryTitle: string | null;
+  iconPath: string | null;
 };
 
 let allApps: AppRow[] = [];
@@ -82,6 +85,7 @@ try {
       version: applications.version,
       filePath: applications.filePath,
       categoryTitle: applicationCategories.title,
+      iconPath: applications.iconPath,
     })
     .from(applications)
     .leftJoin(
@@ -93,12 +97,12 @@ try {
   console.error(
     `[aplicativos] Error al consultar la base de datos: ${dbError.message}`,
   );
-  deleteMsg = deleteMsg || "No se pudieron cargar los aplicativos.";
+  deleteError = deleteError || "No se pudieron cargar los aplicativos.";
 }
 
-const headerGridClass = "grid-cols-[1.5fr_1fr_80px_1.5fr_120px] gap-4";
+const headerGridClass = "grid-cols-[50px_1.5fr_1fr_80px_1.5fr_120px] gap-4";
 const rowGridClass =
-  "grid grid-cols-[1.5fr_1fr_80px_1.5fr_120px] items-center gap-4";
+  "grid grid-cols-[50px_1.5fr_1fr_80px_1.5fr_120px] items-center gap-4";
 
 const categoryColors: Record<string, string> = {
   programa: "badge-primary text-primary-content",
@@ -128,15 +132,17 @@ const truncatePath = (filePath: string | null) => {
   />
 
   {
-    deleteMsg && (
-      <div role="alert" class="alert alert-error alert-soft text-sm">
-        <Icon
-          name="boxicons:alert-circle-filled"
-          size={20}
-          class="shrink-0"
-        />
-        <span>{deleteMsg}</span>
-      </div>
+    deleteSuccess && (
+      <script is:inline>
+        window.showToast?.("Aplicativo eliminado con éxito.", "alert-success");
+      </script>
+    )
+  }
+  {
+    deleteError && (
+      <script is:inline define:vars={{ deleteError }}>
+        window.showToast?.(deleteError, "alert-error");
+      </script>
     )
   }
 
@@ -185,6 +191,9 @@ const truncatePath = (filePath: string | null) => {
       headerGridClass={headerGridClass}
       rowGridClass={rowGridClass}
     >
+      <div slot="header">
+        <DataTableHeaderCell>Ícono</DataTableHeaderCell>
+      </div>
       <div slot="header">
         <DataTableHeaderCell sortKey="title">Título</DataTableHeaderCell>
       </div>
@@ -238,6 +247,17 @@ const truncatePath = (filePath: string | null) => {
                   "border-b border-base-300 px-4 py-3 transition-colors hover:bg-base-200/50 last:border-b-0",
                 ]}
               >
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-base-300 bg-base-200 p-0.5">
+                  {app.iconPath ? (
+                    <img
+                      src={`${cleanBase}api/icons/${app.iconPath}`}
+                      alt={`Ícono de ${app.title}`}
+                      class="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <Icon name="boxicons:cube" class="h-5 w-5 text-base-content/40" />
+                  )}
+                </div>
                 <div class="min-w-0">
                   <p
                     data-highlight-target

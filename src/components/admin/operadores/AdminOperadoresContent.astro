@@ -7,12 +7,7 @@ import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import { Icon } from "astro-icon/components";
 
-interface Props {
-  successMsg?: string;
-  errorMsg?: string;
-}
 
-const { successMsg = "", errorMsg = "" } = Astro.props;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -57,30 +52,7 @@ const rowGridClass =
     description="Administración de la plantilla de operadores, ubicaciones y estados."
   />
 
-  {
-    errorMsg && (
-      <div role="alert" class="alert alert-error alert-soft text-sm">
-        <Icon
-          name="boxicons:alert-circle-filled"
-          size={20}
-          class="shrink-0"
-        />
-        <span>{errorMsg}</span>
-      </div>
-    )
-  }
-  {
-    successMsg && (
-      <div role="alert" class="alert alert-success alert-soft text-sm">
-        <Icon
-          name="boxicons:check-circle-filled"
-          size={20}
-          class="shrink-0"
-        />
-        <span>{successMsg}</span>
-      </div>
-    )
-  }
+
 
   <div
     class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"

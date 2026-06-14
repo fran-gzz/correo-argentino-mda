@@ -586,6 +586,9 @@ const { origin = "" } = Astro.props;
     }
 
     if (copySuccess) {
+      if ((window as any).showToast) {
+        (window as any).showToast("Firma visual copiada al portapapeles.", "alert-success");
+      }
       const contentEl = document.getElementById("copy-visual-content");
       if (contentEl) {
         const originalContent = contentEl.innerHTML;
@@ -611,6 +614,9 @@ const { origin = "" } = Astro.props;
 
     try {
       await navigator.clipboard.writeText(codeOutput.textContent || "");
+      if ((window as any).showToast) {
+        (window as any).showToast("Código fuente copiado al portapapeles.", "alert-success");
+      }
       const contentEl = document.getElementById("copy-code-content");
       if (contentEl) {
         const originalContent = contentEl.innerHTML;

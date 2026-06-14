@@ -13,9 +13,6 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
 const user = Astro.locals.user;
 if (!user || !["admin", "supervisor"].includes(user.role)) return Astro.redirect(`${cleanBase}login`);
 
-let successMsg = "";
-let errorMsg = "";
-
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
   const action = formData.get("action")?.toString();
@@ -32,13 +29,14 @@ if (Astro.request.method === "POST") {
         if (deleted) {
           // Also delete their schedule overrides
           await db.delete(schedules).where(eq(schedules.agentName, deleted.name));
-          successMsg = `Operador "${deleted.name}" (${deleted.id}) eliminado con éxito.`;
+          const successMsg = `Operador "${deleted.name}" (${deleted.id}) eliminado con éxito.`;
           await logAdminAction(Astro.locals.user?.username || 'Sistema', `Eliminó el operador "${deleted.name}" (${deleted.id})`);
+          return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent(successMsg)}&toast_type=success`);
         } else {
-          errorMsg = "El operador indicado no existe.";
+          return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent("El operador indicado no existe.")}&toast_type=error`);
         }
       } catch {
-        errorMsg = "Error al eliminar el operador.";
+        return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent("Error al eliminar el operador.")}&toast_type=error`);
       }
     }
   }
@@ -46,7 +44,7 @@ if (Astro.request.method === "POST") {
 ---
 
 <BaseLayout>
-  <AdminOperadoresContent server:defer successMsg={successMsg} errorMsg={errorMsg}>
+  <AdminOperadoresContent server:defer>
     <AdminOperadoresSkeleton slot="fallback" />
   </AdminOperadoresContent>
 </BaseLayout>

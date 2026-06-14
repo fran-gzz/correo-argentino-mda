@@ -7,8 +7,11 @@ import { logAdminAction } from "@lib/auditLogger";
 import AdminOfficesContent from "@components/admin/offices/AdminOfficesContent.astro";
 import AdminOfficesSkeleton from "@components/admin/offices/AdminOfficesSkeleton.astro";
 
-let successMsg = "";
-let errorMsg = "";
+const base = import.meta.env.BASE_URL || "/";
+const cleanBase = base.endsWith("/") ? base : base + "/";
+
+const user = Astro.locals.user;
+if (!user || !["admin", "supervisor"].includes(user.role)) return Astro.redirect(`${cleanBase}login`);
 
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
@@ -24,13 +27,14 @@ if (Astro.request.method === "POST") {
           .returning({ code: offices.code, name: offices.name });
 
         if (deleted) {
-          successMsg = `Oficina "${deleted.name}" (${deleted.code}) eliminada con éxito.`;
+          const successMsg = `Oficina "${deleted.name}" (${deleted.code}) eliminada con éxito.`;
           await logAdminAction(Astro.locals.user?.username || 'Sistema', `Eliminó la oficina "${deleted.name}" (${deleted.code})`);
+          return Astro.redirect(`${cleanBase}admin/offices?toast_msg=${encodeURIComponent(successMsg)}&toast_type=success`);
         } else {
-          errorMsg = "La oficina indicada no existe.";
+          return Astro.redirect(`${cleanBase}admin/offices?toast_msg=${encodeURIComponent("La oficina indicada no existe.")}&toast_type=error`);
         }
       } catch (e) {
-        errorMsg = "Error al eliminar la oficina.";
+        return Astro.redirect(`${cleanBase}admin/offices?toast_msg=${encodeURIComponent("Error al eliminar la oficina.")}&toast_type=error`);
       }
     }
   }
@@ -49,8 +53,6 @@ const searchFilter = searchParams.get("search") || "";
 <BaseLayout>
   <AdminOfficesContent
     server:defer
-    successMsg={successMsg}
-    errorMsg={errorMsg}
     typeFilter={typeFilter}
     regionFilter={regionFilter}
     provinceFilter={provinceFilter}

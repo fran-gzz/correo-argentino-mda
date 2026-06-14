@@ -116,7 +116,10 @@ if (Astro.request.method === "POST") {
         }
       }
 
-      return Astro.redirect(`${cleanBase}admin/contacts`);
+      const toastMessage = isNew ? "Contacto creado con éxito." : "Contacto actualizado con éxito.";
+      return Astro.redirect(
+        `${cleanBase}admin/contacts?toast_msg=${encodeURIComponent(toastMessage)}&toast_type=success`
+      );
     }
   } catch (e: any) {
     errorMsg = "Error al guardar el contacto.";
@@ -159,26 +162,16 @@ const urlsText =
     {/* Feedback */}
     {
       errorMsg && (
-        <div role="alert" class="alert alert-error alert-soft text-sm">
-          <Icon
-            name="boxicons:alert-circle-filled"
-            size={18}
-            class="shrink-0"
-          />
-          <span>{errorMsg}</span>
-        </div>
+        <script is:inline define:vars={{ errorMsg }}>
+          window.showToast?.(errorMsg, "alert-error");
+        </script>
       )
     }
     {
       successMsg && (
-        <div role="alert" class="alert alert-success alert-soft text-sm">
-          <Icon
-            name="boxicons:check-circle-filled"
-            size={18}
-            class="shrink-0"
-          />
-          <span>{successMsg}</span>
-        </div>
+        <script is:inline define:vars={{ successMsg }}>
+          window.showToast?.(successMsg, "alert-success");
+        </script>
       )
     }
 

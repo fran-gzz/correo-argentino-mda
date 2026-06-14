@@ -11,12 +11,7 @@ import { getShiftType } from "@lib/cubics";
 import OperatorAvatar from "@components/cubics/OperatorAvatar.astro";
 
 
-interface Props {
-  successMsg?: string;
-  errorMsg?: string;
-}
 
-const { successMsg = "", errorMsg = "" } = Astro.props;
 
 const allCubics = await db.query.cubics.findMany({
   orderBy: [asc(cubics.name)],
@@ -91,27 +86,7 @@ const rowGridClass =
     description="Administración del parque de ordenadores de la Mesa de Ayuda, asignaciones y estado operativo."
   />
 
-  {/* ── Feedback de acciones ── */}
-  {errorMsg && (
-    <div role="alert" class="alert alert-error alert-soft text-sm">
-      <Icon
-        name="boxicons:alert-circle-filled"
-        size={20}
-        class="shrink-0"
-      />
-      <span>{errorMsg}</span>
-    </div>
-  )}
-  {successMsg && (
-    <div role="alert" class="alert alert-success alert-soft text-sm">
-      <Icon
-        name="boxicons:check-circle-filled"
-        size={20}
-        class="shrink-0"
-      />
-      <span>{successMsg}</span>
-    </div>
-  )}
+
 
   {/* ── Toolbar ── */}
   <div class="flex items-center justify-between gap-4">

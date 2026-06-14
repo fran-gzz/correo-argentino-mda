@@ -7,6 +7,7 @@ import geistLatinWoff2 from "@fontsource-variable/geist/files/geist-latin-wght-n
 import geistMonoLatinWoff2 from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 import packageJson from "../../package.json";
 import { navSections, getSectionTitle, getResolvedPathname, type NavItem } from "@lib/navigation";
+import ToastContainer from "@components/ui/ToastContainer.astro";
 
 interface Props {
   title?: string;
@@ -665,7 +666,39 @@ const isRouteLocked = (href: string): boolean => {
       </form>
     </dialog>
 
+    <ToastContainer />
+
     <script>
+      import { showToast, type ToastType } from "../lib/toastClient";
+
+      // Exponer a nivel global para llamadas dinámicas desde islas de servidor
+      (window as any).showToast = showToast;
+
+      function checkUrlToasts() {
+        const url = new URL(window.location.href);
+        const msg = url.searchParams.get("toast_msg");
+        const typeParam = url.searchParams.get("toast_type") || "info";
+
+        if (msg) {
+          const typeMap: Record<string, ToastType> = {
+            success: "alert-success",
+            error: "alert-error",
+            warning: "alert-warning",
+            info: "alert-info"
+          };
+          const toastType = typeMap[typeParam] || "alert-info";
+
+          showToast(msg, toastType);
+
+          url.searchParams.delete("toast_msg");
+          url.searchParams.delete("toast_type");
+          window.history.replaceState({}, "", url.pathname + url.search);
+        }
+      }
+
+      checkUrlToasts();
+      document.addEventListener("astro:page-load", checkUrlToasts);
+
       const commandPalette = document.getElementById(
         "command-palette",
       ) as HTMLDialogElement | null;

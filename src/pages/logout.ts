@@ -17,5 +17,5 @@ export const ALL: APIRoute = async ({ cookies, redirect }) => {
 
   const base = import.meta.env.BASE_URL || "/";
   const cleanBase = base.endsWith('/') ? base : base + '/';
-  return redirect(`${cleanBase}login`);
+  return redirect(`${cleanBase}login?toast_msg=${encodeURIComponent("Sesión cerrada con éxito")}&toast_type=success`);
 };

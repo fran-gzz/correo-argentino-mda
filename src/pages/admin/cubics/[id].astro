@@ -138,14 +138,14 @@ if (Astro.request.method === "POST") {
 
       if (isNew) {
         await logAdminAction(user?.username || 'Sistema', `Creó el ordenador "${cubicData.name}"`);
-        return Astro.redirect(`${cleanBase}admin/cubics/${cubicId}`);
+        return Astro.redirect(`${cleanBase}admin/cubics?toast_msg=${encodeURIComponent("Cubic creado con éxito.")}&toast_type=success`);
       }
-      successMsg = "Cubic actualizado con éxito.";
       if (oldName && oldName !== cubicData.name) {
         await logAdminAction(user?.username || 'Sistema', `Actualizó el ordenador ID ${cubicId} (de "${oldName}" a "${cubicData.name}")`);
       } else {
         await logAdminAction(user?.username || 'Sistema', `Actualizó el ordenador "${cubicData.name}" (ID ${cubicId})`);
       }
+      return Astro.redirect(`${cleanBase}admin/cubics?toast_msg=${encodeURIComponent("Cubic actualizado con éxito.")}&toast_type=success`);
     }
   } catch (e: any) {
     errorMsg = e.message?.includes("UNIQUE")
@@ -235,26 +235,16 @@ for (const agent of allAgents) {
     {/* Feedback */}
     {
       errorMsg && (
-        <div role="alert" class="alert alert-error alert-soft text-sm">
-          <Icon
-            name="boxicons:alert-circle-filled"
-            size={18}
-            class="shrink-0"
-          />
-          <span>{errorMsg}</span>
-        </div>
+        <script is:inline define:vars={{ errorMsg }}>
+          window.showToast?.(errorMsg, "alert-error");
+        </script>
       )
     }
     {
       successMsg && (
-        <div role="alert" class="alert alert-success alert-soft text-sm">
-          <Icon
-            name="boxicons:check-circle-filled"
-            size={18}
-            class="shrink-0"
-          />
-          <span>{successMsg}</span>
-        </div>
+        <script is:inline define:vars={{ successMsg }}>
+          window.showToast?.(successMsg, "alert-success");
+        </script>
       )
     }
 
