@@ -7,7 +7,11 @@ import { Icon } from "astro-icon/components";
 import { db } from "@db/index";
 import { agents } from "@db/schema";
 import { eq } from "drizzle-orm";
-import { getDisponibilidadHoy, asignarSiguienteAutogestion, asignarManual } from "@/lib/disponibilidad";
+import {
+  getDisponibilidadHoy,
+  asignarSiguienteAutogestion,
+  asignarManual,
+} from "@/lib/disponibilidad";
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -44,7 +48,9 @@ if (Astro.request.method === "POST") {
       } else {
         flashMessage = {
           type: "error",
-          text: res.error || "No hay operadores disponibles o dentro de horario operativo para asignar.",
+          text:
+            res.error ||
+            "No hay operadores disponibles o dentro de horario operativo para asignar.",
         };
       }
     }
@@ -65,32 +71,40 @@ const noDisponiblesList = allOperators.filter((op) => !op.disponible);
 const noDisponiblesCount = noDisponiblesList.length;
 
 // Find the ID of the agent who was most recently assigned
-const maxAssignedTime = Math.max(...allOperators.map((o) => o.lastAutogestionAssignedAt ?? 0));
-const maxAssignedOperatorId = maxAssignedTime > 0 
-  ? allOperators.find((o) => o.lastAutogestionAssignedAt === maxAssignedTime)?.agentId 
-  : null;
+const maxAssignedTime = Math.max(
+  ...allOperators.map((o) => o.lastAutogestionAssignedAt ?? 0),
+);
+const maxAssignedOperatorId =
+  maxAssignedTime > 0
+    ? allOperators.find((o) => o.lastAutogestionAssignedAt === maxAssignedTime)
+        ?.agentId
+    : null;
 
 const STATUS_LABELS: Record<string, string> = {
   "En break": "En Break",
   "Fuera de horario": "Fuera de Horario",
-  "Franco": "Franco",
-  "Licencia": "Licencia",
-  "Vacaciones": "Vacaciones",
-  "Excepción": "Excepción",
+  Franco: "Franco",
+  Licencia: "Licencia",
+  Vacaciones: "Vacaciones",
+  Excepción: "Excepción",
 };
 
 const breakdown: Record<string, number> = {
   "En break": 0,
   "Fuera de horario": 0,
-  "Franco": 0,
-  "Licencia": 0,
-  "Vacaciones": 0,
-  "Excepción": 0,
+  Franco: 0,
+  Licencia: 0,
+  Vacaciones: 0,
+  Excepción: 0,
 };
 
 noDisponiblesList.forEach((op) => {
   const mot = op.motivo || "Franco";
-  if (["Devolución Supervisor", "Break Extendido", "Problema Técnico"].includes(mot)) {
+  if (
+    ["Devolución Supervisor", "Break Extendido", "Problema Técnico"].includes(
+      mot,
+    )
+  ) {
     breakdown["Excepción"]++;
   } else if (breakdown[mot] !== undefined) {
     breakdown[mot]++;
@@ -162,21 +176,43 @@ const getExcepcionalShortLabel = (tipo: string): string => {
   </a>
 
   {/* Modal para marcar estado excepcional */}
-  <dialog id="modal-marcar-excepcion" class="modal modal-bottom sm:modal-middle">
-    <div class="modal-box border border-base-300 shadow-xl bg-base-100 max-w-sm">
-      <h3 class="font-bold text-sm uppercase tracking-wider mb-4 text-base-content flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="size-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  <dialog
+    id="modal-marcar-excepcion"
+    class="modal modal-bottom sm:modal-middle"
+  >
+    <div
+      class="modal-box border border-base-300 shadow-xl bg-base-100 max-w-sm"
+    >
+      <h3
+        class="font-bold text-sm uppercase tracking-wider mb-4 text-base-content flex items-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-5 text-secondary"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        Marcar Excepción: <span id="modal-operador-nombre" class="text-secondary font-black"></span>
+        Marcar Excepción: <span
+          id="modal-operador-nombre"
+          class="text-secondary font-black"></span>
       </h3>
-      
+
       <input type="hidden" id="modal-agent-id" />
-      
+
       <div class="flex flex-col gap-4">
         <div class="form-control w-full">
           <label class="label py-1">
-            <span class="label-text font-bold text-xs uppercase text-base-content/40 tracking-wider">Tipo de Excepción</span>
+            <span
+              class="label-text font-bold text-xs uppercase text-base-content/40 tracking-wider"
+              >Tipo de Excepción</span
+            >
           </label>
           <select
             id="modal-select-tipo"
@@ -190,7 +226,10 @@ const getExcepcionalShortLabel = (tipo: string): string => {
 
         <div id="container-tiempo-extra" class="form-control w-full hidden">
           <label class="label py-1">
-            <span class="label-text font-bold text-xs uppercase text-base-content/40 tracking-wider">Tiempo Extra</span>
+            <span
+              class="label-text font-bold text-xs uppercase text-base-content/40 tracking-wider"
+              >Tiempo Extra</span
+            >
           </label>
           <select
             id="modal-select-tiempo-extra"
@@ -208,10 +247,13 @@ const getExcepcionalShortLabel = (tipo: string): string => {
             <option value="manual">Manual (Sin auto-limpieza)</option>
           </select>
         </div>
-        
+
         <div class="form-control w-full">
           <label class="label py-1">
-            <span class="label-text font-bold text-xs uppercase text-base-content/40 tracking-wider">Comentario (opcional)</span>
+            <span
+              class="label-text font-bold text-xs uppercase text-base-content/40 tracking-wider"
+              >Comentario (opcional)</span
+            >
           </label>
           <input
             type="text"
@@ -220,7 +262,7 @@ const getExcepcionalShortLabel = (tipo: string): string => {
             class="input input-bordered input-sm w-full text-xs"
           />
         </div>
-        
+
         <div class="modal-action gap-2 pt-3 border-t border-base-200 mt-4">
           <button
             type="button"
@@ -241,15 +283,26 @@ const getExcepcionalShortLabel = (tipo: string): string => {
     </div>
   </dialog>
 
-  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 border-b border-base-200 pb-5">
+  <div
+    class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 border-b border-base-200 pb-5"
+  >
     <PageHeader
       description="Distribución equitativa y controlada de autogestiones entre operadores técnicos. Utiliza el botón de asignar próximo para rotar de manera circular."
     />
-    <div class="flex items-center gap-3 self-end lg:self-center bg-base-200/50 border border-base-300/40 rounded-xl px-4 py-2.5 shadow-sm">
-      <span class="text-xs text-base-content/50 font-semibold" id="sync-indicator">
+    <div
+      class="flex items-center gap-3 self-end lg:self-center bg-base-200/50 border border-base-300/40 rounded-xl px-4 py-2.5 shadow-sm"
+    >
+      <span
+        class="text-xs text-base-content/50 font-semibold"
+        id="sync-indicator"
+      >
         Actualizado hace unos instantes
       </span>
-      <button id="btn-refresh" class="btn btn-xs btn-circle btn-ghost text-base-content/60 hover:text-base-content transition-all duration-200" title="Actualizar ahora">
+      <button
+        id="btn-refresh"
+        class="btn btn-xs btn-circle btn-ghost text-base-content/60 hover:text-base-content transition-all duration-200"
+        title="Actualizar ahora"
+      >
         <Icon name="boxicons:refresh-ccw-filled" size={18} id="refresh-icon" />
       </button>
     </div>
@@ -313,9 +366,7 @@ const getExcepcionalShortLabel = (tipo: string): string => {
             <span class="text-success font-mono font-black" id="stat-percentage"
               >{
                 allOperators.length > 0
-                  ? Math.round(
-                      (disponiblesCount / allOperators.length) * 100,
-                    )
+                  ? Math.round((disponiblesCount / allOperators.length) * 100)
                   : 0
               }%</span
             >
@@ -376,7 +427,10 @@ const getExcepcionalShortLabel = (tipo: string): string => {
                     {STATUS_LABELS[estado] ?? estado}
                   </span>
                 </div>
-                <span class="text-xs font-mono font-bold text-base-content/90" data-breakdown-count={estado}>
+                <span
+                  class="text-xs font-mono font-bold text-base-content/90"
+                  data-breakdown-count={estado}
+                >
                   {count}
                 </span>
               </div>
@@ -389,18 +443,26 @@ const getExcepcionalShortLabel = (tipo: string): string => {
 
   <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
     <div>
-      <label class="label cursor-pointer justify-start gap-3 bg-base-200/40 hover:bg-base-200/80 px-4 py-2.5 rounded-xl border border-base-300/45 transition-colors duration-250">
+      <label
+        class="label cursor-pointer justify-start gap-3 bg-base-200/40 hover:bg-base-200/80 px-4 py-2.5 rounded-xl border border-base-300/45 transition-colors duration-250"
+      >
         <input
           type="checkbox"
           id="toggle-disponibles"
           class="toggle toggle-primary toggle-sm"
         />
-        <span class="label-text font-bold text-xs uppercase tracking-wider text-base-content/70">Ver solo disponibles</span>
+        <span
+          class="label-text font-bold text-xs uppercase tracking-wider text-base-content/70"
+          >Ver solo disponibles</span
+        >
       </label>
     </div>
     <form method="POST" class="m-0">
       <input type="hidden" name="action" value="assign_cyclic" />
-      <button type="submit" class="btn btn-primary btn-md shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
+      <button
+        type="submit"
+        class="btn btn-primary btn-md shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
+      >
         <Icon name="boxicons:user-check" size={20} aria-hidden="true" />
         Asignar Siguiente (Cíclico)
       </button>
@@ -423,8 +485,9 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       allOperators.map((op) => {
         const isHighlighted = op.agentId === maxAssignedOperatorId;
         const isExceptional = !!op.estadoExcepcional;
-        
-        let rowClasses = "group border-b border-base-300 px-4 py-2.5 transition-all duration-300 hover:bg-base-200/50";
+
+        let rowClasses =
+          "group border-b border-base-300 px-4 py-2.5 transition-all duration-300 hover:bg-base-200/50";
         if (isExceptional) {
           rowClasses += " bg-secondary/10 border-l-4 border-l-secondary";
         } else if (isHighlighted) {
@@ -433,167 +496,229 @@ const getExcepcionalShortLabel = (tipo: string): string => {
         if (!op.disponible && !isExceptional) {
           rowClasses += " opacity-50 grayscale-[30%]";
         }
-        
-        return (
-        <div
-          class={rowClasses}
-          data-table-row
-          data-op-id={op.agentId}
-          data-op-estado={op.disponible ? "disponible" : (op.motivo || "offline")}
-          data-sort-nombre={op.nombre}
-          data-sort-estado={op.disponible ? "disponible" : (op.motivo || "offline")}
-        >
-          {/* Nombre + ID + Last Assigned */}
-          <div class="flex min-w-0 flex-col">
-            <span class="truncate text-xs font-bold text-base-content">
-              {op.nombre}
-            </span>
-            <span class="font-mono text-[9px] text-base-content/40 font-semibold leading-normal">
-              ID: {op.agentId} {op.username ? `(${op.username})` : ""}
-            </span>
-             <div data-op-last-assigned-container>
-              {op.lastAutogestionAssignedAt ? (
-                <span class="text-[9px] text-base-content/75 bg-base-300/50 rounded px-1.5 py-0.5 inline-block font-semibold mt-0.5" data-last-assigned={op.lastAutogestionAssignedAt}>
-                  Asignado: {new Date(op.lastAutogestionAssignedAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              ) : (
-                <span class="text-[9px] text-base-content/40 bg-base-200/40 rounded px-1.5 py-0.5 inline-block italic mt-0.5">Nunca asignado</span>
-              )}
-            </div>
-          </div>
 
-          {/* Horario y Modo */}
-          <div class="flex flex-col gap-1 min-w-0">
-            <div data-op-horario>
-              {op.horarioHoy ? (
-                <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-base-content/70">
-                  <span class="flex items-center gap-1 font-semibold">
-                    <Icon
-                      name="boxicons:clock-dashed-half-filled"
-                      size={14}
-                      class="opacity-60 shrink-0"
-                    />
-                    {op.horarioHoy}
+        return (
+          <div
+            class={rowClasses}
+            data-table-row
+            data-op-id={op.agentId}
+            data-op-estado={
+              op.disponible ? "disponible" : op.motivo || "offline"
+            }
+            data-sort-nombre={op.nombre}
+            data-sort-estado={
+              op.disponible ? "disponible" : op.motivo || "offline"
+            }
+          >
+            {/* Nombre + ID + Last Assigned */}
+            <div class="flex min-w-0 flex-col">
+              <span class="truncate text-xs font-bold text-base-content">
+                {op.nombre}
+              </span>
+              <span class="font-mono text-tiny text-base-content/40 font-semibold leading-normal">
+                ID: {op.agentId} {op.username ? `(${op.username})` : ""}
+              </span>
+              <div data-op-last-assigned-container>
+                {op.lastAutogestionAssignedAt ? (
+                  <span
+                    class="text-tiny text-base-content/75 bg-base-300/50 rounded px-1.5 py-0.5 inline-block font-semibold mt-0.5"
+                    data-last-assigned={op.lastAutogestionAssignedAt}
+                  >
+                    Asignado:{" "}
+                    {new Date(op.lastAutogestionAssignedAt).toLocaleTimeString(
+                      "es-AR",
+                      { hour: "2-digit", minute: "2-digit" },
+                    )}
                   </span>
-                  {op.breakInicioHoy && op.breakFinHoy && (
-                    <span class="flex items-center gap-1 opacity-70">
+                ) : (
+                  <span class="text-tiny text-base-content/40 bg-base-200/40 rounded px-1.5 py-0.5 inline-block italic mt-0.5">
+                    Nunca asignado
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Horario y Modo */}
+            <div class="flex flex-col gap-1 min-w-0">
+              <div data-op-horario>
+                {op.horarioHoy ? (
+                  <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-small text-base-content/70">
+                    <span class="flex items-center gap-1 font-semibold">
                       <Icon
-                        name="boxicons:cup-hot"
+                        name="boxicons:clock-dashed-half-filled"
                         size={14}
                         class="opacity-60 shrink-0"
                       />
-                      {op.breakInicioHoy} - {op.breakFinHoy}
+                      {op.horarioHoy}
                     </span>
-                  )}
+                    {op.breakInicioHoy && op.breakFinHoy && (
+                      <span class="flex items-center gap-1 opacity-70">
+                        <Icon
+                          name="boxicons:cup-hot"
+                          size={14}
+                          class="opacity-60 shrink-0"
+                        />
+                        {op.breakInicioHoy} - {op.breakFinHoy}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span class="text-base-content/40 italic">Sin horario</span>
+                )}
+              </div>
+
+              <div data-op-modalidad>
+                {op.modalidadHoy && op.modalidadHoy !== "Franco" && (
+                  <span class="text-xxs font-bold opacity-60 uppercase tracking-tight">
+                    {op.modalidadHoy === "Home Office" ? "Home" : "Presencial"}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Badge estado */}
+            <div
+              data-op-status-cell={op.agentId}
+              class="flex flex-col items-start gap-1"
+            >
+              {op.estadoExcepcional ? (
+                <div
+                  class="tooltip tooltip-bottom before:text-xxs before:px-2 before:py-1"
+                  data-tip={`${op.estadoExcepcionalMotivo || "Sin comentario"} — marcado a las ${op.estadoExcepcionalAt ? new Date(op.estadoExcepcionalAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }) : ""}`}
+                >
+                  <span
+                    data-op-status-badge={op.agentId}
+                    class={`badge ${getBadgeColor(op.motivo || "", op.disponible)} gap-1.5 badge-xs font-semibold uppercase text-tiny tracking-wider py-2 cursor-help`}
+                  >
+                    {getExcepcionalShortLabel(op.estadoExcepcional)}
+                    {op.estadoExcepcional === "break_extendido" &&
+                    op.retornoEstimado
+                      ? op.retornoEstimado === "Manual"
+                        ? " (Manual)"
+                        : ` - vuelve ${op.retornoEstimado}`
+                      : ""}
+                  </span>
                 </div>
               ) : (
-                <span class="text-base-content/40 italic">Sin horario</span>
-              )}
-            </div>
-            
-            <div data-op-modalidad>
-              {op.modalidadHoy && op.modalidadHoy !== "Franco" && (
-                <span class="text-[10px] font-bold opacity-60 uppercase tracking-tight">
-                  {op.modalidadHoy === "Home Office" ? "Home" : "Presencial"}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Badge estado */}
-          <div data-op-status-cell={op.agentId} class="flex flex-col items-start gap-1">
-            {op.estadoExcepcional ? (
-              <div class="tooltip tooltip-bottom before:text-[10px] before:px-2 before:py-1" data-tip={`${op.estadoExcepcionalMotivo || 'Sin comentario'} — marcado a las ${op.estadoExcepcionalAt ? new Date(op.estadoExcepcionalAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }) : ''}`}>
                 <span
                   data-op-status-badge={op.agentId}
-                  class={`badge ${getBadgeColor(op.motivo || "", op.disponible)} gap-1.5 badge-xs font-semibold uppercase text-[9px] tracking-wider py-2 cursor-help`}
+                  class={`badge ${getBadgeColor(op.motivo || "", op.disponible)} gap-1.5 badge-xs font-semibold uppercase text-tiny tracking-wider py-2`}
                 >
-                  {getExcepcionalShortLabel(op.estadoExcepcional)}{op.estadoExcepcional === "break_extendido" && op.retornoEstimado ? (op.retornoEstimado === "Manual" ? " (Manual)" : ` - vuelve ${op.retornoEstimado}`) : ""}
+                  {op.disponible && (
+                    <span class="size-1.5 rounded-full bg-white animate-ping" />
+                  )}
+                  {!op.disponible && op.motivo === "En break" && (
+                    <span class="size-1.5 rounded-full bg-warning-content/75 animate-pulse" />
+                  )}
+                  {op.disponible
+                    ? "Disponible"
+                    : op.motivo === "En break"
+                      ? `En break - vuelve ${op.retornoEstimado || ""}`
+                      : op.motivo || "Franco"}
                 </span>
-              </div>
-            ) : (
-              <span
-                data-op-status-badge={op.agentId}
-                class={`badge ${getBadgeColor(op.motivo || "", op.disponible)} gap-1.5 badge-xs font-semibold uppercase text-[9px] tracking-wider py-2`}
-              >
-                {op.disponible && <span class="size-1.5 rounded-full bg-white animate-ping"></span>}
-                {!op.disponible && op.motivo === "En break" && <span class="size-1.5 rounded-full bg-warning-content/75 animate-pulse"></span>}
-                {op.disponible ? "Disponible" : (op.motivo === "En break" ? `En break - vuelve ${op.retornoEstimado || ''}` : (op.motivo || "Franco"))}
-              </span>
-            )}
-            {op.estadoExcepcional && op.estadoExcepcionalMotivo && (
-              <div data-op-exception-comment={op.agentId} class="text-[11px] text-base-content/50 italic font-medium leading-none max-w-[150px] truncate mt-0.5" title={op.estadoExcepcionalMotivo}>
-                "{op.estadoExcepcionalMotivo}"
-              </div>
-            )}
-          </div>
-
-          {/* Botones de acción */}
-          <div class="flex items-center justify-end gap-2" data-op-actions={op.agentId}>
-            <form method="POST" class="m-0">
-              <input type="hidden" name="action" value="assign_manual" />
-              <input type="hidden" name="agentId" value={op.agentId} />
-              <button
-                type="submit"
-                class="btn btn-secondary btn-xs btn-soft font-bold uppercase tracking-wider"
-                data-op-assign-btn={op.agentId}
-                title={`Asignar autogestión a ${op.nombre}`}
-                disabled={!op.disponible}
-              >
-                Asignar
-              </button>
-            </form>
-
-            <div data-op-exception-container={op.agentId} class="relative">
-              {op.estadoExcepcional ? (
-                <button
-                  type="button"
-                  class="btn btn-error btn-xs btn-outline font-bold uppercase tracking-wider"
-                  data-action-lift-exception={op.agentId}
-                  title="Levantar estado excepcional"
+              )}
+              {op.estadoExcepcional && op.estadoExcepcionalMotivo && (
+                <div
+                  data-op-exception-comment={op.agentId}
+                  class="text-small text-base-content/50 italic font-medium leading-none max-w-[150px] truncate mt-0.5"
+                  title={op.estadoExcepcionalMotivo}
                 >
-                  Levantar
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-xs text-base-content/60 hover:text-secondary hover:bg-secondary/10 px-1"
-                  data-action-open-exception-modal={op.agentId}
-                  data-op-nombre={op.nombre}
-                  title="Marcar estado excepcional"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </button>
+                  "{op.estadoExcepcionalMotivo}"
+                </div>
               )}
             </div>
+
+            {/* Botones de acción */}
+            <div
+              class="flex items-center justify-end gap-2"
+              data-op-actions={op.agentId}
+            >
+              <form method="POST" class="m-0">
+                <input type="hidden" name="action" value="assign_manual" />
+                <input type="hidden" name="agentId" value={op.agentId} />
+                <button
+                  type="submit"
+                  class="btn btn-secondary btn-xs btn-soft font-bold uppercase tracking-wider"
+                  data-op-assign-btn={op.agentId}
+                  title={`Asignar autogestión a ${op.nombre}`}
+                  disabled={!op.disponible}
+                >
+                  Asignar
+                </button>
+              </form>
+
+              <div data-op-exception-container={op.agentId} class="relative">
+                {op.estadoExcepcional ? (
+                  <button
+                    type="button"
+                    class="btn btn-error btn-xs btn-outline font-bold uppercase tracking-wider"
+                    data-action-lift-exception={op.agentId}
+                    title="Levantar estado excepcional"
+                  >
+                    Levantar
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs text-base-content/60 hover:text-secondary hover:bg-secondary/10 px-1"
+                    data-action-open-exception-modal={op.agentId}
+                    data-op-nombre={op.nombre}
+                    title="Marcar estado excepcional"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="size-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      )})
+        );
+      })
     }
   </DataTable>
 </PageContainer>
 
 <script>
   const init = () => {
-    const toggle = document.getElementById("toggle-disponibles") as HTMLInputElement | null;
+    const toggle = document.getElementById(
+      "toggle-disponibles",
+    ) as HTMLInputElement | null;
     if (!toggle) return false;
 
     const syncIndicator = document.getElementById("sync-indicator");
     const refreshIcon = document.getElementById("refresh-icon");
-    const btnRefresh = document.getElementById("btn-refresh") as HTMLButtonElement | null;
-    const modalEl = document.getElementById("modal-marcar-excepcion") as HTMLDialogElement | null;
+    const btnRefresh = document.getElementById(
+      "btn-refresh",
+    ) as HTMLButtonElement | null;
+    const modalEl = document.getElementById(
+      "modal-marcar-excepcion",
+    ) as HTMLDialogElement | null;
 
     if (modalEl) {
-      modalEl.addEventListener('close', () => {
-        document.body.classList.remove('overflow-hidden');
-        document.documentElement.classList.remove('overflow-hidden');
+      modalEl.addEventListener("close", () => {
+        document.body.classList.remove("overflow-hidden");
+        document.documentElement.classList.remove("overflow-hidden");
       });
     }
 
-    const selectTipo = document.getElementById("modal-select-tipo") as HTMLSelectElement | null;
-    const containerTiempoExtra = document.getElementById("container-tiempo-extra");
+    const selectTipo = document.getElementById(
+      "modal-select-tipo",
+    ) as HTMLSelectElement | null;
+    const containerTiempoExtra = document.getElementById(
+      "container-tiempo-extra",
+    );
     if (selectTipo && containerTiempoExtra) {
       selectTipo.addEventListener("change", () => {
         if (selectTipo.value === "break_extendido") {
@@ -642,7 +767,10 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       let maxAssignedTime = 0;
       let maxAgentId: number | null = null;
       data.forEach((op) => {
-        if (op.lastAutogestionAssignedAt && op.lastAutogestionAssignedAt > maxAssignedTime) {
+        if (
+          op.lastAutogestionAssignedAt &&
+          op.lastAutogestionAssignedAt > maxAssignedTime
+        ) {
           maxAssignedTime = op.lastAutogestionAssignedAt;
           maxAgentId = op.agentId;
         }
@@ -654,15 +782,23 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       const pct = Math.round((disponiblesCount / totalCount) * 100);
 
       const statDisponibles = document.getElementById("stat-disponibles-count");
-      if (statDisponibles) statDisponibles.innerText = disponiblesCount.toString();
+      if (statDisponibles)
+        statDisponibles.innerText = disponiblesCount.toString();
 
-      const statNoDisponibles = document.getElementById("stat-no-disponibles-count");
-      if (statNoDisponibles) statNoDisponibles.innerText = (data.length - disponiblesCount).toString();
+      const statNoDisponibles = document.getElementById(
+        "stat-no-disponibles-count",
+      );
+      if (statNoDisponibles)
+        statNoDisponibles.innerText = (
+          data.length - disponiblesCount
+        ).toString();
 
       const statPercentage = document.getElementById("stat-percentage");
       if (statPercentage) statPercentage.innerText = `${pct}%`;
 
-      const statProgress = document.getElementById("stat-progress") as HTMLProgressElement | null;
+      const statProgress = document.getElementById(
+        "stat-progress",
+      ) as HTMLProgressElement | null;
       if (statProgress) {
         statProgress.value = disponiblesCount;
         statProgress.max = totalCount;
@@ -672,16 +808,22 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       const breakdown = {
         "En break": 0,
         "Fuera de horario": 0,
-        "Franco": 0,
-        "Licencia": 0,
-        "Vacaciones": 0,
-        "Excepción": 0,
+        Franco: 0,
+        Licencia: 0,
+        Vacaciones: 0,
+        Excepción: 0,
       };
 
       data.forEach((op) => {
         if (!op.disponible) {
           const mot = op.motivo || "Franco";
-          if (["Devolución Supervisor", "Break Extendido", "Problema Técnico"].includes(mot)) {
+          if (
+            [
+              "Devolución Supervisor",
+              "Break Extendido",
+              "Problema Técnico",
+            ].includes(mot)
+          ) {
             breakdown["Excepción"]++;
           } else if (mot in breakdown) {
             breakdown[mot as keyof typeof breakdown]++;
@@ -690,10 +832,12 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       });
 
       for (const [status, count] of Object.entries(breakdown)) {
-        const el = document.querySelector(`[data-breakdown-count="${status}"]`) as HTMLElement | null;
+        const el = document.querySelector(
+          `[data-breakdown-count="${status}"]`,
+        ) as HTMLElement | null;
         if (el) {
           el.textContent = count.toString();
-          const container = el.closest('[data-breakdown-container]');
+          const container = el.closest("[data-breakdown-container]");
           if (container) {
             container.setAttribute("data-count", count.toString());
             if (count === 0) {
@@ -707,26 +851,35 @@ const getExcepcionalShortLabel = (tipo: string): string => {
 
       // 4. Update each table row
       data.forEach((op) => {
-        const row = document.querySelector(`[data-op-id="${op.agentId}"]`) as HTMLElement | null;
+        const row = document.querySelector(
+          `[data-op-id="${op.agentId}"]`,
+        ) as HTMLElement | null;
         if (!row) return;
 
-        const stateKey = op.disponible ? "disponible" : (op.motivo || "offline");
+        const stateKey = op.disponible ? "disponible" : op.motivo || "offline";
         row.setAttribute("data-op-estado", stateKey);
         row.setAttribute("data-sort-estado", stateKey);
 
         // Clear previous conditional classes to ensure fresh state
         row.classList.remove(
-          "bg-primary/10", "border-l-primary",
-          "bg-secondary/10", "border-l-secondary",
+          "bg-primary/10",
+          "border-l-primary",
+          "bg-secondary/10",
+          "border-l-secondary",
           "border-l-4",
-          "opacity-50", "grayscale-[30%]"
+          "opacity-50",
+          "grayscale-[30%]",
         );
 
         const isExceptional = !!op.estadoExcepcional;
         const isHighlighted = op.agentId === maxAgentId && maxAssignedTime > 0;
 
         if (isExceptional) {
-          row.classList.add("bg-secondary/10", "border-l-4", "border-l-secondary");
+          row.classList.add(
+            "bg-secondary/10",
+            "border-l-4",
+            "border-l-secondary",
+          );
         } else if (isHighlighted) {
           row.classList.add("bg-primary/10", "border-l-4", "border-l-primary");
         }
@@ -749,7 +902,7 @@ const getExcepcionalShortLabel = (tipo: string): string => {
               `;
             }
             horarioEl.innerHTML = `
-              <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-base-content/70">
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-small text-base-content/70">
                 <span class="flex items-center gap-1 font-semibold">
                   <svg class="size-3.5 opacity-60 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                   ${op.horarioHoy}
@@ -768,7 +921,7 @@ const getExcepcionalShortLabel = (tipo: string): string => {
           if (op.modalidadHoy && op.modalidadHoy !== "Franco") {
             const isHome = op.modalidadHoy === "Home Office";
             modEl.innerHTML = `
-              <span class="text-[10px] font-bold opacity-60 uppercase tracking-tight">
+              <span class="text-xxs font-bold opacity-60 uppercase tracking-tight">
                 ${isHome ? "Home" : "Presencial"}
               </span>
             `;
@@ -778,29 +931,43 @@ const getExcepcionalShortLabel = (tipo: string): string => {
         }
 
         // Update status cell (badge + comment)
-        const statusCell = row.querySelector(`[data-op-status-cell="${op.agentId}"]`);
+        const statusCell = row.querySelector(
+          `[data-op-status-cell="${op.agentId}"]`,
+        );
         if (statusCell) {
           let badgeHtml = "";
           let commentHtml = "";
 
           if (op.estadoExcepcional) {
-            const badgeClass = "badge-secondary text-secondary-content shadow-sm shadow-secondary/20";
+            const badgeClass =
+              "badge-secondary text-secondary-content shadow-sm shadow-secondary/20";
             let shortLabel = "⚠ Excepción";
-            if (op.estadoExcepcional === "devolucion_supervisor") shortLabel = "⚠ Dev. Supervisor";
+            if (op.estadoExcepcional === "devolucion_supervisor")
+              shortLabel = "⚠ Dev. Supervisor";
             else if (op.estadoExcepcional === "break_extendido") {
-              const returnSuffix = op.retornoEstimado === "Manual" ? " (Manual)" : (op.retornoEstimado ? ` - vuelve ${op.retornoEstimado}` : '');
+              const returnSuffix =
+                op.retornoEstimado === "Manual"
+                  ? " (Manual)"
+                  : op.retornoEstimado
+                    ? ` - vuelve ${op.retornoEstimado}`
+                    : "";
               shortLabel = `⚠ Break extendido${returnSuffix}`;
-            }
-            else if (op.estadoExcepcional === "problema_tecnico") shortLabel = "⚠ Prob. técnico";
+            } else if (op.estadoExcepcional === "problema_tecnico")
+              shortLabel = "⚠ Prob. técnico";
 
-            const timeStr = op.estadoExcepcionalAt ? new Date(op.estadoExcepcionalAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }) : '';
-            const tooltipTip = `${op.estadoExcepcionalMotivo || 'Sin comentario'} — marcado a las ${timeStr}`;
+            const timeStr = op.estadoExcepcionalAt
+              ? new Date(op.estadoExcepcionalAt).toLocaleTimeString("es-AR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "";
+            const tooltipTip = `${op.estadoExcepcionalMotivo || "Sin comentario"} — marcado a las ${timeStr}`;
 
             badgeHtml = `
-              <div class="tooltip tooltip-bottom before:text-[10px] before:px-2 before:py-1" data-tip="${tooltipTip}">
+              <div class="tooltip tooltip-bottom before:text-xxs before:px-2 before:py-1" data-tip="${tooltipTip}">
                 <span
                   data-op-status-badge="${op.agentId}"
-                  class="badge ${badgeClass} gap-1.5 badge-xs font-semibold uppercase text-[9px] tracking-wider py-2 cursor-help"
+                  class="badge ${badgeClass} gap-1.5 badge-xs font-semibold uppercase text-tiny tracking-wider py-2 cursor-help"
                 >
                   ${shortLabel}
                 </span>
@@ -808,7 +975,7 @@ const getExcepcionalShortLabel = (tipo: string): string => {
             `;
             if (op.estadoExcepcionalMotivo) {
               commentHtml = `
-                <div data-op-exception-comment="${op.agentId}" class="text-[11px] text-base-content/50 italic font-medium leading-none max-w-[150px] truncate mt-0.5" title="${op.estadoExcepcionalMotivo}">
+                <div data-op-exception-comment="${op.agentId}" class="text-small text-base-content/50 italic font-medium leading-none max-w-[150px] truncate mt-0.5" title="${op.estadoExcepcionalMotivo}">
                   "${op.estadoExcepcionalMotivo}"
                 </div>
               `;
@@ -819,12 +986,14 @@ const getExcepcionalShortLabel = (tipo: string): string => {
             let dotHtml = "";
 
             if (op.disponible) {
-              badgeClass = "badge-success text-white shadow-sm shadow-success/20";
+              badgeClass =
+                "badge-success text-white shadow-sm shadow-success/20";
               badgeText = "Disponible";
               dotHtml = `<span class="size-1.5 rounded-full bg-white animate-ping"></span>`;
             } else if (op.motivo === "En break") {
-              badgeClass = "badge-warning text-warning-content shadow-sm shadow-warning/20";
-              badgeText = `En break - vuelve ${op.retornoEstimado || ''}`;
+              badgeClass =
+                "badge-warning text-warning-content shadow-sm shadow-warning/20";
+              badgeText = `En break - vuelve ${op.retornoEstimado || ""}`;
               dotHtml = `<span class="size-1.5 rounded-full bg-warning-content/75 animate-pulse"></span>`;
             } else if (op.motivo === "Fuera de horario") {
               badgeClass = "badge-neutral text-neutral-content/75 opacity-70";
@@ -840,7 +1009,7 @@ const getExcepcionalShortLabel = (tipo: string): string => {
             badgeHtml = `
               <span
                 data-op-status-badge="${op.agentId}"
-                class="badge ${badgeClass} gap-1.5 badge-xs font-semibold uppercase text-[9px] tracking-wider py-2"
+                class="badge ${badgeClass} gap-1.5 badge-xs font-semibold uppercase text-tiny tracking-wider py-2"
               >
                 ${dotHtml}${badgeText}
               </span>
@@ -851,7 +1020,9 @@ const getExcepcionalShortLabel = (tipo: string): string => {
         }
 
         // Update actions container
-        const exceptionContainer = row.querySelector(`[data-op-exception-container="${op.agentId}"]`);
+        const exceptionContainer = row.querySelector(
+          `[data-op-exception-container="${op.agentId}"]`,
+        );
         if (exceptionContainer) {
           if (op.estadoExcepcional) {
             exceptionContainer.innerHTML = `
@@ -882,22 +1053,31 @@ const getExcepcionalShortLabel = (tipo: string): string => {
         }
 
         // Update Last Assigned text
-        const lastAssignedEl = row.querySelector(`[data-op-last-assigned-container]`);
+        const lastAssignedEl = row.querySelector(
+          `[data-op-last-assigned-container]`,
+        );
         if (lastAssignedEl) {
           if (op.lastAutogestionAssignedAt) {
-            const timeStr = new Date(op.lastAutogestionAssignedAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+            const timeStr = new Date(
+              op.lastAutogestionAssignedAt,
+            ).toLocaleTimeString("es-AR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
             lastAssignedEl.innerHTML = `
-              <span class="text-[9px] text-base-content/75 bg-base-300/50 rounded px-1.5 py-0.5 inline-block font-semibold mt-0.5" data-last-assigned="${op.lastAutogestionAssignedAt}">
+              <span class="text-tiny text-base-content/75 bg-base-300/50 rounded px-1.5 py-0.5 inline-block font-semibold mt-0.5" data-last-assigned="${op.lastAutogestionAssignedAt}">
                 Asignado: ${timeStr}
               </span>
             `;
           } else {
-            lastAssignedEl.innerHTML = `<span class="text-[9px] text-base-content/40 bg-base-200/40 rounded px-1.5 py-0.5 inline-block italic mt-0.5">Nunca asignado</span>`;
+            lastAssignedEl.innerHTML = `<span class="text-tiny text-base-content/40 bg-base-200/40 rounded px-1.5 py-0.5 inline-block italic mt-0.5">Nunca asignado</span>`;
           }
         }
 
         // Update assign button disabled state
-        const assignBtn = row.querySelector(`[data-op-assign-btn="${op.agentId}"]`) as HTMLButtonElement | null;
+        const assignBtn = row.querySelector(
+          `[data-op-assign-btn="${op.agentId}"]`,
+        ) as HTMLButtonElement | null;
         if (assignBtn) {
           assignBtn.disabled = !op.disponible;
         }
@@ -914,27 +1094,44 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       // 0. Open exception modal
       const openModalBtn = target.closest("[data-action-open-exception-modal]");
       if (openModalBtn) {
-        const agentId = openModalBtn.getAttribute("data-action-open-exception-modal");
+        const agentId = openModalBtn.getAttribute(
+          "data-action-open-exception-modal",
+        );
         const nombre = openModalBtn.getAttribute("data-op-nombre") || "";
-        
-        const modal = document.getElementById("modal-marcar-excepcion") as HTMLDialogElement | null;
-        const agentIdInput = document.getElementById("modal-agent-id") as HTMLInputElement | null;
-        const operatorNameSpan = document.getElementById("modal-operador-nombre");
-        const selectTipo = document.getElementById("modal-select-tipo") as HTMLSelectElement | null;
-        const containerTiempoExtra = document.getElementById("container-tiempo-extra");
-        const selectTiempoExtra = document.getElementById("modal-select-tiempo-extra") as HTMLSelectElement | null;
-        const inputMotivo = document.getElementById("modal-input-motivo") as HTMLInputElement | null;
-        
+
+        const modal = document.getElementById(
+          "modal-marcar-excepcion",
+        ) as HTMLDialogElement | null;
+        const agentIdInput = document.getElementById(
+          "modal-agent-id",
+        ) as HTMLInputElement | null;
+        const operatorNameSpan = document.getElementById(
+          "modal-operador-nombre",
+        );
+        const selectTipo = document.getElementById(
+          "modal-select-tipo",
+        ) as HTMLSelectElement | null;
+        const containerTiempoExtra = document.getElementById(
+          "container-tiempo-extra",
+        );
+        const selectTiempoExtra = document.getElementById(
+          "modal-select-tiempo-extra",
+        ) as HTMLSelectElement | null;
+        const inputMotivo = document.getElementById(
+          "modal-input-motivo",
+        ) as HTMLInputElement | null;
+
         if (modal && agentIdInput && operatorNameSpan) {
           agentIdInput.value = agentId || "";
           operatorNameSpan.innerText = nombre;
           if (selectTipo) selectTipo.value = "devolucion_supervisor";
-          if (containerTiempoExtra) containerTiempoExtra.classList.add("hidden");
+          if (containerTiempoExtra)
+            containerTiempoExtra.classList.add("hidden");
           if (selectTiempoExtra) selectTiempoExtra.value = "20";
           if (inputMotivo) inputMotivo.value = "";
-          
-          document.body.classList.add('overflow-hidden');
-          document.documentElement.classList.add('overflow-hidden');
+
+          document.body.classList.add("overflow-hidden");
+          document.documentElement.classList.add("overflow-hidden");
           modal.showModal();
         }
         return;
@@ -943,7 +1140,9 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       // 0.5. Close exception modal
       const closeModalBtn = target.closest("#btn-close-modal-excepcion");
       if (closeModalBtn) {
-        const modal = document.getElementById("modal-marcar-excepcion") as HTMLDialogElement | null;
+        const modal = document.getElementById(
+          "modal-marcar-excepcion",
+        ) as HTMLDialogElement | null;
         if (modal) {
           modal.close();
         }
@@ -953,18 +1152,33 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       // 1. Confirm exceptional state from modal
       const confirmModalBtn = target.closest("#btn-confirmar-modal-excepcion");
       if (confirmModalBtn) {
-        const agentIdInput = document.getElementById("modal-agent-id") as HTMLInputElement | null;
-        const selectTipo = document.getElementById("modal-select-tipo") as HTMLSelectElement | null;
-        const selectTiempoExtra = document.getElementById("modal-select-tiempo-extra") as HTMLSelectElement | null;
-        const inputMotivo = document.getElementById("modal-input-motivo") as HTMLInputElement | null;
-        const modal = document.getElementById("modal-marcar-excepcion") as HTMLDialogElement | null;
-        
+        const agentIdInput = document.getElementById(
+          "modal-agent-id",
+        ) as HTMLInputElement | null;
+        const selectTipo = document.getElementById(
+          "modal-select-tipo",
+        ) as HTMLSelectElement | null;
+        const selectTiempoExtra = document.getElementById(
+          "modal-select-tiempo-extra",
+        ) as HTMLSelectElement | null;
+        const inputMotivo = document.getElementById(
+          "modal-input-motivo",
+        ) as HTMLInputElement | null;
+        const modal = document.getElementById(
+          "modal-marcar-excepcion",
+        ) as HTMLDialogElement | null;
+
         if (agentIdInput && selectTipo && modal) {
           const agentId = Number(agentIdInput.value);
           const tipo = selectTipo.value;
           const motivo = inputMotivo ? inputMotivo.value : "";
-          const tiempoExtra = tipo === "break_extendido" && selectTiempoExtra && selectTiempoExtra.value !== "manual" ? Number(selectTiempoExtra.value) : null;
-          
+          const tiempoExtra =
+            tipo === "break_extendido" &&
+            selectTiempoExtra &&
+            selectTiempoExtra.value !== "manual"
+              ? Number(selectTiempoExtra.value)
+              : null;
+
           if (!isNaN(agentId)) {
             confirmModalBtn.setAttribute("disabled", "true");
             try {
@@ -978,7 +1192,9 @@ const getExcepcionalShortLabel = (tipo: string): string => {
                 await fetchDisponibilidad();
               } else {
                 const err = await res.json();
-                alert(`Error: ${err.error || "No se pudo marcar el estado excepcional"}`);
+                alert(
+                  `Error: ${err.error || "No se pudo marcar el estado excepcional"}`,
+                );
               }
             } catch (err) {
               console.error(err);
@@ -993,7 +1209,9 @@ const getExcepcionalShortLabel = (tipo: string): string => {
       // 2. Lift/clear exceptional state
       const liftBtn = target.closest("[data-action-lift-exception]");
       if (liftBtn) {
-        const agentId = Number(liftBtn.getAttribute("data-action-lift-exception"));
+        const agentId = Number(
+          liftBtn.getAttribute("data-action-lift-exception"),
+        );
         if (!isNaN(agentId)) {
           liftBtn.setAttribute("disabled", "true");
           try {
@@ -1006,7 +1224,9 @@ const getExcepcionalShortLabel = (tipo: string): string => {
               await fetchDisponibilidad();
             } else {
               const err = await res.json();
-              alert(`Error: ${err.error || "No se pudo levantar la excepción"}`);
+              alert(
+                `Error: ${err.error || "No se pudo levantar la excepción"}`,
+              );
             }
           } catch (err) {
             console.error(err);
@@ -1027,9 +1247,9 @@ const getExcepcionalShortLabel = (tipo: string): string => {
         const res = await fetch("/api/disponibilidad");
         if (!res.ok) throw new Error("Error fetching availability");
         const data = await res.json();
-        
+
         updateUI(data);
-        
+
         secondsSinceSync = 0;
         updateIndicatorText();
       } catch (error) {

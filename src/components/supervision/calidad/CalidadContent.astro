@@ -645,7 +645,7 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
           <div class="flex items-center gap-2">
             <button
               id="btn-export-csv"
-              class="btn btn-xs btn-outline btn-secondary gap-1.5 font-bold uppercase text-[10px]"
+              class="btn btn-xs btn-outline btn-secondary gap-1.5 font-bold uppercase text-xxs"
               title="Exportar Reporte de Operador a CSV"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-3.5 shrink-0">
@@ -654,7 +654,7 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
               <span>Exportar CSV</span>
             </button>
             <button
-              class="btn btn-xs btn-outline btn-secondary gap-1.5 font-bold uppercase text-[10px]"
+              class="btn btn-xs btn-outline btn-secondary gap-1.5 font-bold uppercase text-xxs"
               onclick="window.print()"
             >
               <Icon name="boxicons:printer" size={14} />
@@ -1424,7 +1424,7 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
             <div>
               <div class="flex items-center gap-2">
                 <span class="font-mono text-lg font-black tracking-tight text-base-content">${escapeHtml(call.callId)}</span>
-                ${call.isCriticalFailure ? '<span class="badge badge-error badge-sm font-bold uppercase tracking-wider text-[10px] px-2 py-1.5 shadow-sm">Falla Crítica</span>' : ""}
+                ${call.isCriticalFailure ? '<span class="badge badge-error badge-sm font-bold uppercase tracking-wider text-xxs px-2 py-1.5 shadow-sm">Falla Crítica</span>' : ""}
               </div>
               <div class="text-xs font-medium text-base-content/50 mt-1 uppercase tracking-widest">Ticket: <span class="font-mono text-base-content/70">${escapeHtml(call.ticketId)}</span></div>
             </div>

@@ -13,7 +13,8 @@ const d = String(today.getDate()).padStart(2, "0");
 
 const urlDate = Astro.url.searchParams.get("date");
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-const defaultDate = (urlDate && dateRegex.test(urlDate)) ? urlDate : `${y}-${m}-${d}`;
+const defaultDate =
+  urlDate && dateRegex.test(urlDate) ? urlDate : `${y}-${m}-${d}`;
 
 const initialData = await getAttendanceData(defaultDate, defaultDate);
 ---
@@ -24,36 +25,53 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
 </script>
 
 <div class="flex flex-col gap-6 w-full pb-24 animate-in fade-in duration-500">
-  
   <!-- Filters bar -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-100 p-4 rounded-2xl border border-base-300 shadow-sm">
+  <div
+    class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-100 p-4 rounded-2xl border border-base-300 shadow-sm"
+  >
     <!-- Date Selector -->
     <div class="flex items-center gap-3">
-      <div class="relative flex items-center gap-2 bg-base-200/50 px-4 py-2 rounded-xl border border-base-300 hover:border-secondary/40 transition-colors duration-200 focus-within:ring-2 focus-within:ring-secondary/20">
+      <div
+        class="relative flex items-center gap-2 bg-base-200/50 px-4 py-2 rounded-xl border border-base-300 hover:border-secondary/40 transition-colors duration-200 focus-within:ring-2 focus-within:ring-secondary/20"
+      >
         <Icon name="boxicons:calendar" size={18} class="text-base-content/40" />
-        <span id="date-display" class="text-sm font-semibold tabular-nums text-base-content pointer-events-none">
+        <span
+          id="date-display"
+          class="text-sm font-semibold tabular-nums text-base-content pointer-events-none"
+        >
           {defaultDate}
         </span>
-        <input 
-          type="date" 
+        <input
+          type="date"
           id="attendance-date"
           value={defaultDate}
           class="absolute inset-0 z-10 h-full w-full cursor-pointer appearance-none border-0 opacity-0"
           title="Seleccionar fecha"
         />
       </div>
-      <span class="text-xs text-base-content/50 uppercase font-black tracking-wider" id="day-of-week-label"></span>
+      <span
+        class="text-xs text-base-content/50 uppercase font-black tracking-wider"
+        id="day-of-week-label"></span>
     </div>
 
     <!-- Search, Sort and Export Actions -->
     <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
       <!-- Estadísticas -->
-      <a 
-        href={`${cleanBase}supervision/asistencia/estadisticas`} 
+      <a
+        href={`${cleanBase}supervision/asistencia/estadisticas`}
         class="btn btn-outline btn-sm border-base-300 text-base-content/75 hover:bg-base-200 rounded-xl px-3 w-10 h-10 flex items-center justify-center shrink-0"
         title="Ver estadísticas y reportes mensuales"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-base-content/75" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 text-base-content/75"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <line x1="18" y1="20" x2="18" y2="10"></line>
           <line x1="12" y1="20" x2="12" y2="4"></line>
           <line x1="6" y1="20" x2="6" y2="14"></line>
@@ -61,12 +79,21 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
       </a>
 
       <!-- Exportar CSV -->
-      <button 
-        type="button" 
-        id="export-csv-btn" 
+      <button
+        type="button"
+        id="export-csv-btn"
         class="btn btn-outline btn-sm border-base-300 text-base-content/75 hover:bg-base-200 rounded-xl px-4 flex items-center gap-1.5 w-full sm:w-auto font-bold h-10"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-base-content/75" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 text-base-content/75"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
           <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -75,13 +102,24 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
       </button>
 
       <!-- Sort Segmented Control -->
-      <div class="flex items-center gap-1 bg-base-200 p-1 rounded-xl border border-base-300 select-none w-full sm:w-auto justify-center">
-        <button 
-          type="button" 
-          id="sort-alpha-btn" 
+      <div
+        class="flex items-center gap-1 bg-base-200 p-1 rounded-xl border border-base-300 select-none w-full sm:w-auto justify-center"
+      >
+        <button
+          type="button"
+          id="sort-alpha-btn"
           class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-base-100 text-base-content shadow-sm"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="m3 16 4 4 4-4"></path>
             <path d="M7 20V4"></path>
             <path d="M15 4h5l-5 6h5"></path>
@@ -89,12 +127,21 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
           </svg>
           Alfabético
         </button>
-        <button 
-          type="button" 
-          id="sort-sede-btn" 
+        <button
+          type="button"
+          id="sort-sede-btn"
           class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 text-base-content/60 hover:text-base-content"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-3.5 h-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect>
             <path d="M9 22v-4h6v4"></path>
             <path d="M8 6h.01"></path>
@@ -109,11 +156,15 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
 
       <!-- Search input -->
       <div class="relative w-full sm:w-64">
-        <Icon name="boxicons:search" size={18} class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/30" />
-        <input 
-          type="text" 
+        <Icon
+          name="boxicons:search"
+          size={18}
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/30"
+        />
+        <input
+          type="text"
           id="operator-search"
-          placeholder="Buscar operador..." 
+          placeholder="Buscar operador..."
           class="w-full bg-base-100 border border-base-300 rounded-xl py-2 pl-10 pr-4 text-xs focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all outline-none h-10"
         />
       </div>
@@ -121,17 +172,32 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
   </div>
 
   <!-- Main attendance table -->
-  <div class="bg-base-100 rounded-2xl border border-base-300 shadow-md overflow-hidden">
+  <div
+    class="bg-base-100 rounded-2xl border border-base-300 shadow-md overflow-hidden"
+  >
     <div class="overflow-x-auto min-h-[300px]">
-      <table class="w-full text-xs text-left border-collapse" id="attendance-table">
-        <thead class="bg-base-200/80 border-b border-base-300 font-bold uppercase tracking-wider text-base-content/60">
+      <table
+        class="w-full text-xs text-left border-collapse"
+        id="attendance-table"
+      >
+        <thead
+          class="bg-base-200/80 border-b border-base-300 font-bold uppercase tracking-wider text-base-content/60"
+        >
           <tr>
             <th class="py-3.5 px-4 w-[28%] min-w-[180px]">Operador</th>
             <th class="py-3.5 px-3 w-[20%] min-w-[230px]">Asistencia Real</th>
-            <th class="py-3.5 px-3 w-[20%] min-w-[180px]">Ausencia / Eventualidad</th>
-            <th class="py-3.5 px-3 w-[12%] min-w-[100px] text-center">Horario Estipulado</th>
-            <th class="py-3.5 px-3 w-[10%] min-w-[80px] text-center">Entrada Real</th>
-            <th class="py-3.5 px-3 w-[10%] min-w-[110px] text-center">Cumplimiento</th>
+            <th class="py-3.5 px-3 w-[20%] min-w-[180px]"
+              >Ausencia / Eventualidad</th
+            >
+            <th class="py-3.5 px-3 w-[12%] min-w-[100px] text-center"
+              >Horario Estipulado</th
+            >
+            <th class="py-3.5 px-3 w-[10%] min-w-[80px] text-center"
+              >Entrada Real</th
+            >
+            <th class="py-3.5 px-3 w-[10%] min-w-[110px] text-center"
+              >Cumplimiento</th
+            >
           </tr>
         </thead>
         <tbody id="attendance-table-body" class="divide-y divide-base-200">
@@ -145,31 +211,39 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
       </table>
     </div>
   </div>
-
 </div>
 
 <!-- Floating Save Toolbar -->
-<div id="save-toolbar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-base-100/95 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-base-300 p-3.5 flex items-center justify-between gap-6 z-100 transition-all duration-300 translate-y-32 opacity-0 pointer-events-none w-[90%] max-w-2xl">
+<div
+  id="save-toolbar"
+  class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-base-100/95 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-base-300 p-3.5 flex items-center justify-between gap-6 z-100 transition-all duration-300 translate-y-32 opacity-0 pointer-events-none w-[90%] max-w-2xl"
+>
   <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20 animate-pulse">
+    <div
+      class="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20 animate-pulse"
+    >
       <Icon name="boxicons:save" size={18} />
     </div>
     <div>
-      <h4 class="text-xs font-black text-base-content uppercase tracking-wider">Cambios sin guardar</h4>
-      <p id="pending-count-text" class="text-[10px] text-base-content/60">0 modificaciones pendientes.</p>
+      <h4 class="text-xs font-black text-base-content uppercase tracking-wider">
+        Cambios sin guardar
+      </h4>
+      <p id="pending-count-text" class="text-xxs text-base-content/60">
+        0 modificaciones pendientes.
+      </p>
     </div>
   </div>
   <div class="flex items-center gap-2">
-    <button 
-      type="button" 
-      id="discard-btn" 
+    <button
+      type="button"
+      id="discard-btn"
       class="btn btn-sm btn-outline border-base-300 text-base-content/60 hover:bg-base-200 rounded-lg px-4"
     >
       Descartar
     </button>
-    <button 
-      type="button" 
-      id="save-btn" 
+    <button
+      type="button"
+      id="save-btn"
       class="btn btn-sm btn-primary rounded-lg px-5 shadow-lg shadow-primary/10 flex items-center gap-1.5"
     >
       <span id="save-btn-text">Guardar Cambios</span>
@@ -177,34 +251,38 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
   </div>
 </div>
 
-
-
 <script>
   let attendanceData: any[] = [];
   let renderedData: any[] = [];
   let pendingEdits: Record<number, any> = {};
-  let selectedDate = '';
-  let currentSort = 'alpha';
-  
-  const dateInput = document.getElementById('attendance-date') as HTMLInputElement;
+  let selectedDate = "";
+  let currentSort = "alpha";
+
+  const dateInput = document.getElementById(
+    "attendance-date",
+  ) as HTMLInputElement;
   const serverToday = dateInput.defaultValue || dateInput.value;
   const currentYear = parseInt(serverToday.substring(0, 4));
-  const dateDisplay = document.getElementById('date-display');
-  const dayOfWeekLabel = document.getElementById('day-of-week-label');
-  const searchInput = document.getElementById('operator-search') as HTMLInputElement;
-  const sortAlphaBtn = document.getElementById('sort-alpha-btn');
-  const sortSedeBtn = document.getElementById('sort-sede-btn');
-  const exportCsvBtn = document.getElementById('export-csv-btn');
-  const tableBody = document.getElementById('attendance-table-body');
-  const saveToolbar = document.getElementById('save-toolbar');
-  const pendingCountText = document.getElementById('pending-count-text');
-  const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
-  const discardBtn = document.getElementById('discard-btn') as HTMLButtonElement;
+  const dateDisplay = document.getElementById("date-display");
+  const dayOfWeekLabel = document.getElementById("day-of-week-label");
+  const searchInput = document.getElementById(
+    "operator-search",
+  ) as HTMLInputElement;
+  const sortAlphaBtn = document.getElementById("sort-alpha-btn");
+  const sortSedeBtn = document.getElementById("sort-sede-btn");
+  const exportCsvBtn = document.getElementById("export-csv-btn");
+  const tableBody = document.getElementById("attendance-table-body");
+  const saveToolbar = document.getElementById("save-toolbar");
+  const pendingCountText = document.getElementById("pending-count-text");
+  const saveBtn = document.getElementById("save-btn") as HTMLButtonElement;
+  const discardBtn = document.getElementById(
+    "discard-btn",
+  ) as HTMLButtonElement;
 
   const asistenciaOptions = [
     "HOME OFFICE",
     "PRESENCIAL MONTE GRANDE",
-    "PRESENCIAL PARQUE PATRICIOS"
+    "PRESENCIAL PARQUE PATRICIOS",
   ];
 
   const ausenciaOptions = [
@@ -224,33 +302,49 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
     { value: "Lic. Paternidad", label: "Lic. Paternidad" },
     { value: "Lic. Maternidad", label: "Lic. Maternidad" },
     { value: "Lic. Fallecimiento", label: "Lic. Fallecimiento" },
-    { value: "ART", label: "ART" }
+    { value: "ART", label: "ART" },
   ];
 
   const complianceLabels: Record<string, string> = {
-    "Cumplió": "Cumplió",
-    "Incumplió": "Incumplió",
+    Cumplió: "Cumplió",
+    Incumplió: "Incumplió",
     "Llegada Tarde": "Llegada Tarde",
     "Retiro Anticipado": "Retiro Anticipado",
     "Tarde y Retiro Anticipado": "Tarde y R. Antic.",
-    "Sin Registro": "Sin Registro"
+    "Sin Registro": "Sin Registro",
   };
 
   const complianceClasses: Record<string, string> = {
-    "Cumplió": "bg-success/15 text-success border border-success/30 font-bold",
-    "Incumplió": "bg-error/15 text-error border border-error/30 font-bold animate-pulse",
-    "Llegada Tarde": "bg-warning/15 text-warning border border-warning/30 font-bold",
-    "Retiro Anticipado": "bg-warning/15 text-warning border border-warning/30 font-bold",
-    "Tarde y Retiro Anticipado": "bg-error/15 text-error border border-error/30 font-bold animate-pulse",
-    "Sin Registro": "bg-base-300/40 text-base-content/50 border border-base-300 font-bold"
+    Cumplió: "bg-success/15 text-success border border-success/30 font-bold",
+    Incumplió:
+      "bg-error/15 text-error border border-error/30 font-bold animate-pulse",
+    "Llegada Tarde":
+      "bg-warning/15 text-warning border border-warning/30 font-bold",
+    "Retiro Anticipado":
+      "bg-warning/15 text-warning border border-warning/30 font-bold",
+    "Tarde y Retiro Anticipado":
+      "bg-error/15 text-error border border-error/30 font-bold animate-pulse",
+    "Sin Registro":
+      "bg-base-300/40 text-base-content/50 border border-base-300 font-bold",
   };
 
-  const showGlobalToast = (message: string, type: 'alert-success' | 'alert-error' | 'alert-info') => {
+  const showGlobalToast = (
+    message: string,
+    type: "alert-success" | "alert-error" | "alert-info",
+  ) => {
     (window as any).showToast?.(message, type);
   };
 
   function getSpanishDayName(dateStr: string) {
-    const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const days = [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+    ];
     const date = new Date(dateStr + "T12:00:00");
     return days[date.getDay()];
   }
@@ -258,25 +352,27 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
   function parseTimeRange(range: string) {
     if (!range || range.trim() === "" || range.trim() === "-") return null;
     const clean = range.toLowerCase().replace(/\s+/g, "");
-    const match = clean.match(/^(\d{1,2})(?::(\d{2}))?(?:-|a)(\d{1,2})(?::(\d{2}))?$/);
+    const match = clean.match(
+      /^(\d{1,2})(?::(\d{2}))?(?:-|a)(\d{1,2})(?::(\d{2}))?$/,
+    );
     if (!match) return null;
     return {
       startH: parseInt(match[1]),
       startM: match[2] ? parseInt(match[2]) : 0,
       endH: parseInt(match[3]),
-      endM: match[4] ? parseInt(match[4]) : 0
+      endM: match[4] ? parseInt(match[4]) : 0,
     };
   }
 
   function calculateCompliance(entrada: string, estipulado: string) {
     if (!entrada) return "Sin Registro";
     if (!estipulado) return "Cumplió";
-    
+
     const times = parseTimeRange(estipulado);
     if (!times) return "Cumplió";
-    
+
     let late = false;
-    
+
     if (entrada) {
       const [eh, em] = entrada.split(":").map(Number);
       if (!isNaN(eh) && !isNaN(em)) {
@@ -287,7 +383,7 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
         }
       }
     }
-    
+
     if (late) return "Llegada Tarde";
     return "Cumplió";
   }
@@ -304,11 +400,13 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
           </tr>
         `;
       }
-      
-      const response = await fetch(`${import.meta.env.BASE_URL || "/"}api/asistencia?date=${date}`);
+
+      const response = await fetch(
+        `${import.meta.env.BASE_URL || "/"}api/asistencia?date=${date}`,
+      );
       if (!response.ok) throw new Error("Failed to fetch");
       attendanceData = await response.json();
-      
+
       pendingEdits = {};
       updateToolbar();
       renderTable();
@@ -329,54 +427,115 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
 
   const attendanceClasses: Record<string, string[]> = {
     "HOME OFFICE": ["text-secondary", "border-secondary/40"],
-    "PRESENCIAL MONTE GRANDE": ["text-amber-600", "dark:text-amber-400", "border-primary/40"],
-    "PRESENCIAL PARQUE PATRICIOS": ["text-purple-600", "dark:text-purple-400", "border-purple-500/40"]
+    "PRESENCIAL MONTE GRANDE": [
+      "text-amber-600",
+      "dark:text-amber-400",
+      "border-primary/40",
+    ],
+    "PRESENCIAL PARQUE PATRICIOS": [
+      "text-purple-600",
+      "dark:text-purple-400",
+      "border-purple-500/40",
+    ],
   };
 
   const ausenciaClasses: Record<string, string[]> = {
     "": ["text-base-content/50", "border-base-300"],
-    "Tramite": ["text-slate-500", "dark:text-slate-400", "border-slate-300"],
-    "Demorado": ["text-amber-500", "dark:text-amber-400", "border-amber-500/40"],
-    "Se reporta enfermo": ["text-orange-400", "dark:text-orange-300", "border-orange-300"],
-    "Ausente Justificado": ["text-emerald-600", "dark:text-emerald-400", "border-emerald-500/40"],
-    "Ausente con Permiso": ["text-slate-500", "dark:text-slate-400", "border-slate-300"],
-    "Ausente No Justificado": ["text-amber-500", "dark:text-amber-400", "border-amber-500/40"],
-    "Ausencia sin aviso": ["text-rose-600", "dark:text-rose-400", "border-rose-500/40"],
-    "Lic. Estudio": ["text-slate-500", "dark:text-slate-400", "border-slate-300"],
-    "Lic. Medica": ["text-orange-600", "dark:text-orange-400", "border-orange-500/40"],
-    "Lic. Anual": ["text-emerald-500", "dark:text-emerald-300", "border-emerald-500/20"],
+    Tramite: ["text-slate-500", "dark:text-slate-400", "border-slate-300"],
+    Demorado: ["text-amber-500", "dark:text-amber-400", "border-amber-500/40"],
+    "Se reporta enfermo": [
+      "text-orange-400",
+      "dark:text-orange-300",
+      "border-orange-300",
+    ],
+    "Ausente Justificado": [
+      "text-emerald-600",
+      "dark:text-emerald-400",
+      "border-emerald-500/40",
+    ],
+    "Ausente con Permiso": [
+      "text-slate-500",
+      "dark:text-slate-400",
+      "border-slate-300",
+    ],
+    "Ausente No Justificado": [
+      "text-amber-500",
+      "dark:text-amber-400",
+      "border-amber-500/40",
+    ],
+    "Ausencia sin aviso": [
+      "text-rose-600",
+      "dark:text-rose-400",
+      "border-rose-500/40",
+    ],
+    "Lic. Estudio": [
+      "text-slate-500",
+      "dark:text-slate-400",
+      "border-slate-300",
+    ],
+    "Lic. Medica": [
+      "text-orange-600",
+      "dark:text-orange-400",
+      "border-orange-500/40",
+    ],
+    "Lic. Anual": [
+      "text-emerald-500",
+      "dark:text-emerald-300",
+      "border-emerald-500/20",
+    ],
     "Lic. UI": ["text-green-600", "dark:text-green-400", "border-green-500/40"],
-    "Lic. Gremial": ["text-amber-600", "dark:text-amber-400", "border-amber-500/40"],
-    "Lic. Paternidad": ["text-blue-500", "dark:text-blue-400", "border-blue-400/40"],
-    "Lic. Maternidad": ["text-pink-500", "dark:text-pink-400", "border-pink-400/40"],
-    "Lic. Fallecimiento": ["text-violet-500", "dark:text-violet-400", "border-violet-400/40"],
-    "ART": ["text-cyan-500", "dark:text-cyan-400", "border-cyan-400/40"]
+    "Lic. Gremial": [
+      "text-amber-600",
+      "dark:text-amber-400",
+      "border-amber-500/40",
+    ],
+    "Lic. Paternidad": [
+      "text-blue-500",
+      "dark:text-blue-400",
+      "border-blue-400/40",
+    ],
+    "Lic. Maternidad": [
+      "text-pink-500",
+      "dark:text-pink-400",
+      "border-pink-400/40",
+    ],
+    "Lic. Fallecimiento": [
+      "text-violet-500",
+      "dark:text-violet-400",
+      "border-violet-400/40",
+    ],
+    ART: ["text-cyan-500", "dark:text-cyan-400", "border-cyan-400/40"],
   };
 
-  function updateSelectColor(selectEl: HTMLSelectElement, field = 'asistencia') {
+  function updateSelectColor(
+    selectEl: HTMLSelectElement,
+    field = "asistencia",
+  ) {
     const val = selectEl.value;
-    const baseClass = "select select-bordered h-9 py-1 rounded-xl w-full font-semibold focus:outline-none focus:border-secondary bg-base-100 pr-9 text-[11px] ";
-    if (field === 'asistencia') {
+    const baseClass =
+      "select select-bordered h-9 py-1 rounded-xl w-full font-semibold focus:outline-none focus:border-secondary bg-base-100 pr-9 text-small ";
+    if (field === "asistencia") {
       selectEl.className = baseClass + "max-w-[220px]";
       const classes = attendanceClasses[val];
-      if (classes) classes.forEach(c => selectEl.classList.add(c));
+      if (classes) classes.forEach((c) => selectEl.classList.add(c));
     } else {
       selectEl.className = baseClass + "max-w-[170px]";
       const classes = ausenciaClasses[val];
-      if (classes) classes.forEach(c => selectEl.classList.add(c));
+      if (classes) classes.forEach((c) => selectEl.classList.add(c));
     }
   }
 
   function renderTable() {
     const query = searchInput?.value.toLowerCase().trim() || "";
-    let filtered = attendanceData.filter(op => 
-      op.nombre.toLowerCase().includes(query) || 
-      (op.username && op.username.toLowerCase().includes(query))
+    let filtered = attendanceData.filter(
+      (op) =>
+        op.nombre.toLowerCase().includes(query) ||
+        (op.username && op.username.toLowerCase().includes(query)),
     );
 
-    if (currentSort === 'alpha') {
+    if (currentSort === "alpha") {
       filtered.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    } else if (currentSort === 'sede') {
+    } else if (currentSort === "sede") {
       filtered.sort((a, b) => {
         const getSedeWeight = (op: any) => {
           const loc = (op.location || "").toLowerCase();
@@ -410,57 +569,83 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
     const todayStr = serverToday;
 
     if (tableBody) {
-      tableBody.innerHTML = filtered.map(op => {
-        const edit = pendingEdits[op.agentId] || {};
-        const asistencia = edit.asistencia !== undefined ? edit.asistencia : op.asistencia;
-        const ausencia = edit.ausencia !== undefined ? edit.ausencia : op.ausencia;
-        const entradaReal = edit.entradaReal !== undefined ? edit.entradaReal : op.entradaReal;
-        const cumplimientoForzado = edit.cumplimientoForzado !== undefined ? edit.cumplimientoForzado : op.cumplimientoForzado;
-        
-        let cumplimiento = edit.cumplimiento !== undefined ? edit.cumplimiento : op.cumplimiento;
-        if (!cumplimientoForzado) {
-          cumplimiento = calculateCompliance(entradaReal, op.horarioEstipulado);
-        }
+      tableBody.innerHTML = filtered
+        .map((op) => {
+          const edit = pendingEdits[op.agentId] || {};
+          const asistencia =
+            edit.asistencia !== undefined ? edit.asistencia : op.asistencia;
+          const ausencia =
+            edit.ausencia !== undefined ? edit.ausencia : op.ausencia;
+          const entradaReal =
+            edit.entradaReal !== undefined ? edit.entradaReal : op.entradaReal;
+          const cumplimientoForzado =
+            edit.cumplimientoForzado !== undefined
+              ? edit.cumplimientoForzado
+              : op.cumplimientoForzado;
 
-        const motivoLoguin = edit.motivoLoguin !== undefined ? edit.motivoLoguin : op.motivoLoguin;
-        const detalle = edit.detalle !== undefined ? edit.detalle : op.detalle;
+          let cumplimiento =
+            edit.cumplimiento !== undefined
+              ? edit.cumplimiento
+              : op.cumplimiento;
+          if (!cumplimientoForzado) {
+            cumplimiento = calculateCompliance(
+              entradaReal,
+              op.horarioEstipulado,
+            );
+          }
 
-        const avatarInitials = op.nombre.split(", ").reverse().map((n: string) => n[0]).join("").toUpperCase();
+          const motivoLoguin =
+            edit.motivoLoguin !== undefined
+              ? edit.motivoLoguin
+              : op.motivoLoguin;
+          const detalle =
+            edit.detalle !== undefined ? edit.detalle : op.detalle;
 
-        const getAsistenciaClass = (val: string) => {
-          const classes = attendanceClasses[val];
-          return classes ? classes.join(" ") : "";
-        };
+          const avatarInitials = op.nombre
+            .split(", ")
+            .reverse()
+            .map((n: string) => n[0])
+            .join("")
+            .toUpperCase();
 
-        const getAusenciaClass = (val: string) => {
-          const classes = ausenciaClasses[val];
-          return classes ? classes.join(" ") : "text-base-content/50 border-base-300";
-        };
+          const getAsistenciaClass = (val: string) => {
+            const classes = attendanceClasses[val];
+            return classes ? classes.join(" ") : "";
+          };
 
-        const isFutureDate = op.date > todayStr;
-        const opYear = op.date ? parseInt(op.date.substring(0, 4)) : NaN;
-        const isClosedYear = opYear !== currentYear;
-        const isLocked = isFutureDate || isClosedYear;
-        const disabledAttr = isLocked ? "disabled" : "";
+          const getAusenciaClass = (val: string) => {
+            const classes = ausenciaClasses[val];
+            return classes
+              ? classes.join(" ")
+              : "text-base-content/50 border-base-300";
+          };
 
-        let rowBgClass = "hover:bg-base-200/40";
-        let detailsCellBgClass = "bg-base-200/40";
-        
-        const loc = (op.location || "").toLowerCase();
-        
-        if (loc.includes("parque patricios") || loc.includes("pp")) {
-          rowBgClass = "bg-purple-500/5 hover:bg-purple-500/10 dark:bg-purple-950/15 dark:hover:bg-purple-950/25";
-          detailsCellBgClass = "bg-purple-500/10 dark:bg-purple-950/25";
-        } else if (loc.includes("monte grande") || loc.includes("mg")) {
-          rowBgClass = "bg-amber-500/5 hover:bg-amber-500/10 dark:bg-amber-950/10 dark:hover:bg-amber-950/20";
-          detailsCellBgClass = "bg-amber-500/10 dark:bg-amber-950/15";
-        }
+          const isFutureDate = op.date > todayStr;
+          const opYear = op.date ? parseInt(op.date.substring(0, 4)) : NaN;
+          const isClosedYear = opYear !== currentYear;
+          const isLocked = isFutureDate || isClosedYear;
+          const disabledAttr = isLocked ? "disabled" : "";
 
-        if (isLocked) {
-          rowBgClass = "bg-base-200/30 text-base-content/55 opacity-75";
-        }
+          let rowBgClass = "hover:bg-base-200/40";
+          let detailsCellBgClass = "bg-base-200/40";
 
-        return `
+          const loc = (op.location || "").toLowerCase();
+
+          if (loc.includes("parque patricios") || loc.includes("pp")) {
+            rowBgClass =
+              "bg-purple-500/5 hover:bg-purple-500/10 dark:bg-purple-950/15 dark:hover:bg-purple-950/25";
+            detailsCellBgClass = "bg-purple-500/10 dark:bg-purple-950/25";
+          } else if (loc.includes("monte grande") || loc.includes("mg")) {
+            rowBgClass =
+              "bg-amber-500/5 hover:bg-amber-500/10 dark:bg-amber-950/10 dark:hover:bg-amber-950/20";
+            detailsCellBgClass = "bg-amber-500/10 dark:bg-amber-950/15";
+          }
+
+          if (isLocked) {
+            rowBgClass = "bg-base-200/30 text-base-content/55 opacity-75";
+          }
+
+          return `
           <tr class="main-attendance-row transition-colors ${rowBgClass}" data-agent-id="${op.agentId}">
             <td class="py-3 px-4 font-medium operator-cell">
               <div class="flex items-center gap-3 select-none">
@@ -477,43 +662,59 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
                 <div>
                   <div class="flex items-center gap-1.5">
                     <p class="font-bold text-base-content leading-tight">${op.nombre}</p>
-                    ${isFutureDate ? `
-                      <span class="bg-neutral/15 dark:bg-neutral/30 text-neutral-content dark:text-neutral-content/80 text-[8px] font-black uppercase px-1.5 py-0.5 rounded flex items-center gap-0.5 select-none" title="Fecha futura, edición deshabilitada">
+                    ${
+                      isFutureDate
+                        ? `
+                      <span class="bg-neutral/15 dark:bg-neutral/30 text-neutral-content dark:text-neutral-content/80 text-micro font-black uppercase px-1.5 py-0.5 rounded flex items-center gap-0.5 select-none" title="Fecha futura, edición deshabilitada">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         Futuro
                       </span>
-                    ` : ''}
-                    ${isClosedYear ? `
-                      <span class="bg-warning/20 dark:bg-warning/30 text-warning-content dark:text-warning/80 text-[8px] font-black uppercase px-1.5 py-0.5 rounded flex items-center gap-0.5 select-none" title="Año cerrado en el historial anual, edición deshabilitada">
+                    `
+                        : ""
+                    }
+                    ${
+                      isClosedYear
+                        ? `
+                      <span class="bg-warning/20 dark:bg-warning/30 text-warning-content dark:text-warning/80 text-micro font-black uppercase px-1.5 py-0.5 rounded flex items-center gap-0.5 select-none" title="Año cerrado en el historial anual, edición deshabilitada">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         Cerrado
                       </span>
-                    ` : ''}
+                    `
+                        : ""
+                    }
                   </div>
-                  <p class="text-[10px] text-base-content/50">${op.username || `ID: ${op.agentId}`} | ${op.location}</p>
+                  <p class="text-xxs text-base-content/50">${op.username || `ID: ${op.agentId}`} | ${op.location}</p>
                 </div>
               </div>
             </td>
 
             <td class="py-3 px-3">
-              <select class="select select-bordered h-9 py-1 rounded-xl w-full max-w-[220px] bg-base-100 font-semibold focus:outline-none focus:border-secondary pr-9 text-[11px] ${getAsistenciaClass(asistencia)}" data-field="asistencia" ${disabledAttr}>
-                ${asistenciaOptions.map(opt => `
-                  <option value="${opt}" class="text-base-content bg-base-100 text-[11px] font-normal" ${asistencia === opt ? 'selected' : ''}>${opt}</option>
-                `).join('')}
+              <select class="select select-bordered h-9 py-1 rounded-xl w-full max-w-[220px] bg-base-100 font-semibold focus:outline-none focus:border-secondary pr-9 text-small ${getAsistenciaClass(asistencia)}" data-field="asistencia" ${disabledAttr}>
+                ${asistenciaOptions
+                  .map(
+                    (opt) => `
+                  <option value="${opt}" class="text-base-content bg-base-100 text-small font-normal" ${asistencia === opt ? "selected" : ""}>${opt}</option>
+                `,
+                  )
+                  .join("")}
               </select>
             </td>
 
             <td class="py-3 px-3">
-              <select class="select select-bordered h-9 py-1 rounded-xl w-full max-w-[170px] bg-base-100 font-semibold focus:outline-none focus:border-secondary pr-9 text-[11px] ${getAusenciaClass(ausencia)}" data-field="ausencia" ${disabledAttr}>
-                ${ausenciaOptions.map(opt => `
-                  <option value="${opt.value}" class="text-base-content bg-base-100 text-[11px] font-normal" ${ausencia === opt.value ? 'selected' : ''}>${opt.label}</option>
-                `).join('')}
+              <select class="select select-bordered h-9 py-1 rounded-xl w-full max-w-[170px] bg-base-100 font-semibold focus:outline-none focus:border-secondary pr-9 text-small ${getAusenciaClass(ausencia)}" data-field="ausencia" ${disabledAttr}>
+                ${ausenciaOptions
+                  .map(
+                    (opt) => `
+                  <option value="${opt.value}" class="text-base-content bg-base-100 text-small font-normal" ${ausencia === opt.value ? "selected" : ""}>${opt.label}</option>
+                `,
+                  )
+                  .join("")}
               </select>
             </td>
 
             <td class="py-3 px-3 text-center">
-              <span class="px-2.5 py-1 bg-base-200 text-base-content/75 rounded-md font-mono text-[10px] border border-base-300 font-semibold select-none whitespace-nowrap">
-                ${op.horarioEstipulado || 'Franco'}
+              <span class="px-2.5 py-1 bg-base-200 text-base-content/75 rounded-md font-mono text-xxs border border-base-300 font-semibold select-none whitespace-nowrap">
+                ${op.horarioEstipulado || "Franco"}
               </span>
             </td>
 
@@ -531,16 +732,16 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
 
             <td class="py-3 px-3 text-center">
               <div class="flex flex-col gap-1 items-center justify-center">
-                <span class="badge badge-sm py-2 px-3 rounded-lg text-[9px] whitespace-nowrap ${complianceClasses[cumplimiento] || 'badge-ghost'}" id="badge-cump-${op.agentId}">
+                <span class="badge badge-sm py-2 px-3 rounded-lg text-tiny whitespace-nowrap ${complianceClasses[cumplimiento] || "badge-ghost"}" id="badge-cump-${op.agentId}">
                   ${complianceLabels[cumplimiento] || cumplimiento}
                 </span>
-                <select class="select select-bordered h-8 py-0.5 rounded-lg bg-base-100 text-[9px] font-bold text-base-content uppercase w-[120px] text-center focus:outline-none focus:border-secondary" data-field="cumplimiento" ${disabledAttr}>
-                  <option value="" ${!cumplimientoForzado ? 'selected' : ''}>⚙️ AUTOMÁTICO</option>
-                  <option value="Cumplió" ${cumplimientoForzado && cumplimiento === 'Cumplió' ? 'selected' : ''}>Cumplió</option>
-                  <option value="Incumplió" ${cumplimientoForzado && cumplimiento === 'Incumplió' ? 'selected' : ''}>Incumplió</option>
-                  <option value="Llegada Tarde" ${cumplimientoForzado && cumplimiento === 'Llegada Tarde' ? 'selected' : ''}>Llegada Tarde</option>
-                  <option value="Retiro Anticipado" ${cumplimientoForzado && cumplimiento === 'Retiro Anticipado' ? 'selected' : ''}>Retiro Anticipado</option>
-                  <option value="Tarde y Retiro Anticipado" ${cumplimientoForzado && cumplimiento === 'Tarde y Retiro Anticipado' ? 'selected' : ''}>Tarde y R. Antic.</option>
+                <select class="select select-bordered h-8 py-0.5 rounded-lg bg-base-100 text-tiny font-bold text-base-content uppercase w-[120px] text-center focus:outline-none focus:border-secondary" data-field="cumplimiento" ${disabledAttr}>
+                  <option value="" ${!cumplimientoForzado ? "selected" : ""}>⚙️ AUTOMÁTICO</option>
+                  <option value="Cumplió" ${cumplimientoForzado && cumplimiento === "Cumplió" ? "selected" : ""}>Cumplió</option>
+                  <option value="Incumplió" ${cumplimientoForzado && cumplimiento === "Incumplió" ? "selected" : ""}>Incumplió</option>
+                  <option value="Llegada Tarde" ${cumplimientoForzado && cumplimiento === "Llegada Tarde" ? "selected" : ""}>Llegada Tarde</option>
+                  <option value="Retiro Anticipado" ${cumplimientoForzado && cumplimiento === "Retiro Anticipado" ? "selected" : ""}>Retiro Anticipado</option>
+                  <option value="Tarde y Retiro Anticipado" ${cumplimientoForzado && cumplimiento === "Tarde y Retiro Anticipado" ? "selected" : ""}>Tarde y R. Antic.</option>
                 </select>
               </div>
             </td>
@@ -551,7 +752,7 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
               <div class="max-w-4xl w-full details-row-animate">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div class="flex flex-col gap-1.5 md:col-span-1">
-                    <label class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider flex items-center gap-1.5 select-none">
+                    <label class="text-xxs font-bold text-base-content/60 uppercase tracking-wider flex items-center gap-1.5 select-none">
                       🔑 Motivo Login
                     </label>
                     <input 
@@ -565,7 +766,7 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
                   </div>
 
                   <div class="flex flex-col gap-1.5 md:col-span-2">
-                    <label class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider flex items-center gap-1.5 select-none">
+                    <label class="text-xxs font-bold text-base-content/60 uppercase tracking-wider flex items-center gap-1.5 select-none">
                       📝 Detalle / Comentario (RRHH o Supervisor)
                     </label>
                     <textarea 
@@ -580,49 +781,66 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
             </td>
           </tr>
         `;
-      }).join('');
+        })
+        .join("");
     }
 
-    tableBody?.querySelectorAll('tr[data-agent-id]').forEach(row => {
+    tableBody?.querySelectorAll("tr[data-agent-id]").forEach((row) => {
       const htmlRow = row as HTMLElement;
       const agentId = parseInt(htmlRow.dataset.agentId || "0");
-      const op = attendanceData.find(a => a.agentId === agentId);
+      const op = attendanceData.find((a) => a.agentId === agentId);
       if (!op) return;
-      
-      const detailsRow = document.getElementById(`details-row-${agentId}`) as HTMLElement;
-      const toggleRowBtn = htmlRow.querySelector('.toggle-row-btn') as HTMLElement;
 
-      const selectAsistencia = htmlRow.querySelector('[data-field="asistencia"]') as HTMLSelectElement;
-      const selectAusencia = htmlRow.querySelector('[data-field="ausencia"]') as HTMLSelectElement;
-      const inputEntrada = htmlRow.querySelector('[data-field="entradaReal"]') as HTMLInputElement;
-      const selectCumplimiento = htmlRow.querySelector('[data-field="cumplimiento"]') as HTMLSelectElement;
-      
-      const inputMotivo = detailsRow.querySelector('[data-field="motivoLoguin"]') as HTMLInputElement;
-      const inputDetalle = detailsRow.querySelector('[data-field="detalle"]') as HTMLTextAreaElement;
+      const detailsRow = document.getElementById(
+        `details-row-${agentId}`,
+      ) as HTMLElement;
+      const toggleRowBtn = htmlRow.querySelector(
+        ".toggle-row-btn",
+      ) as HTMLElement;
+
+      const selectAsistencia = htmlRow.querySelector(
+        '[data-field="asistencia"]',
+      ) as HTMLSelectElement;
+      const selectAusencia = htmlRow.querySelector(
+        '[data-field="ausencia"]',
+      ) as HTMLSelectElement;
+      const inputEntrada = htmlRow.querySelector(
+        '[data-field="entradaReal"]',
+      ) as HTMLInputElement;
+      const selectCumplimiento = htmlRow.querySelector(
+        '[data-field="cumplimiento"]',
+      ) as HTMLSelectElement;
+
+      const inputMotivo = detailsRow.querySelector(
+        '[data-field="motivoLoguin"]',
+      ) as HTMLInputElement;
+      const inputDetalle = detailsRow.querySelector(
+        '[data-field="detalle"]',
+      ) as HTMLTextAreaElement;
 
       const toggleDetails = () => {
-        const isHidden = detailsRow.classList.contains('hidden');
+        const isHidden = detailsRow.classList.contains("hidden");
         if (isHidden) {
-          detailsRow.classList.remove('hidden');
-          toggleRowBtn?.classList.add('is-active');
+          detailsRow.classList.remove("hidden");
+          toggleRowBtn?.classList.add("is-active");
         } else {
-          detailsRow.classList.add('hidden');
-          toggleRowBtn?.classList.remove('is-active');
+          detailsRow.classList.add("hidden");
+          toggleRowBtn?.classList.remove("is-active");
         }
       };
 
-      toggleRowBtn?.addEventListener('click', (e) => {
+      toggleRowBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         toggleDetails();
       });
 
-      htmlRow.addEventListener('click', (e) => {
+      htmlRow.addEventListener("click", (e) => {
         const target = e.target as HTMLElement;
         if (
-          target.closest('select') ||
-          target.closest('input') ||
-          target.closest('button') ||
-          target.closest('.avatar')
+          target.closest("select") ||
+          target.closest("input") ||
+          target.closest("button") ||
+          target.closest(".avatar")
         ) {
           return;
         }
@@ -633,41 +851,59 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
         if (!pendingEdits[agentId]) {
           pendingEdits[agentId] = { agentId };
         }
-        
+
         pendingEdits[agentId][field] = value;
-        
-        if (field === 'entradaReal' || field === 'cumplimiento') {
+
+        if (field === "entradaReal" || field === "cumplimiento") {
           const edit = pendingEdits[agentId];
-          const curEntrada = edit.entradaReal !== undefined ? edit.entradaReal : op.entradaReal;
-          
-          if (field === 'cumplimiento') {
+          const curEntrada =
+            edit.entradaReal !== undefined ? edit.entradaReal : op.entradaReal;
+
+          if (field === "cumplimiento") {
             if (value === "") {
               edit.cumplimientoForzado = false;
-              edit.cumplimiento = calculateCompliance(curEntrada, op.horarioEstipulado);
+              edit.cumplimiento = calculateCompliance(
+                curEntrada,
+                op.horarioEstipulado,
+              );
             } else {
               edit.cumplimientoForzado = true;
               edit.cumplimiento = value;
             }
           } else {
-            const curForced = edit.cumplimientoForzado !== undefined ? edit.cumplimientoForzado : op.cumplimientoForzado;
+            const curForced =
+              edit.cumplimientoForzado !== undefined
+                ? edit.cumplimientoForzado
+                : op.cumplimientoForzado;
             if (!curForced) {
-              edit.cumplimiento = calculateCompliance(curEntrada, op.horarioEstipulado);
+              edit.cumplimiento = calculateCompliance(
+                curEntrada,
+                op.horarioEstipulado,
+              );
             }
           }
-          
+
           const badge = document.getElementById(`badge-cump-${agentId}`);
           if (badge) {
             const finalCump = edit.cumplimiento;
             badge.textContent = complianceLabels[finalCump] || finalCump;
-            badge.className = `badge badge-sm py-2 px-3 rounded-lg text-[9px] whitespace-nowrap ${complianceClasses[finalCump] || 'badge-ghost'}`;
+            badge.className = `badge badge-sm py-2 px-3 rounded-lg text-tiny whitespace-nowrap ${complianceClasses[finalCump] || "badge-ghost"}`;
           }
         }
 
         const edit = pendingEdits[agentId];
         let changed = false;
-        
-        const fieldsToCheck = ['asistencia', 'ausencia', 'entradaReal', 'cumplimiento', 'cumplimientoForzado', 'motivoLoguin', 'detalle'];
-        fieldsToCheck.forEach(f => {
+
+        const fieldsToCheck = [
+          "asistencia",
+          "ausencia",
+          "entradaReal",
+          "cumplimiento",
+          "cumplimientoForzado",
+          "motivoLoguin",
+          "detalle",
+        ];
+        fieldsToCheck.forEach((f) => {
           if (edit[f] !== undefined && edit[f] !== op[f]) {
             changed = true;
           }
@@ -680,23 +916,23 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
         updateToolbar();
       };
 
-      selectAsistencia.addEventListener('change', (e) => {
+      selectAsistencia.addEventListener("change", (e) => {
         const target = e.target as HTMLSelectElement;
-        handleEdit('asistencia', target.value);
-        updateSelectColor(target, 'asistencia');
+        handleEdit("asistencia", target.value);
+        updateSelectColor(target, "asistencia");
       });
-      selectAusencia.addEventListener('change', (e) => {
+      selectAusencia.addEventListener("change", (e) => {
         const target = e.target as HTMLSelectElement;
-        handleEdit('ausencia', target.value);
-        updateSelectColor(target, 'ausencia');
+        handleEdit("ausencia", target.value);
+        updateSelectColor(target, "ausencia");
       });
-      inputMotivo.addEventListener('input', (e) => {
+      inputMotivo.addEventListener("input", (e) => {
         const target = e.target as HTMLInputElement;
-        handleEdit('motivoLoguin', target.value);
+        handleEdit("motivoLoguin", target.value);
       });
-      inputDetalle.addEventListener('input', (e) => {
+      inputDetalle.addEventListener("input", (e) => {
         const target = e.target as HTMLTextAreaElement;
-        handleEdit('detalle', target.value);
+        handleEdit("detalle", target.value);
       });
 
       const formatTimeInput = (input: HTMLInputElement, field: string) => {
@@ -708,11 +944,13 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
         handleEdit(field, val);
       };
 
-      inputEntrada.addEventListener('input', () => formatTimeInput(inputEntrada, 'entradaReal'));
-      
-      selectCumplimiento.addEventListener('change', (e) => {
+      inputEntrada.addEventListener("input", () =>
+        formatTimeInput(inputEntrada, "entradaReal"),
+      );
+
+      selectCumplimiento.addEventListener("change", (e) => {
         const target = e.target as HTMLSelectElement;
-        handleEdit('cumplimiento', target.value);
+        handleEdit("cumplimiento", target.value);
       });
     });
   }
@@ -720,51 +958,68 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
   function updateToolbar() {
     const editCount = Object.keys(pendingEdits).length;
     if (editCount > 0) {
-      if (pendingCountText) pendingCountText.textContent = `${editCount} operador(es) con modificaciones pendientes.`;
-      saveToolbar?.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
+      if (pendingCountText)
+        pendingCountText.textContent = `${editCount} operador(es) con modificaciones pendientes.`;
+      saveToolbar?.classList.remove(
+        "translate-y-32",
+        "opacity-0",
+        "pointer-events-none",
+      );
     } else {
-      saveToolbar?.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
+      saveToolbar?.classList.add(
+        "translate-y-32",
+        "opacity-0",
+        "pointer-events-none",
+      );
     }
   }
 
-  dateInput?.addEventListener('change', (e) => {
+  dateInput?.addEventListener("change", (e) => {
     const target = e.target as HTMLInputElement;
     selectedDate = target.value;
     if (dateDisplay) dateDisplay.textContent = selectedDate;
-    if (dayOfWeekLabel) dayOfWeekLabel.textContent = getSpanishDayName(selectedDate);
+    if (dayOfWeekLabel)
+      dayOfWeekLabel.textContent = getSpanishDayName(selectedDate);
     fetchAttendance(selectedDate);
   });
 
-  dateInput?.addEventListener('click', () => {
+  dateInput?.addEventListener("click", () => {
     try {
       dateInput.showPicker();
     } catch (err) {
-      console.warn("dateInput.showPicker() is not supported by this browser.", err);
+      console.warn(
+        "dateInput.showPicker() is not supported by this browser.",
+        err,
+      );
     }
   });
 
-  searchInput?.addEventListener('input', renderTable);
+  searchInput?.addEventListener("input", renderTable);
 
   const updateSortUI = () => {
     if (sortAlphaBtn && sortSedeBtn) {
-      if (currentSort === 'alpha') {
-        sortAlphaBtn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-base-100 text-base-content shadow-sm";
-        sortSedeBtn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 text-base-content/60 hover:text-base-content";
+      if (currentSort === "alpha") {
+        sortAlphaBtn.className =
+          "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-base-100 text-base-content shadow-sm";
+        sortSedeBtn.className =
+          "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 text-base-content/60 hover:text-base-content";
       } else {
-        sortAlphaBtn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 text-base-content/60 hover:text-base-content";
-        sortSedeBtn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-base-100 text-base-content shadow-sm";
+        sortAlphaBtn.className =
+          "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 text-base-content/60 hover:text-base-content";
+        sortSedeBtn.className =
+          "px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-base-100 text-base-content shadow-sm";
       }
     }
   };
 
-  sortAlphaBtn?.addEventListener('click', () => {
-    currentSort = 'alpha';
+  sortAlphaBtn?.addEventListener("click", () => {
+    currentSort = "alpha";
     updateSortUI();
     renderTable();
   });
 
-  sortSedeBtn?.addEventListener('click', () => {
-    currentSort = 'sede';
+  sortSedeBtn?.addEventListener("click", () => {
+    currentSort = "sede";
     updateSortUI();
     renderTable();
   });
@@ -777,7 +1032,7 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
     return `"${str}"`;
   }
 
-  exportCsvBtn?.addEventListener('click', () => {
+  exportCsvBtn?.addEventListener("click", () => {
     if (renderedData.length === 0) {
       showGlobalToast("No hay datos cargados para exportar.", "alert-error");
       return;
@@ -793,13 +1048,13 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
       "Entrada Real",
       "Cumplimiento",
       "Motivo Login",
-      "Detalle/Comentario"
+      "Detalle/Comentario",
     ];
 
     let csvRows = [];
     csvRows.push(headers.join(","));
 
-    renderedData.forEach(op => {
+    renderedData.forEach((op) => {
       const row = [
         op.date,
         op.nombre,
@@ -810,10 +1065,10 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
         op.entradaReal || "--:--",
         op.cumplimiento,
         op.motivoLoguin || "",
-        op.detalle || ""
+        op.detalle || "",
       ];
 
-      const cleanRow = row.map(val => cleanCsvCell(val));
+      const cleanRow = row.map((val) => cleanCsvCell(val));
       csvRows.push(cleanRow.join(","));
     });
 
@@ -827,7 +1082,7 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
     const filename = `asistencia_${selectedDate}.csv`;
 
     link.setAttribute("download", filename);
-    link.style.visibility = 'hidden';
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -835,14 +1090,14 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
     showGlobalToast("Archivo CSV descargado correctamente.", "alert-success");
   });
 
-  discardBtn?.addEventListener('click', () => {
+  discardBtn?.addEventListener("click", () => {
     pendingEdits = {};
     updateToolbar();
     renderTable();
     showGlobalToast("Cambios descartados.", "alert-info");
   });
 
-  saveBtn?.addEventListener('click', async () => {
+  saveBtn?.addEventListener("click", async () => {
     const editCount = Object.keys(pendingEdits).length;
     if (editCount === 0) return;
 
@@ -853,25 +1108,35 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
 
     try {
       const editsArray = Object.values(pendingEdits);
-      const response = await fetch(`${import.meta.env.BASE_URL || "/"}api/asistencia`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          date: selectedDate,
-          edits: editsArray
-        })
-      });
+      const response = await fetch(
+        `${import.meta.env.BASE_URL || "/"}api/asistencia`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            date: selectedDate,
+            edits: editsArray,
+          }),
+        },
+      );
 
       const responseData = await response.json();
       if (!response.ok) throw new Error(responseData.error || "Failed to save");
 
-      showGlobalToast(`¡Se guardaron los cambios de ${editCount} operador(es) correctamente!`, "alert-success");
+      showGlobalToast(
+        `¡Se guardaron los cambios de ${editCount} operador(es) correctamente!`,
+        "alert-success",
+      );
       pendingEdits = {};
       updateToolbar();
       await fetchAttendance(selectedDate);
     } catch (error: any) {
       console.error(error);
-      showGlobalToast(error.message || "Hubo un error al guardar los cambios en la base de datos.", "alert-error");
+      showGlobalToast(
+        error.message ||
+          "Hubo un error al guardar los cambios en la base de datos.",
+        "alert-error",
+      );
     } finally {
       saveBtn.disabled = false;
       discardBtn.disabled = false;
@@ -881,7 +1146,7 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
 
   // Consumir datos iniciales pre-cargados
   const urlParams = new URLSearchParams(window.location.search);
-  const queryDate = urlParams.get('date');
+  const queryDate = urlParams.get("date");
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
   if (queryDate && dateRegex.test(queryDate)) {
@@ -892,10 +1157,14 @@ const initialData = await getAttendanceData(defaultDate, defaultDate);
   }
 
   if (dateDisplay) dateDisplay.textContent = selectedDate;
-  if (dayOfWeekLabel) dayOfWeekLabel.textContent = getSpanishDayName(selectedDate);
+  if (dayOfWeekLabel)
+    dayOfWeekLabel.textContent = getSpanishDayName(selectedDate);
 
   const initWindow = window as any;
-  if (initWindow.__ATTENDANCE_INITIAL_DATA__ && initWindow.__ATTENDANCE_INITIAL_DATA_DATE__ === selectedDate) {
+  if (
+    initWindow.__ATTENDANCE_INITIAL_DATA__ &&
+    initWindow.__ATTENDANCE_INITIAL_DATA_DATE__ === selectedDate
+  ) {
     attendanceData = initWindow.__ATTENDANCE_INITIAL_DATA__;
     delete initWindow.__ATTENDANCE_INITIAL_DATA__;
     delete initWindow.__ATTENDANCE_INITIAL_DATA_DATE__;
