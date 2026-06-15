@@ -16,12 +16,26 @@ import { Icon } from "astro-icon/components";
     aria-labelledby="monthly-detail-title"
   >
     <!-- Chat Bubble Tail (Pointer) -->
-    <div id="modal-pointer" class="absolute left-1/2 -translate-x-1/2 w-5 h-5 bg-base-100 border-base-300 z-[-1] transition-all duration-200"></div>
+    <div
+      id="modal-pointer"
+      class="absolute left-1/2 -translate-x-1/2 w-5 h-5 bg-base-100 border-base-300 z-[-1] transition-all duration-200"
+    >
+    </div>
 
-    <div class="flex items-center justify-between gap-3 bg-base-200/50 px-4 py-3 border-b border-base-200 rounded-t-[22px]">
+    <div
+      class="flex items-center justify-between gap-3 bg-base-200/50 px-4 py-3 border-b border-base-200 rounded-t-[22px]"
+    >
       <div class="flex items-center gap-2">
-        <div id="modal-status-indicator" class="w-2 h-2 rounded-full animate-pulse"></div>
-        <h3 class="truncate text-xs font-black uppercase tracking-widest text-base-content/70" id="monthly-detail-title"></h3>
+        <div
+          id="modal-status-indicator"
+          class="w-2 h-2 rounded-full animate-pulse"
+        >
+        </div>
+        <h3
+          class="truncate text-xs font-black uppercase tracking-widest text-base-content/70"
+          id="monthly-detail-title"
+        >
+        </h3>
       </div>
       <button
         type="button"
@@ -35,53 +49,97 @@ import { Icon } from "astro-icon/components";
 
     <div class="p-5 space-y-5 flex-1 overflow-y-auto min-h-0">
       <div>
-        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/30 mb-1" id="monthly-detail-date-label">Fecha del servicio</p>
-        <p class="text-sm font-bold text-base-content" id="monthly-detail-date"></p>
+        <p
+          class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/30 mb-1"
+          id="monthly-detail-date-label"
+        >
+          Fecha del servicio
+        </p>
+        <p class="text-sm font-bold text-base-content" id="monthly-detail-date">
+        </p>
       </div>
 
       <div class="flex items-center justify-between gap-4 py-1">
         <div class="space-y-1">
-          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/30">Modalidad</p>
-          <span id="monthly-detail-status" class="inline-block text-[11px] font-black uppercase tracking-wider"></span>
+          <p
+            class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/30"
+          >
+            Modalidad
+          </p>
+          <span
+            id="monthly-detail-status"
+            class="inline-block text-small font-black uppercase tracking-wider"
+          ></span>
         </div>
         <div class="space-y-1 text-right min-w-[135px]">
-          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/30 text-right">Horario</p>
-          <div id="monthly-detail-schedule-container" class="relative cursor-pointer inline-block w-full">
-            <span id="monthly-detail-schedule-text" class="inline-block text-xs font-bold text-base-content bg-base-200/40 hover:bg-base-200/80 px-2.5 py-1 rounded-lg border border-base-300/40 transition-all font-mono select-none text-center min-w-[115px]">
+          <p
+            class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/30 text-right"
+          >
+            Horario
+          </p>
+          <div
+            id="monthly-detail-schedule-container"
+            class="relative cursor-pointer inline-block w-full"
+          >
+            <span
+              id="monthly-detail-schedule-text"
+              class="inline-block text-xs font-bold text-base-content bg-base-200/40 hover:bg-base-200/80 px-2.5 py-1 rounded-lg border border-base-300/40 transition-all font-mono select-none text-center min-w-[115px]"
+            >
               -
             </span>
-            <input 
-              type="text" 
-              id="monthly-detail-schedule" 
-              class="input input-xs input-bordered w-full font-mono text-xs font-bold text-base-content hidden focus:border-secondary focus:outline-none text-center bg-base-100" 
-              placeholder="Ej: 08:00 - 16:00" 
+            <input
+              type="text"
+              id="monthly-detail-schedule"
+              class="input input-xs input-bordered w-full font-mono text-xs font-bold text-base-content hidden focus:border-secondary focus:outline-none text-center bg-base-100"
+              placeholder="Ej: 08:00 - 16:00"
             />
           </div>
         </div>
       </div>
 
       <!-- Horas Extras Section -->
-      <div id="monthly-detail-overtime-section" class="pt-4 border-t border-dashed border-base-300 space-y-1 hidden">
-        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-warning">⚡ Horas Extras (Home Office)</p>
-        <p class="text-xs font-bold text-base-content" id="monthly-detail-overtime-text">-</p>
+      <div
+        id="monthly-detail-overtime-section"
+        class="pt-4 border-t border-dashed border-base-300 space-y-1 hidden"
+      >
+        <p class="text-xxs font-black uppercase tracking-[0.2em] text-warning">
+          ⚡ Horas Extras (Home Office)
+        </p>
+        <p
+          class="text-xs font-bold text-base-content"
+          id="monthly-detail-overtime-text"
+        >
+          -
+        </p>
       </div>
 
-
-
       <!-- Horario de Break Planificado (Inicio / Fin) -->
-      <div id="monthly-detail-break-section" class="pt-4 border-t border-dashed border-base-300 space-y-2">
+      <div
+        id="monthly-detail-break-section"
+        class="pt-4 border-t border-dashed border-base-300 space-y-2"
+      >
         <div class="flex items-center justify-between">
-          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/30 flex items-center gap-1">
+          <p
+            class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/30 flex items-center gap-1"
+          >
             <span>☕ Horario de Break Planificado</span>
           </p>
-          <span id="monthly-break-time-indicator" class="text-[9px] font-bold text-success/70 opacity-0 transition-all duration-200">Guardado</span>
+          <span
+            id="monthly-break-time-indicator"
+            class="text-tiny font-bold text-success/70 opacity-0 transition-all duration-200"
+            >Guardado</span
+          >
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
-            <label for="monthly-detail-break-inicio" class="text-[9px] font-bold uppercase text-base-content/40">Inicio Break</label>
-            <input 
-              type="text" 
-              id="monthly-detail-break-inicio" 
+            <label
+              for="monthly-detail-break-inicio"
+              class="text-tiny font-bold uppercase text-base-content/40"
+              >Inicio Break</label
+            >
+            <input
+              type="text"
+              id="monthly-detail-break-inicio"
               placeholder="HH:MM"
               maxlength="5"
               pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"
@@ -89,10 +147,14 @@ import { Icon } from "astro-icon/components";
             />
           </div>
           <div class="space-y-1">
-            <label for="monthly-detail-break-fin" class="text-[9px] font-bold uppercase text-base-content/40">Fin Break</label>
-            <input 
-              type="text" 
-              id="monthly-detail-break-fin" 
+            <label
+              for="monthly-detail-break-fin"
+              class="text-tiny font-bold uppercase text-base-content/40"
+              >Fin Break</label
+            >
+            <input
+              type="text"
+              id="monthly-detail-break-fin"
               placeholder="HH:MM"
               maxlength="5"
               pattern="^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"
@@ -105,8 +167,16 @@ import { Icon } from "astro-icon/components";
       <!-- Comentarios del Día -->
       <div class="pt-4 border-t border-dashed border-base-300 space-y-2">
         <div class="flex items-center justify-between">
-          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/30">Comentario del Día</p>
-          <span id="monthly-comment-indicator" class="text-[9px] font-bold text-success/70 opacity-0 transition-all duration-200">Guardado</span>
+          <p
+            class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/30"
+          >
+            Comentario del Día
+          </p>
+          <span
+            id="monthly-comment-indicator"
+            class="text-tiny font-bold text-success/70 opacity-0 transition-all duration-200"
+            >Guardado</span
+          >
         </div>
         <textarea
           id="monthly-detail-comment"
@@ -119,10 +189,21 @@ import { Icon } from "astro-icon/components";
       <div class="pt-4 border-t border-dashed border-base-300">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
-             <p class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/30 mb-1">ID Operador</p>
-             <code id="monthly-detail-user" class="block truncate font-mono text-[10px] font-bold text-base-content/50"></code>
+            <p
+              class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/30 mb-1"
+            >
+              ID Operador
+            </p>
+            <code
+              id="monthly-detail-user"
+              class="block truncate font-mono text-xxs font-bold text-base-content/50"
+            ></code>
           </div>
-          <Icon name="boxicons:info-circle" size={20} class="text-base-content/20 shrink-0" />
+          <Icon
+            name="boxicons:info-circle"
+            size={20}
+            class="text-base-content/20 shrink-0"
+          />
         </div>
       </div>
     </div>
@@ -130,30 +211,64 @@ import { Icon } from "astro-icon/components";
 </div>
 
 <script>
-  import { saveEdits } from '../lib/api';
-  import { state } from '../lib/state';
-  import { formatDetailDate, formatTimeInput, formatScheduleInput } from '../lib/utils';
-  import { getDetailStatusClass, getDetailIndicatorClass } from '../lib/styles';
+  import { saveEdits } from "../lib/api";
+  import { state } from "../lib/state";
+  import {
+    formatDetailDate,
+    formatTimeInput,
+    formatScheduleInput,
+  } from "../lib/utils";
+  import { getDetailStatusClass, getDetailIndicatorClass } from "../lib/styles";
 
-  const overlay = document.getElementById('monthly-detail-overlay') as HTMLElement | null;
-  const modal = document.getElementById('monthly-detail-modal') as HTMLElement | null;
-  const closeButton = document.getElementById('monthly-detail-close') as HTMLButtonElement | null;
-  const title = document.getElementById('monthly-detail-title') as HTMLElement | null;
-  const date = document.getElementById('monthly-detail-date') as HTMLElement | null;
-  const status = document.getElementById('monthly-detail-status') as HTMLElement | null;
-  const indicator = document.getElementById('modal-status-indicator') as HTMLElement | null;
-  const scheduleInput = document.getElementById('monthly-detail-schedule') as HTMLInputElement | null;
-  const scheduleText = document.getElementById('monthly-detail-schedule-text');
-  const scheduleContainer = document.getElementById('monthly-detail-schedule-container');
-  const user = document.getElementById('monthly-detail-user') as HTMLElement | null;
-  const pointer = document.getElementById('modal-pointer') as HTMLElement | null;
+  const overlay = document.getElementById(
+    "monthly-detail-overlay",
+  ) as HTMLElement | null;
+  const modal = document.getElementById(
+    "monthly-detail-modal",
+  ) as HTMLElement | null;
+  const closeButton = document.getElementById(
+    "monthly-detail-close",
+  ) as HTMLButtonElement | null;
+  const title = document.getElementById(
+    "monthly-detail-title",
+  ) as HTMLElement | null;
+  const date = document.getElementById(
+    "monthly-detail-date",
+  ) as HTMLElement | null;
+  const status = document.getElementById(
+    "monthly-detail-status",
+  ) as HTMLElement | null;
+  const indicator = document.getElementById(
+    "modal-status-indicator",
+  ) as HTMLElement | null;
+  const scheduleInput = document.getElementById(
+    "monthly-detail-schedule",
+  ) as HTMLInputElement | null;
+  const scheduleText = document.getElementById("monthly-detail-schedule-text");
+  const scheduleContainer = document.getElementById(
+    "monthly-detail-schedule-container",
+  );
+  const user = document.getElementById(
+    "monthly-detail-user",
+  ) as HTMLElement | null;
+  const pointer = document.getElementById(
+    "modal-pointer",
+  ) as HTMLElement | null;
 
-  const commentTextarea = document.getElementById('monthly-detail-comment') as HTMLTextAreaElement | null;
-  const commentIndicator = document.getElementById('monthly-comment-indicator');
+  const commentTextarea = document.getElementById(
+    "monthly-detail-comment",
+  ) as HTMLTextAreaElement | null;
+  const commentIndicator = document.getElementById("monthly-comment-indicator");
 
-  const detailBreakInicioInput = document.getElementById('monthly-detail-break-inicio') as HTMLInputElement | null;
-  const detailBreakFinInput = document.getElementById('monthly-detail-break-fin') as HTMLInputElement | null;
-  const breakTimeIndicator = document.getElementById('monthly-break-time-indicator');
+  const detailBreakInicioInput = document.getElementById(
+    "monthly-detail-break-inicio",
+  ) as HTMLInputElement | null;
+  const detailBreakFinInput = document.getElementById(
+    "monthly-detail-break-fin",
+  ) as HTMLInputElement | null;
+  const breakTimeIndicator = document.getElementById(
+    "monthly-break-time-indicator",
+  );
 
   let activeOperatorName: string | null = null;
   let activeDateVal: string | null = null;
@@ -161,152 +276,192 @@ import { Icon } from "astro-icon/components";
   let commentTimeout: number | null = null;
   let scheduleTimeout: number | null = null;
 
-  function showStatusIndicator(el: HTMLElement | null, text: string, type: 'success' | 'warning' | 'error') {
+  function showStatusIndicator(
+    el: HTMLElement | null,
+    text: string,
+    type: "success" | "warning" | "error",
+  ) {
     if (!el) return;
     el.innerText = text;
-    el.classList.remove('text-success/70', 'text-warning/70', 'text-error', 'opacity-0');
-    if (type === 'success') el.classList.add('text-success/70', 'opacity-100');
-    if (type === 'warning') el.classList.add('text-warning/70', 'opacity-100');
-    if (type === 'error') el.classList.add('text-error', 'opacity-100');
+    el.classList.remove(
+      "text-success/70",
+      "text-warning/70",
+      "text-error",
+      "opacity-0",
+    );
+    if (type === "success") el.classList.add("text-success/70", "opacity-100");
+    if (type === "warning") el.classList.add("text-warning/70", "opacity-100");
+    if (type === "error") el.classList.add("text-error", "opacity-100");
   }
 
   function fadeStatusIndicator(el: HTMLElement | null) {
     if (!el) return;
     setTimeout(() => {
       if (el.innerText === "Guardado") {
-        el.classList.remove('opacity-100');
-        el.classList.add('opacity-0');
+        el.classList.remove("opacity-100");
+        el.classList.add("opacity-0");
       }
     }, 1500);
   }
 
   function openMonthlyDetail(trigger: HTMLElement) {
-    if (!overlay || !modal || !pointer || !title || !date || !status || !indicator || !scheduleInput || !user) return;
+    if (
+      !overlay ||
+      !modal ||
+      !pointer ||
+      !title ||
+      !date ||
+      !status ||
+      !indicator ||
+      !scheduleInput ||
+      !user
+    )
+      return;
 
-    const opName = trigger.dataset.operator || '';
-    const dateVal = trigger.dataset.date || '';
-    const statusValue = trigger.dataset.status || 'Franco';
-    const horario = trigger.dataset.horario || '-';
-    const username = trigger.dataset.username || '';
-    const isAbsent = statusValue === 'Licencia' || statusValue === 'Vacaciones' || statusValue === 'Franco';
+    const opName = trigger.dataset.operator || "";
+    const dateVal = trigger.dataset.date || "";
+    const statusValue = trigger.dataset.status || "Franco";
+    const horario = trigger.dataset.horario || "-";
+    const username = trigger.dataset.username || "";
+    const isAbsent =
+      statusValue === "Licencia" ||
+      statusValue === "Vacaciones" ||
+      statusValue === "Franco";
 
     activeOperatorName = opName;
     activeDateVal = dateVal;
 
-    if (commentTextarea) commentTextarea.value = trigger.dataset.comment || '';
-    if (commentIndicator) commentIndicator.classList.add('opacity-0');
+    if (commentTextarea) commentTextarea.value = trigger.dataset.comment || "";
+    if (commentIndicator) commentIndicator.classList.add("opacity-0");
 
-
-
-    if (detailBreakInicioInput) detailBreakInicioInput.value = trigger.dataset.breakInicio || '';
-    if (detailBreakFinInput) detailBreakFinInput.value = trigger.dataset.breakFin || '';
-    if (breakTimeIndicator) breakTimeIndicator.classList.add('opacity-0');
+    if (detailBreakInicioInput)
+      detailBreakInicioInput.value = trigger.dataset.breakInicio || "";
+    if (detailBreakFinInput)
+      detailBreakFinInput.value = trigger.dataset.breakFin || "";
+    if (breakTimeIndicator) breakTimeIndicator.classList.add("opacity-0");
 
     title.innerText = opName;
     date.innerText = formatDetailDate(dateVal);
     status.innerText = statusValue;
-    status.className = `inline-block text-[11px] font-black uppercase tracking-wider ${getDetailStatusClass(statusValue)}`;
+    status.className = `inline-block text-small font-black uppercase tracking-wider ${getDetailStatusClass(statusValue)}`;
     indicator.className = `w-2.5 h-2.5 rounded-full animate-pulse ${getDetailIndicatorClass(statusValue)}`;
 
     if (scheduleText) {
-      scheduleText.innerText = isAbsent ? 'Franco' : (horario || '-');
-      scheduleText.classList.remove('hidden');
-      scheduleInput.classList.add('hidden');
+      scheduleText.innerText = isAbsent ? "Franco" : horario || "-";
+      scheduleText.classList.remove("hidden");
+      scheduleInput.classList.add("hidden");
     }
-    scheduleInput.value = isAbsent ? '' : horario;
-    user.innerText = username ? `${username}@correoargentino.com.ar` : '-';
+    scheduleInput.value = isAbsent ? "" : horario;
+    user.innerText = username ? `${username}@correoargentino.com.ar` : "-";
 
-    const overtimeVal = trigger.dataset.overtime || '';
-    const overtimeSection = document.getElementById('monthly-detail-overtime-section');
-    const overtimeText = document.getElementById('monthly-detail-overtime-text');
+    const overtimeVal = trigger.dataset.overtime || "";
+    const overtimeSection = document.getElementById(
+      "monthly-detail-overtime-section",
+    );
+    const overtimeText = document.getElementById(
+      "monthly-detail-overtime-text",
+    );
     if (overtimeSection && overtimeText) {
       if (overtimeVal) {
         overtimeText.innerText = overtimeVal;
-        overtimeSection.classList.remove('hidden');
+        overtimeSection.classList.remove("hidden");
       } else {
-        overtimeSection.classList.add('hidden');
+        overtimeSection.classList.add("hidden");
       }
     }
-    const dateObj = new Date(dateVal + 'T12:00:00');
+    const dateObj = new Date(dateVal + "T12:00:00");
     const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-    const breakSection = document.getElementById('monthly-detail-break-section');
+    const breakSection = document.getElementById(
+      "monthly-detail-break-section",
+    );
     if (breakSection) {
       if (isWeekend) {
-        breakSection.classList.add('hidden');
+        breakSection.classList.add("hidden");
       } else {
-        breakSection.classList.remove('hidden');
+        breakSection.classList.remove("hidden");
       }
     }
 
+    overlay.classList.remove("hidden");
+    overlay.classList.add("flex");
 
-    overlay.classList.remove('hidden');
-    overlay.classList.add('flex');
-    
     const rect = trigger.getBoundingClientRect();
     const modalWidth = 288;
-    const modalHeight = modal.offsetHeight || 320; 
+    const modalHeight = modal.offsetHeight || 320;
     const padding = 20;
-    
+
     if (window.innerWidth > 768) {
-      overlay.classList.remove('items-start', 'items-center', 'justify-center');
-      modal.style.position = 'absolute';
-      
-      const left = Math.max(20, Math.min(window.innerWidth - modalWidth - 20, rect.left + rect.width/2 - modalWidth/2));
+      overlay.classList.remove("items-start", "items-center", "justify-center");
+      modal.style.position = "absolute";
+
+      const left = Math.max(
+        20,
+        Math.min(
+          window.innerWidth - modalWidth - 20,
+          rect.left + rect.width / 2 - modalWidth / 2,
+        ),
+      );
       const spaceBelow = window.innerHeight - rect.bottom;
-      const showAbove = spaceBelow < (modalHeight + padding);
-      
+      const showAbove = spaceBelow < modalHeight + padding;
+
       let top = 0;
       if (showAbove) {
         top = rect.top - modalHeight - 12;
-        modal.style.transformOrigin = 'bottom center';
-        pointer.className = "absolute w-5 h-5 bg-base-100 border-r-2 border-b-2 border-base-300 rotate-45 z-[-1] transition-all duration-200 -bottom-2.5";
+        modal.style.transformOrigin = "bottom center";
+        pointer.className =
+          "absolute w-5 h-5 bg-base-100 border-r-2 border-b-2 border-base-300 rotate-45 z-[-1] transition-all duration-200 -bottom-2.5";
       } else {
         top = rect.bottom + 12;
-        modal.style.transformOrigin = 'top center';
-        pointer.className = "absolute w-5 h-5 bg-base-100 border-l-2 border-t-2 border-base-300 rotate-45 z-[-1] transition-all duration-200 -top-2.5";
+        modal.style.transformOrigin = "top center";
+        pointer.className =
+          "absolute w-5 h-5 bg-base-100 border-l-2 border-t-2 border-base-300 rotate-45 z-[-1] transition-all duration-200 -top-2.5";
       }
-      
-      const clampedTop = Math.max(12, Math.min(window.innerHeight - modalHeight - 12, top));
+
+      const clampedTop = Math.max(
+        12,
+        Math.min(window.innerHeight - modalHeight - 12, top),
+      );
       modal.style.top = `${clampedTop}px`;
       modal.style.left = `${left}px`;
-      modal.style.margin = '0';
-      
-      const pointerOffset = rect.left + rect.width/2 - left;
+      modal.style.margin = "0";
+
+      const pointerOffset = rect.left + rect.width / 2 - left;
       pointer.style.left = `${pointerOffset}px`;
     } else {
-      overlay.classList.remove('items-start');
-      overlay.classList.add('items-center', 'justify-center');
-      modal.style.position = '';
-      modal.style.left = '';
-      modal.style.top = '';
-      modal.style.margin = '0';
-      pointer.style.left = '50%';
-      pointer.className = "absolute w-5 h-5 bg-base-100 border-l-2 border-t-2 border-base-300 rotate-45 z-[-1] transition-all duration-200 -top-2.5 hidden";
+      overlay.classList.remove("items-start");
+      overlay.classList.add("items-center", "justify-center");
+      modal.style.position = "";
+      modal.style.left = "";
+      modal.style.top = "";
+      modal.style.margin = "0";
+      pointer.style.left = "50%";
+      pointer.className =
+        "absolute w-5 h-5 bg-base-100 border-l-2 border-t-2 border-base-300 rotate-45 z-[-1] transition-all duration-200 -top-2.5 hidden";
     }
 
-    overlay.setAttribute('aria-hidden', 'false');
+    overlay.setAttribute("aria-hidden", "false");
     closeButton?.focus();
   }
 
   function closeMonthlyDetail() {
     if (!overlay) return;
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-    overlay.setAttribute('aria-hidden', 'true');
+    overlay.classList.add("hidden");
+    overlay.classList.remove("flex");
+    overlay.setAttribute("aria-hidden", "true");
     activeOperatorName = null;
     activeDateVal = null;
   }
 
   // --- EVENTS ---
-  document.addEventListener('cronograma:open-monthly-detail', (e: any) => {
+  document.addEventListener("cronograma:open-monthly-detail", (e: any) => {
     if (e.detail && e.detail.trigger) {
       openMonthlyDetail(e.detail.trigger);
     }
   });
 
-  closeButton?.addEventListener('click', closeMonthlyDetail);
-  
-  overlay?.addEventListener('click', (e) => {
+  closeButton?.addEventListener("click", closeMonthlyDetail);
+
+  overlay?.addEventListener("click", (e) => {
     if (e.target === overlay) {
       closeMonthlyDetail();
     }
@@ -314,25 +469,25 @@ import { Icon } from "astro-icon/components";
 
   // Edit-in-place schedule container toggle
   if (scheduleContainer && scheduleText && scheduleInput) {
-    scheduleContainer.addEventListener('click', () => {
-      if (scheduleInput.classList.contains('hidden')) {
-        scheduleText.classList.add('hidden');
-        scheduleInput.classList.remove('hidden');
+    scheduleContainer.addEventListener("click", () => {
+      if (scheduleInput.classList.contains("hidden")) {
+        scheduleText.classList.add("hidden");
+        scheduleInput.classList.remove("hidden");
         scheduleInput.focus();
         scheduleInput.select();
       }
     });
 
-    scheduleInput.addEventListener('blur', () => {
+    scheduleInput.addEventListener("blur", () => {
       const formatted = formatScheduleInput(scheduleInput.value);
       scheduleInput.value = formatted;
-      scheduleText.innerText = formatted || '-';
-      scheduleInput.classList.add('hidden');
-      scheduleText.classList.remove('hidden');
+      scheduleText.innerText = formatted || "-";
+      scheduleInput.classList.add("hidden");
+      scheduleText.classList.remove("hidden");
     });
 
-    scheduleInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+    scheduleInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
         scheduleInput.blur();
       }
     });
@@ -341,22 +496,24 @@ import { Icon } from "astro-icon/components";
   // --- AUTO-SAVE LOGIC ---
 
   // 1. Comments Auto-save
-  commentTextarea?.addEventListener('input', () => {
+  commentTextarea?.addEventListener("input", () => {
     if (!activeOperatorName || !activeDateVal) return;
-    
+
     showStatusIndicator(commentIndicator, "Guardando...", "warning");
     const opName = activeOperatorName;
     const dateVal = activeDateVal;
     const currentVal = commentTextarea.value.trim();
 
     if (commentTimeout) clearTimeout(commentTimeout);
-    
+
     commentTimeout = window.setTimeout(async () => {
       try {
-        await saveEdits([{ agentName: opName, date: dateVal, comment: currentVal }]);
-        
+        await saveEdits([
+          { agentName: opName, date: dateVal, comment: currentVal },
+        ]);
+
         // Update local state
-        const op = state.cronoData.find(o => o.nombre === opName);
+        const op = state.cronoData.find((o) => o.nombre === opName);
         if (op) {
           if (!op.comentarios) op.comentarios = {};
           op.comentarios[dateVal] = currentVal;
@@ -365,7 +522,7 @@ import { Icon } from "astro-icon/components";
         showStatusIndicator(commentIndicator, "Guardado", "success");
         fadeStatusIndicator(commentIndicator);
 
-        document.dispatchEvent(new CustomEvent('cronograma:data-changed'));
+        document.dispatchEvent(new CustomEvent("cronograma:data-changed"));
       } catch (err) {
         console.error("Error auto-saving comment:", err);
         showStatusIndicator(commentIndicator, "Error", "error");
@@ -373,18 +530,20 @@ import { Icon } from "astro-icon/components";
     }, 500);
   });
 
-  commentTextarea?.addEventListener('blur', async () => {
+  commentTextarea?.addEventListener("blur", async () => {
     if (!activeOperatorName || !activeDateVal) return;
     if (commentTimeout) clearTimeout(commentTimeout);
-    
+
     const opName = activeOperatorName;
     const dateVal = activeDateVal;
     const currentVal = commentTextarea.value.trim();
-    
+
     try {
-      await saveEdits([{ agentName: opName, date: dateVal, comment: currentVal }]);
-      
-      const op = state.cronoData.find(o => o.nombre === opName);
+      await saveEdits([
+        { agentName: opName, date: dateVal, comment: currentVal },
+      ]);
+
+      const op = state.cronoData.find((o) => o.nombre === opName);
       if (op) {
         if (!op.comentarios) op.comentarios = {};
         op.comentarios[dateVal] = currentVal;
@@ -393,7 +552,7 @@ import { Icon } from "astro-icon/components";
       showStatusIndicator(commentIndicator, "Guardado", "success");
       fadeStatusIndicator(commentIndicator);
 
-      document.dispatchEvent(new CustomEvent('cronograma:data-changed'));
+      document.dispatchEvent(new CustomEvent("cronograma:data-changed"));
     } catch (err) {
       console.error("Error saving comment on blur:", err);
       showStatusIndicator(commentIndicator, "Error", "error");
@@ -401,61 +560,69 @@ import { Icon } from "astro-icon/components";
   });
 
   // 2. Schedule Auto-save
-  scheduleInput?.addEventListener('input', () => {
+  scheduleInput?.addEventListener("input", () => {
     if (!activeOperatorName || !activeDateVal) return;
-    
+
     const opName = activeOperatorName;
     const dateVal = activeDateVal;
     const currentVal = scheduleInput.value.trim();
 
     if (scheduleTimeout) clearTimeout(scheduleTimeout);
-    
+
     scheduleTimeout = window.setTimeout(async () => {
       try {
-        await saveEdits([{ agentName: opName, date: dateVal, horario: currentVal }]);
-        
-        const op = state.cronoData.find(o => o.nombre === opName);
+        await saveEdits([
+          { agentName: opName, date: dateVal, horario: currentVal },
+        ]);
+
+        const op = state.cronoData.find((o) => o.nombre === opName);
         if (op) {
           if (!op.horarios_dias) op.horarios_dias = {};
           op.horarios_dias[dateVal] = currentVal;
         }
 
-        document.dispatchEvent(new CustomEvent('cronograma:data-changed'));
+        document.dispatchEvent(new CustomEvent("cronograma:data-changed"));
       } catch (err) {
         console.error("Error saving schedule override:", err);
       }
     }, 500);
   });
 
-  scheduleInput?.addEventListener('blur', async () => {
+  scheduleInput?.addEventListener("blur", async () => {
     if (!activeOperatorName || !activeDateVal) return;
     if (scheduleTimeout) clearTimeout(scheduleTimeout);
-    
+
     const opName = activeOperatorName;
     const dateVal = activeDateVal;
     const formatted = formatScheduleInput(scheduleInput.value);
     scheduleInput.value = formatted;
-    
+
     try {
-      await saveEdits([{ agentName: opName, date: dateVal, horario: formatted }]);
-      
-      const op = state.cronoData.find(o => o.nombre === opName);
+      await saveEdits([
+        { agentName: opName, date: dateVal, horario: formatted },
+      ]);
+
+      const op = state.cronoData.find((o) => o.nombre === opName);
       if (op) {
         if (!op.horarios_dias) op.horarios_dias = {};
         op.horarios_dias[dateVal] = formatted;
       }
 
-      document.dispatchEvent(new CustomEvent('cronograma:data-changed'));
+      document.dispatchEvent(new CustomEvent("cronograma:data-changed"));
     } catch (err) {
       console.error("Error saving schedule on blur:", err);
     }
   });
 
-
-
   // 4. Break Time Auto-save
   async function saveDetailBreakTimes() {
-    if (!activeOperatorName || !activeDateVal || !detailBreakInicioInput || !detailBreakFinInput) return;
+    if (
+      !activeOperatorName ||
+      !activeDateVal ||
+      !detailBreakInicioInput ||
+      !detailBreakFinInput
+    )
+      return;
 
     showStatusIndicator(breakTimeIndicator, "Guardando...", "warning");
     const opName = activeOperatorName;
@@ -464,14 +631,16 @@ import { Icon } from "astro-icon/components";
     const breakFinVal = detailBreakFinInput.value;
 
     try {
-      await saveEdits([{
-        agentName: opName,
-        date: dateVal,
-        breakInicio: breakInicioVal,
-        breakFin: breakFinVal
-      }]);
+      await saveEdits([
+        {
+          agentName: opName,
+          date: dateVal,
+          breakInicio: breakInicioVal,
+          breakFin: breakFinVal,
+        },
+      ]);
 
-      const op = state.cronoData.find(o => o.nombre === opName);
+      const op = state.cronoData.find((o) => o.nombre === opName);
       if (op) {
         if (!op.breaks_inicio) op.breaks_inicio = {};
         if (!op.breaks_fin) op.breaks_fin = {};
@@ -482,7 +651,7 @@ import { Icon } from "astro-icon/components";
       showStatusIndicator(breakTimeIndicator, "Guardado", "success");
       fadeStatusIndicator(breakTimeIndicator);
 
-      document.dispatchEvent(new CustomEvent('cronograma:data-changed'));
+      document.dispatchEvent(new CustomEvent("cronograma:data-changed"));
     } catch (err) {
       console.error("Error auto-saving break times:", err);
       showStatusIndicator(breakTimeIndicator, "Error", "error");
@@ -495,13 +664,17 @@ import { Icon } from "astro-icon/components";
     saveDetailBreakTimes();
   };
 
-  detailBreakInicioInput?.addEventListener('blur', () => handleBreakTimeInputBlur(detailBreakInicioInput));
-  detailBreakFinInput?.addEventListener('blur', () => handleBreakTimeInputBlur(detailBreakFinInput));
-  
-  detailBreakInicioInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') detailBreakInicioInput.blur();
+  detailBreakInicioInput?.addEventListener("blur", () =>
+    handleBreakTimeInputBlur(detailBreakInicioInput),
+  );
+  detailBreakFinInput?.addEventListener("blur", () =>
+    handleBreakTimeInputBlur(detailBreakFinInput),
+  );
+
+  detailBreakInicioInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") detailBreakInicioInput.blur();
   });
-  detailBreakFinInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') detailBreakFinInput.blur();
+  detailBreakFinInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") detailBreakFinInput.blur();
   });
 </script>

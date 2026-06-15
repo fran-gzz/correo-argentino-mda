@@ -62,14 +62,14 @@ export function renderWeeklyDaysList() {
       else if (opt === 'Licencia') label = 'L';
       else if (opt === 'Franco') label = 'F';
       
-      let btnClass = "weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-base-100 hover:bg-base-200 text-base-content/60 border border-base-300/40";
+      let btnClass = "weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-base-100 hover:bg-base-200 text-base-content/60 border border-base-300/40";
       if (currentVal === opt) {
-        if (opt === 'Presencial Monte Grande') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-amber-500 text-white shadow-md';
-        else if (opt === 'Presencial Parque Patricios') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-purple-500 text-white shadow-md';
-        else if (opt === 'Home Office') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-secondary text-secondary-content shadow-md';
-        else if (opt === 'Vacaciones') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-success text-white shadow-md';
-        else if (opt === 'Licencia') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-error text-white shadow-md';
-        else if (opt === 'Franco') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-base-300 text-base-content shadow-md';
+        if (opt === 'Presencial Monte Grande') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-amber-500 text-white shadow-md';
+        else if (opt === 'Presencial Parque Patricios') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-purple-500 text-white shadow-md';
+        else if (opt === 'Home Office') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-secondary text-secondary-content shadow-md';
+        else if (opt === 'Vacaciones') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-success text-white shadow-md';
+        else if (opt === 'Licencia') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-error text-white shadow-md';
+        else if (opt === 'Franco') btnClass = 'weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-base-300 text-base-content shadow-md';
       }
       
       return `<button type="button" class="${btnClass}" data-weekly-option="${opt}">${label}</button>`;
@@ -82,7 +82,7 @@ export function renderWeeklyDaysList() {
             <span class="text-xs font-bold text-base-content/70 min-w-16">${day}</span>
             <input 
               type="text" 
-              class="weekly-schedule-input input input-xs input-bordered w-32 font-mono font-bold text-[11px] bg-base-100 focus:outline-none focus:border-secondary" 
+              class="weekly-schedule-input input input-xs input-bordered w-32 font-mono font-bold text-small bg-base-100 focus:outline-none focus:border-secondary" 
               data-day="${day}" 
               value="${currentTime}" 
               placeholder="08:00 - 17:00" 
@@ -94,12 +94,12 @@ export function renderWeeklyDaysList() {
         </div>
         
         <div class="flex items-center gap-4 pl-20 border-t border-dashed border-base-300/40 pt-2.5">
-          <span class="text-[9px] font-black uppercase tracking-wider text-base-content/40">Break:</span>
+          <span class="text-tiny font-black uppercase tracking-wider text-base-content/40">Break:</span>
           <div class="flex items-center gap-2">
-            <span class="text-[8px] font-black uppercase text-base-content/30">Inicio</span>
+            <span class="text-micro font-black uppercase text-base-content/30">Inicio</span>
             <input 
               type="text" 
-              class="weekly-break-inicio-input input input-xs input-bordered w-16 font-mono text-[10px] font-bold text-center bg-base-100 focus:outline-none focus:border-secondary" 
+              class="weekly-break-inicio-input input input-xs input-bordered w-16 font-mono text-xxs font-bold text-center bg-base-100 focus:outline-none focus:border-secondary" 
               data-day="${day}" 
               value="${currentBreakInicio}" 
               placeholder="HH:MM" 
@@ -107,10 +107,10 @@ export function renderWeeklyDaysList() {
             />
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-[8px] font-black uppercase text-base-content/30">Fin</span>
+            <span class="text-micro font-black uppercase text-base-content/30">Fin</span>
             <input 
               type="text" 
-              class="weekly-break-fin-input input input-xs input-bordered w-16 font-mono text-[10px] font-bold text-center bg-base-100 focus:outline-none focus:border-secondary" 
+              class="weekly-break-fin-input input input-xs input-bordered w-16 font-mono text-xxs font-bold text-center bg-base-100 focus:outline-none focus:border-secondary" 
               data-day="${day}" 
               value="${currentBreakFin}" 
               placeholder="HH:MM" 
@@ -136,11 +136,15 @@ export function handleTemplateSelectChange(name: string) {
     
     if (customActions) {
       customActions.classList.remove('hidden');
+      customActions.classList.add('flex');
       const nameInput = document.getElementById('new-template-name') as HTMLInputElement | null;
       if (nameInput) nameInput.value = name;
     }
   } else {
-    if (customActions) customActions.classList.add('hidden');
+    if (customActions) {
+      customActions.classList.add('hidden');
+      customActions.classList.remove('flex');
+    }
   }
 }
 
@@ -148,6 +152,7 @@ export function handleCreateTemplateClick() {
   const customActions = document.getElementById('template-custom-actions');
   if (customActions) {
     customActions.classList.remove('hidden');
+    customActions.classList.add('flex');
     const nameInput = document.getElementById('new-template-name') as HTMLInputElement | null;
     if (nameInput) {
       nameInput.value = "";
@@ -195,7 +200,11 @@ export async function handleDeleteTemplateClick() {
     state.weeklyTemplates = templates;
     
     populateWeeklyTemplatesDropdown();
-    document.getElementById('template-custom-actions')?.classList.add('hidden');
+    const customActions = document.getElementById('template-custom-actions');
+    if (customActions) {
+      customActions.classList.add('hidden');
+      customActions.classList.remove('flex');
+    }
     showToast(`Plantilla "${name}" eliminada.`, "success");
   }
 }
@@ -275,7 +284,7 @@ export function handleWeeklyDayOptionClick(btn: HTMLButtonElement) {
   
   if (btn.parentElement) {
     btn.parentElement.querySelectorAll('[data-weekly-option]').forEach(other => {
-      other.className = "weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-base-100 hover:bg-base-200 text-base-content/60 border border-base-300/40";
+      other.className = "weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 bg-base-100 hover:bg-base-200 text-base-content/60 border border-base-300/40";
     });
   }
   
@@ -287,7 +296,7 @@ export function handleWeeklyDayOptionClick(btn: HTMLButtonElement) {
   else if (option === 'Licencia') activeClass = 'bg-error text-white shadow-md';
   else if (option === 'Franco') activeClass = 'bg-base-300 text-base-content shadow-md';
   
-  btn.className = `weekly-day-opt-btn btn btn-xs font-black text-[9px] uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 ${activeClass}`;
+  btn.className = `weekly-day-opt-btn btn btn-xs font-black text-tiny uppercase px-3 py-1.5 h-auto rounded-lg transition-all duration-200 ${activeClass}`;
 }
 
 export function clearWeeklySchedule() {
@@ -302,7 +311,10 @@ export function clearWeeklySchedule() {
   if (select) select.value = "";
   
   const customActions = document.getElementById('template-custom-actions');
-  if (customActions) customActions.classList.add('hidden');
+  if (customActions) {
+    customActions.classList.add('hidden');
+    customActions.classList.remove('flex');
+  }
   
   renderWeeklyDaysList();
 }

@@ -398,7 +398,7 @@ function renderMonthDropdown(): void {
 
     html += `
       <li>
-        <a class="text-[10px] font-bold py-1.5 px-3 rounded-lg hover:bg-secondary/10 hover:text-secondary focus:bg-secondary/20 transition-all cursor-pointer flex items-center justify-between" data-month-val="${ymStr}-01">
+        <a class="text-xxs font-bold py-1.5 px-3 rounded-lg hover:bg-secondary/10 hover:text-secondary focus:bg-secondary/20 transition-all cursor-pointer flex items-center justify-between" data-month-val="${ymStr}-01">
           <span>${label}</span>
         </a>
       </li>
@@ -611,7 +611,7 @@ function renderDaily(): void {
             </div>
             <div class="flex flex-col">
               <span class="text-xs uppercase tracking-widest font-black text-base-content/70">Sin resultados</span>
-              <span class="text-[10px] text-base-content/40 font-medium normal-case mt-0.5">Ningún operador coincide con tu búsqueda o filtro.</span>
+              <span class="text-xxs text-base-content/40 font-medium normal-case mt-0.5">Ningún operador coincide con tu búsqueda o filtro.</span>
             </div>
           </div>
         </td>
@@ -671,7 +671,7 @@ function renderDaily(): void {
       let breakBadgeHtml = '';
       if (breakStartHourStr && breakEndHourStr) {
         breakBadgeHtml = `
-          <span class="daily-break-badge px-1.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center gap-1 shadow-sm shrink-0" title="Break: ${breakStartHourStr} - ${breakEndHourStr}">
+          <span class="daily-break-badge px-1.5 py-0.5 rounded-full text-tiny font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center gap-1 shadow-sm shrink-0" title="Break: ${breakStartHourStr} - ${breakEndHourStr}">
             <svg class="w-3 h-3 text-indigo-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
               <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
@@ -685,8 +685,8 @@ function renderDaily(): void {
       }
 
       let liveIndicatorClass = "bg-base-content/10";
-      if (liveStatus.status === 'online') liveIndicatorClass = "bg-success shadow-[0_0_8px_rgba(6,132,68,0.4)]";
-      else if (liveStatus.status === 'break') liveIndicatorClass = "bg-warning shadow-[0_0_8px_rgba(226,173,31,0.4)]";
+      if (liveStatus.status === 'online') liveIndicatorClass = "bg-success shadow-glow-success";
+      else if (liveStatus.status === 'break') liveIndicatorClass = "bg-warning shadow-glow-warning";
 
       let ringClass = "bg-base-200/50 text-base-content/60 ring-base-200 border border-base-300";
       let glowColorClass = "bg-primary";
@@ -714,7 +714,7 @@ function renderDaily(): void {
       const breakBars: string[] = [];
 
       // Helper for adding line-through to work bar spans
-      const ganttSpanClass = (bg: string) => `relative z-10 text-[9px] font-extrabold tracking-tight uppercase px-1.5 py-0.5 rounded ${bg} pointer-events-none ${isHoliday ? 'line-through' : ''}`;
+      const ganttSpanClass = (bg: string) => `relative z-10 text-tiny font-extrabold tracking-tight uppercase px-1.5 py-0.5 rounded ${bg} pointer-events-none ${isHoliday ? 'line-through' : ''}`;
       // Helper for adding line-through to inactive bar divs
       const ganttInactiveBarClass = (bg: string) => `gantt-inactive-bar ${bg} ${isHoliday ? 'line-through' : ''}`;
 
@@ -897,14 +897,14 @@ function renderDaily(): void {
             const widthPct = otEndPct - otStartPct;
             workBars.push(`
               <div class="gantt-bar-work ${otBarBg} relative" style="left: ${otStartPct}%; width: ${widthPct}%;">
-                <span class="${ganttSpanClass(otBarBg)} font-black uppercase text-[8.5px]">HE: ${dayOvertime.startTime} - ${dayOvertime.endTime}</span>
+                <span class="${ganttSpanClass(otBarBg)} font-black uppercase text-tiny">HE: ${dayOvertime.startTime} - ${dayOvertime.endTime}</span>
               </div>
             `);
           } else {
             const widthPct = 100 - otStartPct;
             workBars.push(`
               <div class="gantt-bar-work ${otBarBg} relative" style="left: ${otStartPct}%; width: ${widthPct}%; border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                <span class="${ganttSpanClass(otBarBg)} font-black uppercase text-[8.5px]">HE: ${dayOvertime.startTime} - ${dayOvertime.endTime}</span>
+                <span class="${ganttSpanClass(otBarBg)} font-black uppercase text-tiny">HE: ${dayOvertime.startTime} - ${dayOvertime.endTime}</span>
               </div>
             `);
           }
@@ -944,11 +944,11 @@ function renderDaily(): void {
 
       rowsHtml += `
         <tr class="${trClass}">
-          <td class="sticky left-0 bg-base-100 z-30 w-64 min-w-[16rem] px-6 py-4 border-r border-base-300/40 relative group-hover:bg-base-200 transition-colors">
+          <td class="sticky left-0 bg-base-100 z-30 w-64 min-w-sidebar-expanded px-6 py-4 border-r border-base-300/40 relative group-hover:bg-base-200 transition-colors">
             <div class="flex items-center gap-4">
               <div class="relative w-10 h-10 shrink-0">
                 <div class="absolute inset-0 rounded-full blur-[2px] opacity-0 group-hover:opacity-30 transition-opacity duration-300 ${glowColorClass}"></div>
-                <div class="relative w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-black ring-1 ring-base-300 transition-all duration-300 group-hover:scale-110 group-hover:ring-offset-2 group-hover:ring-offset-base-100 ${ringClass}">
+                <div class="relative w-10 h-10 rounded-full flex items-center justify-center text-small font-black ring-1 ring-base-300 transition-all duration-300 group-hover:scale-110 group-hover:ring-offset-2 group-hover:ring-offset-base-100 ${ringClass}">
                   ${initials}
                 </div>
                 <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-base-100 ${liveIndicatorClass}" title="${liveStatus.text}"></div>
@@ -960,20 +960,20 @@ function renderDaily(): void {
                 >
                   ${op.nombre}
                 </button>
-                <span class="text-[10px] text-base-content/40 font-black tracking-widest uppercase truncate">${username}</span>
+                <span class="text-xxs text-base-content/40 font-black tracking-widest uppercase truncate">${username}</span>
               </div>
             </div>
           </td>
-          <td class="sticky left-[16rem] bg-base-100 z-30 w-44 min-w-[11rem] px-4 py-4 border-r border-base-300/40 group-hover:bg-base-200 transition-colors shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">
+          <td class="sticky left-sidebar-expanded bg-base-100 z-30 w-44 min-w-sidebar-collapsed px-4 py-4 border-r border-base-300/40 group-hover:bg-base-200 transition-colors shadow-table-edge">
             <div class="flex items-center gap-3">
                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-base border border-base-300/30 ${isHoliday ? '!bg-orange-200 dark:!bg-orange-600 !text-orange-800 dark:!text-orange-100 !border-orange-300 dark:!border-orange-500' : styles.bgClass}">
                   ${styles.icon}
                </div>
                <div class="flex flex-col gap-1 items-start">
-                  <span class="${isHoliday ? '!bg-orange-200 dark:!bg-orange-600 !text-orange-800 dark:!text-orange-100 !border-orange-300 dark:!border-orange-500 font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase line-through whitespace-nowrap' : styles.badge} whitespace-nowrap">${status}</span>
+                  <span class="${isHoliday ? '!bg-orange-200 dark:!bg-orange-600 !text-orange-800 dark:!text-orange-100 !border-orange-300 dark:!border-orange-500 font-bold px-2.5 py-1 rounded-full text-xxs tracking-wide uppercase line-through whitespace-nowrap' : styles.badge} whitespace-nowrap">${status}</span>
                  ${breakBadgeHtml}
                  ${dayOvertime ? `
-                   <span class="px-1.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-warning/15 text-warning border border-warning/20 flex items-center gap-1 shadow-sm shrink-0 whitespace-nowrap mt-1" title="Hora Extra: ${dayOvertime.startTime} - ${dayOvertime.endTime}">
+                   <span class="px-1.5 py-0.5 rounded-full text-tiny font-black uppercase tracking-wider bg-warning/15 text-warning border border-warning/20 flex items-center gap-1 shadow-sm shrink-0 whitespace-nowrap mt-1" title="Hora Extra: ${dayOvertime.startTime} - ${dayOvertime.endTime}">
                      ⚡ HE: ${dayOvertime.startTime} - ${dayOvertime.endTime}
                    </span>
                  ` : ''}
@@ -1055,7 +1055,7 @@ function renderHourly(dateStr: string): void {
   
   hours.forEach(hour => {
     theadHtml += `<th class="sticky top-[44px] text-center min-w-[3rem] px-0 border-r border-b border-base-200 py-2 bg-base-100 z-40">
-      <span class="font-extrabold text-[10px] tracking-wide text-base-content/60">${hour}</span>
+      <span class="font-extrabold text-xxs tracking-wide text-base-content/60">${hour}</span>
     </th>`;
   });
   theadHtml += `</tr>`;
@@ -1126,7 +1126,7 @@ function renderHourly(dateStr: string): void {
            opNameBtnClass += " text-orange-600 dark:text-orange-400";
         }
 
-        let spanClass = `text-[9px] ${isAbsent ? 'text-error' : isFranco ? 'text-base-content/40' : 'text-base-content/60'} font-black tracking-widest uppercase truncate mt-0.5`;
+        let spanClass = `text-tiny ${isAbsent ? 'text-error' : isFranco ? 'text-base-content/40' : 'text-base-content/60'} font-black tracking-widest uppercase truncate mt-0.5`;
         if (isHoliday) {
            spanClass += " text-orange-600 dark:text-orange-400";
         }
@@ -1148,7 +1148,7 @@ function renderHourly(dateStr: string): void {
            if (onBreak) {
               tbodyHtml += `<td class="border-r border-base-200/50 p-1 bg-amber-500/5 hover:bg-amber-500/10 transition-colors">
                  <div class="hourly-break-cell w-full h-full rounded border border-dashed border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity min-h-[1.75rem] shadow-sm cursor-help" title="Descanso: ${breakStart} - ${breakEnd}">
-                   <span class="text-[10px] leading-none">☕</span>
+                   <span class="text-xxs leading-none">☕</span>
                  </div>
               </td>`;
             } else if (working && !isFranco) {
@@ -1166,7 +1166,7 @@ function renderHourly(dateStr: string): void {
   }
   if (tbody) tbody.innerHTML = tbodyHtml;
   
-  if (tfoot) tfoot.innerHTML = `<tr><td colspan="${hours.length + 1}" class="bg-base-200 py-3 text-center border-t border-base-300 text-[10px] font-black text-base-content/30 uppercase tracking-[0.2em]">Fin del reporte diario</td></tr>`;
+  if (tfoot) tfoot.innerHTML = `<tr><td colspan="${hours.length + 1}" class="bg-base-200 py-3 text-center border-t border-base-300 text-xxs font-black text-base-content/30 uppercase tracking-[0.2em]">Fin del reporte diario</td></tr>`;
 }
 
 function renderMonthly(): void {
@@ -1270,9 +1270,9 @@ function renderMonthly(): void {
   
   if (!state.isTotalsCollapsed) {
     theadHtml += `
-      <th class="sticky top-0 left-[200px] bg-base-100 z-50 w-[40px] min-w-[40px] border-r border-b border-base-200 px-1 py-4 font-black text-[9px] uppercase tracking-widest text-base-content/40 text-center" title="Presencial">P</th>
-      <th class="sticky top-0 left-[240px] bg-base-100 z-50 w-[40px] min-w-[40px] border-r border-b border-base-200 px-1 py-4 font-black text-[9px] uppercase tracking-widest text-base-content/40 text-center" title="Home Office">HO</th>
-      <th class="sticky top-0 left-[280px] bg-base-100 z-50 w-[40px] min-w-[40px] border-r border-b border-base-200 px-1 py-4 font-black text-[9px] uppercase tracking-widest text-base-content/40 text-center shadow-[4px_0_10px_-5px_rgba(0,0,0,0.1)]" title="Licencia/Vacaciones">L</th>
+      <th class="sticky top-0 left-[200px] bg-base-100 z-50 w-[40px] min-w-[40px] border-r border-b border-base-200 px-1 py-4 font-black text-tiny uppercase tracking-widest text-base-content/40 text-center" title="Presencial">P</th>
+      <th class="sticky top-0 left-[240px] bg-base-100 z-50 w-[40px] min-w-[40px] border-r border-b border-base-200 px-1 py-4 font-black text-tiny uppercase tracking-widest text-base-content/40 text-center" title="Home Office">HO</th>
+      <th class="sticky top-0 left-[280px] bg-base-100 z-50 w-[40px] min-w-[40px] border-r border-b border-base-200 px-1 py-4 font-black text-tiny uppercase tracking-widest text-base-content/40 text-center shadow-[4px_0_10px_-5px_rgba(0,0,0,0.1)]" title="Licencia/Vacaciones">L</th>
     `;
   }
   
@@ -1288,7 +1288,7 @@ function renderMonthly(): void {
           title="${tooltipText}"
           aria-label="${tooltipText}"
         >
-          <span class="font-extrabold text-[10px] tracking-wide ${pd.isToday ? 'opacity-90' : 'opacity-60'}">${pd.dayName}</span>
+          <span class="font-extrabold text-xxs tracking-wide ${pd.isToday ? 'opacity-90' : 'opacity-60'}">${pd.dayName}</span>
           <div class="flex items-center gap-1">
              <span class="font-black text-xs ${pd.isToday ? 'scale-110' : ''}">${pd.dateNum}</span>
              ${pd.isCritical ? '<div class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></div>' : ''}
@@ -1335,7 +1335,7 @@ function renderMonthly(): void {
           </div>
           <div class="flex flex-col">
             <span class="text-xs uppercase tracking-widest font-black text-base-content/70">Sin resultados</span>
-            <span class="text-[10px] text-base-content/40 font-medium normal-case mt-0.5">Ningún operador coincide con tu búsqueda o filtro.</span>
+            <span class="text-xxs text-base-content/40 font-medium normal-case mt-0.5">Ningún operador coincide con tu búsqueda o filtro.</span>
           </div>
         </div>
       </td>
@@ -1408,8 +1408,8 @@ function renderMonthly(): void {
                   </button>
                 </div>
               </div>
-              ${hoViolation ? `<span class="text-[9px] bg-error/10 border border-error/20 px-2 py-0.5 rounded-md font-black text-error uppercase tracking-wider mt-1 inline-block w-fit shadow-sm">⚠️ Exceso de HO (${maxConsecutiveHO}d)</span>` : ''}
-              ${pWeekViolation ? `<span class="text-[9px] bg-error/10 border border-error/20 px-2 py-0.5 rounded-md font-black text-error uppercase tracking-wider mt-1 inline-block w-fit shadow-sm">⚠️ Faltan días P.</span>` : ''}
+              ${hoViolation ? `<span class="text-tiny bg-error/10 border border-error/20 px-2 py-0.5 rounded-md font-black text-error uppercase tracking-wider mt-1 inline-block w-fit shadow-sm">⚠️ Exceso de HO (${maxConsecutiveHO}d)</span>` : ''}
+              ${pWeekViolation ? `<span class="text-tiny bg-error/10 border border-error/20 px-2 py-0.5 rounded-md font-black text-error uppercase tracking-wider mt-1 inline-block w-fit shadow-sm">⚠️ Faltan días P.</span>` : ''}
             </div>
           </div>
         </td>
@@ -1417,9 +1417,9 @@ function renderMonthly(): void {
 
       if (!state.isTotalsCollapsed) {
         tbodyHtml += `
-          <td class="sticky left-[200px] bg-base-100 z-30 w-[40px] min-w-[40px] py-3 px-1 text-center text-[10px] font-black border-r border-b border-base-200/70 text-secondary group-hover:bg-base-200 transition-colors">${stats.P}</td>
-          <td class="sticky left-[240px] bg-base-100 z-30 w-[40px] min-w-[40px] py-3 px-1 text-center text-[10px] font-black border-r border-b border-base-200/70 text-amber-600 dark:text-amber-400 group-hover:bg-base-200 transition-colors">${stats.HO}</td>
-          <td class="sticky left-[280px] bg-base-100 z-30 w-[40px] min-w-[40px] py-3 px-1 text-center text-[10px] font-black border-r border-b border-base-200/70 text-error group-hover:bg-base-200 transition-colors shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">${stats.L}</td>
+          <td class="sticky left-[200px] bg-base-100 z-30 w-[40px] min-w-[40px] py-3 px-1 text-center text-xxs font-black border-r border-b border-base-200/70 text-secondary group-hover:bg-base-200 transition-colors">${stats.P}</td>
+          <td class="sticky left-[240px] bg-base-100 z-30 w-[40px] min-w-[40px] py-3 px-1 text-center text-xxs font-black border-r border-b border-base-200/70 text-amber-600 dark:text-amber-400 group-hover:bg-base-200 transition-colors">${stats.HO}</td>
+          <td class="sticky left-[280px] bg-base-100 z-30 w-[40px] min-w-[40px] py-3 px-1 text-center text-xxs font-black border-r border-b border-base-200/70 text-error group-hover:bg-base-200 transition-colors shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">${stats.L}</td>
         `;
       }
         
@@ -1482,7 +1482,7 @@ function renderMonthly(): void {
               ${otAttr}
               ${isHoliday && pd.feriadoName ? `title="Franco (Feriado: ${pd.feriadoName})"` : ''}
             >
-              ${dayOvertime ? `<span class="text-[8px] font-black text-base-content bg-warning/25 border border-warning/40 px-1 py-0.5 rounded tracking-tight">HE: ${dayOvertime.startTime}</span>` : ''}
+              ${dayOvertime ? `<span class="text-micro font-black text-base-content bg-warning/25 border border-warning/40 px-1 py-0.5 rounded tracking-tight">HE: ${dayOvertime.startTime}</span>` : ''}
               ${hasComment ? `<div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse ${dayOvertime ? 'mt-0.5' : ''}" title="Tiene comentario"></div>` : ''}
             </button>
           </td>`;
@@ -1541,7 +1541,7 @@ function renderMonthly(): void {
               ${isRotationCell ? `data-saturday-rotation="true" data-rotation-horario="${escapeHtml(op.saturdayHorario || '07:00 - 13:00')}"` : ''}
             >
               <span class="font-black text-xs leading-none tracking-tight">${initials}</span>
-              ${dayOvertime ? `<span class="text-[8px] font-black text-base-content bg-warning/25 border border-warning/40 px-1 py-0.5 rounded tracking-tight mt-0.5 scale-90">HE: ${dayOvertime.startTime}</span>` : ''}
+              ${dayOvertime ? `<span class="text-micro font-black text-base-content bg-warning/25 border border-warning/40 px-1 py-0.5 rounded tracking-tight mt-0.5 scale-90">HE: ${dayOvertime.startTime}</span>` : ''}
               ${isLicenseOverlap ? '<div class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-error border border-base-100"></div>' : ''}
               ${hasComment ? `<div class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 border border-base-100" title="Tiene comentario"></div>` : ''}
               ${isRotationCell ? '<div class="absolute bottom-1.5 w-1 h-1 rounded-full bg-secondary"></div>' : ''}
@@ -1579,7 +1579,7 @@ function renderMonthly(): void {
   let tfootHtml = `<tr>
     <td class="sticky left-0 bg-base-200 z-50 w-[200px] min-w-[200px] ${pyClass} px-6 border-r border-base-300 ${shadowClass}">
       <div class="flex items-center justify-between gap-2">
-        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-base-content/60">Resumen Cobertura</span>
+        <span class="text-xxs font-black uppercase tracking-[0.1em] text-base-content/60">Resumen Cobertura</span>
         <button
           type="button"
           id="toggle-coverage-btn"
@@ -1595,9 +1595,9 @@ function renderMonthly(): void {
 
   if (!state.isTotalsCollapsed) {
     tfootHtml += `
-      <td class="sticky left-[200px] bg-base-200 z-50 w-[40px] min-w-[40px] text-center ${pyClass} text-[10px] font-black border-r border-base-300 text-base-content/40" title="Total Operadores">${teamSize}</td>
-      <td class="sticky left-[240px] bg-base-200 z-50 w-[40px] min-w-[40px] text-center ${pyClass} text-[10px] font-black border-r border-base-300 text-base-content/20">-</td>
-      <td class="sticky left-[280px] bg-base-200 z-50 w-[40px] min-w-[40px] text-center ${pyClass} text-[10px] font-black border-r border-base-300 text-base-content/20 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.1)]">-</td>
+      <td class="sticky left-[200px] bg-base-200 z-50 w-[40px] min-w-[40px] text-center ${pyClass} text-xxs font-black border-r border-base-300 text-base-content/40" title="Total Operadores">${teamSize}</td>
+      <td class="sticky left-[240px] bg-base-200 z-50 w-[40px] min-w-[40px] text-center ${pyClass} text-xxs font-black border-r border-base-300 text-base-content/20">-</td>
+      <td class="sticky left-[280px] bg-base-200 z-50 w-[40px] min-w-[40px] text-center ${pyClass} text-xxs font-black border-r border-base-300 text-base-content/20 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.1)]">-</td>
     `;
   }
 
@@ -1621,7 +1621,7 @@ function renderMonthly(): void {
            </div>
            `}
            <div class="flex flex-col items-center leading-none">
-              <span class="text-[10px] font-black ${isLowCoverage ? 'text-error' : 'text-base-content/60'}">${c.pmg + c.ppp + c.ho}</span>
+              <span class="text-xxs font-black ${isLowCoverage ? 'text-error' : 'text-base-content/60'}">${c.pmg + c.ppp + c.ho}</span>
               <span class="text-[7px] font-black uppercase opacity-30">Activos</span>
            </div>
         </div>
@@ -2019,7 +2019,7 @@ async function renderGroupsView(): Promise<void> {
               <div class="flex items-center justify-between p-2.5 bg-base-100 border border-base-300/80 rounded-xl hover:border-secondary/30 transition-all shadow-sm group">
                 <div class="flex flex-col min-w-0">
                   <span class="font-bold text-xs text-base-content truncate">${escapeHtml(agent.nombre)}</span>
-                  <span class="text-[9px] font-semibold text-base-content/50 truncate">${escapeHtml(agent.saturdayHorario || '07:00 - 13:00')}</span>
+                  <span class="text-tiny font-semibold text-base-content/50 truncate">${escapeHtml(agent.saturdayHorario || '07:00 - 13:00')}</span>
                 </div>
                 <div class="flex items-center gap-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
                   <button 
@@ -2195,12 +2195,12 @@ function renderRotationTimeline(dateStr: string): void {
     return `
       <tr class="hover:bg-base-200/30 transition-colors">
         <td class="px-3 py-3 border-r border-base-300/40 flex items-center gap-2.5">
-          <div class="w-6.5 h-6.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center text-[9px] font-black shrink-0">
+          <div class="w-6.5 h-6.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center text-tiny font-black shrink-0">
             ${initials}
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="truncate text-[11px] font-bold text-base-content">${escapeHtml(op.nombre)}</span>
-            <span class="text-[9px] font-semibold text-base-content/40 leading-tight">${horario}</span>
+            <span class="truncate text-small font-bold text-base-content">${escapeHtml(op.nombre)}</span>
+            <span class="text-tiny font-semibold text-base-content/40 leading-tight">${horario}</span>
           </div>
         </td>
         ${hourCells}
@@ -3477,8 +3477,8 @@ function renderOvertimeTimeline(weekendDate: string, shifts: WeekendOvertimeShif
   hoursContainer.innerHTML = `
     <div class="flex flex-col flex-1">
       <div class="flex border-b border-base-300/60">
-        <div style="width: ${satWidthPct.toFixed(2)}%" class="text-[8px] font-black uppercase tracking-wider text-warning/80 border-r border-base-300/50 py-1 px-2 bg-warning/5">Sábado (tarde)</div>
-        <div style="width: ${sunWidthPct.toFixed(2)}%" class="text-[8px] font-black uppercase tracking-wider text-info/80 py-1 px-2 bg-info/5">Domingo</div>
+        <div style="width: ${satWidthPct.toFixed(2)}%" class="text-micro font-black uppercase tracking-wider text-warning/80 border-r border-base-300/50 py-1 px-2 bg-warning/5">Sábado (tarde)</div>
+        <div style="width: ${sunWidthPct.toFixed(2)}%" class="text-micro font-black uppercase tracking-wider text-info/80 py-1 px-2 bg-info/5">Domingo</div>
       </div>
       <div class="flex">
         ${hours.map((h, i) => {
@@ -3516,13 +3516,13 @@ function renderOvertimeTimeline(weekendDate: string, shifts: WeekendOvertimeShif
       if (startMin < 0 || endMin <= startMin) return '';
       const lp = (startMin / TOTAL_MINUTES) * 100;
       const wp = ((endMin - startMin) / TOTAL_MINUTES) * 100;
-      return `<div class="absolute top-1 bottom-1 rounded bg-warning/80 border border-warning flex items-center justify-center overflow-hidden cursor-pointer hover:bg-warning/95 overtime-timeline-bar" style="left:${lp.toFixed(2)}%;width:${wp.toFixed(2)}%;min-width:4px;" title="${escapeHtml(op.nombre)}: ${s.startTime}-${s.endTime}" data-shift-id="${s.id}" data-agent-id="${s.agentId}" data-date="${s.date}" data-start="${s.startTime}" data-end="${s.endTime}"><span class="text-[8px] font-black text-warning-content truncate px-1">${s.startTime}-${s.endTime}</span></div>`;
+      return `<div class="absolute top-1 bottom-1 rounded bg-warning/80 border border-warning flex items-center justify-center overflow-hidden cursor-pointer hover:bg-warning/95 overtime-timeline-bar" style="left:${lp.toFixed(2)}%;width:${wp.toFixed(2)}%;min-width:4px;" title="${escapeHtml(op.nombre)}: ${s.startTime}-${s.endTime}" data-shift-id="${s.id}" data-agent-id="${s.agentId}" data-date="${s.date}" data-start="${s.startTime}" data-end="${s.endTime}"><span class="text-micro font-black text-warning-content truncate px-1">${s.startTime}-${s.endTime}</span></div>`;
     }).join('');
     return `
       <div class="flex items-stretch min-h-[40px] border-b border-base-300/30 last:border-0">
         <div class="w-36 shrink-0 px-3 py-2 border-r border-base-300/40 flex items-center gap-2">
-          <div class="w-6 h-6 rounded-full bg-base-300/50 flex items-center justify-center text-[9px] font-black shrink-0">${initials}</div>
-          <span class="truncate text-[10px] font-bold text-base-content">${escapeHtml(op.nombre)}</span>
+          <div class="w-6 h-6 rounded-full bg-base-300/50 flex items-center justify-center text-tiny font-black shrink-0">${initials}</div>
+          <span class="truncate text-xxs font-bold text-base-content">${escapeHtml(op.nombre)}</span>
         </div>
         <div class="flex-1 relative bg-base-100">
           ${shiftBars}

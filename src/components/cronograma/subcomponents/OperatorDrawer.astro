@@ -4,30 +4,46 @@ import { Icon } from "astro-icon/components";
 ---
 
 <!-- Operator Profile Modal -->
-<div 
-  id="operator-drawer-overlay" 
-  class="fixed inset-0 z-[110] hidden items-center justify-center bg-base-content/40 backdrop-blur-md transition-all duration-300 p-4"
+<div
+  id="operator-drawer-overlay"
+  class="fixed inset-0 z-110 hidden items-center justify-center bg-base-content/40 backdrop-blur-md transition-all duration-300 p-4"
 >
-  <div 
-    id="operator-drawer" 
-    class="relative w-full max-w-3xl bg-base-100 rounded-[2rem] shadow-2xl border border-base-300 flex flex-col overflow-hidden opacity-0 scale-95 transition-all duration-300 h-[740px] max-h-[90vh]"
+  <div
+    id="operator-drawer"
+    class="relative w-full max-w-3xl bg-base-100 rounded-4xl shadow-2xl border border-base-300 flex flex-col overflow-hidden opacity-0 scale-95 transition-all duration-300 h-[740px] max-h-[90vh]"
   >
     <!-- Header with Background Gradient -->
-    <div class="p-8 border-b border-base-200 relative overflow-hidden bg-gradient-to-br from-base-200/50 to-transparent shrink-0">
+    <div
+      class="p-8 border-b border-base-200 relative overflow-hidden bg-linear-to-br from-base-200/50 to-transparent shrink-0"
+    >
       <div class="flex items-center justify-between relative z-10">
         <div class="flex items-center gap-6">
-          <div class="w-16 h-16 rounded-2xl bg-secondary/15 border border-secondary/20 text-secondary flex items-center justify-center shadow-md shrink-0 select-none">
-            <span id="drawer-op-avatar-initials" class="text-xl font-black tracking-wider"></span>
+          <div
+            class="w-16 h-16 rounded-2xl bg-secondary/15 border border-secondary/20 text-secondary flex items-center justify-center shadow-md shrink-0 select-none"
+          >
+            <span
+              id="drawer-op-avatar-initials"
+              class="text-xl font-black tracking-wider"></span>
           </div>
           <div class="flex flex-col">
-            <h2 id="drawer-op-name" class="text-2xl font-black uppercase tracking-tight text-base-content"></h2>
+            <h2
+              id="drawer-op-name"
+              class="text-2xl font-black uppercase tracking-tight text-base-content"
+            >
+            </h2>
             <div class="flex items-center gap-2 mt-0.5">
               <span class="w-2 h-2 rounded-full bg-success"></span>
-              <span id="drawer-op-email" class="text-xs font-bold text-base-content/50 lowercase"></span>
+              <span
+                id="drawer-op-email"
+                class="text-xs font-bold text-base-content/50 lowercase"></span>
             </div>
           </div>
         </div>
-        <button id="close-drawer" class="btn btn-ghost btn-circle hover:bg-base-300" type="button">
+        <button
+          id="close-drawer"
+          class="btn btn-ghost btn-circle hover:bg-base-300"
+          type="button"
+        >
           <Icon name="boxicons:x" size={28} />
         </button>
       </div>
@@ -35,16 +51,16 @@ import { Icon } from "astro-icon/components";
 
     <!-- Tabs Header -->
     <div class="flex border-b border-base-200 bg-base-50/50 shrink-0">
-      <button 
+      <button
         type="button"
-        id="tab-profile-btn" 
+        id="tab-profile-btn"
         class="px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-secondary text-secondary transition-all"
       >
         Perfil e Historial
       </button>
-      <button 
+      <button
         type="button"
-        id="tab-weekly-btn" 
+        id="tab-weekly-btn"
         class="px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-transparent text-base-content/60 hover:text-base-content transition-all"
       >
         Esquema Semanal Base
@@ -52,37 +68,74 @@ import { Icon } from "astro-icon/components";
     </div>
 
     <!-- Content: Profile e Historial tab -->
-    <div id="drawer-profile-tab-content" class="flex-1 p-6 md:p-8 min-h-0 flex flex-col bg-base-50/10">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 flex-1 min-h-0 overflow-y-auto md:overflow-y-hidden md:h-full">
+    <div
+      id="drawer-profile-tab-content"
+      class="flex-1 p-6 md:p-8 min-h-0 flex flex-col bg-base-50/10"
+    >
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 flex-1 min-h-0 overflow-y-auto md:overflow-y-hidden md:h-full"
+      >
         <!-- Stats & Notes Column -->
-        <div class="space-y-6 flex flex-col min-h-0 md:h-full md:overflow-y-auto scrollbar-thin pl-1 pr-2 pb-2">
+        <div
+          class="space-y-6 flex flex-col min-h-0 md:h-full md:overflow-y-auto scrollbar-thin pl-1 pr-2 pb-2"
+        >
           <section class="shrink-0">
-            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/40 mb-3 flex items-center gap-1.5">
-              <Icon name="boxicons:chart-line" size={14} class="text-base-content/50" />
+            <h3
+              class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/40 mb-3 flex items-center gap-1.5"
+            >
+              <Icon
+                name="boxicons:chart-line"
+                size={14}
+                class="text-base-content/50"
+              />
               Rendimiento Mensual
             </h3>
             <div class="grid grid-cols-2 gap-4">
               <!-- Home Office Card -->
-              <div class="bg-amber-500/5 dark:bg-amber-400/5 rounded-2xl p-4 border border-amber-500/10 flex flex-col items-center text-center relative overflow-hidden group">
-                <div class="absolute -right-2 -bottom-2 opacity-5 text-amber-500 group-hover:scale-110 transition-transform duration-300 pointer-events-none">
+              <div
+                class="bg-amber-500/5 dark:bg-amber-400/5 rounded-2xl p-4 border border-amber-500/10 flex flex-col items-center text-center relative overflow-hidden group"
+              >
+                <div
+                  class="absolute -right-2 -bottom-2 opacity-5 text-amber-500 group-hover:scale-110 transition-transform duration-300 pointer-events-none"
+                >
                   <Icon name="boxicons:home" size={64} />
                 </div>
-                <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-2">
+                <div
+                  class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-2"
+                >
                   <Icon name="boxicons:home" size={18} />
                 </div>
-                <span class="text-3xl font-black text-amber-600 dark:text-amber-400" id="drawer-stat-ho">0</span>
-                <span class="text-[9px] font-black uppercase tracking-widest text-amber-600/70 dark:text-amber-400/70 mt-1">Home Office</span>
+                <span
+                  class="text-3xl font-black text-amber-600 dark:text-amber-400"
+                  id="drawer-stat-ho">0</span
+                >
+                <span
+                  class="text-tiny font-black uppercase tracking-widest text-amber-600/70 dark:text-amber-400/70 mt-1"
+                  >Home Office</span
+                >
               </div>
               <!-- Presencial Card -->
-              <div class="bg-secondary/5 rounded-2xl p-4 border border-secondary/10 flex flex-col items-center text-center relative overflow-hidden group">
-                <div class="absolute -right-2 -bottom-2 opacity-5 text-secondary group-hover:scale-110 transition-transform duration-300 pointer-events-none">
+              <div
+                class="bg-secondary/5 rounded-2xl p-4 border border-secondary/10 flex flex-col items-center text-center relative overflow-hidden group"
+              >
+                <div
+                  class="absolute -right-2 -bottom-2 opacity-5 text-secondary group-hover:scale-110 transition-transform duration-300 pointer-events-none"
+                >
                   <Icon name="boxicons:building" size={64} />
                 </div>
-                <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary mb-2">
+                <div
+                  class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary mb-2"
+                >
                   <Icon name="boxicons:building" size={18} />
                 </div>
-                <span class="text-3xl font-black text-secondary" id="drawer-stat-p">0</span>
-                <span class="text-[9px] font-black uppercase tracking-widest text-secondary/70 mt-1">Presencial</span>
+                <span
+                  class="text-3xl font-black text-secondary"
+                  id="drawer-stat-p">0</span
+                >
+                <span
+                  class="text-tiny font-black uppercase tracking-widest text-secondary/70 mt-1"
+                  >Presencial</span
+                >
               </div>
             </div>
           </section>
@@ -90,32 +143,41 @@ import { Icon } from "astro-icon/components";
           <!-- Ubicación de Trabajo -->
           <section class="shrink-0">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/40 flex items-center gap-1.5">
-                <Icon name="boxicons:map" size={14} class="text-base-content/50" />
+              <h3
+                class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/40 flex items-center gap-1.5"
+              >
+                <Icon
+                  name="boxicons:map"
+                  size={14}
+                  class="text-base-content/50"
+                />
                 Ubicación de Trabajo
               </h3>
-              <span id="location-status-indicator" class="text-[8px] font-black uppercase tracking-widest text-success/70 opacity-0 transition-opacity duration-300">Guardado</span>
+              <span
+                id="location-status-indicator"
+                class="text-micro font-black uppercase tracking-widest text-success/70 opacity-0 transition-opacity duration-300"
+                >Guardado</span
+              >
             </div>
-            <div class="join w-full grid grid-cols-2 bg-base-200/50 p-1 rounded-2xl border border-base-300/50">
-              <button 
-                type="button" 
-                id="btn-location-mg" 
-                class="btn btn-sm rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-200 btn-ghost text-base-content/60"
+            <div
+              class="join w-full grid grid-cols-2 bg-base-200/50 p-1 rounded-2xl border border-base-300/50"
+            >
+              <button
+                type="button"
+                id="btn-location-mg"
+                class="btn btn-sm rounded-xl font-black uppercase text-xxs tracking-wider transition-all duration-200 btn-ghost text-base-content/60"
               >
                 Monte Grande
               </button>
-              <button 
-                type="button" 
-                id="btn-location-pp" 
-                class="btn btn-sm rounded-xl font-black uppercase text-[10px] tracking-wider transition-all duration-200 btn-ghost text-base-content/60"
+              <button
+                type="button"
+                id="btn-location-pp"
+                class="btn btn-sm rounded-xl font-black uppercase text-xxs tracking-wider transition-all duration-200 btn-ghost text-base-content/60"
               >
                 Parque Patricios
               </button>
             </div>
-            <select 
-              id="drawer-op-location"
-              class="sr-only"
-            >
+            <select id="drawer-op-location" class="sr-only">
               <option value="Monte Grande">Monte Grande</option>
               <option value="Parque Patricios">Parque Patricios</option>
             </select>
@@ -124,18 +186,34 @@ import { Icon } from "astro-icon/components";
           <!-- Reglas Personalizadas -->
           <section class="shrink-0 pt-4 border-t border-dashed border-base-300">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/40 flex items-center gap-1.5">
-                <Icon name="boxicons:badge-check" size={14} class="text-base-content/50" />
+              <h3
+                class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/40 flex items-center gap-1.5"
+              >
+                <Icon
+                  name="boxicons:badge-check"
+                  size={14}
+                  class="text-base-content/50"
+                />
                 Reglas de Control de Asistencia
               </h3>
-              <span id="rules-status-indicator" class="text-[8px] font-black uppercase tracking-widest text-success/70 opacity-0 transition-opacity duration-300">Guardado</span>
+              <span
+                id="rules-status-indicator"
+                class="text-micro font-black uppercase tracking-widest text-success/70 opacity-0 transition-opacity duration-300"
+                >Guardado</span
+              >
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="form-control">
                 <label for="drawer-op-min-p-week" class="label py-1">
-                  <span class="label-text text-[9px] font-black uppercase text-base-content/50">Mínimo Días Presenciales / Sem</span>
+                  <span
+                    class="label-text text-tiny font-black uppercase text-base-content/50"
+                    >Mínimo Días Presenciales / Sem</span
+                  >
                 </label>
-                <select id="drawer-op-min-p-week" class="select select-bordered select-xs font-bold w-full bg-base-100 focus:outline-none focus:border-secondary rounded-lg">
+                <select
+                  id="drawer-op-min-p-week"
+                  class="select select-bordered select-xs font-bold w-full bg-base-100 focus:outline-none focus:border-secondary rounded-lg"
+                >
                   <option value="">Por Defecto (Global)</option>
                   <option value="0">Sin Mínimo (0)</option>
                   <option value="1">1 día</option>
@@ -148,9 +226,15 @@ import { Icon } from "astro-icon/components";
 
               <div class="form-control">
                 <label for="drawer-op-max-ho" class="label py-1">
-                  <span class="label-text text-[9px] font-black uppercase text-base-content/50">Límite HO Consecutivos</span>
+                  <span
+                    class="label-text text-tiny font-black uppercase text-base-content/50"
+                    >Límite HO Consecutivos</span
+                  >
                 </label>
-                <select id="drawer-op-max-ho" class="select select-bordered select-xs font-bold w-full bg-base-100 focus:outline-none focus:border-secondary rounded-lg">
+                <select
+                  id="drawer-op-max-ho"
+                  class="select select-bordered select-xs font-bold w-full bg-base-100 focus:outline-none focus:border-secondary rounded-lg"
+                >
                   <option value="">Por Defecto (Global)</option>
                   <option value="1">1 día</option>
                   <option value="2">2 días</option>
@@ -168,11 +252,20 @@ import { Icon } from "astro-icon/components";
 
         <!-- History Column -->
         <section class="flex flex-col min-h-0 md:h-full">
-          <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/40 mb-4 shrink-0 flex items-center gap-1.5">
-            <Icon name="boxicons:history" size={14} class="text-base-content/50" />
+          <h3
+            class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/40 mb-4 shrink-0 flex items-center gap-1.5"
+          >
+            <Icon
+              name="boxicons:history"
+              size={14}
+              class="text-base-content/50"
+            />
             Historial de Asistencia
           </h3>
-          <div id="drawer-history-list" class="space-y-0 h-auto md:flex-1 md:overflow-y-auto scrollbar-thin pr-1 pb-2 pl-1">
+          <div
+            id="drawer-history-list"
+            class="space-y-0 h-auto md:flex-1 md:overflow-y-auto scrollbar-thin pr-1 pb-2 pl-1"
+          >
             <!-- Items will be injected here -->
           </div>
         </section>
@@ -180,52 +273,107 @@ import { Icon } from "astro-icon/components";
     </div>
 
     <!-- Content: Weekly base template tab -->
-    <div id="drawer-weekly-tab-content" class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 scrollbar-thin hidden bg-base-50/20 min-h-0">
+    <div
+      id="drawer-weekly-tab-content"
+      class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 scrollbar-thin hidden bg-base-50/20 min-h-0"
+    >
       <!-- Info note -->
-      <div class="bg-info/5 border border-sky-600/10 rounded-2xl p-4 flex gap-3 text-xs text-base-content/80">
-        <Icon name="boxicons:info-circle" class="text-sky-600 flex-shrink-0" size={18} />
+      <div
+        class="bg-info/5 border border-sky-600/10 rounded-2xl p-4 flex gap-3 text-xs text-base-content/80"
+      >
+        <Icon
+          name="boxicons:info-circle"
+          class="text-sky-600 shrink-0"
+          size={18}
+        />
         <div>
-          <strong class="text-sky-700 dark:text-sky-500 font-bold block mb-0.5">Acerca del Esquema Semanal Base</strong>
-          Este esquema se repite automáticamente todas las semanas del año de forma dinámica. Las ediciones individuales del mes se guardarán como excepciones específicas en ese día puntual sin alterar este esquema.
+          <strong class="text-sky-700 dark:text-sky-500 font-bold block mb-0.5"
+            >Acerca del Esquema Semanal Base</strong
+          >
+          Este esquema se repite automáticamente todas las semanas del año de forma
+          dinámica. Las ediciones individuales del mes se guardarán como excepciones
+          específicas en ese día puntual sin alterar este esquema.
         </div>
       </div>
 
       <!-- Template Select Panel -->
-      <div class="space-y-3 bg-base-200/30 border border-base-300/50 p-5 rounded-[1.5rem]">
+      <div
+        class="space-y-3 bg-base-200/30 border border-base-300/50 p-5 rounded-[1.5rem]"
+      >
         <div class="flex items-center justify-between">
-          <label class="text-[10px] font-black uppercase tracking-widest text-base-content/50">Plantillas Reutilizables</label>
+          <label
+            class="text-xxs font-black uppercase tracking-widest text-base-content/50"
+            >Plantillas Reutilizables</label
+          >
           <div class="flex gap-2">
-            <button type="button" id="weekly-template-create-btn" class="btn btn-xs btn-outline border-base-300 font-black text-[9px] uppercase hover:bg-secondary/10 hover:text-secondary hover:border-secondary transition-all">
+            <button
+              type="button"
+              id="weekly-template-create-btn"
+              class="btn btn-xs btn-outline border-base-300 font-black text-tiny uppercase hover:bg-secondary/10 hover:text-secondary hover:border-secondary transition-all"
+            >
               Nueva Plantilla
             </button>
-            <button type="button" id="weekly-template-duplicate-btn" class="btn btn-xs btn-outline border-base-300 font-black text-[9px] uppercase hover:bg-secondary/10 hover:text-secondary hover:border-secondary transition-all">
+            <button
+              type="button"
+              id="weekly-template-duplicate-btn"
+              class="btn btn-xs btn-outline border-base-300 font-black text-tiny uppercase hover:bg-secondary/10 hover:text-secondary hover:border-secondary transition-all"
+            >
               Duplicar
             </button>
           </div>
         </div>
 
-        <select id="weekly-template-select" class="select select-bordered select-sm w-full font-bold text-xs bg-base-100 focus:outline-none focus:border-secondary rounded-xl">
+        <select
+          id="weekly-template-select"
+          class="select select-bordered select-sm w-full font-bold text-xs bg-base-100 focus:outline-none focus:border-secondary rounded-xl"
+        >
           <!-- Loaded dynamically -->
         </select>
 
         <!-- Dynamic inputs for custom template names -->
-        <div id="template-custom-actions" class="hidden flex items-center gap-2 mt-2 bg-base-100 p-2.5 rounded-xl border border-base-200">
-          <input type="text" id="new-template-name" placeholder="Nombre de la plantilla..." class="input input-xs input-bordered flex-1 font-bold text-xs focus:outline-none focus:border-secondary rounded-lg bg-base-100" />
-          <button type="button" id="new-template-save-btn" class="btn btn-xs btn-secondary font-black text-[9px] uppercase rounded-lg">Guardar</button>
-          <button type="button" id="new-template-delete-btn" class="btn btn-xs btn-error btn-outline font-black text-[9px] uppercase rounded-lg">Eliminar</button>
+        <div
+          id="template-custom-actions"
+          class="hidden items-center gap-2 mt-2 bg-base-100 p-2.5 rounded-xl border border-base-200"
+        >
+          <input
+            type="text"
+            id="new-template-name"
+            placeholder="Nombre de la plantilla..."
+            class="input input-xs input-bordered flex-1 font-bold text-xs focus:outline-none focus:border-secondary rounded-lg bg-base-100"
+          />
+          <button
+            type="button"
+            id="new-template-save-btn"
+            class="btn btn-xs btn-secondary font-black text-tiny uppercase rounded-lg"
+            >Guardar</button
+          >
+          <button
+            type="button"
+            id="new-template-delete-btn"
+            class="btn btn-xs btn-error btn-outline font-black text-tiny uppercase rounded-lg"
+            >Eliminar</button
+          >
         </div>
       </div>
 
       <!-- Weekly Grid Days Editor -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-base-content/40">Días de la Semana</h3>
-          <button type="button" id="weekly-clear-btn" class="btn btn-xs btn-ghost text-error hover:bg-error/10 font-black text-[9px] uppercase tracking-wider gap-1 rounded-lg transition-all">
+          <h3
+            class="text-xxs font-black uppercase tracking-[0.2em] text-base-content/40"
+          >
+            Días de la Semana
+          </h3>
+          <button
+            type="button"
+            id="weekly-clear-btn"
+            class="btn btn-xs btn-ghost text-error hover:bg-error/10 font-black text-tiny uppercase tracking-wider gap-1 rounded-lg transition-all"
+          >
             <Icon name="boxicons:trash" size={13} />
             Limpiar Todo
           </button>
         </div>
-        
+
         <div id="weekly-days-list" class="space-y-2">
           <!-- Populated dynamically via JS: Lunes to Domingo rows -->
         </div>
@@ -234,41 +382,52 @@ import { Icon } from "astro-icon/components";
       <!-- Save Buttons -->
       <div class="pt-4 border-t border-base-200 space-y-3">
         <div class="flex items-center justify-between">
-          <label class="text-[10px] font-black uppercase tracking-wider text-base-content/50">Aplicar Esquema al Mes Activo</label>
-          <span class="badge badge-secondary badge-outline text-[8px] font-black uppercase tracking-wider">Edición Rápida</span>
+          <label
+            class="text-xxs font-black uppercase tracking-wider text-base-content/50"
+            >Aplicar Esquema al Mes Activo</label
+          >
+          <span
+            class="badge badge-secondary badge-outline text-micro font-black uppercase tracking-wider"
+            >Edición Rápida</span
+          >
         </div>
 
-        <div class="bg-base-200/40 border border-base-300/60 p-3 rounded-2xl space-y-2.5">
+        <div
+          class="bg-base-200/40 border border-base-300/60 p-3 rounded-2xl space-y-2.5"
+        >
           <!-- Primary CTA: Apply everything -->
-          <button 
-            type="button" 
-            id="apply-weekly-all-btn" 
-            class="btn btn-sm btn-secondary w-full gap-2 font-black uppercase tracking-wider text-[10px] rounded-xl shadow-lg shadow-secondary/15 transition-all duration-200 hover:brightness-105 active:scale-[0.98] h-10"
+          <button
+            type="button"
+            id="apply-weekly-all-btn"
+            class="btn btn-sm btn-secondary w-full gap-2 font-black uppercase tracking-wider text-xxs rounded-xl shadow-lg shadow-secondary/15 transition-all duration-200 hover:brightness-105 active:scale-[0.98] h-10"
           >
             <Icon name="boxicons:calendar-check" size={15} />
             Aplicar Esquema Completo
           </button>
 
           <div class="relative flex py-1 items-center">
-            <div class="flex-grow border-t border-base-300/50"></div>
-            <span class="flex-shrink mx-3 text-[8px] font-black uppercase tracking-widest text-base-content/30">O aplicar parcial</span>
-            <div class="flex-grow border-t border-base-300/50"></div>
+            <div class="grow border-t border-base-300/50"></div>
+            <span
+              class="shrink mx-3 text-micro font-black uppercase tracking-widest text-base-content/30"
+              >O aplicar parcial</span
+            >
+            <div class="grow border-t border-base-300/50"></div>
           </div>
 
           <!-- Secondary Actions Side-by-Side -->
           <div class="grid grid-cols-2 gap-2">
-            <button 
-              type="button" 
-              id="apply-weekly-days-btn" 
-              class="btn btn-xs btn-outline border-base-300 hover:border-secondary hover:bg-secondary/5 hover:text-secondary font-bold text-[9px] uppercase tracking-wider rounded-lg h-9 gap-1.5"
+            <button
+              type="button"
+              id="apply-weekly-days-btn"
+              class="btn btn-xs btn-outline border-base-300 hover:border-secondary hover:bg-secondary/5 hover:text-secondary font-bold text-tiny uppercase tracking-wider rounded-lg h-9 gap-1.5"
             >
               <Icon name="boxicons:calendar" size={13} />
               Solo Días
             </button>
-            <button 
-              type="button" 
-              id="apply-weekly-hours-btn" 
-              class="btn btn-xs btn-outline border-base-300 hover:border-secondary hover:bg-secondary/5 hover:text-secondary font-bold text-[9px] uppercase tracking-wider rounded-lg h-9 gap-1.5"
+            <button
+              type="button"
+              id="apply-weekly-hours-btn"
+              class="btn btn-xs btn-outline border-base-300 hover:border-secondary hover:bg-secondary/5 hover:text-secondary font-bold text-tiny uppercase tracking-wider rounded-lg h-9 gap-1.5"
             >
               <Icon name="boxicons:timer" size={13} />
               Solo Horas
@@ -279,18 +438,35 @@ import { Icon } from "astro-icon/components";
     </div>
 
     <!-- Footer -->
-    <div class="p-6 border-t border-base-200 bg-base-200/30 flex justify-end gap-3 rounded-b-[2rem]">
-       <button type="button" id="drawer-footer-close-btn" class="btn btn-ghost text-xs font-black uppercase">Cerrar</button>
-       <button type="button" id="download-op-report-btn" class="btn btn-secondary px-8 font-black uppercase tracking-widest text-xs rounded-xl shadow-lg shadow-secondary/20" disabled title="Próximamente">Descargar Reporte</button>
+    <div
+      class="p-6 border-t border-base-200 bg-base-200/30 flex justify-end gap-3 rounded-b-4xl"
+    >
+      <button
+        type="button"
+        id="drawer-footer-close-btn"
+        class="btn btn-ghost text-xs font-black uppercase">Cerrar</button
+      >
+      <button
+        type="button"
+        id="download-op-report-btn"
+        class="btn btn-secondary px-8 font-black uppercase tracking-widest text-xs rounded-xl shadow-lg shadow-secondary/20"
+        disabled
+        title="Próximamente">Descargar Reporte</button
+      >
     </div>
   </div>
 </div>
 
 <script>
-  import { openDrawer, closeDrawer, saveDrawerLocation, saveDrawerOperatorRules } from '../lib/drawer';
-  import { saveEdits } from '../lib/api';
-  import { state } from '../lib/state';
-  import { formatTimeInput } from '../lib/utils';
+  import {
+    openDrawer,
+    closeDrawer,
+    saveDrawerLocation,
+    saveDrawerOperatorRules,
+  } from "../lib/drawer";
+  import { saveEdits } from "../lib/api";
+  import { state } from "../lib/state";
+  import { formatTimeInput } from "../lib/utils";
   import {
     handleTemplateSelectChange,
     handleCreateTemplateClick,
@@ -303,43 +479,63 @@ import { Icon } from "astro-icon/components";
     saveWeeklySchedule,
     populateWeeklyTemplatesDropdown,
     renderWeeklyDaysList,
-    clearWeeklySchedule
-  } from '../lib/weekly-schedule';
+    clearWeeklySchedule,
+  } from "../lib/weekly-schedule";
 
   // Modal open trigger listener
-  document.addEventListener('cronograma:open-drawer', (e: any) => {
+  document.addEventListener("cronograma:open-drawer", (e: any) => {
     if (e.detail && e.detail.operatorName) {
       openDrawer(e.detail.operatorName);
     }
   });
 
   // Tab switching
-  const tabProfileBtn = document.getElementById('tab-profile-btn');
-  const tabWeeklyBtn = document.getElementById('tab-weekly-btn');
-  const drawerProfileTabContent = document.getElementById('drawer-profile-tab-content');
-  const drawerWeeklyTabContent = document.getElementById('drawer-weekly-tab-content');
-  const closeDrawerBtn = document.getElementById('close-drawer');
-  const drawerFooterCloseBtn = document.getElementById('drawer-footer-close-btn');
+  const tabProfileBtn = document.getElementById("tab-profile-btn");
+  const tabWeeklyBtn = document.getElementById("tab-weekly-btn");
+  const drawerProfileTabContent = document.getElementById(
+    "drawer-profile-tab-content",
+  );
+  const drawerWeeklyTabContent = document.getElementById(
+    "drawer-weekly-tab-content",
+  );
+  const closeDrawerBtn = document.getElementById("close-drawer");
+  const drawerFooterCloseBtn = document.getElementById(
+    "drawer-footer-close-btn",
+  );
 
-  closeDrawerBtn?.addEventListener('click', closeDrawer);
-  drawerFooterCloseBtn?.addEventListener('click', closeDrawer);
+  closeDrawerBtn?.addEventListener("click", closeDrawer);
+  drawerFooterCloseBtn?.addEventListener("click", closeDrawer);
 
-  tabProfileBtn?.addEventListener('click', () => {
-    if (tabProfileBtn && tabWeeklyBtn && drawerProfileTabContent && drawerWeeklyTabContent) {
-      tabProfileBtn.className = "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-secondary text-secondary transition-all";
-      tabWeeklyBtn.className = "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-transparent text-base-content/60 hover:text-base-content transition-all";
-      drawerProfileTabContent.classList.remove('hidden');
-      drawerWeeklyTabContent.classList.add('hidden');
+  tabProfileBtn?.addEventListener("click", () => {
+    if (
+      tabProfileBtn &&
+      tabWeeklyBtn &&
+      drawerProfileTabContent &&
+      drawerWeeklyTabContent
+    ) {
+      tabProfileBtn.className =
+        "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-secondary text-secondary transition-all";
+      tabWeeklyBtn.className =
+        "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-transparent text-base-content/60 hover:text-base-content transition-all";
+      drawerProfileTabContent.classList.remove("hidden");
+      drawerWeeklyTabContent.classList.add("hidden");
     }
   });
 
-  tabWeeklyBtn?.addEventListener('click', () => {
-    if (tabProfileBtn && tabWeeklyBtn && drawerProfileTabContent && drawerWeeklyTabContent) {
-      tabWeeklyBtn.className = "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-secondary text-secondary transition-all";
-      tabProfileBtn.className = "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-transparent text-base-content/60 hover:text-base-content transition-all";
-      drawerProfileTabContent.classList.add('hidden');
-      drawerWeeklyTabContent.classList.remove('hidden');
-      
+  tabWeeklyBtn?.addEventListener("click", () => {
+    if (
+      tabProfileBtn &&
+      tabWeeklyBtn &&
+      drawerProfileTabContent &&
+      drawerWeeklyTabContent
+    ) {
+      tabWeeklyBtn.className =
+        "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-secondary text-secondary transition-all";
+      tabProfileBtn.className =
+        "px-6 py-3 text-xs font-black uppercase tracking-wider border-b-2 border-transparent text-base-content/60 hover:text-base-content transition-all";
+      drawerProfileTabContent.classList.add("hidden");
+      drawerWeeklyTabContent.classList.remove("hidden");
+
       // Populate and render
       populateWeeklyTemplatesDropdown();
       renderWeeklyDaysList();
@@ -347,68 +543,93 @@ import { Icon } from "astro-icon/components";
   });
 
   // Location selector buttons
-  const mgBtn = document.getElementById('btn-location-mg');
-  const ppBtn = document.getElementById('btn-location-pp');
-  const locSelect = document.getElementById('drawer-op-location') as HTMLSelectElement | null;
+  const mgBtn = document.getElementById("btn-location-mg");
+  const ppBtn = document.getElementById("btn-location-pp");
+  const locSelect = document.getElementById(
+    "drawer-op-location",
+  ) as HTMLSelectElement | null;
 
-  mgBtn?.addEventListener('click', () => {
+  mgBtn?.addEventListener("click", () => {
     if (locSelect) {
-      locSelect.value = 'Monte Grande';
-      saveDrawerLocation('Monte Grande');
+      locSelect.value = "Monte Grande";
+      saveDrawerLocation("Monte Grande");
     }
   });
 
-  ppBtn?.addEventListener('click', () => {
+  ppBtn?.addEventListener("click", () => {
     if (locSelect) {
-      locSelect.value = 'Parque Patricios';
-      saveDrawerLocation('Parque Patricios');
+      locSelect.value = "Parque Patricios";
+      saveDrawerLocation("Parque Patricios");
     }
   });
-
-
 
   // Attendance Rules select change auto-save
-  const opMinPWeekSelect = document.getElementById('drawer-op-min-p-week') as HTMLSelectElement | null;
-  const opMaxHoSelect = document.getElementById('drawer-op-max-ho') as HTMLSelectElement | null;
+  const opMinPWeekSelect = document.getElementById(
+    "drawer-op-min-p-week",
+  ) as HTMLSelectElement | null;
+  const opMaxHoSelect = document.getElementById(
+    "drawer-op-max-ho",
+  ) as HTMLSelectElement | null;
 
-  opMinPWeekSelect?.addEventListener('change', () => saveDrawerOperatorRules(opMinPWeekSelect, opMaxHoSelect));
-  opMaxHoSelect?.addEventListener('change', () => saveDrawerOperatorRules(opMinPWeekSelect, opMaxHoSelect));
-
-
+  opMinPWeekSelect?.addEventListener("change", () =>
+    saveDrawerOperatorRules(opMinPWeekSelect, opMaxHoSelect),
+  );
+  opMaxHoSelect?.addEventListener("change", () =>
+    saveDrawerOperatorRules(opMinPWeekSelect, opMaxHoSelect),
+  );
 
   // Weekly base schedule tab template management handlers
-  const weeklyTemplateSelect = document.getElementById('weekly-template-select');
-  weeklyTemplateSelect?.addEventListener('change', (e) => {
+  const weeklyTemplateSelect = document.getElementById(
+    "weekly-template-select",
+  );
+  weeklyTemplateSelect?.addEventListener("change", (e) => {
     const target = e.target as HTMLSelectElement;
     handleTemplateSelectChange(target.value);
   });
 
-  document.getElementById('weekly-template-create-btn')?.addEventListener('click', handleCreateTemplateClick);
-  document.getElementById('new-template-save-btn')?.addEventListener('click', handleSaveTemplateClick);
-  document.getElementById('new-template-delete-btn')?.addEventListener('click', handleDeleteTemplateClick);
-  document.getElementById('weekly-template-duplicate-btn')?.addEventListener('click', handleDuplicateTemplateClick);
-  document.getElementById('weekly-clear-btn')?.addEventListener('click', clearWeeklySchedule);
+  document
+    .getElementById("weekly-template-create-btn")
+    ?.addEventListener("click", handleCreateTemplateClick);
+  document
+    .getElementById("new-template-save-btn")
+    ?.addEventListener("click", handleSaveTemplateClick);
+  document
+    .getElementById("new-template-delete-btn")
+    ?.addEventListener("click", handleDeleteTemplateClick);
+  document
+    .getElementById("weekly-template-duplicate-btn")
+    ?.addEventListener("click", handleDuplicateTemplateClick);
+  document
+    .getElementById("weekly-clear-btn")
+    ?.addEventListener("click", clearWeeklySchedule);
 
-  const weeklyDaysList = document.getElementById('weekly-days-list');
-  
-  weeklyDaysList?.addEventListener('input', (e) => {
+  const weeklyDaysList = document.getElementById("weekly-days-list");
+
+  weeklyDaysList?.addEventListener("input", (e) => {
     handleWeeklyInput(e.target as HTMLInputElement);
   });
 
-  weeklyDaysList?.addEventListener('focusout', (e) => {
+  weeklyDaysList?.addEventListener("focusout", (e) => {
     handleWeeklyFocusOut(e.target as HTMLInputElement);
   });
 
-  weeklyDaysList?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-weekly-option]');
+  weeklyDaysList?.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+      "[data-weekly-option]",
+    );
     if (btn) {
       handleWeeklyDayOptionClick(btn);
     }
   });
 
-  const bindWeeklyApplyButton = (id: string, mode: 'all' | 'days' | 'hours') => {
-    document.getElementById(id)?.addEventListener('click', () => {
-      const opName = document.getElementById('drawer-op-name')?.textContent?.trim();
+  const bindWeeklyApplyButton = (
+    id: string,
+    mode: "all" | "days" | "hours",
+  ) => {
+    document.getElementById(id)?.addEventListener("click", () => {
+      const opName = document
+        .getElementById("drawer-op-name")
+        ?.textContent?.trim();
       if (opName) {
         const btn = document.getElementById(id) as HTMLButtonElement | null;
         saveWeeklySchedule(opName, btn, mode);
@@ -416,7 +637,7 @@ import { Icon } from "astro-icon/components";
     });
   };
 
-  bindWeeklyApplyButton('apply-weekly-all-btn', 'all');
-  bindWeeklyApplyButton('apply-weekly-days-btn', 'days');
-  bindWeeklyApplyButton('apply-weekly-hours-btn', 'hours');
+  bindWeeklyApplyButton("apply-weekly-all-btn", "all");
+  bindWeeklyApplyButton("apply-weekly-days-btn", "days");
+  bindWeeklyApplyButton("apply-weekly-hours-btn", "hours");
 </script>

@@ -10,42 +10,42 @@ export function getStatusStyles(type: string | undefined): {
   switch (type) {
     case OperatorStatus.HomeOffice:
       return {
-        badge: 'bg-secondary/10 text-secondary border border-secondary/20 font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase whitespace-nowrap',
+        badge: 'bg-secondary/10 text-secondary border border-secondary/20 font-bold px-2.5 py-1 rounded-full text-xxs tracking-wide uppercase whitespace-nowrap',
         icon: STATUS_ICONS.home,
         color: 'var(--color-secondary)',
         bgClass: 'bg-secondary/10 text-secondary',
       };
     case OperatorStatus.PresencialMonteGrande:
       return {
-        badge: 'bg-primary/10 text-amber-600 dark:text-amber-400 border border-primary/20 font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase shadow-sm whitespace-nowrap',
+        badge: 'bg-primary/10 text-amber-600 dark:text-amber-400 border border-primary/20 font-bold px-2.5 py-1 rounded-full text-xxs tracking-wide uppercase shadow-sm whitespace-nowrap',
         icon: STATUS_ICONS.briefcase,
         color: 'var(--color-primary)',
         bgClass: 'bg-primary/10 text-amber-600 dark:text-amber-400 border border-primary/25 shadow-sm',
       };
     case OperatorStatus.PresencialParquePatricios:
       return {
-        badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase shadow-sm whitespace-nowrap',
+        badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 font-bold px-2.5 py-1 rounded-full text-xxs tracking-wide uppercase shadow-sm whitespace-nowrap',
         icon: STATUS_ICONS.briefcase,
         color: '#a855f7',
         bgClass: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/25 shadow-sm',
       };
     case OperatorStatus.Licencia:
       return {
-        badge: 'bg-error/10 text-error border border-error/20 font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase whitespace-nowrap',
+        badge: 'bg-error/10 text-error border border-error/20 font-bold px-2.5 py-1 rounded-full text-xxs tracking-wide uppercase whitespace-nowrap',
         icon: STATUS_ICONS.firstAid,
         color: 'var(--color-error)',
         bgClass: 'bg-error/10 text-error',
       };
     case OperatorStatus.Vacaciones:
       return {
-        badge: 'bg-success/10 text-success border border-success/20 font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase whitespace-nowrap',
+        badge: 'bg-success/10 text-success border border-success/20 font-bold px-2.5 py-1 rounded-full text-xxs tracking-wide uppercase whitespace-nowrap',
         icon: STATUS_ICONS.sun,
         color: 'var(--color-success)',
         bgClass: 'bg-success/10 text-success',
       };
     default:
       return {
-        badge: 'bg-base-200 text-base-content/60 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase border border-base-300/50 whitespace-nowrap',
+        badge: 'bg-base-200 text-base-content/60 px-2.5 py-1 rounded-full text-xxs font-bold tracking-wide uppercase border border-base-300/50 whitespace-nowrap',
         icon: STATUS_ICONS.help,
         color: 'var(--fallback-bc,oklch(var(--bc)/0.4))',
         bgClass: 'bg-base-200/50 text-base-content/50',
