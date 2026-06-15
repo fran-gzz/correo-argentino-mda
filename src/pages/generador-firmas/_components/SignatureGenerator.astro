@@ -200,7 +200,9 @@ const { origin = "" } = Astro.props;
               class="flex-1 border border-dashed border-base-300 rounded-lg p-2 sm:p-4 flex items-center justify-center bg-white min-h-40 w-full overflow-x-auto"
             >
             </div>
-            <div class="flex flex-col sm:flex-row justify-end mt-6 gap-2 w-full">
+            <div
+              class="flex flex-col sm:flex-row justify-end mt-6 gap-2 w-full"
+            >
               <button
                 id="btn-download-png"
                 disabled
@@ -260,11 +262,15 @@ const { origin = "" } = Astro.props;
         <div class="p-2 bg-secondary/10 rounded-lg text-secondary">
           <Icon name="boxicons:info-circle" size={20} />
         </div>
-        <h2 class="text-xl font-bold">Guía para colocar esta firma en Outlook</h2>
+        <h2 class="text-xl font-bold">
+          Guía para colocar esta firma en Outlook
+        </h2>
       </div>
 
       <p class="text-xs text-base-content/70 mb-4">
-        Para que el logo sea visible para todos, tanto dentro como fuera del Correo Argentino, debe incrustarse manualmente en Outlook. Sigue estos simples pasos:
+        Para que el logo sea visible para todos, tanto dentro como fuera del
+        Correo Argentino, debe incrustarse manualmente en Outlook. Sigue estos
+        simples pasos:
       </p>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -300,7 +306,10 @@ const { origin = "" } = Astro.props;
               <h3 class="font-bold text-sm">Copiar y Pegar</h3>
             </div>
             <p class="text-xs text-base-content/85">
-              Completa tus datos y presiona <strong>"Copiar firma visual"</strong>. Luego, en la configuración de firmas de Outlook, crea una nueva firma y pega el contenido (<code>Ctrl + V</code>).
+              Completa tus datos y presiona <strong
+                >"Copiar firma visual"</strong
+              >. Luego, en la configuración de firmas de Outlook, crea una nueva
+              firma y pega el contenido (<code>Ctrl + V</code>).
             </p>
           </div>
         </div>
@@ -315,10 +324,16 @@ const { origin = "" } = Astro.props;
             <p class="text-xs text-base-content/85">
               El logo pegado se verá roto. Para solucionarlo:
             </p>
-            <ol class="list-decimal list-inside text-[11px] text-base-content/75 space-y-1">
+            <ol
+              class="list-decimal list-inside text-small text-base-content/75 space-y-1"
+            >
               <li>Haz clic sobre el logo roto y <strong>bórralo</strong>.</li>
-              <li>Presiona el icono de <strong>Insertar imagen</strong> en Outlook.</li>
-              <li>Selecciona la imagen descargada en el <strong>Paso 1</strong>.</li>
+              <li>
+                Presiona el icono de <strong>Insertar imagen</strong> en Outlook.
+              </li>
+              <li>
+                Selecciona la imagen descargada en el <strong>Paso 1</strong>.
+              </li>
             </ol>
           </div>
         </div>
@@ -587,7 +602,10 @@ const { origin = "" } = Astro.props;
 
     if (copySuccess) {
       if ((window as any).showToast) {
-        (window as any).showToast("Firma visual copiada al portapapeles.", "alert-success");
+        (window as any).showToast(
+          "Firma visual copiada al portapapeles.",
+          "alert-success",
+        );
       }
       const contentEl = document.getElementById("copy-visual-content");
       if (contentEl) {
@@ -615,7 +633,10 @@ const { origin = "" } = Astro.props;
     try {
       await navigator.clipboard.writeText(codeOutput.textContent || "");
       if ((window as any).showToast) {
-        (window as any).showToast("Código fuente copiado al portapapeles.", "alert-success");
+        (window as any).showToast(
+          "Código fuente copiado al portapapeles.",
+          "alert-success",
+        );
       }
       const contentEl = document.getElementById("copy-code-content");
       if (contentEl) {
