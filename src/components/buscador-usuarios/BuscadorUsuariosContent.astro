@@ -14,1001 +14,980 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
 ---
 
 <PageContainer>
-    <!-- Contenedor Principal Optimizado (Grilla) -->
-    <div class="grid lg:grid-cols-3 gap-6 mb-8">
-      <!-- Sección de Búsqueda -->
-      <section
-        class="lg:col-span-2 py-8 px-6 md:px-8 rounded-2xl bg-base-200/50 border border-base-300 shadow-md flex flex-col justify-center"
-      >
-        <PageHeader
-          description="Acceso rápido a contacto, internos y dependencias de todo el personal."
-          class="mb-6 text-left"
-          titleClass="text-2xl md:text-3xl"
-        />
+  <!-- Contenedor Principal Optimizado (Grilla) -->
+  <div class="grid lg:grid-cols-3 gap-6 mb-8">
+    <!-- Sección de Búsqueda -->
+    <section
+      class="lg:col-span-2 py-8 px-6 md:px-8 rounded-2xl bg-base-200/50 border border-base-300 shadow-md flex flex-col justify-center"
+    >
+      <PageHeader
+        description="Acceso rápido a contacto, internos y dependencias de todo el personal."
+        class="mb-6 text-left"
+        titleClass="text-2xl md:text-3xl"
+      />
 
-        <div class="w-full relative group">
-          <div
-            class="join w-full shadow-md rounded-xl overflow-hidden border border-base-300 group-focus-within:border-base-content/30 group-focus-within:ring-2 group-focus-within:ring-base-content/5 transition-[border-color,box-shadow] duration-300 bg-base-100"
-          >
-            <div class="relative flex-1">
-              <div
-                class="absolute inset-y-0 left-4 flex items-center pointer-events-none opacity-40 group-focus-within:opacity-100 group-focus-within:text-primary transition-colors duration-300"
-              >
-                <Icon name="boxicons:search" size={24} />
-              </div>
-              <input
-                type="text"
-                id="search-input"
-                aria-label="Buscar usuarios por nombre, apellido o DNI"
-                placeholder="Escribe para buscar..."
-                class="w-full pl-12 pr-16 h-14 bg-transparent focus:outline-hidden text-base sm:text-lg transition-colors"
-                autocomplete="off"
-                spellcheck="false"
+      <div class="w-full relative group">
+        <div
+          class="join w-full shadow-md rounded-xl overflow-hidden border border-base-300 group-focus-within:border-base-content/30 group-focus-within:ring-2 group-focus-within:ring-base-content/5 transition-[border-color,box-shadow] duration-300 bg-base-100"
+        >
+          <div class="relative flex-1">
+            <div
+              class="absolute inset-y-0 left-4 flex items-center pointer-events-none opacity-40 group-focus-within:opacity-100 group-focus-within:text-primary transition-colors duration-300"
+            >
+              <Icon name="boxicons:search" size={24} />
+            </div>
+            <input
+              type="text"
+              id="search-input"
+              aria-label="Buscar usuarios por nombre, apellido o DNI"
+              placeholder="Escribe para buscar..."
+              class="w-full pl-12 pr-16 h-14 bg-transparent focus:outline-hidden text-base sm:text-lg transition-colors"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <div
+              class="absolute inset-y-0 right-4 flex items-center pointer-events-none group-focus-within:opacity-0 transition-opacity duration-300"
+            >
+              <kbd class="kbd kbd-sm font-sans font-bold text-base-content/50">
+                /
+              </kbd>
+            </div>
+            <div
+              class="absolute inset-y-0 right-4 flex items-center pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"
+            >
+              <Icon
+                name="boxicons:contact-book"
+                size={20}
+                class="text-base-content/30"
               />
-              <div
-                class="absolute inset-y-0 right-4 flex items-center pointer-events-none group-focus-within:opacity-0 transition-opacity duration-300"
-              >
-                <kbd
-                  class="kbd kbd-sm font-sans font-bold text-base-content/50"
-                >
-                  /
-                </kbd>
-              </div>
-              <div
-                class="absolute inset-y-0 right-4 flex items-center pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"
-              >
-                <Icon
-                  name="boxicons:contact-book"
-                  size={20}
-                  class="text-base-content/30"
-                />
-              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div
-          class="mt-4 flex items-center gap-2 text-xs sm:text-sm text-base-content/50"
-          id="search-status"
+      <div
+        class="mt-4 flex items-center gap-2 text-xs sm:text-sm text-base-content/50"
+        id="search-status"
+      >
+        <span>Listo para buscar.</span>
+      </div>
+    </section>
+
+    <!-- Banner Extensión -->
+    <ChromeExtensionBanner />
+  </div>
+
+  <section>
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold flex items-center gap-2" id="results-title">
+        Usuarios sugeridos <span
+          class="badge badge-sm badge-neutral"
+          id="results-count">0</span
         >
-          <span>Listo para buscar.</span>
-        </div>
-      </section>
-
-      <!-- Banner Extensión -->
-      <ChromeExtensionBanner />
+      </h2>
+      <div id="loading-indicator" class="hidden">
+        <span class="loading loading-spinner loading-sm text-primary"></span>
+        <span class="text-sm text-base-content/60 ml-2">Buscando...</span>
+      </div>
     </div>
 
-    <section>
-      <div class="flex items-center justify-between mb-6">
-        <h2
-          class="text-xl font-bold flex items-center gap-2"
-          id="results-title"
-        >
-          Usuarios sugeridos <span
-            class="badge badge-sm badge-neutral"
-            id="results-count">0</span
-          >
-        </h2>
-        <div id="loading-indicator" class="hidden">
-          <span class="loading loading-spinner loading-sm text-primary"></span>
-          <span class="text-sm text-base-content/60 ml-2">Buscando...</span>
-        </div>
-      </div>
+    <div
+      id="results-skeleton"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      {[1, 2, 3, 4, 5, 6].map(() => <SkeletonCard type="user" />)}
+    </div>
 
-      <div
-        id="results-skeleton"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
-        {
-          [1, 2, 3, 4, 5, 6].map(() => (
-            <SkeletonCard type="user" />
-          ))
-        }
-      </div>
+    <div
+      id="results-grid"
+      class="hidden grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-0 transition-opacity duration-500"
+    >
+    </div>
 
-      <div
-        id="results-grid"
-        class="hidden grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-0 transition-opacity duration-500"
-      >
-      </div>
+    <SearchEmptyState
+      id="empty-state"
+      title="Comienza tu búsqueda"
+      description="Encuentra usuarios rápidamente ingresando su nombre, apellido o DNI."
+      icon="boxicons:search"
+      useDualIcons={true}
+      notFoundIcon="boxicons:user-minus-filled"
+      showClearButton={true}
+      clearButtonText="Limpiar búsqueda"
+      clearButtonId="clear-search"
+    />
+  </section>
+</PageContainer>
 
-      <SearchEmptyState
-        id="empty-state"
-        title="Comienza tu búsqueda"
-        description="Encuentra usuarios rápidamente ingresando su nombre, apellido o DNI."
-        icon="boxicons:search"
-        useDualIcons={true}
-        notFoundIcon="boxicons:user-minus-filled"
-        showClearButton={true}
-        clearButtonText="Limpiar búsqueda"
-        clearButtonId="clear-search"
-      />
-    </section>
-  </PageContainer>
+<UserCard />
 
-  <UserCard />
+<!-- Modal de Edición de Contacto -->
+<EditUserModal />
 
-  <!-- Modal de Edición de Contacto -->
-  <EditUserModal />
+<!-- Modal de Consola Terminal (Grupos AD) -->
+<TerminalModal />
 
-  <!-- Modal de Consola Terminal (Grupos AD) -->
-  <TerminalModal />
+<script>
+  let isLoaded = false;
+  let currentUsers: any[] = [];
 
-  <script>
-    let isLoaded = false;
-    let currentUsers: any[] = [];
+  function fallbackCopyToClipboard(value: string): boolean {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.setAttribute("aria-hidden", "true");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    textarea.style.opacity = "0";
 
-    function fallbackCopyToClipboard(value: string): boolean {
-      const textarea = document.createElement("textarea");
-      textarea.value = value;
-      textarea.setAttribute("readonly", "");
-      textarea.setAttribute("aria-hidden", "true");
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      textarea.style.top = "0";
-      textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
 
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
+    let copied = false;
+    try {
+      const legacyCopyApi = document as unknown as {
+        execCommand?: (commandId: string) => boolean;
+      };
+      copied =
+        typeof legacyCopyApi.execCommand === "function"
+          ? legacyCopyApi.execCommand("copy")
+          : false;
+    } catch {
+      copied = false;
+    }
 
-      let copied = false;
+    textarea.remove();
+    return copied;
+  }
+
+  async function copyText(value: string): Promise<boolean> {
+    const canUseClipboardApi =
+      typeof navigator !== "undefined" &&
+      typeof navigator.clipboard !== "undefined" &&
+      typeof navigator.clipboard.writeText === "function";
+
+    if (canUseClipboardApi) {
       try {
-        const legacyCopyApi = document as unknown as {
-          execCommand?: (commandId: string) => boolean;
-        };
-        copied =
-          typeof legacyCopyApi.execCommand === "function"
-            ? legacyCopyApi.execCommand("copy")
-            : false;
+        await navigator.clipboard.writeText(value);
+        return true;
       } catch {
-        copied = false;
+        return fallbackCopyToClipboard(value);
       }
+    }
+    return fallbackCopyToClipboard(value);
+  }
 
-      textarea.remove();
-      return copied;
+  const searchInput = document.getElementById(
+    "search-input",
+  ) as HTMLInputElement | null;
+  const resultsGrid = document.getElementById("results-grid");
+  const resultsCount = document.getElementById("results-count");
+  const resultsTitle = document.getElementById("results-title");
+  const loadingIndicator = document.getElementById("loading-indicator");
+  const emptyState = document.getElementById("empty-state");
+  const statusText = document.getElementById("search-status");
+  const clearSearchBtn = document.getElementById("clear-search");
+  const resultsSkeleton = document.getElementById("results-skeleton");
+  const cardTemplate = document.getElementById(
+    "user-card-template",
+  ) as HTMLTemplateElement | null;
+
+  // Referencias del modal de edición
+  const editModal = document.getElementById("edit-user-modal") as any;
+  const editForm = document.getElementById(
+    "edit-user-form",
+  ) as HTMLFormElement | null;
+  const editFullname = document.getElementById(
+    "edit-user-fullname",
+  ) as HTMLInputElement | null;
+  const editDni = document.getElementById(
+    "edit-user-dni",
+  ) as HTMLInputElement | null;
+  const editInterno = document.getElementById(
+    "edit-user-interno",
+  ) as HTMLInputElement | null;
+  const editTelefono = document.getElementById(
+    "edit-user-telefono",
+  ) as HTMLInputElement | null;
+  const closeEditModalBtn = document.getElementById("close-edit-modal-btn");
+  const saveEditBtn = document.getElementById(
+    "save-edit-btn",
+  ) as HTMLButtonElement | null;
+  const saveBtnSpinner = document.getElementById("save-btn-spinner");
+
+  // Referencias del modal de terminal (net user)
+  const terminalModal = document.getElementById("terminal-modal") as any;
+  const terminalUserTitle = document.getElementById("terminal-user-title");
+  const terminalCommandUsername = document.getElementById(
+    "terminal-command-username",
+  );
+  const terminalOutput = document.getElementById("terminal-output");
+  const terminalLoading = document.getElementById("terminal-loading");
+  const closeTerminalBtn = document.getElementById("close-terminal-btn");
+  const closeTerminalFooterBtn = document.getElementById(
+    "close-terminal-footer-btn",
+  );
+  const copyTerminalBtn = document.getElementById(
+    "copy-terminal-btn",
+  ) as HTMLButtonElement | null;
+
+  // Referencias de la versión organizada de terminal
+  const tabPanelBtn = document.getElementById("tab-panel-btn");
+  const tabConsoleBtn = document.getElementById("tab-console-btn");
+  const viewPanel = document.getElementById("view-panel");
+  const viewConsole = document.getElementById("view-console");
+  const termInfoUsername = document.getElementById("term-info-username");
+  const termInfoFullname = document.getElementById("term-info-fullname");
+  const termInfoTitle = document.getElementById("term-info-title");
+  const termInfoPwdLastSet = document.getElementById("term-info-pwdlastset");
+  const termInfoBadPwdCount = document.getElementById("term-info-badpwdcount");
+  const termInfoLockout = document.getElementById("term-info-lockout");
+  const termInfoExpires = document.getElementById("term-info-expires");
+  const termInfoEmployeeNumber = document.getElementById(
+    "term-info-employeenumber",
+  );
+  const termInfoOffice = document.getElementById("term-info-office");
+  const termInfoManager = document.getElementById("term-info-manager");
+  const btnSearchManager = document.getElementById("btn-search-manager");
+  const termInfoLastLogon = document.getElementById("term-info-lastlogon");
+  const termInfoWhenCreated = document.getElementById("term-info-whencreated");
+  const terminalGroupsCount = document.getElementById("terminal-groups-count");
+  const terminalGroupsSearch = document.getElementById(
+    "terminal-groups-search",
+  ) as HTMLInputElement | null;
+  const terminalGroupsList = document.getElementById("terminal-groups-list");
+  let currentLdapGroups: string[] = [];
+
+  // Nuevas referencias para optimización de grupos
+  const copyAllGroupsBtn = document.getElementById("copy-all-groups-btn");
+  const btnViewGrid = document.getElementById("btn-view-grid");
+  const btnViewList = document.getElementById("btn-view-list");
+  const clearGroupSearch = document.getElementById("clear-group-search");
+  let currentSelectedCategory = "all";
+  let currentViewMode = "grid";
+
+  const avatarColors = [
+    "bg-blue-500 text-white",
+    "bg-purple-500 text-white",
+    "bg-emerald-500 text-white",
+    "bg-amber-500 text-white",
+    "bg-rose-500 text-white",
+    "bg-indigo-500 text-white",
+  ];
+
+  function escapeHTML(str: string) {
+    return str.replace(
+      /[&<>'"]/g,
+      (tag) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;",
+        })[tag] || tag,
+    );
+  }
+
+  function highlightText(text: string, query: string): string {
+    const safeText = escapeHTML(text || "");
+    if (!query || !query.trim()) return safeText;
+
+    const queriesToTry = [query.trim()];
+
+    if (query.includes("@")) {
+      const parts = query.split("@");
+      if (parts[0].trim()) {
+        queriesToTry.push(parts[0].trim());
+      }
     }
 
-    async function copyText(value: string): Promise<boolean> {
-      const canUseClipboardApi =
-        typeof navigator !== "undefined" &&
-        typeof navigator.clipboard !== "undefined" &&
-        typeof navigator.clipboard.writeText === "function";
-
-      if (canUseClipboardApi) {
-        try {
-          await navigator.clipboard.writeText(value);
-          return true;
-        } catch {
-          return fallbackCopyToClipboard(value);
-        }
-      }
-      return fallbackCopyToClipboard(value);
+    const cleanDni = query.replace(/[.\-\s]/g, "");
+    if (/^\d+$/.test(cleanDni) && cleanDni.length > 0) {
+      queriesToTry.push(cleanDni);
     }
 
-    const searchInput = document.getElementById(
-      "search-input",
-    ) as HTMLInputElement | null;
-    const resultsGrid = document.getElementById("results-grid");
-    const resultsCount = document.getElementById("results-count");
-    const resultsTitle = document.getElementById("results-title");
-    const loadingIndicator = document.getElementById("loading-indicator");
-    const emptyState = document.getElementById("empty-state");
-    const statusText = document.getElementById("search-status");
-    const clearSearchBtn = document.getElementById("clear-search");
-    const resultsSkeleton = document.getElementById("results-skeleton");
-    const cardTemplate = document.getElementById(
-      "user-card-template",
-    ) as HTMLTemplateElement | null;
+    queriesToTry.sort((a, b) => b.length - a.length);
+    const uniqueQueries = [...new Set(queriesToTry)];
 
-    // Referencias del modal de edición
-    const editModal = document.getElementById("edit-user-modal") as any;
-    const editForm = document.getElementById(
-      "edit-user-form",
-    ) as HTMLFormElement | null;
-    const editFullname = document.getElementById(
-      "edit-user-fullname",
-    ) as HTMLInputElement | null;
-    const editDni = document.getElementById(
-      "edit-user-dni",
-    ) as HTMLInputElement | null;
-    const editInterno = document.getElementById(
-      "edit-user-interno",
-    ) as HTMLInputElement | null;
-    const editTelefono = document.getElementById(
-      "edit-user-telefono",
-    ) as HTMLInputElement | null;
-    const closeEditModalBtn = document.getElementById("close-edit-modal-btn");
-    const saveEditBtn = document.getElementById(
-      "save-edit-btn",
-    ) as HTMLButtonElement | null;
-    const saveBtnSpinner = document.getElementById("save-btn-spinner");
-
-    // Referencias del modal de terminal (net user)
-    const terminalModal = document.getElementById("terminal-modal") as any;
-    const terminalUserTitle = document.getElementById("terminal-user-title");
-    const terminalCommandUsername = document.getElementById(
-      "terminal-command-username",
-    );
-    const terminalOutput = document.getElementById("terminal-output");
-    const terminalLoading = document.getElementById("terminal-loading");
-    const closeTerminalBtn = document.getElementById("close-terminal-btn");
-    const closeTerminalFooterBtn = document.getElementById(
-      "close-terminal-footer-btn",
-    );
-    const copyTerminalBtn = document.getElementById(
-      "copy-terminal-btn",
-    ) as HTMLButtonElement | null;
-
-    // Referencias de la versión organizada de terminal
-    const tabPanelBtn = document.getElementById("tab-panel-btn");
-    const tabConsoleBtn = document.getElementById("tab-console-btn");
-    const viewPanel = document.getElementById("view-panel");
-    const viewConsole = document.getElementById("view-console");
-    const termInfoUsername = document.getElementById("term-info-username");
-    const termInfoFullname = document.getElementById("term-info-fullname");
-    const termInfoTitle = document.getElementById("term-info-title");
-    const termInfoPwdLastSet = document.getElementById("term-info-pwdlastset");
-    const termInfoBadPwdCount = document.getElementById(
-      "term-info-badpwdcount",
-    );
-    const termInfoLockout = document.getElementById("term-info-lockout");
-    const termInfoExpires = document.getElementById("term-info-expires");
-    const termInfoEmployeeNumber = document.getElementById(
-      "term-info-employeenumber",
-    );
-    const termInfoOffice = document.getElementById("term-info-office");
-    const termInfoManager = document.getElementById("term-info-manager");
-    const btnSearchManager = document.getElementById("btn-search-manager");
-    const termInfoLastLogon = document.getElementById("term-info-lastlogon");
-    const termInfoWhenCreated = document.getElementById(
-      "term-info-whencreated",
-    );
-    const terminalGroupsCount = document.getElementById(
-      "terminal-groups-count",
-    );
-    const terminalGroupsSearch = document.getElementById(
-      "terminal-groups-search",
-    ) as HTMLInputElement | null;
-    const terminalGroupsList = document.getElementById("terminal-groups-list");
-    let currentLdapGroups: string[] = [];
-
-    // Nuevas referencias para optimización de grupos
-    const copyAllGroupsBtn = document.getElementById("copy-all-groups-btn");
-    const btnViewGrid = document.getElementById("btn-view-grid");
-    const btnViewList = document.getElementById("btn-view-list");
-    const clearGroupSearch = document.getElementById("clear-group-search");
-    let currentSelectedCategory = "all";
-    let currentViewMode = "grid";
-
-    const avatarColors = [
-      "bg-blue-500 text-white",
-      "bg-purple-500 text-white",
-      "bg-emerald-500 text-white",
-      "bg-amber-500 text-white",
-      "bg-rose-500 text-white",
-      "bg-indigo-500 text-white",
-    ];
-
-    function escapeHTML(str: string) {
-      return str.replace(
-        /[&<>'"]/g,
-        (tag) =>
-          ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "'": "&#39;",
-            '"': "&quot;",
-          })[tag] || tag,
+    let highlighted = safeText;
+    for (const q of uniqueQueries) {
+      if (!q) continue;
+      const escaped = q.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+      const regexNoHtml = new RegExp(`(${escaped})(?![^<>]*>)`, "gi");
+      highlighted = highlighted.replace(
+        regexNoHtml,
+        '<mark class="bg-amber-200/70 dark:bg-amber-500/30 text-amber-950 dark:text-amber-100 px-0.5 rounded-xs font-semibold">$1</mark>',
       );
     }
 
-    function highlightText(text: string, query: string): string {
-      const safeText = escapeHTML(text || "");
-      if (!query || !query.trim()) return safeText;
+    return highlighted;
+  }
 
-      const queriesToTry = [query.trim()];
-
-      if (query.includes("@")) {
-        const parts = query.split("@");
-        if (parts[0].trim()) {
-          queriesToTry.push(parts[0].trim());
-        }
-      }
-
-      const cleanDni = query.replace(/[.\-\s]/g, "");
-      if (/^\d+$/.test(cleanDni) && cleanDni.length > 0) {
-        queriesToTry.push(cleanDni);
-      }
-
-      queriesToTry.sort((a, b) => b.length - a.length);
-      const uniqueQueries = [...new Set(queriesToTry)];
-
-      let highlighted = safeText;
-      for (const q of uniqueQueries) {
-        if (!q) continue;
-        const escaped = q.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-        const regexNoHtml = new RegExp(`(${escaped})(?![^<>]*>)`, "gi");
-        highlighted = highlighted.replace(
-          regexNoHtml,
-          '<mark class="bg-amber-200/70 dark:bg-amber-500/30 text-amber-950 dark:text-amber-100 px-0.5 rounded-xs font-semibold">$1</mark>',
-        );
-      }
-
-      return highlighted;
+  function getAvatarColor(name: string) {
+    let hash = 0;
+    const safeName = name || "Usuario";
+    for (let i = 0; i < safeName.length; i++) {
+      hash = safeName.charCodeAt(i) + ((hash << 5) - hash);
     }
+    return avatarColors[Math.abs(hash) % avatarColors.length];
+  }
 
-    function getAvatarColor(name: string) {
-      let hash = 0;
-      const safeName = name || "Usuario";
-      for (let i = 0; i < safeName.length; i++) {
-        hash = safeName.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      return avatarColors[Math.abs(hash) % avatarColors.length];
-    }
+  async function init() {
+    isLoaded = true;
+    if (statusText) statusText.textContent = "Listo para buscar.";
+    resultsSkeleton?.classList.add("hidden");
+    resultsGrid?.classList.remove("hidden");
+    setTimeout(() => resultsGrid?.classList.remove("opacity-0"), 50);
+    displayResults([]);
+  }
 
-    async function init() {
-      isLoaded = true;
-      if (statusText) statusText.textContent = "Listo para buscar.";
-      resultsSkeleton?.classList.add("hidden");
-      resultsGrid?.classList.remove("hidden");
-      setTimeout(() => resultsGrid?.classList.remove("opacity-0"), 50);
-      displayResults([]);
-    }
+  function displayResults(users: any[]) {
+    if (!resultsGrid || !cardTemplate) return;
+    resultsGrid.innerHTML = "";
+    if (resultsCount) resultsCount.textContent = String(users.length);
+    if (users.length === 0) {
+      resultsGrid.classList.add("hidden");
+      emptyState?.classList.remove("hidden");
+      emptyState?.classList.add("flex");
 
-    function displayResults(users: any[]) {
-      if (!resultsGrid || !cardTemplate) return;
-      resultsGrid.innerHTML = "";
-      if (resultsCount) resultsCount.textContent = String(users.length);
-      if (users.length === 0) {
-        resultsGrid.classList.add("hidden");
-        emptyState?.classList.remove("hidden");
-        emptyState?.classList.add("flex");
+      const emptyIconSearch = document.getElementById(
+        "empty-state-icon-search",
+      );
+      const emptyIconNotfound = document.getElementById(
+        "empty-state-icon-notfound",
+      );
+      const emptyTitle = document.getElementById("empty-state-title");
+      const emptyDesc = document.getElementById("empty-state-desc");
+      const glow1 = document.getElementById("empty-state-icon-glow-1");
+      const glow2 = document.getElementById("empty-state-icon-glow-2");
 
-        const emptyIconSearch = document.getElementById(
-          "empty-state-icon-search",
+      if (!searchInput?.value.trim()) {
+        emptyIconSearch?.classList.remove("hidden");
+        emptyIconNotfound?.classList.add("hidden");
+
+        glow1?.classList.replace("bg-error/10", "bg-primary/10");
+        glow1?.classList.replace(
+          "group-hover:bg-error/20",
+          "group-hover:bg-primary/20",
         );
-        const emptyIconNotfound = document.getElementById(
-          "empty-state-icon-notfound",
+        glow2?.classList.replace("bg-error/10", "bg-secondary/15");
+
+        if (emptyTitle) emptyTitle.textContent = "Comienza tu búsqueda";
+        if (emptyDesc)
+          emptyDesc.textContent =
+            "Encuentra usuarios rápidamente ingresando su nombre, apellido o DNI.";
+        clearSearchBtn?.classList.add("hidden");
+        clearSearchBtn?.classList.remove("flex");
+      } else {
+        emptyIconSearch?.classList.add("hidden");
+        emptyIconNotfound?.classList.remove("hidden");
+
+        glow1?.classList.replace("bg-primary/10", "bg-error/10");
+        glow1?.classList.replace(
+          "group-hover:bg-primary/20",
+          "group-hover:bg-error/20",
         );
-        const emptyTitle = document.getElementById("empty-state-title");
-        const emptyDesc = document.getElementById("empty-state-desc");
-        const glow1 = document.getElementById("empty-state-icon-glow-1");
-        const glow2 = document.getElementById("empty-state-icon-glow-2");
+        glow2?.classList.replace("bg-secondary/15", "bg-error/10");
 
-        if (!searchInput?.value.trim()) {
-          emptyIconSearch?.classList.remove("hidden");
-          emptyIconNotfound?.classList.add("hidden");
-
-          glow1?.classList.replace("bg-error/10", "bg-primary/10");
-          glow1?.classList.replace(
-            "group-hover:bg-error/20",
-            "group-hover:bg-primary/20",
-          );
-          glow2?.classList.replace("bg-error/10", "bg-secondary/15");
-
-          if (emptyTitle) emptyTitle.textContent = "Comienza tu búsqueda";
-          if (emptyDesc)
-            emptyDesc.textContent =
-              "Encuentra usuarios rápidamente ingresando su nombre, apellido o DNI.";
-          clearSearchBtn?.classList.add("hidden");
-          clearSearchBtn?.classList.remove("flex");
-        } else {
-          emptyIconSearch?.classList.add("hidden");
-          emptyIconNotfound?.classList.remove("hidden");
-
-          glow1?.classList.replace("bg-primary/10", "bg-error/10");
-          glow1?.classList.replace(
-            "group-hover:bg-primary/20",
-            "group-hover:bg-error/20",
-          );
-          glow2?.classList.replace("bg-secondary/15", "bg-error/10");
-
-          if (emptyTitle) emptyTitle.textContent = "No se encontraron usuarios";
-          if (emptyDesc)
-            emptyDesc.textContent = `No hay coincidencias para "${searchInput.value.trim()}". Intenta con otros términos.`;
-          clearSearchBtn?.classList.remove("hidden");
-          clearSearchBtn?.classList.add("flex");
-        }
-        return;
+        if (emptyTitle) emptyTitle.textContent = "No se encontraron usuarios";
+        if (emptyDesc)
+          emptyDesc.textContent = `No hay coincidencias para "${searchInput.value.trim()}". Intenta con otros términos.`;
+        clearSearchBtn?.classList.remove("hidden");
+        clearSearchBtn?.classList.add("flex");
       }
-      resultsGrid.classList.remove("hidden");
-      emptyState?.classList.add("hidden");
-      emptyState?.classList.remove("flex");
-      const fragment = document.createDocumentFragment();
-      const query = searchInput?.value || "";
-      users.forEach((user) => {
-        const clone = cardTemplate.content.cloneNode(true) as DocumentFragment;
-        const nombreEl = clone.querySelector("[data-user-nombre]");
-        const dniEl = clone.querySelector("[data-user-dni]");
-        const userEl = clone.querySelector("[data-user-id]");
-        const internoEl = clone.querySelector("[data-user-interno]");
-        const telefonoEl = clone.querySelector("[data-user-telefono]");
-        const emailEl = clone.querySelector("[data-user-email]");
-        const sucursalEl = clone.querySelector("[data-user-sucursal]");
+      return;
+    }
+    resultsGrid.classList.remove("hidden");
+    emptyState?.classList.add("hidden");
+    emptyState?.classList.remove("flex");
+    const fragment = document.createDocumentFragment();
+    const query = searchInput?.value || "";
+    users.forEach((user) => {
+      const clone = cardTemplate.content.cloneNode(true) as DocumentFragment;
+      const nombreEl = clone.querySelector("[data-user-nombre]");
+      const dniEl = clone.querySelector("[data-user-dni]");
+      const userEl = clone.querySelector("[data-user-id]");
+      const internoEl = clone.querySelector("[data-user-interno]");
+      const telefonoEl = clone.querySelector("[data-user-telefono]");
+      const emailEl = clone.querySelector("[data-user-email]");
+      const sucursalEl = clone.querySelector("[data-user-sucursal]");
 
-        if (nombreEl) {
-          nombreEl.innerHTML = user.nombre
-            ? highlightText(user.nombre, query)
-            : "Sin Nombre";
-        }
-        if (dniEl) {
-          dniEl.innerHTML = user.dni ? highlightText(user.dni, query) : "-";
-        }
-        if (userEl) {
-          userEl.innerHTML = user.usuario
-            ? highlightText(user.usuario, query)
-            : "-";
-        }
-        if (internoEl) internoEl.textContent = user.interno || "-";
-        if (telefonoEl) telefonoEl.textContent = user.telefono || "-";
-        if (emailEl) {
-          emailEl.innerHTML = user.email
-            ? highlightText(user.email, query)
-            : "Sin Email";
-        }
-        if (sucursalEl)
-          sucursalEl.textContent = user.sucursal || "Sin sucursal";
+      if (nombreEl) {
+        nombreEl.innerHTML = user.nombre
+          ? highlightText(user.nombre, query)
+          : "Sin Nombre";
+      }
+      if (dniEl) {
+        dniEl.innerHTML = user.dni ? highlightText(user.dni, query) : "-";
+      }
+      if (userEl) {
+        userEl.innerHTML = user.usuario
+          ? highlightText(user.usuario, query)
+          : "-";
+      }
+      if (internoEl) internoEl.textContent = user.interno || "-";
+      if (telefonoEl) telefonoEl.textContent = user.telefono || "-";
+      if (emailEl) {
+        emailEl.innerHTML = user.email
+          ? highlightText(user.email, query)
+          : "Sin Email";
+      }
+      if (sucursalEl) sucursalEl.textContent = user.sucursal || "Sin sucursal";
 
-        const safeNombre = user.nombre || "U";
-        const initials = safeNombre
-          .split(" ")
-          .filter((n: string) => n)
-          .map((n: string) => n[0])
-          .join("")
-          .substring(0, 2)
-          .toUpperCase();
-        const initialsEl = clone.querySelector("[data-user-initials]");
-        if (initialsEl) initialsEl.textContent = initials || "??";
-        const avatarBg = clone.querySelector(
-          "[data-user-avatar-bg]",
-        ) as HTMLElement | null;
-        if (avatarBg) {
-          const colorClass = getAvatarColor(safeNombre);
-          colorClass.split(" ").forEach((cls) => avatarBg.classList.add(cls));
-        }
-        const setupCopy = (selector: string, value: string) => {
-          const btn = clone.querySelector(selector) as HTMLElement | null;
-          if (btn && value) {
-            btn.addEventListener("click", (e) => {
-              e.stopPropagation();
-              copyToClipboard(value, btn);
-            });
-          }
-        };
-        setupCopy("[data-copy-dni]", user.dni);
-        setupCopy("[data-copy-user]", user.usuario);
-        setupCopy("[data-copy-interno]", user.interno);
-        setupCopy("[data-copy-telefono]", user.telefono);
-        setupCopy("[data-copy-email]", user.email);
-
-        // Botón de edición
-        const editBtn = clone.querySelector(
-          "[data-edit-user-btn]",
-        ) as HTMLElement | null;
-        if (editBtn) {
-          editBtn.addEventListener("click", (e) => {
+      const safeNombre = user.nombre || "U";
+      const initials = safeNombre
+        .split(" ")
+        .filter((n: string) => n)
+        .map((n: string) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
+      const initialsEl = clone.querySelector("[data-user-initials]");
+      if (initialsEl) initialsEl.textContent = initials || "??";
+      const avatarBg = clone.querySelector(
+        "[data-user-avatar-bg]",
+      ) as HTMLElement | null;
+      if (avatarBg) {
+        const colorClass = getAvatarColor(safeNombre);
+        colorClass.split(" ").forEach((cls) => avatarBg.classList.add(cls));
+      }
+      const setupCopy = (selector: string, value: string) => {
+        const btn = clone.querySelector(selector) as HTMLElement | null;
+        if (btn && value) {
+          btn.addEventListener("click", (e) => {
             e.stopPropagation();
-            openEditModal(user);
+            copyToClipboard(value, btn);
           });
         }
+      };
+      setupCopy("[data-copy-dni]", user.dni);
+      setupCopy("[data-copy-user]", user.usuario);
+      setupCopy("[data-copy-interno]", user.interno);
+      setupCopy("[data-copy-telefono]", user.telefono);
+      setupCopy("[data-copy-email]", user.email);
 
-        // Botón de consulta de grupos AD (net user)
-        const netUserBtn = clone.querySelector(
-          "[data-net-user-btn]",
-        ) as HTMLElement | null;
-        if (netUserBtn && user.usuario) {
-          netUserBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            openTerminalModal(user.usuario);
-          });
-        } else if (netUserBtn) {
-          netUserBtn.classList.add("hidden");
-        }
-
-        fragment.appendChild(clone);
-      });
-      resultsGrid.appendChild(fragment);
-    }
-
-    async function copyToClipboard(text: string, btn: HTMLElement) {
-      if (!text) return;
-      const copied = await copyText(text);
-      if (!copied) return;
-
-      const tooltip = btn.closest(".tooltip") as HTMLElement | null;
-      const originalTip = tooltip?.getAttribute("data-tip");
-      const originalIcon = btn.innerHTML;
-
-      if (tooltip) {
-        tooltip.setAttribute("data-tip", "¡Copiado!");
-        tooltip.classList.replace("tooltip-neutral", "tooltip-success");
-        tooltip.classList.add("tooltip-open");
-      }
-
-      btn.innerHTML =
-        '<svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
-
-      setTimeout(() => {
-        if (tooltip) {
-          tooltip.setAttribute("data-tip", originalTip || "");
-          tooltip.classList.replace("tooltip-success", "tooltip-neutral");
-          tooltip.classList.remove("tooltip-open");
-        }
-        btn.innerHTML = originalIcon;
-      }, 2000);
-    }
-
-    let searchTimeout: number;
-    async function handleSearch() {
-      if (!isLoaded || !searchInput) return;
-      const query = (searchInput.value || "").trim();
-
-      if (query === "") {
-        displayResults([]);
-        if (statusText) statusText.textContent = `Listo para buscar.`;
-        return;
-      }
-
-      window.clearTimeout(searchTimeout);
-      loadingIndicator?.classList.remove("hidden");
-
-      searchTimeout = window.setTimeout(async () => {
-        try {
-          const token = "mda_live_bf9d7a2e8c5643190ab76d2e1f48c590";
-          const url = `http://mda.correo.local/api_mda_find_extension/get_users.php?search=${encodeURIComponent(query)}`;
-          const response = await fetch(url, {
-            headers: {
-              "X-API-Key": token,
-            },
-          });
-
-          if (!response.ok) throw new Error("API error");
-          const data = await response.json();
-
-          const mappedResults = (data.results || []).map((u: any) => ({
-            nombre: u.fullname,
-            dni: u.dni,
-            usuario: u.username,
-            interno: u.interno,
-            telefono: u.telefono,
-            email: u.username ? `${u.username}@correoargentino.com.ar` : null,
-            sucursal: u.sucursal,
-          }));
-
-          currentUsers = mappedResults;
-          displayResults(currentUsers);
-          if (resultsTitle?.firstChild)
-            resultsTitle.firstChild.textContent = "Resultados ";
-          loadingIndicator?.classList.add("hidden");
-          if (statusText)
-            statusText.textContent = `${mappedResults.length} encontrados`;
-        } catch (error) {
-          console.error(error);
-          loadingIndicator?.classList.add("hidden");
-          if (statusText)
-            statusText.textContent = "Error al conectar con la base de datos";
-        }
-      }, 300);
-    }
-
-    // Funciones del modal de edición
-    function openEditModal(user: any) {
-      if (
-        !editModal ||
-        !editFullname ||
-        !editDni ||
-        !editInterno ||
-        !editTelefono
-      )
-        return;
-
-      editFullname.value = user.nombre || "";
-      editDni.value = user.dni || "";
-      editInterno.value = user.interno || "";
-      editTelefono.value = user.telefono || "";
-
-      editModal.showModal();
-    }
-
-    function closeEditModal() {
-      if (editModal) {
-        editModal.close();
-      }
-      if (editForm) {
-        editForm.reset();
-      }
-    }
-
-    closeEditModalBtn?.addEventListener("click", closeEditModal);
-
-    editForm?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (
-        !editDni ||
-        !editInterno ||
-        !editTelefono ||
-        !saveEditBtn ||
-        !saveBtnSpinner
-      )
-        return;
-
-      const dni = editDni.value;
-      const interno = editInterno.value.trim();
-      const telefono = editTelefono.value.trim();
-
-      saveEditBtn.disabled = true;
-      saveBtnSpinner.classList.remove("hidden");
-
-      try {
-        const token = "mda_live_bf9d7a2e8c5643190ab76d2e1f48c590";
-        const url = `http://mda.correo.local/api_mda_find_extension/get_users.php`;
-
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-Key": token,
-          },
-          body: JSON.stringify({ dni, interno, telefono }),
+      // Botón de edición
+      const editBtn = clone.querySelector(
+        "[data-edit-user-btn]",
+      ) as HTMLElement | null;
+      if (editBtn) {
+        editBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openEditModal(user);
         });
-
-        if (!response.ok)
-          throw new Error("Error en la respuesta del servidor.");
-        const result = await response.json();
-
-        if (result.status === "success") {
-          // Actualizar el estado local en la grilla actual
-          const idx = currentUsers.findIndex((u) => u.dni === dni);
-          if (idx !== -1) {
-            currentUsers[idx].interno = interno || null;
-            currentUsers[idx].telefono = telefono || null;
-          }
-
-          displayResults(currentUsers);
-
-          // Mostrar feedback visual
-          if (statusText) {
-            const originalText = statusText.textContent;
-            statusText.innerHTML =
-              '<span class="text-success font-semibold flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="size-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> ¡Cambios guardados con éxito!</span>';
-            setTimeout(() => {
-              if (statusText) statusText.textContent = originalText;
-            }, 3000);
-          }
-
-          closeEditModal();
-        } else {
-          alert(
-            "Error: " + (result.error || "No se pudo actualizar el contacto."),
-          );
-        }
-      } catch (err: any) {
-        console.error(err);
-        alert(err.message || "Error al conectar con la base de datos.");
-      } finally {
-        saveEditBtn.disabled = false;
-        saveBtnSpinner.classList.add("hidden");
       }
+
+      // Botón de consulta de grupos AD (net user)
+      const netUserBtn = clone.querySelector(
+        "[data-net-user-btn]",
+      ) as HTMLElement | null;
+      if (netUserBtn && user.usuario) {
+        netUserBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openTerminalModal(user.usuario);
+        });
+      } else if (netUserBtn) {
+        netUserBtn.classList.add("hidden");
+      }
+
+      fragment.appendChild(clone);
     });
+    resultsGrid.appendChild(fragment);
+  }
 
-    // Funciones del modal de terminal
-    async function openTerminalModal(username: string) {
-      if (
-        !terminalModal ||
-        !terminalUserTitle ||
-        !terminalCommandUsername ||
-        !terminalOutput ||
-        !terminalLoading
-      )
-        return;
+  async function copyToClipboard(text: string, btn: HTMLElement) {
+    if (!text) return;
+    const copied = await copyText(text);
+    if (!copied) return;
 
-      // Restablecer por defecto a la vista de panel organizado
-      tabPanelBtn?.click();
-      if (terminalGroupsSearch) {
-        terminalGroupsSearch.value = "";
-        clearGroupSearch?.classList.add("hidden");
+    const tooltip = btn.closest(".tooltip") as HTMLElement | null;
+    const originalTip = tooltip?.getAttribute("data-tip");
+    const originalIcon = btn.innerHTML;
+
+    if (tooltip) {
+      tooltip.setAttribute("data-tip", "¡Copiado!");
+      tooltip.classList.replace("tooltip-neutral", "tooltip-success");
+      tooltip.classList.add("tooltip-open");
+    }
+
+    btn.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" class="size-4 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+
+    setTimeout(() => {
+      if (tooltip) {
+        tooltip.setAttribute("data-tip", originalTip || "");
+        tooltip.classList.replace("tooltip-success", "tooltip-neutral");
+        tooltip.classList.remove("tooltip-open");
       }
-      currentSelectedCategory = "all";
+      btn.innerHTML = originalIcon;
+    }, 2000);
+  }
 
-      // Restablecer estilos de botones de categoría
-      const categoryButtons = document.querySelectorAll(
-        "#group-category-filters [data-filter]",
-      );
-      categoryButtons.forEach((b) => {
-        b.className =
-          "btn btn-xs rounded-full cursor-pointer transition-all bg-base-200 text-base-content/60 border border-base-300 hover:bg-base-300 hover:text-base-content font-sans font-bold gap-1";
-      });
-      const allBtn = document.querySelector(
-        '#group-category-filters [data-filter="all"]',
-      );
-      if (allBtn) {
-        allBtn.className =
-          "btn btn-xs rounded-full cursor-pointer transition-all bg-primary/20 text-primary border-primary/30 hover:bg-primary/30 font-sans font-bold gap-1";
-      }
+  let searchTimeout: number;
+  async function handleSearch() {
+    if (!isLoaded || !searchInput) return;
+    const query = (searchInput.value || "").trim();
 
-      terminalUserTitle.textContent = username;
-      terminalCommandUsername.textContent = username;
-      terminalOutput.textContent = "";
+    if (query === "") {
+      displayResults([]);
+      if (statusText) statusText.textContent = `Listo para buscar.`;
+      return;
+    }
 
-      // Resetear campos del panel organizado
-      if (termInfoUsername) termInfoUsername.textContent = username;
-      if (termInfoFullname) termInfoFullname.textContent = "-";
-      if (termInfoTitle) termInfoTitle.textContent = "-";
-      if (termInfoEmployeeNumber) termInfoEmployeeNumber.textContent = "-";
-      if (termInfoOffice) termInfoOffice.textContent = "-";
-      if (termInfoManager) termInfoManager.textContent = "-";
-      if (btnSearchManager) btnSearchManager.classList.add("hidden");
-      if (termInfoPwdLastSet) termInfoPwdLastSet.textContent = "-";
-      if (termInfoBadPwdCount) {
-        termInfoBadPwdCount.textContent = "-";
-        termInfoBadPwdCount.className =
-          "text-sm font-semibold text-neutral-200 mt-1";
-      }
-      if (termInfoLockout)
-        termInfoLockout.innerHTML =
-          '<span class="text-neutral-400 text-xs">-</span>';
-      if (termInfoLastLogon) termInfoLastLogon.textContent = "-";
-      if (termInfoWhenCreated) termInfoWhenCreated.textContent = "-";
-      if (termInfoExpires) termInfoExpires.textContent = "-";
-      if (terminalGroupsCount) terminalGroupsCount.textContent = "0 grupos";
-      if (terminalGroupsList) terminalGroupsList.innerHTML = "";
-      currentLdapGroups = [];
+    window.clearTimeout(searchTimeout);
+    loadingIndicator?.classList.remove("hidden");
 
-      terminalLoading.classList.remove("hidden");
-      terminalModal.showModal();
-
+    searchTimeout = window.setTimeout(async () => {
       try {
         const token = "mda_live_bf9d7a2e8c5643190ab76d2e1f48c590";
-        const url = `http://mda.correo.local/api_mda_find_extension/get_users.php?action=net_user&username=${encodeURIComponent(username)}`;
-
+        const url = `http://mda.correo.local/api_mda_find_extension/get_users.php?search=${encodeURIComponent(query)}`;
         const response = await fetch(url, {
           headers: {
             "X-API-Key": token,
           },
         });
-        if (!response.ok)
-          throw new Error("Error en la ejecución del comando en el servidor.");
-        const result = await response.json();
 
-        if (result.status === "success") {
-          terminalOutput.textContent = result.output;
+        if (!response.ok) throw new Error("API error");
+        const data = await response.json();
 
-          // Cargar datos estructurados
-          if (termInfoFullname)
-            termInfoFullname.textContent = result.fullname || "No especificado";
-          if (termInfoTitle)
-            termInfoTitle.textContent = result.title || "No especificado";
-          if (termInfoEmployeeNumber)
-            termInfoEmployeeNumber.textContent =
-              result.employee_number || "No especificado";
-          if (termInfoOffice)
-            termInfoOffice.textContent =
-              result.physical_office || "No especificado";
-          if (termInfoManager)
-            termInfoManager.textContent =
-              result.manager_name || "No especificado";
-          if (btnSearchManager) {
-            if (
-              result.manager_name &&
-              result.manager_name !== "No especificado"
-            ) {
-              btnSearchManager.classList.remove("hidden");
-            } else {
-              btnSearchManager.classList.add("hidden");
-            }
-          }
-          if (termInfoLastLogon)
-            termInfoLastLogon.textContent =
-              result.last_logon || "No especificado";
-          if (termInfoWhenCreated)
-            termInfoWhenCreated.textContent =
-              result.when_created || "No especificado";
+        const mappedResults = (data.results || []).map((u: any) => ({
+          nombre: u.fullname,
+          dni: u.dni,
+          usuario: u.username,
+          interno: u.interno,
+          telefono: u.telefono,
+          email: u.username ? `${u.username}@correoargentino.com.ar` : null,
+          sucursal: u.sucursal,
+        }));
 
-          // Poblar diagnósticos de seguridad
-          if (termInfoPwdLastSet)
-            termInfoPwdLastSet.textContent =
-              result.pwd_last_set || "No especificado";
-          if (termInfoBadPwdCount) {
-            const badCount =
-              result.bad_pwd_count !== undefined
-                ? Number(result.bad_pwd_count)
-                : 0;
-            termInfoBadPwdCount.textContent = String(badCount);
-            if (badCount > 0) {
-              termInfoBadPwdCount.className =
-                "text-sm font-bold text-error mt-1";
-            } else {
-              termInfoBadPwdCount.className =
-                "text-sm font-semibold text-success mt-1";
-            }
-          }
-          if (termInfoLockout) {
-            if (result.is_locked) {
-              termInfoLockout.innerHTML =
-                '<span class="badge badge-error badge-sm text-[10px] font-sans font-bold select-none flex items-center gap-1"><svg class="size-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg> BLOQUEADA</span>';
-            } else {
-              termInfoLockout.innerHTML =
-                '<span class="badge badge-success badge-sm text-[10px] font-sans font-bold select-none flex items-center gap-1"><svg class="size-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Activa</span>';
-            }
-          }
-          if (termInfoExpires)
-            termInfoExpires.textContent = result.account_expires || "Nunca";
+        currentUsers = mappedResults;
+        displayResults(currentUsers);
+        if (resultsTitle?.firstChild)
+          resultsTitle.firstChild.textContent = "Resultados ";
+        loadingIndicator?.classList.add("hidden");
+        if (statusText)
+          statusText.textContent = `${mappedResults.length} encontrados`;
+      } catch (error) {
+        console.error(error);
+        loadingIndicator?.classList.add("hidden");
+        if (statusText)
+          statusText.textContent = "Error al conectar con la base de datos";
+      }
+    }, 300);
+  }
 
-          currentLdapGroups = result.groups || [];
-          if (terminalGroupsCount) {
-            terminalGroupsCount.textContent = `${currentLdapGroups.length} ${currentLdapGroups.length === 1 ? "grupo" : "grupos"}`;
-          }
+  // Funciones del modal de edición
+  function openEditModal(user: any) {
+    if (
+      !editModal ||
+      !editFullname ||
+      !editDni ||
+      !editInterno ||
+      !editTelefono
+    )
+      return;
 
-          updateCategoryCounts(currentLdapGroups);
-          renderGroups(currentLdapGroups);
-        } else {
-          const errorMsg = "Error: " + (result.error || "Ocurrió un problema.");
-          terminalOutput.textContent = errorMsg;
-          if (terminalGroupsList) {
-            terminalGroupsList.innerHTML = `<div class="text-error text-center py-4 text-xs font-sans col-span-full">${errorMsg}</div>`;
+    editFullname.value = user.nombre || "";
+    editDni.value = user.dni || "";
+    editInterno.value = user.interno || "";
+    editTelefono.value = user.telefono || "";
+
+    editModal.showModal();
+  }
+
+  function closeEditModal() {
+    if (editModal) {
+      editModal.close();
+    }
+    if (editForm) {
+      editForm.reset();
+    }
+  }
+
+  closeEditModalBtn?.addEventListener("click", closeEditModal);
+
+  editForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (
+      !editDni ||
+      !editInterno ||
+      !editTelefono ||
+      !saveEditBtn ||
+      !saveBtnSpinner
+    )
+      return;
+
+    const dni = editDni.value;
+    const interno = editInterno.value.trim();
+    const telefono = editTelefono.value.trim();
+
+    saveEditBtn.disabled = true;
+    saveBtnSpinner.classList.remove("hidden");
+
+    try {
+      const token = "mda_live_bf9d7a2e8c5643190ab76d2e1f48c590";
+      const url = `http://mda.correo.local/api_mda_find_extension/get_users.php`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": token,
+        },
+        body: JSON.stringify({ dni, interno, telefono }),
+      });
+
+      if (!response.ok) throw new Error("Error en la respuesta del servidor.");
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Actualizar el estado local en la grilla actual
+        const idx = currentUsers.findIndex((u) => u.dni === dni);
+        if (idx !== -1) {
+          currentUsers[idx].interno = interno || null;
+          currentUsers[idx].telefono = telefono || null;
+        }
+
+        displayResults(currentUsers);
+
+        // Mostrar feedback visual
+        if (statusText) {
+          const originalText = statusText.textContent;
+          statusText.innerHTML =
+            '<span class="text-success font-semibold flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="size-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> ¡Cambios guardados con éxito!</span>';
+          setTimeout(() => {
+            if (statusText) statusText.textContent = originalText;
+          }, 3000);
+        }
+
+        closeEditModal();
+      } else {
+        alert(
+          "Error: " + (result.error || "No se pudo actualizar el contacto."),
+        );
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Error al conectar con la base de datos.");
+    } finally {
+      saveEditBtn.disabled = false;
+      saveBtnSpinner.classList.add("hidden");
+    }
+  });
+
+  // Funciones del modal de terminal
+  async function openTerminalModal(username: string) {
+    if (
+      !terminalModal ||
+      !terminalUserTitle ||
+      !terminalCommandUsername ||
+      !terminalOutput ||
+      !terminalLoading
+    )
+      return;
+
+    // Restablecer por defecto a la vista de panel organizado
+    tabPanelBtn?.click();
+    if (terminalGroupsSearch) {
+      terminalGroupsSearch.value = "";
+      clearGroupSearch?.classList.add("hidden");
+    }
+    currentSelectedCategory = "all";
+
+    // Restablecer estilos de botones de categoría
+    const categoryButtons = document.querySelectorAll(
+      "#group-category-filters [data-filter]",
+    );
+    categoryButtons.forEach((b) => {
+      b.className =
+        "btn btn-xs rounded-full cursor-pointer transition-all bg-base-200 text-base-content/60 border border-base-300 hover:bg-base-300 hover:text-base-content font-sans font-bold gap-1";
+    });
+    const allBtn = document.querySelector(
+      '#group-category-filters [data-filter="all"]',
+    );
+    if (allBtn) {
+      allBtn.className =
+        "btn btn-xs rounded-full cursor-pointer transition-all bg-primary/20 text-primary border-primary/30 hover:bg-primary/30 font-sans font-bold gap-1";
+    }
+
+    terminalUserTitle.textContent = username;
+    terminalCommandUsername.textContent = username;
+    terminalOutput.textContent = "";
+
+    // Resetear campos del panel organizado
+    if (termInfoUsername) termInfoUsername.textContent = username;
+    if (termInfoFullname) termInfoFullname.textContent = "-";
+    if (termInfoTitle) termInfoTitle.textContent = "-";
+    if (termInfoEmployeeNumber) termInfoEmployeeNumber.textContent = "-";
+    if (termInfoOffice) termInfoOffice.textContent = "-";
+    if (termInfoManager) termInfoManager.textContent = "-";
+    if (btnSearchManager) btnSearchManager.classList.add("hidden");
+    if (termInfoPwdLastSet) termInfoPwdLastSet.textContent = "-";
+    if (termInfoBadPwdCount) {
+      termInfoBadPwdCount.textContent = "-";
+      termInfoBadPwdCount.className =
+        "text-sm font-semibold text-neutral-200 mt-1";
+    }
+    if (termInfoLockout)
+      termInfoLockout.innerHTML =
+        '<span class="text-neutral-400 text-xs">-</span>';
+    if (termInfoLastLogon) termInfoLastLogon.textContent = "-";
+    if (termInfoWhenCreated) termInfoWhenCreated.textContent = "-";
+    if (termInfoExpires) termInfoExpires.textContent = "-";
+    if (terminalGroupsCount) terminalGroupsCount.textContent = "0 grupos";
+    if (terminalGroupsList) terminalGroupsList.innerHTML = "";
+    currentLdapGroups = [];
+
+    terminalLoading.classList.remove("hidden");
+    terminalModal.showModal();
+
+    try {
+      const token = "mda_live_bf9d7a2e8c5643190ab76d2e1f48c590";
+      const url = `http://mda.correo.local/api_mda_find_extension/get_users.php?action=net_user&username=${encodeURIComponent(username)}`;
+
+      const response = await fetch(url, {
+        headers: {
+          "X-API-Key": token,
+        },
+      });
+      if (!response.ok)
+        throw new Error("Error en la ejecución del comando en el servidor.");
+      const result = await response.json();
+
+      if (result.status === "success") {
+        terminalOutput.textContent = result.output;
+
+        // Cargar datos estructurados
+        if (termInfoFullname)
+          termInfoFullname.textContent = result.fullname || "No especificado";
+        if (termInfoTitle)
+          termInfoTitle.textContent = result.title || "No especificado";
+        if (termInfoEmployeeNumber)
+          termInfoEmployeeNumber.textContent =
+            result.employee_number || "No especificado";
+        if (termInfoOffice)
+          termInfoOffice.textContent =
+            result.physical_office || "No especificado";
+        if (termInfoManager)
+          termInfoManager.textContent =
+            result.manager_name || "No especificado";
+        if (btnSearchManager) {
+          if (
+            result.manager_name &&
+            result.manager_name !== "No especificado"
+          ) {
+            btnSearchManager.classList.remove("hidden");
+          } else {
+            btnSearchManager.classList.add("hidden");
           }
         }
-      } catch (err: any) {
-        console.error(err);
-        const errorMsg =
-          "Error de conexión: No se pudo conectar con el servidor corporativo.\n" +
-          (err.message || "");
+        if (termInfoLastLogon)
+          termInfoLastLogon.textContent =
+            result.last_logon || "No especificado";
+        if (termInfoWhenCreated)
+          termInfoWhenCreated.textContent =
+            result.when_created || "No especificado";
+
+        // Poblar diagnósticos de seguridad
+        if (termInfoPwdLastSet)
+          termInfoPwdLastSet.textContent =
+            result.pwd_last_set || "No especificado";
+        if (termInfoBadPwdCount) {
+          const badCount =
+            result.bad_pwd_count !== undefined
+              ? Number(result.bad_pwd_count)
+              : 0;
+          termInfoBadPwdCount.textContent = String(badCount);
+          if (badCount > 0) {
+            termInfoBadPwdCount.className = "text-sm font-bold text-error mt-1";
+          } else {
+            termInfoBadPwdCount.className =
+              "text-sm font-semibold text-success mt-1";
+          }
+        }
+        if (termInfoLockout) {
+          if (result.is_locked) {
+            termInfoLockout.innerHTML =
+              '<span class="badge badge-error badge-sm text-xxs font-sans font-bold select-none flex items-center gap-1"><svg class="size-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg> BLOQUEADA</span>';
+          } else {
+            termInfoLockout.innerHTML =
+              '<span class="badge badge-success badge-sm text-xxs font-sans font-bold select-none flex items-center gap-1"><svg class="size-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Activa</span>';
+          }
+        }
+        if (termInfoExpires)
+          termInfoExpires.textContent = result.account_expires || "Nunca";
+
+        currentLdapGroups = result.groups || [];
+        if (terminalGroupsCount) {
+          terminalGroupsCount.textContent = `${currentLdapGroups.length} ${currentLdapGroups.length === 1 ? "grupo" : "grupos"}`;
+        }
+
+        updateCategoryCounts(currentLdapGroups);
+        renderGroups(currentLdapGroups);
+      } else {
+        const errorMsg = "Error: " + (result.error || "Ocurrió un problema.");
         terminalOutput.textContent = errorMsg;
         if (terminalGroupsList) {
-          terminalGroupsList.innerHTML = `<div class="text-error text-center py-4 text-xs font-sans col-span-full">Error al conectar con la red.</div>`;
+          terminalGroupsList.innerHTML = `<div class="text-error text-center py-4 text-xs font-sans col-span-full">${errorMsg}</div>`;
         }
-      } finally {
-        terminalLoading.classList.add("hidden");
       }
+    } catch (err: any) {
+      console.error(err);
+      const errorMsg =
+        "Error de conexión: No se pudo conectar con el servidor corporativo.\n" +
+        (err.message || "");
+      terminalOutput.textContent = errorMsg;
+      if (terminalGroupsList) {
+        terminalGroupsList.innerHTML = `<div class="text-error text-center py-4 text-xs font-sans col-span-full">Error al conectar con la red.</div>`;
+      }
+    } finally {
+      terminalLoading.classList.add("hidden");
     }
+  }
 
-    function getGroupCategory(groupName: string) {
-      const name = groupName.toLowerCase();
-      if (
-        name.includes("admin") ||
-        name.includes("adm_") ||
-        name.includes("security") ||
-        name.includes("seguridad") ||
-        name.includes("domain admins") ||
-        name.includes("administradores")
-      ) {
-        return {
-          key: "seguridad",
-          label: "Seguridad",
-          colorClass:
-            "border-error/20 bg-error/10 text-error hover:bg-error/20",
-          icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
-        };
-      }
-      if (
-        name.includes("mail") ||
-        name.includes("correo") ||
-        name.includes("lista") ||
-        name.includes("distribution") ||
-        name.includes("dl_") ||
-        name.includes("difusion") ||
-        name.includes("difusión")
-      ) {
-        return {
-          key: "correo",
-          label: "Correo",
-          colorClass:
-            "border-success/20 bg-success/10 text-success hover:bg-success/20",
-          icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>`,
-        };
-      }
-      if (
-        name.includes("sistemas") ||
-        name.includes("mda") ||
-        name.includes("soporte") ||
-        name.includes("ti_") ||
-        name.includes("helpdesk") ||
-        name.includes("tecnologia") ||
-        name.includes("tecnología")
-      ) {
-        return {
-          key: "sistemas",
-          label: "Sistemas",
-          colorClass:
-            "border-info/20 bg-info/10 text-info hover:bg-info/20",
-          icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>`,
-        };
-      }
+  function getGroupCategory(groupName: string) {
+    const name = groupName.toLowerCase();
+    if (
+      name.includes("admin") ||
+      name.includes("adm_") ||
+      name.includes("security") ||
+      name.includes("seguridad") ||
+      name.includes("domain admins") ||
+      name.includes("administradores")
+    ) {
       return {
-        key: "otros",
-        label: "Acceso",
-        colorClass:
-          "border-base-300 bg-base-200/50 text-base-content hover:bg-base-200",
-        icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
+        key: "seguridad",
+        label: "Seguridad",
+        colorClass: "border-error/20 bg-error/10 text-error hover:bg-error/20",
+        icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
       };
     }
-
-    function highlightGroupText(text: string, query: string): string {
-      const safeText = escapeHTML(text || "");
-      if (!query || !query.trim()) return safeText;
-      const escaped = query.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-      const regex = new RegExp(`(${escaped})`, "gi");
-      return safeText.replace(
-        regex,
-        '<mark class="bg-amber-200/80 dark:bg-amber-500/40 text-amber-950 dark:text-amber-100 px-0.5 rounded-xs font-semibold">$1</mark>',
-      );
-    }
-
-    function updateCategoryCounts(groupsList: string[]) {
-      let countAll = groupsList.length;
-      let countSeguridad = 0;
-      let countCorreo = 0;
-      let countSistemas = 0;
-      let countOtros = 0;
-
-      groupsList.forEach((group) => {
-        const cat = getGroupCategory(group).key;
-        if (cat === "seguridad") countSeguridad++;
-        else if (cat === "correo") countCorreo++;
-        else if (cat === "sistemas") countSistemas++;
-        else countOtros++;
-      });
-
-      const countAllEl = document.getElementById("count-all");
-      const countSeguridadEl = document.getElementById("count-seguridad");
-      const countCorreoEl = document.getElementById("count-correo");
-      const countSistemasEl = document.getElementById("count-sistemas");
-      const countOtrosEl = document.getElementById("count-otros");
-
-      if (countAllEl) countAllEl.textContent = String(countAll);
-      if (countSeguridadEl)
-        countSeguridadEl.textContent = String(countSeguridad);
-      if (countCorreoEl) countCorreoEl.textContent = String(countCorreo);
-      if (countSistemasEl) countSistemasEl.textContent = String(countSistemas);
-      if (countOtrosEl) countOtrosEl.textContent = String(countOtros);
-    }
-
-    function renderGroups(
-      groupsList: string[],
-      filterText: string = "",
-      category: string = "all",
+    if (
+      name.includes("mail") ||
+      name.includes("correo") ||
+      name.includes("lista") ||
+      name.includes("distribution") ||
+      name.includes("dl_") ||
+      name.includes("difusion") ||
+      name.includes("difusión")
     ) {
-      if (!terminalGroupsList) return;
-      terminalGroupsList.innerHTML = "";
+      return {
+        key: "correo",
+        label: "Correo",
+        colorClass:
+          "border-success/20 bg-success/10 text-success hover:bg-success/20",
+        icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>`,
+      };
+    }
+    if (
+      name.includes("sistemas") ||
+      name.includes("mda") ||
+      name.includes("soporte") ||
+      name.includes("ti_") ||
+      name.includes("helpdesk") ||
+      name.includes("tecnologia") ||
+      name.includes("tecnología")
+    ) {
+      return {
+        key: "sistemas",
+        label: "Sistemas",
+        colorClass: "border-info/20 bg-info/10 text-info hover:bg-info/20",
+        icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>`,
+      };
+    }
+    return {
+      key: "otros",
+      label: "Acceso",
+      colorClass:
+        "border-base-300 bg-base-200/50 text-base-content hover:bg-base-200",
+      icon: `<svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
+    };
+  }
 
-      // Aplicar el diseño según la vista seleccionada
-      if (currentViewMode === "grid") {
-        terminalGroupsList.className =
-          "flex-1 bg-base-200/30 border border-base-300 p-3.5 rounded-lg overflow-y-auto max-h-[380px] min-h-[380px] scrollbar-thin transition-all grid grid-cols-1 sm:grid-cols-2 gap-2";
-      } else {
-        terminalGroupsList.className =
-          "flex-1 bg-base-200/30 border border-base-300 p-3.5 rounded-lg overflow-y-auto max-h-[380px] min-h-[380px] scrollbar-thin transition-all flex flex-col gap-2";
-      }
+  function highlightGroupText(text: string, query: string): string {
+    const safeText = escapeHTML(text || "");
+    if (!query || !query.trim()) return safeText;
+    const escaped = query.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+    const regex = new RegExp(`(${escaped})`, "gi");
+    return safeText.replace(
+      regex,
+      '<mark class="bg-amber-200/80 dark:bg-amber-500/40 text-amber-950 dark:text-amber-100 px-0.5 rounded-xs font-semibold">$1</mark>',
+    );
+  }
 
-      const filtered = groupsList.filter((group) => {
-        const matchesSearch = group
-          .toLowerCase()
-          .includes(filterText.toLowerCase());
-        if (!matchesSearch) return false;
+  function updateCategoryCounts(groupsList: string[]) {
+    let countAll = groupsList.length;
+    let countSeguridad = 0;
+    let countCorreo = 0;
+    let countSistemas = 0;
+    let countOtros = 0;
 
-        if (category === "all") return true;
-        const cat = getGroupCategory(group).key;
-        return cat === category;
-      });
+    groupsList.forEach((group) => {
+      const cat = getGroupCategory(group).key;
+      if (cat === "seguridad") countSeguridad++;
+      else if (cat === "correo") countCorreo++;
+      else if (cat === "sistemas") countSistemas++;
+      else countOtros++;
+    });
 
-      if (filtered.length === 0) {
-        terminalGroupsList.innerHTML = `<div class="text-base-content/50 text-center py-8 text-xs font-sans col-span-full">No se encontraron grupos${filterText ? " que coincidan" : ""}</div>`;
-        return;
-      }
+    const countAllEl = document.getElementById("count-all");
+    const countSeguridadEl = document.getElementById("count-seguridad");
+    const countCorreoEl = document.getElementById("count-correo");
+    const countSistemasEl = document.getElementById("count-sistemas");
+    const countOtrosEl = document.getElementById("count-otros");
 
-      const fragment = document.createDocumentFragment();
-      filtered.forEach((group) => {
-        const categoryInfo = getGroupCategory(group);
-        const item = document.createElement("div");
-        item.className = `flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg border transition-all font-sans relative group ${categoryInfo.colorClass}`;
+    if (countAllEl) countAllEl.textContent = String(countAll);
+    if (countSeguridadEl) countSeguridadEl.textContent = String(countSeguridad);
+    if (countCorreoEl) countCorreoEl.textContent = String(countCorreo);
+    if (countSistemasEl) countSistemasEl.textContent = String(countSistemas);
+    if (countOtrosEl) countOtrosEl.textContent = String(countOtros);
+  }
 
-        item.innerHTML = `
+  function renderGroups(
+    groupsList: string[],
+    filterText: string = "",
+    category: string = "all",
+  ) {
+    if (!terminalGroupsList) return;
+    terminalGroupsList.innerHTML = "";
+
+    // Aplicar el diseño según la vista seleccionada
+    if (currentViewMode === "grid") {
+      terminalGroupsList.className =
+        "flex-1 bg-base-200/30 border border-base-300 p-3.5 rounded-lg overflow-y-auto max-h-[380px] min-h-[380px] scrollbar-thin transition-all grid grid-cols-1 sm:grid-cols-2 gap-2";
+    } else {
+      terminalGroupsList.className =
+        "flex-1 bg-base-200/30 border border-base-300 p-3.5 rounded-lg overflow-y-auto max-h-[380px] min-h-[380px] scrollbar-thin transition-all flex flex-col gap-2";
+    }
+
+    const filtered = groupsList.filter((group) => {
+      const matchesSearch = group
+        .toLowerCase()
+        .includes(filterText.toLowerCase());
+      if (!matchesSearch) return false;
+
+      if (category === "all") return true;
+      const cat = getGroupCategory(group).key;
+      return cat === category;
+    });
+
+    if (filtered.length === 0) {
+      terminalGroupsList.innerHTML = `<div class="text-base-content/50 text-center py-8 text-xs font-sans col-span-full">No se encontraron grupos${filterText ? " que coincidan" : ""}</div>`;
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    filtered.forEach((group) => {
+      const categoryInfo = getGroupCategory(group);
+      const item = document.createElement("div");
+      item.className = `flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg border transition-all font-sans relative group ${categoryInfo.colorClass}`;
+
+      item.innerHTML = `
           <div class="flex items-center gap-2 min-w-0 flex-1">
             <span class="size-4 shrink-0 select-none flex items-center justify-center">${categoryInfo.icon}</span>
-            <span class="font-semibold truncate text-[11px] select-all text-base-content leading-none" title="${group}">${highlightGroupText(group, filterText)}</span>
+            <span class="font-semibold truncate text-small select-all text-base-content leading-none" title="${group}">${highlightGroupText(group, filterText)}</span>
           </div>
           <button type="button" class="btn btn-ghost btn-xs text-neutral-400 hover:text-primary transition-all p-1 cursor-pointer opacity-0 group-hover:opacity-100 shrink-0" data-copy-group="${group}" title="Copiar nombre de grupo">
             <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1016,259 +995,261 @@ const cleanBase = base.endsWith("/") ? base : base + "/";
             </svg>
           </button>
         `;
-        fragment.appendChild(item);
-      });
-      terminalGroupsList.appendChild(fragment);
+      fragment.appendChild(item);
+    });
+    terminalGroupsList.appendChild(fragment);
+  }
+
+  function closeTerminalModal() {
+    if (terminalModal) {
+      terminalModal.close();
     }
+  }
 
-    function closeTerminalModal() {
-      if (terminalModal) {
-        terminalModal.close();
-      }
-    }
-
-    // Copiar campo de detalles de red individual
-    document.querySelectorAll("[data-copy-field]").forEach((btn) => {
-      btn.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        const fieldId = btn.getAttribute("data-copy-field");
-        if (!fieldId) return;
-        const targetEl = document.getElementById(fieldId);
-        const text = targetEl?.textContent || "";
-        if (!text || text === "-") return;
-
-        const copied = await copyText(text);
-        if (copied) {
-          const originalHTML = btn.innerHTML;
-          btn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          `;
-          btn.classList.add("text-success");
-          setTimeout(() => {
-            btn.innerHTML = originalHTML;
-            btn.classList.remove("text-success");
-          }, 1500);
-        }
-      });
-    });
-
-    // Copiar grupo individual desde el listado delegado
-    terminalGroupsList?.addEventListener("click", async (e) => {
-      const target = e.target as HTMLElement;
-      const copyBtn = target.closest(
-        "[data-copy-group]",
-      ) as HTMLButtonElement | null;
-      if (copyBtn) {
-        e.stopPropagation();
-        const groupName = copyBtn.getAttribute("data-copy-group") || "";
-        if (!groupName) return;
-
-        const copied = await copyText(groupName);
-        if (copied) {
-          const originalHTML = copyBtn.innerHTML;
-          copyBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          `;
-          copyBtn.classList.add("text-success");
-          setTimeout(() => {
-            copyBtn.innerHTML = originalHTML;
-            copyBtn.classList.remove("text-success");
-          }, 1500);
-        }
-      }
-    });
-
-    // Copiar todos los grupos filtrados en formato lista limpia
-    copyAllGroupsBtn?.addEventListener("click", async () => {
-      if (currentLdapGroups.length === 0) return;
-
-      const filterText = terminalGroupsSearch?.value || "";
-      const filtered = currentLdapGroups.filter((group) => {
-        const matchesSearch = group
-          .toLowerCase()
-          .includes(filterText.toLowerCase());
-        if (!matchesSearch) return false;
-
-        if (currentSelectedCategory === "all") return true;
-        return getGroupCategory(group).key === currentSelectedCategory;
-      });
-
-      if (filtered.length === 0) return;
-
-      const textToCopy = filtered.join("\n");
-      const copied = await copyText(textToCopy);
-      if (copied) {
-        const originalText = copyAllGroupsBtn.innerHTML;
-        copyAllGroupsBtn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" class="size-3 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-          <span class="text-success">¡Copiados!</span>
-        `;
-        setTimeout(() => {
-          copyAllGroupsBtn.innerHTML = originalText;
-        }, 1500);
-      }
-    });
-
-    // Conmutadores de vista Grilla/Lista
-    btnViewGrid?.addEventListener("click", () => {
-      currentViewMode = "grid";
-      btnViewGrid.className =
-        "btn btn-xs join-item px-2.5 text-primary bg-base-300 cursor-pointer";
-      if (btnViewList)
-        btnViewList.className =
-          "btn btn-xs join-item px-2.5 text-base-content/50 hover:text-base-content bg-base-100 cursor-pointer";
-      renderGroups(
-        currentLdapGroups,
-        terminalGroupsSearch?.value || "",
-        currentSelectedCategory,
-      );
-    });
-
-    btnViewList?.addEventListener("click", () => {
-      currentViewMode = "list";
-      if (btnViewGrid)
-        btnViewGrid.className =
-          "btn btn-xs join-item px-2.5 text-base-content/50 hover:text-base-content bg-base-100 cursor-pointer";
-      btnViewList.className =
-        "btn btn-xs join-item px-2.5 text-primary bg-base-300 cursor-pointer";
-      renderGroups(
-        currentLdapGroups,
-        terminalGroupsSearch?.value || "",
-        currentSelectedCategory,
-      );
-    });
-
-    // Filtros rápidos de categoría
-    const categoryButtons = document.querySelectorAll(
-      "#group-category-filters [data-filter]",
-    );
-    categoryButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        categoryButtons.forEach((b) => {
-          b.className =
-            "btn btn-xs rounded-full cursor-pointer transition-all bg-base-200 text-base-content/60 border border-base-300 hover:bg-base-300 hover:text-base-content font-sans font-bold gap-1";
-        });
-
-        const filter = btn.getAttribute("data-filter") || "all";
-        currentSelectedCategory = filter;
-
-        if (filter === "all") {
-          btn.className =
-            "btn btn-xs rounded-full cursor-pointer transition-all bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 font-sans font-bold gap-1";
-        } else if (filter === "seguridad") {
-          btn.className =
-            "btn btn-xs rounded-full cursor-pointer transition-all bg-error/20 text-error border border-error/30 hover:bg-error/30 font-sans font-bold gap-1";
-        } else if (filter === "correo") {
-          btn.className =
-            "btn btn-xs rounded-full cursor-pointer transition-all bg-success/20 text-success border border-success/30 hover:bg-success/30 font-sans font-bold gap-1";
-        } else if (filter === "sistemas") {
-          btn.className =
-            "btn btn-xs rounded-full cursor-pointer transition-all bg-info/20 text-info border border-info/30 hover:bg-info/30 font-sans font-bold gap-1";
-        } else if (filter === "otros") {
-          btn.className =
-            "btn btn-xs rounded-full cursor-pointer transition-all bg-base-300 text-base-content border border-base-content/30 hover:bg-base-300 font-sans font-bold gap-1";
-        }
-
-        renderGroups(
-          currentLdapGroups,
-          terminalGroupsSearch?.value || "",
-          currentSelectedCategory,
-        );
-      });
-    });
-
-    // Filtro de búsqueda de grupos e icono limpiar
-    clearGroupSearch?.addEventListener("click", () => {
-      if (terminalGroupsSearch) {
-        terminalGroupsSearch.value = "";
-        clearGroupSearch.classList.add("hidden");
-        renderGroups(currentLdapGroups, "", currentSelectedCategory);
-      }
-    });
-
-    terminalGroupsSearch?.addEventListener("input", (e) => {
-      const val = (e.target as HTMLInputElement).value || "";
-      if (val) {
-        clearGroupSearch?.classList.remove("hidden");
-      } else {
-        clearGroupSearch?.classList.add("hidden");
-      }
-      renderGroups(currentLdapGroups, val, currentSelectedCategory);
-    });
-
-    // Control de pestañas (Tabs)
-    tabPanelBtn?.addEventListener("click", () => {
-      tabPanelBtn.classList.add("border-primary", "text-primary");
-      tabPanelBtn.classList.remove("border-transparent", "text-base-content/60");
-      tabConsoleBtn?.classList.remove("border-primary", "text-primary");
-      tabConsoleBtn?.classList.add("border-transparent", "text-base-content/60");
-
-      viewPanel?.classList.remove("hidden");
-      viewConsole?.classList.add("hidden");
-    });
-
-    tabConsoleBtn?.addEventListener("click", () => {
-      tabConsoleBtn.classList.add("border-primary", "text-primary");
-      tabConsoleBtn.classList.remove("border-transparent", "text-base-content/60");
-      tabPanelBtn?.classList.remove("border-primary", "text-primary");
-      tabPanelBtn?.classList.add("border-transparent", "text-base-content/60");
-
-      viewConsole?.classList.remove("hidden");
-      viewPanel?.classList.add("hidden");
-    });
-
-    closeTerminalBtn?.addEventListener("click", closeTerminalModal);
-    closeTerminalFooterBtn?.addEventListener("click", closeTerminalModal);
-
-    copyTerminalBtn?.addEventListener("click", async () => {
-      if (!terminalOutput || !copyTerminalBtn) return;
-      const text = terminalOutput.textContent || "";
-      if (!text) return;
+  // Copiar campo de detalles de red individual
+  document.querySelectorAll("[data-copy-field]").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const fieldId = btn.getAttribute("data-copy-field");
+      if (!fieldId) return;
+      const targetEl = document.getElementById(fieldId);
+      const text = targetEl?.textContent || "";
+      if (!text || text === "-") return;
 
       const copied = await copyText(text);
       if (copied) {
-        const originalIcon = copyTerminalBtn.innerHTML;
-        copyTerminalBtn.innerHTML =
-          '<svg xmlns="http://www.w3.org/2000/svg" class="size-3 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Copiado';
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          `;
+        btn.classList.add("text-success");
         setTimeout(() => {
-          if (copyTerminalBtn) copyTerminalBtn.innerHTML = originalIcon;
-        }, 2000);
+          btn.innerHTML = originalHTML;
+          btn.classList.remove("text-success");
+        }, 1500);
       }
     });
+  });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement?.tagName !== "INPUT") {
-        e.preventDefault();
-        searchInput?.focus();
+  // Copiar grupo individual desde el listado delegado
+  terminalGroupsList?.addEventListener("click", async (e) => {
+    const target = e.target as HTMLElement;
+    const copyBtn = target.closest(
+      "[data-copy-group]",
+    ) as HTMLButtonElement | null;
+    if (copyBtn) {
+      e.stopPropagation();
+      const groupName = copyBtn.getAttribute("data-copy-group") || "";
+      if (!groupName) return;
+
+      const copied = await copyText(groupName);
+      if (copied) {
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          `;
+        copyBtn.classList.add("text-success");
+        setTimeout(() => {
+          copyBtn.innerHTML = originalHTML;
+          copyBtn.classList.remove("text-success");
+        }, 1500);
       }
+    }
+  });
+
+  // Copiar todos los grupos filtrados en formato lista limpia
+  copyAllGroupsBtn?.addEventListener("click", async () => {
+    if (currentLdapGroups.length === 0) return;
+
+    const filterText = terminalGroupsSearch?.value || "";
+    const filtered = currentLdapGroups.filter((group) => {
+      const matchesSearch = group
+        .toLowerCase()
+        .includes(filterText.toLowerCase());
+      if (!matchesSearch) return false;
+
+      if (currentSelectedCategory === "all") return true;
+      return getGroupCategory(group).key === currentSelectedCategory;
     });
 
-    searchInput?.addEventListener("input", handleSearch);
-    clearSearchBtn?.addEventListener("click", () => {
-      if (searchInput) searchInput.value = "";
-      currentUsers = [];
-      displayResults([]);
-    });
+    if (filtered.length === 0) return;
 
-    btnSearchManager?.addEventListener("click", () => {
-      const managerName = termInfoManager?.textContent;
-      if (
-        managerName &&
-        managerName !== "-" &&
-        managerName !== "No especificado"
-      ) {
-        closeTerminalModal();
-        if (searchInput) {
-          searchInput.value = managerName;
-          handleSearch();
-        }
+    const textToCopy = filtered.join("\n");
+    const copied = await copyText(textToCopy);
+    if (copied) {
+      const originalText = copyAllGroupsBtn.innerHTML;
+      copyAllGroupsBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-3 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+          <span class="text-success">¡Copiados!</span>
+        `;
+      setTimeout(() => {
+        copyAllGroupsBtn.innerHTML = originalText;
+      }, 1500);
+    }
+  });
+
+  // Conmutadores de vista Grilla/Lista
+  btnViewGrid?.addEventListener("click", () => {
+    currentViewMode = "grid";
+    btnViewGrid.className =
+      "btn btn-xs join-item px-2.5 text-primary bg-base-300 cursor-pointer";
+    if (btnViewList)
+      btnViewList.className =
+        "btn btn-xs join-item px-2.5 text-base-content/50 hover:text-base-content bg-base-100 cursor-pointer";
+    renderGroups(
+      currentLdapGroups,
+      terminalGroupsSearch?.value || "",
+      currentSelectedCategory,
+    );
+  });
+
+  btnViewList?.addEventListener("click", () => {
+    currentViewMode = "list";
+    if (btnViewGrid)
+      btnViewGrid.className =
+        "btn btn-xs join-item px-2.5 text-base-content/50 hover:text-base-content bg-base-100 cursor-pointer";
+    btnViewList.className =
+      "btn btn-xs join-item px-2.5 text-primary bg-base-300 cursor-pointer";
+    renderGroups(
+      currentLdapGroups,
+      terminalGroupsSearch?.value || "",
+      currentSelectedCategory,
+    );
+  });
+
+  // Filtros rápidos de categoría
+  const categoryButtons = document.querySelectorAll(
+    "#group-category-filters [data-filter]",
+  );
+  categoryButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      categoryButtons.forEach((b) => {
+        b.className =
+          "btn btn-xs rounded-full cursor-pointer transition-all bg-base-200 text-base-content/60 border border-base-300 hover:bg-base-300 hover:text-base-content font-sans font-bold gap-1";
+      });
+
+      const filter = btn.getAttribute("data-filter") || "all";
+      currentSelectedCategory = filter;
+
+      if (filter === "all") {
+        btn.className =
+          "btn btn-xs rounded-full cursor-pointer transition-all bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 font-sans font-bold gap-1";
+      } else if (filter === "seguridad") {
+        btn.className =
+          "btn btn-xs rounded-full cursor-pointer transition-all bg-error/20 text-error border border-error/30 hover:bg-error/30 font-sans font-bold gap-1";
+      } else if (filter === "correo") {
+        btn.className =
+          "btn btn-xs rounded-full cursor-pointer transition-all bg-success/20 text-success border border-success/30 hover:bg-success/30 font-sans font-bold gap-1";
+      } else if (filter === "sistemas") {
+        btn.className =
+          "btn btn-xs rounded-full cursor-pointer transition-all bg-info/20 text-info border border-info/30 hover:bg-info/30 font-sans font-bold gap-1";
+      } else if (filter === "otros") {
+        btn.className =
+          "btn btn-xs rounded-full cursor-pointer transition-all bg-base-300 text-base-content border border-base-content/30 hover:bg-base-300 font-sans font-bold gap-1";
       }
+
+      renderGroups(
+        currentLdapGroups,
+        terminalGroupsSearch?.value || "",
+        currentSelectedCategory,
+      );
     });
+  });
 
-    init();
-  </script>
+  // Filtro de búsqueda de grupos e icono limpiar
+  clearGroupSearch?.addEventListener("click", () => {
+    if (terminalGroupsSearch) {
+      terminalGroupsSearch.value = "";
+      clearGroupSearch.classList.add("hidden");
+      renderGroups(currentLdapGroups, "", currentSelectedCategory);
+    }
+  });
 
+  terminalGroupsSearch?.addEventListener("input", (e) => {
+    const val = (e.target as HTMLInputElement).value || "";
+    if (val) {
+      clearGroupSearch?.classList.remove("hidden");
+    } else {
+      clearGroupSearch?.classList.add("hidden");
+    }
+    renderGroups(currentLdapGroups, val, currentSelectedCategory);
+  });
+
+  // Control de pestañas (Tabs)
+  tabPanelBtn?.addEventListener("click", () => {
+    tabPanelBtn.classList.add("border-primary", "text-primary");
+    tabPanelBtn.classList.remove("border-transparent", "text-base-content/60");
+    tabConsoleBtn?.classList.remove("border-primary", "text-primary");
+    tabConsoleBtn?.classList.add("border-transparent", "text-base-content/60");
+
+    viewPanel?.classList.remove("hidden");
+    viewConsole?.classList.add("hidden");
+  });
+
+  tabConsoleBtn?.addEventListener("click", () => {
+    tabConsoleBtn.classList.add("border-primary", "text-primary");
+    tabConsoleBtn.classList.remove(
+      "border-transparent",
+      "text-base-content/60",
+    );
+    tabPanelBtn?.classList.remove("border-primary", "text-primary");
+    tabPanelBtn?.classList.add("border-transparent", "text-base-content/60");
+
+    viewConsole?.classList.remove("hidden");
+    viewPanel?.classList.add("hidden");
+  });
+
+  closeTerminalBtn?.addEventListener("click", closeTerminalModal);
+  closeTerminalFooterBtn?.addEventListener("click", closeTerminalModal);
+
+  copyTerminalBtn?.addEventListener("click", async () => {
+    if (!terminalOutput || !copyTerminalBtn) return;
+    const text = terminalOutput.textContent || "";
+    if (!text) return;
+
+    const copied = await copyText(text);
+    if (copied) {
+      const originalIcon = copyTerminalBtn.innerHTML;
+      copyTerminalBtn.innerHTML =
+        '<svg xmlns="http://www.w3.org/2000/svg" class="size-3 text-success animate-in zoom-in duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Copiado';
+      setTimeout(() => {
+        if (copyTerminalBtn) copyTerminalBtn.innerHTML = originalIcon;
+      }, 2000);
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement?.tagName !== "INPUT") {
+      e.preventDefault();
+      searchInput?.focus();
+    }
+  });
+
+  searchInput?.addEventListener("input", handleSearch);
+  clearSearchBtn?.addEventListener("click", () => {
+    if (searchInput) searchInput.value = "";
+    currentUsers = [];
+    displayResults([]);
+  });
+
+  btnSearchManager?.addEventListener("click", () => {
+    const managerName = termInfoManager?.textContent;
+    if (
+      managerName &&
+      managerName !== "-" &&
+      managerName !== "No especificado"
+    ) {
+      closeTerminalModal();
+      if (searchInput) {
+        searchInput.value = managerName;
+        handleSearch();
+      }
+    }
+  });
+
+  init();
+</script>
