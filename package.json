@@ -52,5 +52,9 @@
     "drizzle-kit": "^0.31.10",
     "glob": "^13.0.6",
     "playwright": "^1.59.1"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1",
+    "yaml": "^2.3.0"
   }
 }
