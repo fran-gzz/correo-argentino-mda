@@ -81,6 +81,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const role = (currentUser.role || "").toLowerCase().trim();
 
+  console.log("Middleware Auth Check:", { relativePath, role, hasPerm: hasPermission(relativePath, role), userId: currentUser.id });
+
   if (!hasPermission(relativePath, role)) {
     if (currentUser.id !== 0) {
       return redirect(resolveUrl(`/?toast_msg=${encodeURIComponent("Acceso no autorizado")}&toast_type=error`));
