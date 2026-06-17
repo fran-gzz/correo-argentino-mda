@@ -23,7 +23,7 @@ export const matchesSearchQuery = (
     return true;
   }
 
-  return values.some((value) =>
+  return (values || []).some((value) =>
     normalizeSearchValue(value).includes(normalizedQuery),
   );
 };
@@ -94,10 +94,11 @@ export const highlightSearchTarget = (
   element: HTMLElement,
   query: SearchValue,
 ): void => {
+  if (!element) return;
   const originalText =
-    element.dataset.originalText ?? element.textContent ?? "";
+    element.dataset?.originalText ?? element.textContent ?? "";
 
-  if (!element.dataset.originalText) {
+  if (!element.dataset?.originalText) {
     element.dataset.originalText = originalText;
   }
 
@@ -135,6 +136,7 @@ export const highlightSearchTargets = (
   query: SearchValue,
   selector = "[data-highlight-target]",
 ): void => {
+  if (!root) return;
   const targets = Array.from(root.querySelectorAll<HTMLElement>(selector));
 
   targets.forEach((target) => {

@@ -90,14 +90,14 @@ const rowIcons: Record<
     />
 
     <div class="flex flex-col gap-1 w-full">
-      <span class="text-wrap text-sm text-base-content">
+      <span class="text-wrap text-sm text-base-content" data-highlight-target>
         {terminal.manufacturer}
       </span>
-      <span class="font-medium text-xs text-base-content">
+      <span class="font-medium text-xs text-base-content" data-highlight-target>
         {terminal.model}
       </span>
       <span class="truncate font-mono text-xs text-base-content/50">
-        SN: {terminal.serial}
+        SN: <span data-highlight-target>{terminal.serial}</span>
       </span>
       <span class="truncate text-xs text-base-content/70">
         RAM:{" "}
