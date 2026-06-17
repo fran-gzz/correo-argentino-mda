@@ -134,20 +134,24 @@ const DIRECT_MAP: Record<number, string> = {
   3058: "UP Nº 2 - EMBAJADOR MARTINI"
 };
 
-export function normalizeName(id: number, name: string): string {
-  if (DIRECT_MAP[id]) {
-    return DIRECT_MAP[id];
-  }
-  let normalized = name;
+export function normalizeString(val: string): string {
+  let normalized = val;
   for (const [mojibake, correct] of Object.entries(SUB_MAP)) {
     normalized = normalized.replaceAll(mojibake, correct);
   }
   return normalized;
 }
 
-export function normalizeField(id: number, val: string | null | undefined): string | null {
+export function normalizeName(id: number, name: string): string {
+  if (DIRECT_MAP[id]) {
+    return DIRECT_MAP[id];
+  }
+  return normalizeString(name);
+}
+
+export function normalizeField(val: string | null | undefined): string | null {
   if (!val) return null;
-  const clean = normalizeName(id, val);
+  const clean = normalizeString(val);
   return clean.toUpperCase();
 }
 
@@ -194,12 +198,12 @@ async function run() {
   let skippedCount = 0;
 
   for (const office of allOffices) {
-    const nextName = normalizeField(office.id, office.name) ?? "";
-    const nextAddress = normalizeField(office.id, office.address);
-    const nextStreet = normalizeField(office.id, office.street);
-    const nextLocality = normalizeField(office.id, office.locality);
-    const nextCounty = normalizeField(office.id, office.county);
-    const nextZone = normalizeField(office.id, office.zone);
+    const nextName = normalizeName(office.id, office.name).toUpperCase();
+    const nextAddress = normalizeField(office.address);
+    const nextStreet = normalizeField(office.street);
+    const nextLocality = normalizeField(office.locality);
+    const nextCounty = normalizeField(office.county);
+    const nextZone = normalizeField(office.zone);
 
     const nextSearchableText = normalizeSearchValue(
       [office.code, nextName, nextLocality, office.parentNis, nextAddress].filter(Boolean).join(" ")
