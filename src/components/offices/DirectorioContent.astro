@@ -159,6 +159,11 @@ const uniqueRegions = [
   ),
 ].sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
+const allRegions = await db
+  .select()
+  .from(regions)
+  .orderBy(regions.name);
+
 const allZonesRaw = await db
   .select({ zone: offices.zone })
   .from(offices)
@@ -411,42 +416,59 @@ const mainTabs = [
 
   <!-- Contenedor de Mapa -->
   <div id="main-view-map" class="hidden space-y-6 mt-6">
-    <!-- Contenedor de Vistas Internas del Mapa -->
-    <div id="views-wrapper" class="relative min-h-[600px]">
-      <!-- Vista Mapa -->
-      <section
-        id="view-map"
-        class="bg-base-100 rounded-xl shadow-lg border border-base-content/10 overflow-hidden relative z-0 transition-all duration-500"
-      >
-        <div id="map-loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-base-100/80 backdrop-blur-sm" style="display: none;">
-          <span class="loading loading-spinner loading-lg text-primary"></span>
-          <p class="mt-4 font-semibold text-base-content/70">Cargando datos geográficos...</p>
+    <div id="views-wrapper" class="relative">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Vista Mapa -->
+        <section
+          id="view-map"
+          class="flex-1 min-w-0 bg-base-100 rounded-xl shadow-lg border border-base-content/10 overflow-hidden relative z-0 transition-all duration-500"
+        >
+          <div
+            id="map-loading"
+            class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-base-100/80 backdrop-blur-sm"
+            style="display: none;"
+          >
+            <span class="loading loading-spinner loading-lg text-primary"
+            ></span>
+            <p class="mt-4 font-semibold text-base-content/70">
+              Cargando datos geográficos...
+            </p>
+          </div>
+          <div id="mapa-sucursales" class="h-[600px] w-full z-0 relative"></div>
+        </section>
+
+        <!-- Controles del Mapa -->
+        <div id="map-controls" class="flex flex-col gap-6 shrink-0">
+          <div class="flex flex-col gap-3">
+            <label class="label cursor-pointer justify-start gap-3 px-0">
+              <input type="checkbox" class="toggle toggle-primary" checked id="chk-polygons" />
+              <span class="label-text font-medium">Regiones</span>
+            </label>
+            <label class="label cursor-pointer justify-start gap-3 px-0">
+              <input type="checkbox" class="toggle toggle-primary" checked id="chk-labels" />
+              <span class="label-text font-medium">Códigos</span>
+            </label>
+          </div>
+
+          <div class="divider my-0"></div>
+
+          <div id="map-legend" class="flex flex-col gap-1.5">
+            {
+              allRegions.map((r) => (
+                <div
+                  class="legend-item flex items-center gap-3 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-base-200 transition-colors duration-150"
+                  data-region={r.name}
+                >
+                  <span
+                    class="size-4 rounded-sm shrink-0"
+                    style={`background-color: ${r.color}`}
+                  ></span>
+                  <span class="text-sm font-medium">{r.name}</span>
+                </div>
+              ))
+            }
+          </div>
         </div>
-        <div id="mapa-sucursales" class="h-[600px] w-full z-0 relative"></div>
-      </section>
-
-      <!-- Controles del Mapa -->
-      <div id="map-controls" class="flex flex-wrap justify-center gap-3 mt-6">
-        <button id="toggle-polygons" class="btn btn-sm btn-outline gap-2">
-          <Icon name="boxicons:layers-alt-filled" class="size-4 text-primary" />
-          <span id="polygons-text">Ocultar Polígonos</span>
-        </button>
-
-        <button id="toggle-labels" class="btn btn-sm btn-outline gap-2">
-          <Icon
-            name="boxicons:font-family-filled"
-            class="size-4 text-primary"
-          />
-          <span id="labels-text">Ocultar Letras</span>
-        </button>
-
-        <button id="toggle-markers" class="btn btn-sm btn-outline gap-2">
-          <Icon
-            name="boxicons:location-pin-filled"
-            class="size-4 text-primary"
-          />
-          <span id="marker-toggle-text">Ocultar Sucursales</span>
-        </button>
       </div>
     </div>
   </div>
@@ -561,7 +583,11 @@ const mainTabs = [
         detailRow?.classList.toggle("hidden", !newExpanded);
       };
 
-      row.addEventListener("click", toggleRow);
+      row.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("[data-copy-control]")) return;
+        toggleRow();
+      });
       row.addEventListener("keydown", (event) => {
         const shouldToggle = event.key === "Enter" || event.key === " ";
         if (!shouldToggle) return;
@@ -667,12 +693,13 @@ const mainTabs = [
   let map: any = null;
   const initializeMap = async () => {
     if (map) return;
-    
+
     const mapLoading = document.getElementById("map-loading");
     if (mapLoading) mapLoading.style.display = "flex";
 
     let dataMap = [];
     let provincesData = {};
+    const regionColorMap: Record<string, string> = {};
 
     try {
       const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -681,6 +708,9 @@ const mainTabs = [
         const json = await res.json();
         dataMap = json.sucursales || [];
         provincesData = json.provincesByRegion || {};
+        for (const r of json.regions || []) {
+          regionColorMap[r.name] = r.color;
+        }
       }
     } catch (err) {
       console.error("Error fetching map data:", err);
@@ -689,26 +719,11 @@ const mainTabs = [
     }
 
     const provinceToRegion: Record<string, string> = {};
-    const regionsArray: string[] = [];
     for (const [regionName, provs] of Object.entries(provincesData)) {
-      regionsArray.push(regionName);
       for (const p of provs as any[]) {
         provinceToRegion[p.name] = regionName;
       }
     }
-
-    const regionColors = [
-      "#003B71",
-      "#FFCC00",
-      "#2ECC71",
-      "#E74C3C",
-      "#9B59B6",
-      "#F39C12",
-      "#1ABC9C",
-      "#34495E",
-      "#D35400",
-      "#2980B9",
-    ];
 
     const normalizeProvinceName = (geoName: string) => {
       if (geoName === "Tierra del Fuego, Antártida e Islas del Atlántico Sur")
@@ -720,9 +735,7 @@ const mainTabs = [
     const getRegionColor = (provinceName: string) => {
       const dbName = normalizeProvinceName(provinceName);
       const region = provinceToRegion[dbName];
-      if (!region) return "#7F8C8D";
-      const idx = regionsArray.indexOf(region);
-      return regionColors[idx % regionColors.length];
+      return regionColorMap[region] || "#7F8C8D";
     };
 
     const bounds = [
@@ -747,58 +760,29 @@ const mainTabs = [
     const grupoEtiquetas = L.layerGroup().addTo(map);
     const grupoSucursales = L.layerGroup().addTo(map);
 
-    let polygonsVisible = true;
-    let labelsVisible = true;
-    let markersVisible = true;
+    const regionLayers: Record<string, any[]> = {};
 
-    const polyBtn = document.getElementById("toggle-polygons");
-    const polyText = document.getElementById("polygons-text");
-    if (polyBtn) {
-      polyBtn.addEventListener("click", () => {
-        if (polygonsVisible) {
-          map.removeLayer(grupoPoligonos);
-          if (polyText) polyText.textContent = "Mostrar Polígonos";
-        } else {
+    const chkPolygons = document.getElementById("chk-polygons") as HTMLInputElement | null;
+    const chkLabels = document.getElementById("chk-labels") as HTMLInputElement | null;
+
+    if (chkPolygons) {
+      chkPolygons.addEventListener("change", () => {
+        if (chkPolygons.checked) {
           map.addLayer(grupoPoligonos);
-          if (polyText) polyText.textContent = "Ocultar Polígonos";
+        } else {
+          map.removeLayer(grupoPoligonos);
         }
-        polygonsVisible = !polygonsVisible;
-        polyBtn.classList.toggle("btn-active");
       });
     }
 
-    const labelsBtn = document.getElementById("toggle-labels");
-    const labelsText = document.getElementById("labels-text");
-    if (labelsBtn) {
-      labelsBtn.addEventListener("click", () => {
-        if (labelsVisible) {
-          map.removeLayer(grupoEtiquetas);
-          if (labelsText) labelsText.textContent = "Mostrar Letras";
-        } else {
+    if (chkLabels) {
+      chkLabels.addEventListener("change", () => {
+        if (chkLabels.checked) {
           map.addLayer(grupoEtiquetas);
-          if (labelsText) labelsText.textContent = "Ocultar Letras";
           setTimeout(updateLabelsScale, 0);
-        }
-        labelsVisible = !labelsVisible;
-        labelsBtn.classList.toggle("btn-active");
-      });
-    }
-
-    const markerToggleBtn = document.getElementById("toggle-markers");
-    const markerToggleText = document.getElementById("marker-toggle-text");
-    if (markerToggleBtn) {
-      markerToggleBtn.addEventListener("click", () => {
-        if (markersVisible) {
-          map.removeLayer(grupoSucursales);
-          if (markerToggleText)
-            markerToggleText.textContent = "Mostrar Sucursales";
         } else {
-          map.addLayer(grupoSucursales);
-          if (markerToggleText)
-            markerToggleText.textContent = "Ocultar Sucursales";
+          map.removeLayer(grupoEtiquetas);
         }
-        markersVisible = !markersVisible;
-        markerToggleBtn.classList.toggle("btn-active");
       });
     }
 
@@ -888,6 +872,8 @@ const mainTabs = [
             const name = feature.properties.nombre;
             const dbName = normalizeProvinceName(name);
             const regionName = provinceToRegion[dbName] || "Sin región";
+            if (!regionLayers[regionName]) regionLayers[regionName] = [];
+            regionLayers[regionName].push(layer);
             const color = getRegionColor(name);
             layer.bindPopup(
               `<div class='text-center p-1'><b style='color: ${color};'>${name}</b><br/><span class='text-xs text-gray-600'>${regionName}</span></div>`,
@@ -913,6 +899,35 @@ const mainTabs = [
           },
         }).addTo(grupoPoligonos);
         updateLabelsScale();
+
+        const legendEl = document.getElementById("map-legend");
+        if (legendEl) {
+          const highlightRegion = (regionName: string | undefined, highlight: boolean) => {
+            if (!regionName || !regionLayers[regionName]) return;
+            regionLayers[regionName].forEach((layer: any) => {
+              if (highlight) {
+                layer.setStyle({ fillOpacity: 0.45, weight: 2.5 });
+                layer.bringToFront();
+              } else {
+                const name = layer.feature?.properties?.nombre;
+                const opacity = name === "Ciudad Autónoma de Buenos Aires" ? 0.35 : 0.15;
+                layer.setStyle({ fillOpacity: opacity, weight: 1.5 });
+              }
+            });
+          };
+
+          legendEl.addEventListener("mouseover", (e) => {
+            const item = (e.target as HTMLElement).closest(".legend-item");
+            if (!item) return;
+            highlightRegion(item.getAttribute("data-region") ?? undefined, true);
+          });
+
+          legendEl.addEventListener("mouseout", (e) => {
+            const item = (e.target as HTMLElement).closest(".legend-item");
+            if (!item) return;
+            highlightRegion(item.getAttribute("data-region") ?? undefined, false);
+          });
+        }
       });
 
     dataMap.forEach((sucursal: any) => {
@@ -935,6 +950,8 @@ const mainTabs = [
       mainViewMap?.classList.remove("hidden");
       initializeMap().then(() => {
         if (map) map.invalidateSize();
+      }).catch((err) => {
+        console.error("Error initializing map:", err);
       });
     }
   });
