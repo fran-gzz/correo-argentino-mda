@@ -107,6 +107,7 @@ export const providerContacts = sqliteTable("provider_contacts", {
   urls: text("urls", { mode: "json" }).$type<
     { label: string; url: string }[]
   >(),
+  sortOrder: integer("sortOrder").default(0),
 });
 
 export const contacts = sqliteTable("contacts", {
@@ -529,6 +530,7 @@ export const applications = sqliteTable("applications", {
   version: text("version"),
   filePath: text("file_path"),
   iconPath: text("icon_path"),
+  sortOrder: integer("sortOrder").default(0),
 });
 
 export const applicationCategoriesRelations = relations(
