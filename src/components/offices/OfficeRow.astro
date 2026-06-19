@@ -191,21 +191,26 @@ const officeDirectoryRowGridClass = isAllowedAdmin
     {isAllowedAdmin && (
       <div class="min-w-0 flex items-center justify-end gap-1.5">
         <a
-          href={`${import.meta.env.BASE_URL}oficinas/edit/${office.id}`}
+          href={`${import.meta.env.BASE_URL}oficinas/edit/${office.dbId}`}
           class="btn btn-xs btn-outline btn-warning"
           title="Editar"
         >
           <Icon name="boxicons:edit-alt" class="size-3.5" />
         </a>
-        <button
-          class="btn btn-xs btn-outline btn-error btn-delete-office"
-          data-id={office.id}
-          data-name={office.name}
-          data-code={office.code}
-          title="Eliminar"
+        <form
+          method="POST"
+          action={`${import.meta.env.BASE_URL}oficinas/edit/${office.dbId}/eliminar`}
+          class="inline"
+          onsubmit="return confirm('¿Estás seguro de que deseas eliminar la oficina `${office.name}` (${office.code})?');"
         >
-          <Icon name="boxicons:trash" class="size-3.5" />
-        </button>
+          <button
+            type="submit"
+            class="btn btn-xs btn-outline btn-error"
+            title="Eliminar"
+          >
+            <Icon name="boxicons:trash" class="size-3.5" />
+          </button>
+        </form>
       </div>
     )}
   </div>
