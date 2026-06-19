@@ -112,9 +112,9 @@ if (Astro.request.method === "POST") {
         const oldName = contact ? `${contact.provider} - ${contact.service}` : "";
         const newName = `${provider} - ${service}`;
         if (oldName && oldName !== newName) {
-          await logAdminAction(user?.username || 'Sistema', `Actualizó el contacto ID ${id} (de "${oldName}" a "${newName}")`);
+          await logAdminAction(user?.username || 'Sistema', `Actualizó el contacto de "${oldName}" a "${newName}"`);
         } else {
-          await logAdminAction(user?.username || 'Sistema', `Actualizó el contacto "${newName}" (ID ${id})`);
+          await logAdminAction(user?.username || 'Sistema', `Actualizó el contacto "${newName}"`);
         }
       }
 

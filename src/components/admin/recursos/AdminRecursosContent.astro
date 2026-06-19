@@ -162,6 +162,33 @@ links.forEach((link) => {
             })
           )
         }
+
+        {/* Sin categoría */}
+        {(() => {
+          const uncategorizedCount = categoryCounts.get("uncategorized") || 0;
+          if (uncategorizedCount === 0) return null;
+          return (
+            <div
+              class="group flex items-center justify-between px-3 py-2.5 rounded-lg border border-transparent hover:bg-base-200/60 transition-all cursor-pointer select-none category-item"
+              data-category-id="uncategorized"
+              data-category-tone="warning"
+              data-category-title="Sin categoría"
+              data-category-dropzone
+            >
+              <div class="flex items-center gap-2.5 min-w-0 grow">
+                <div class="flex items-center justify-center size-8 rounded-md shrink-0 border border-warning/20 bg-warning/10 text-warning">
+                  <Icon name="boxicons:folder" size={18} />
+                </div>
+                <span class="text-sm font-semibold truncate label-title">Sin categoría</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                <span class="badge badge-sm badge-ghost font-mono count-badge" data-count={uncategorizedCount}>
+                  {uncategorizedCount}
+                </span>
+              </div>
+            </div>
+          );
+        })()}
       </nav>
     </aside>
 
@@ -333,16 +360,16 @@ links.forEach((link) => {
           <label class="label cursor-pointer flex-row items-start justify-start gap-4 p-4 border border-base-300 rounded-lg hover:bg-base-200 transition-colors">
             <input type="radio" name="deleteOption" value="unassign" class="radio radio-primary shrink-0 mt-0.5" checked />
             <div class="flex flex-col gap-1 flex-1 min-w-0">
-              <span class="label-text font-bold text-base leading-tight">Desvincular y conservar enlaces</span>
-              <span class="text-xs text-base-content/60 leading-relaxed">La categoría será eliminada, pero los enlaces se conservarán y se moverán a "Sin categoría".</span>
+              <span class="label-text font-bold text-base leading-tight whitespace-normal">Desvincular y conservar enlaces</span>
+              <span class="text-xs text-base-content/60 leading-relaxed whitespace-normal">La categoría será eliminada, pero los enlaces se conservarán y se moverán a "Sin categoría".</span>
             </div>
           </label>
 
           <label class="label cursor-pointer flex-row items-start justify-start gap-4 p-4 border border-base-300 rounded-lg hover:bg-base-200 transition-colors">
             <input type="radio" name="deleteOption" value="cascade" class="radio radio-error shrink-0 mt-0.5" />
             <div class="flex flex-col gap-1 flex-1 min-w-0">
-              <span class="label-text font-bold text-error text-base leading-tight">Eliminar todo en Cascada</span>
-              <span class="text-xs text-base-content/60 leading-relaxed">La categoría y todos los enlaces que contenga serán eliminados permanentemente. Esta acción no se puede deshacer.</span>
+              <span class="label-text font-bold text-error text-base leading-tight whitespace-normal">Eliminar todo en Cascada</span>
+              <span class="text-xs text-base-content/60 leading-relaxed whitespace-normal">La categoría y todos los enlaces que contenga serán eliminados permanentemente. Esta acción no se puede deshacer.</span>
             </div>
           </label>
         </div>

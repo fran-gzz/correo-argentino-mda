@@ -30,7 +30,7 @@ if (Astro.request.method === "POST") {
           // Also delete their schedule overrides
           await db.delete(schedules).where(eq(schedules.agentName, deleted.name));
           const successMsg = `Operador "${deleted.name}" (${deleted.id}) eliminado con éxito.`;
-          await logAdminAction(Astro.locals.user?.username || 'Sistema', `Eliminó el operador "${deleted.name}" (${deleted.id})`);
+          await logAdminAction(Astro.locals.user?.username || 'Sistema', `Eliminó el operador "${deleted.name}"`);
           return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent(successMsg)}&toast_type=success`);
         } else {
           return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent("El operador indicado no existe.")}&toast_type=error`);

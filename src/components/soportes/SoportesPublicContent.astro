@@ -1,4 +1,5 @@
 ---
+import { Icon } from "astro-icon/components";
 import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
@@ -7,6 +8,12 @@ import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import SearchEmptyState from "@components/ui/SearchEmptyState.astro";
 import { getSupportGuides } from "@lib/supportGuidesQueries";
 import SupportGuideRow from "@components/support-guides/SupportGuideRow.astro";
+import { isAllowed } from "@lib/rolesMatrix";
+
+const user = Astro.locals.user;
+const isAllowedAdmin = user
+  ? isAllowed("Administrar Contenido", user.role)
+  : false;
 
 const searchParams = Astro.url.searchParams;
 const searchFilter = searchParams.get("search") || "";
@@ -31,33 +38,50 @@ const headerGridClass = "grid-cols-[1fr_1.1fr_2.2fr_1.2fr_150px] gap-4";
         class="max-w-2xl"
       />
 
-      <form
-        method="GET"
-        class="flex gap-2 w-full md:w-auto"
-        id="search-form"
-        aria-label="Filtros de guías de soporte"
+      <div
+        class="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full md:w-auto"
       >
-        <SearchInput
-          id="global-search"
-          name="search"
-          value={searchFilter}
-          label="Buscar grupo SM, Invgate, temas o ruta..."
-          placeholder="Buscar por grupo SM, Invgate..."
-          class="w-full md:w-80"
-        />
+        <form
+          method="GET"
+          class="flex gap-2 w-full md:w-auto"
+          id="search-form"
+          aria-label="Filtros de guías de soporte"
+        >
+          <SearchInput
+            id="global-search"
+            name="search"
+            value={searchFilter}
+            label="Buscar grupo SM, Invgate, temas o ruta..."
+            placeholder="Buscar por grupo SM, Invgate..."
+            class="w-full md:w-80"
+          />
+          {
+            searchFilter !== "" && (
+              <a
+                href="/soportes"
+                class="btn btn-soft text-base-content/70 hover:text-base-content"
+                aria-label="Limpiar filtros"
+                title="Limpiar búsqueda"
+              >
+                Limpiar
+              </a>
+            )
+          }
+        </form>
         {
-          searchFilter !== "" && (
+          isAllowedAdmin && (
             <a
-              href="/soportes"
-              class="btn btn-soft text-base-content/70 hover:text-base-content"
-              aria-label="Limpiar filtros"
-              title="Limpiar búsqueda"
+              href={`${import.meta.env.BASE_URL}soportes/create`}
+              class="btn btn-secondary font-semibold shadow-sm gap-2 shrink-0"
+              aria-label="Registrar nuevo soporte"
             >
-              Limpiar
+              <Icon name="boxicons:plus" class="size-4" />
+              <span class="hidden sm:inline">Registrar Soporte</span>
+              <span class="sm:hidden">Registrar</span>
             </a>
           )
         }
-      </form>
+      </div>
     </div>
   </section>
 
@@ -67,7 +91,10 @@ const headerGridClass = "grid-cols-[1fr_1.1fr_2.2fr_1.2fr_150px] gap-4";
       class="bg-base-100 rounded-xl shadow-md overflow-hidden border border-base-content/10"
       id="guides-table-wrapper"
     >
-      <div id="guides-table-container" class:list={[guides.length === 0 && "hidden"]}>
+      <div
+        id="guides-table-container"
+        class:list={[guides.length === 0 && "hidden"]}
+      >
         <DataTable
           ariaLabel="Guía de soportes"
           minWidthClass="min-w-240"
@@ -260,6 +287,68 @@ const headerGridClass = "grid-cols-[1fr_1.1fr_2.2fr_1.2fr_150px] gap-4";
       highlightSearchTargets(item, currentSearch);
     });
   }
+
+  // Handle DELETE support click
+  const wrapper = document.getElementById("guides-table-wrapper");
+  wrapper?.addEventListener("click", async (e) => {
+    const target = e.target as HTMLElement;
+    const deleteBtn = target.closest(
+      ".btn-delete-support",
+    ) as HTMLButtonElement | null;
+    if (!deleteBtn) return;
+
+    const id = deleteBtn.dataset.id;
+    const name = deleteBtn.dataset.name;
+
+    if (!id) return;
+
+    if (
+      !confirm(`¿Estás seguro de que deseas eliminar el soporte "${name}"?`)
+    ) {
+      return;
+    }
+
+    try {
+      const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const res = await fetch(`${baseUrl}/api/soportes/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        (window as any).showToast?.(
+          data.message || "Soporte eliminado con éxito",
+          "alert-success",
+        );
+        const row = deleteBtn.closest("[data-master-detail-sort-item]");
+        row?.remove();
+
+        const remainingRows = wrapper.querySelectorAll(
+          "[data-master-detail-sort-item]",
+        );
+        if (remainingRows.length === 0) {
+          document
+            .getElementById("guides-table-container")
+            ?.classList.add("hidden");
+          document
+            .getElementById("no-results-state")
+            ?.classList.remove("hidden");
+        }
+      } else {
+        (window as any).showToast?.(
+          data.error || "Error al eliminar el soporte",
+          "alert-error",
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      (window as any).showToast?.(
+        "Error de conexión al eliminar el soporte",
+        "alert-error",
+      );
+    }
+  });
 </script>
 
 <style>

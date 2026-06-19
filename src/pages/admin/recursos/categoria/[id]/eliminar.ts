@@ -49,9 +49,17 @@ export const POST: APIRoute = async ({ params, request, redirect, locals }) => {
       await db.delete(resourceLinks).where(eq(resourceLinks.categoryId, categoryId));
     }
 
+    // Obtener el nombre de la categoría antes de eliminarla
+    const [categoryToDelete] = await db
+      .select({ title: resourceCategories.title })
+      .from(resourceCategories)
+      .where(eq(resourceCategories.id, categoryId))
+      .limit(1);
+    const categoryTitle = categoryToDelete?.title || categoryId;
+
     // Eliminar la categoría
     await db.delete(resourceCategories).where(eq(resourceCategories.id, categoryId));
-    await logAdminAction((locals as any).user?.username || 'Sistema', `Eliminó la categoría de recursos ID ${categoryId}`);
+    await logAdminAction((locals as any).user?.username || 'Sistema', `Eliminó la categoría de recursos "${categoryTitle}"`);
 
     const base = import.meta.env.BASE_URL || "/";
     const cleanBase = base.endsWith("/") ? base.slice(0, -1) : base;

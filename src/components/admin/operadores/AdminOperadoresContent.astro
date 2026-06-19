@@ -97,6 +97,10 @@ const rowGridClass =
     minWidthClass="min-w-200"
     headerGridClass={headerGridClass}
     rowGridClass={rowGridClass}
+    emptyStateTitle="No hay coincidencias"
+    emptyStateDescription="No hemos podido encontrar operadores que coincidan con los filtros seleccionados. Probá modificando los criterios o restableciendo la búsqueda para explorar el directorio completo."
+    showClearButton={true}
+    clearButtonHref={`${cleanBase}admin/operadores`}
   >
     <div slot="header">
       <DataTableHeaderCell sortKey="id">ID</DataTableHeaderCell>
@@ -236,34 +240,57 @@ const rowGridClass =
     highlightSearchTargets,
   } from "@lib/clientSearch";
 
-  const searchInput = document.querySelector<HTMLInputElement>(
-    "#admin-operator-search",
-  );
-  const rows = document.querySelectorAll<HTMLElement>("[data-table-row]");
-  const countBadge = document.querySelector<HTMLElement>(
-    "#operator-count-badge",
-  );
+  function initSearch() {
+    const searchInput = document.querySelector<HTMLInputElement>(
+      "#admin-operator-search",
+    );
+    if (!searchInput) return false;
 
-  function applyFilters() {
-    const query = searchInput?.value.trim() || "";
-    let visibleCount = 0;
+    const rows = document.querySelectorAll<HTMLElement>("[data-table-row]");
+    const countBadge = document.querySelector<HTMLElement>(
+      "#operator-count-badge",
+    );
 
-    rows.forEach((row) => {
-      const searchText = row.dataset.searchText || "";
-      const isVisible = matchesSearchQuery(query, [searchText]);
+    function applyFilters() {
+      const query = searchInput.value.trim();
+      let visibleCount = 0;
 
-      row.classList.toggle("hidden", !isVisible);
-      highlightSearchTargets(row, isVisible ? query : "");
+      rows.forEach((row) => {
+        const searchText = row.dataset.searchText || "";
+        const isVisible = matchesSearchQuery(query, [searchText]);
 
-      if (isVisible) {
-        visibleCount++;
+        row.classList.toggle("hidden", !isVisible);
+        highlightSearchTargets(row, isVisible ? query : "");
+
+        if (isVisible) {
+          visibleCount++;
+        }
+      });
+
+      if (countBadge) {
+        countBadge.textContent = visibleCount.toString();
+      }
+    }
+
+    searchInput.addEventListener("input", applyFilters);
+    return true;
+  }
+
+  function setupSearchObserver() {
+    if (initSearch()) return;
+
+    const observer = new MutationObserver((_, obs) => {
+      if (initSearch()) {
+        obs.disconnect();
       }
     });
 
-    if (countBadge) {
-      countBadge.textContent = visibleCount.toString();
-    }
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  searchInput?.addEventListener("input", applyFilters);
+  setupSearchObserver();
+
+  document.addEventListener("astro:page-load", () => {
+    setupSearchObserver();
+  });
 </script>

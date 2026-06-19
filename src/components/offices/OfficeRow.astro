@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import CopyButton from "@components/ui/CopyButton.astro";
+import { isAllowed } from "@lib/rolesMatrix";
 import type { OfficeDirectoryItem } from "@/types/offices";
 import {
   officeTypeLabelByType,
@@ -21,6 +22,9 @@ interface Props {
 }
 
 const { office, isVisibleByDefault = true } = Astro.props;
+
+const user = Astro.locals.user;
+const isAllowedAdmin = user ? isAllowed("Administrar Contenido", user.role) : false;
 
 const normalizedType =
   office.type === "SUCURSAL"
@@ -43,8 +47,9 @@ const hasDetails = hasInfoSection || hasAssetsSection;
 const activeSectionsCount =
   (hasInfoSection ? 1 : 0) + (hasAssetsSection ? 1 : 0);
 
-const officeDirectoryRowGridClass =
-  "grid grid-cols-[48px_80px_1.2fr_90px_1.8fr] items-center gap-4";
+const officeDirectoryRowGridClass = isAllowedAdmin
+  ? "grid grid-cols-[48px_80px_1.2fr_90px_1.8fr_120px] items-center gap-4"
+  : "grid grid-cols-[48px_80px_1.2fr_90px_1.8fr] items-center gap-4";
 ---
 
 <article
@@ -182,6 +187,27 @@ const officeDirectoryRowGridClass =
         </div>
       </div>
     </div>
+
+    {isAllowedAdmin && (
+      <div class="min-w-0 flex items-center justify-end gap-1.5">
+        <a
+          href={`${import.meta.env.BASE_URL}oficinas/edit/${office.id}`}
+          class="btn btn-xs btn-outline btn-warning"
+          title="Editar"
+        >
+          <Icon name="boxicons:edit-alt" class="size-3.5" />
+        </a>
+        <button
+          class="btn btn-xs btn-outline btn-error btn-delete-office"
+          data-id={office.id}
+          data-name={office.name}
+          data-code={office.code}
+          title="Eliminar"
+        >
+          <Icon name="boxicons:trash" class="size-3.5" />
+        </button>
+      </div>
+    )}
   </div>
 
   <div

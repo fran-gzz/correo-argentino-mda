@@ -136,7 +136,7 @@ if (Astro.request.method === "POST") {
         }).returning({ id: agents.id, name: agents.name });
 
         if (inserted) {
-          await logAdminAction(user?.username || 'Sistema', `Creó el operador "${inserted.name}" (ID ${inserted.id})`);
+          await logAdminAction(user?.username || 'Sistema', `Creó el operador "${inserted.name}"`);
         }
 
         // Populate monthly schedules table with "Franco" or weekly schema defaults for today and upcoming dates
@@ -198,9 +198,9 @@ if (Astro.request.method === "POST") {
             .where(eq(schedules.agentName, original.name));
         }
 
-        let logMessage = `Actualizó el operador "${name}" (ID ${agentId})`;
+        let logMessage = `Actualizó el operador "${name}"`;
         if (original && original.name !== name) {
-          logMessage = `Actualizó el operador ID ${agentId} (de "${original.name}" a "${name}")`;
+          logMessage = `Actualizó el operador de "${original.name}" a "${name}"`;
         }
 
         await logAdminAction(user?.username || 'Sistema', logMessage);

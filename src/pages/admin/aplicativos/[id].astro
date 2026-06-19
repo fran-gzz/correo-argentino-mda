@@ -185,9 +185,9 @@ if (Astro.request.method === "POST") {
         })
         .where(eq(applications.id, app.id));
       if (oldTitle && oldTitle !== title) {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo ID ${app.id} (de "${oldTitle}" a "${title}")`);
+        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo de "${oldTitle}" a "${title}"`);
       } else {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo "${title}" (ID ${app.id})`);
+        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo "${title}"`);
       }
     }
 

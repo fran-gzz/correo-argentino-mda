@@ -2,8 +2,11 @@ import type { APIRoute } from "astro";
 import { db } from "@/db";
 import { agents, schedules } from "@/db/schema";
 import { and, eq, like } from "drizzle-orm";
+import { logAdminAction } from "@lib/auditLogger";
 
-export const POST: APIRoute = async ({ request }) => {
+const MONTH_LABELS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
     const { year, month } = body; // month is 0-indexed (0 = Enero)
@@ -59,6 +62,11 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
+    await logAdminAction(
+      (locals as any).user?.username || 'Sistema',
+      `Generó el cronograma del mes ${MONTH_LABELS[month] || month} ${year}`
+    );
+
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -72,7 +80,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request }) => {
+export const DELETE: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
     const { year, month } = body; // month is 0-indexed (0 = Enero)
@@ -89,6 +97,11 @@ export const DELETE: APIRoute = async ({ request }) => {
     // 1. Delete from database schedules for this month
     await db.delete(schedules).where(
       like(schedules.date, `${monthPrefix}-%`)
+    );
+
+    await logAdminAction(
+      (locals as any).user?.username || 'Sistema',
+      `Eliminó el cronograma del mes de ${MONTH_LABELS[month] || month} ${year}`
     );
 
     return new Response(JSON.stringify({ success: true }), {

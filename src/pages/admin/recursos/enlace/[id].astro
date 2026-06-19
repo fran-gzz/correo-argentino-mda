@@ -103,9 +103,9 @@ if (Astro.request.method === "POST") {
         })
         .where(eq(resourceLinks.id, id));
       if (oldTitle && oldTitle !== title) {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el enlace ID ${id} (de "${oldTitle}" a "${title}")`);
+        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el enlace de "${oldTitle}" a "${title}"`);
       } else {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el enlace "${title}" (ID ${id})`);
+        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el enlace "${title}"`);
       }
     }
 

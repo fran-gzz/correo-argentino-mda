@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { operatorAttendance } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getAttendanceData, calculateCompliance } from "@/lib/attendance";
+import { logAdminAction } from "@lib/auditLogger";
 
 export { calculateCompliance };
 
@@ -33,7 +34,7 @@ export const GET: APIRoute = async ({ url }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
     const { date, edits } = body;
@@ -161,6 +162,11 @@ export const POST: APIRoute = async ({ request }) => {
         }
       }
     });
+
+    await logAdminAction(
+      (locals as any).user?.username || 'Sistema',
+      `Guardó asistencias del ${date || edits[0]?.date} (${edits.length} registros)`
+    );
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
