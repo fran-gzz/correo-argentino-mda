@@ -11,7 +11,7 @@ import { logAdminAction } from "@lib/auditLogger";
 import { processIconUpload } from "@lib/iconUpload";
 
 const { id } = Astro.params;
-const isNew = id === "nuevo";
+const isNew = false;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -33,29 +33,28 @@ let app = {
 
 const categories = await db.select().from(applicationCategories);
 
-if (!isNew && id) {
-  const numericId = Number(id);
-  if (Number.isNaN(numericId)) {
-    return Astro.redirect(resolveUrl("/admin/aplicativos"));
-  }
+if (!id || isNaN(Number(id))) {
+  return Astro.redirect(resolveUrl("/admin/aplicativos"));
+}
 
-  const existing = await db.query.applications.findFirst({
-    where: eq(applications.id, numericId),
-  });
+const numericId = Number(id);
 
-  if (existing) {
-    app = {
-      id: existing.id,
-      title: existing.title,
-      categoryId: existing.categoryId || "",
-      description: existing.description || "",
-      version: existing.version || "",
-      filePath: existing.filePath || "",
-      iconPath: existing.iconPath || "",
-    };
-  } else {
-    return Astro.redirect(resolveUrl("/admin/aplicativos"));
-  }
+const existing = await db.query.applications.findFirst({
+  where: eq(applications.id, numericId),
+});
+
+if (existing) {
+  app = {
+    id: existing.id,
+    title: existing.title,
+    categoryId: existing.categoryId || "",
+    description: existing.description || "",
+    version: existing.version || "",
+    filePath: existing.filePath || "",
+    iconPath: existing.iconPath || "",
+  };
+} else {
+  return Astro.redirect(resolveUrl("/admin/aplicativos"));
 }
 
 let formUploadType = "";
@@ -161,39 +160,26 @@ if (Astro.request.method === "POST") {
       iconPath = newIconPath;
     }
 
-    if (isNew) {
-      await db.insert(applications).values({
+    const oldTitle = app.title;
+    await db
+      .update(applications)
+      .set({
         title,
         categoryId,
         description,
         version,
         filePath,
         iconPath,
-      });
-      await logAdminAction(Astro.locals.user?.username || 'Sistema', `Creó el aplicativo "${title}"`);
+      })
+      .where(eq(applications.id, app.id));
+    if (oldTitle && oldTitle !== title) {
+      await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo de "${oldTitle}" a "${title}"`);
     } else {
-      const oldTitle = app.title;
-      await db
-        .update(applications)
-        .set({
-          title,
-          categoryId,
-          description,
-          version,
-          filePath,
-          iconPath,
-        })
-        .where(eq(applications.id, app.id));
-      if (oldTitle && oldTitle !== title) {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo de "${oldTitle}" a "${title}"`);
-      } else {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo "${title}"`);
-      }
+      await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó el aplicativo "${title}"`);
     }
 
-    const successMsg = isNew ? "Aplicativo creado con éxito." : "Aplicativo actualizado con éxito.";
     return Astro.redirect(
-      resolveUrl(`/admin/aplicativos?toast_msg=${encodeURIComponent(successMsg)}&toast_type=success`)
+      resolveUrl(`/admin/aplicativos?toast_msg=${encodeURIComponent("Aplicativo actualizado con éxito.")}&toast_type=success`)
     );
   } catch (error: any) {
     errorMsg = error.message || "Error al guardar el aplicativo.";
@@ -213,7 +199,7 @@ const isExternal = formUploadType
   : /^https?:\/\//i.test(app.filePath);
 ---
 
-<BaseLayout title={isNew ? "Nuevo aplicativo" : "Editar aplicativo"}>
+<BaseLayout title="Editar aplicativo">
   <PageContainer>
     <div class="max-w-2xl mx-auto py-4 sm:py-8">
       <div class="card bg-base-100 border border-base-300 shadow-sm">
@@ -223,14 +209,10 @@ const isExternal = formUploadType
           >
             <div>
               <h1 class="text-xl font-bold text-base-content">
-                {isNew ? "Nuevo aplicativo" : "Editar aplicativo"}
+                Editar aplicativo
               </h1>
               <p class="text-sm text-base-content/60 mt-1">
-                {
-                  isNew
-                    ? "Registrá un nuevo aplicativo disponible para descarga."
-                    : "Modificá los datos del aplicativo seleccionado."
-                }
+                Modificá los datos del aplicativo seleccionado.
               </p>
             </div>
             <a
@@ -259,7 +241,6 @@ const isExternal = formUploadType
                 required
                 value={app.title}
                 placeholder="Ej: ShareX"
-                autofocus={isNew}
               />
 
               <SelectField
@@ -422,7 +403,7 @@ const isExternal = formUploadType
             </div>
 
             {
-              !isNew && app.filePath && (
+              app.filePath && (
                 <div class="flex items-center gap-3 rounded-lg bg-success/10 border border-success/20 px-4 py-3">
                   <Icon
                     name={

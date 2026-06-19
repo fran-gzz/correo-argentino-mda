@@ -18,9 +18,13 @@ const user = Astro.locals.user;
 if (!["admin", "supervisor", "team_leader"].includes(user.role)) return Astro.redirect(`${cleanBase}login`);
 
 const { id } = Astro.params;
-const isNew = id === "nuevo";
+const isNew = false;
 let successMsg = "";
 let errorMsg = "";
+
+if (!id || isNaN(Number(id))) {
+  return Astro.redirect(`${cleanBase}admin/operadores`);
+}
 
 const daysOfWeek = [
   "Lunes",
@@ -54,7 +58,7 @@ if (Astro.request.method === "POST") {
     const fd = await Astro.request.formData();
 
     const name = fd.get("name")?.toString().trim() ?? "";
-    const username = fd.get("id")?.toString().trim() || null; // 'id' field in form represents username
+    const username = fd.get("id")?.toString().trim() || null;
     const locationId = fd.get("locationId")?.toString().trim() || "";
 
     const loc = allLocations.find((l) => l.id === locationId);
@@ -62,10 +66,7 @@ if (Astro.request.method === "POST") {
 
     if (!name) {
       errorMsg = "El nombre completo es obligatorio.";
-    } else if (isNew && !username) {
-      errorMsg = "El ID de usuario es obligatorio.";
     } else {
-      // Reconstruct the weekly schedule schemas based on form values for each day
       const newEsquemaSemanal: Record<string, string> = {};
       const newEsquemaHorario: Record<string, string> = {};
       const newEsquemaBreakInicio: Record<string, string> = {};
@@ -121,91 +122,37 @@ if (Astro.request.method === "POST") {
         .substring(0, 2)
         .toUpperCase();
 
-      if (isNew) {
-        // Insert new agent
-        const [inserted] = await db.insert(agents).values({
+      const agentId = Number(id);
+      const [original] = await db.select({ name: agents.name }).from(agents).where(eq(agents.id, agentId));
+
+      await db
+        .update(agents)
+        .set({
           name,
           username,
           avatarInitials: initials,
           location: locationName,
-          horarioDefault: "",
           esquemaSemanal: newEsquemaSemanal,
           esquemaHorario: newEsquemaHorario,
           esquemaBreakInicio: newEsquemaBreakInicio,
           esquemaBreakFin: newEsquemaBreakFin,
-        }).returning({ id: agents.id, name: agents.name });
+        })
+        .where(eq(agents.id, agentId));
 
-        if (inserted) {
-          await logAdminAction(user?.username || 'Sistema', `Creó el operador "${inserted.name}"`);
-        }
-
-        // Populate monthly schedules table with "Franco" or weekly schema defaults for today and upcoming dates
-        const uniqueDates = await db
-          .selectDistinct({ date: schedules.date })
-          .from(schedules);
-
-        if (uniqueDates.length > 0) {
-          const inserts = uniqueDates.map((d) => {
-            const dateObj = new Date(d.date + "T12:00:00");
-            const dayNamesList = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
-            const dateDayName = dayNamesList[dateObj.getDay()];
-            
-            const status = newEsquemaSemanal[dateDayName] || "Franco";
-            const horario = newEsquemaHorario[dateDayName] || "";
-            const bInicio = newEsquemaBreakInicio[dateDayName] || "";
-            const bFin = newEsquemaBreakFin[dateDayName] || "";
-
-            return {
-              agentName: name,
-              date: d.date,
-              status,
-              comment: "",
-              horario,
-              breakInicio: bInicio,
-              breakFin: bFin,
-              entradaReal: "",
-              salidaReal: "",
-            };
-          });
-          await db.insert(schedules).values(inserts);
-        }
-
-        const toastMessage = `Operador "${inserted?.name || name}" creado con éxito.`;
-        return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent(toastMessage)}&toast_type=success`);
-      } else {
-        const agentId = Number(id);
-        const [original] = await db.select({ name: agents.name }).from(agents).where(eq(agents.id, agentId));
-
+      if (original && original.name !== name) {
         await db
-          .update(agents)
-          .set({
-            name,
-            username,
-            avatarInitials: initials,
-            location: locationName,
-            esquemaSemanal: newEsquemaSemanal,
-            esquemaHorario: newEsquemaHorario,
-            esquemaBreakInicio: newEsquemaBreakInicio,
-            esquemaBreakFin: newEsquemaBreakFin,
-          })
-          .where(eq(agents.id, agentId));
-
-        // Cascade rename to schedules table if the name was updated
-        if (original && original.name !== name) {
-          await db
-            .update(schedules)
-            .set({ agentName: name })
-            .where(eq(schedules.agentName, original.name));
-        }
-
-        let logMessage = `Actualizó el operador "${name}"`;
-        if (original && original.name !== name) {
-          logMessage = `Actualizó el operador de "${original.name}" a "${name}"`;
-        }
-
-        await logAdminAction(user?.username || 'Sistema', logMessage);
-        return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent("Operador y horarios actualizados con éxito.")}&toast_type=success`);
+          .update(schedules)
+          .set({ agentName: name })
+          .where(eq(schedules.agentName, original.name));
       }
+
+      let logMessage = `Actualizó el operador "${name}"`;
+      if (original && original.name !== name) {
+        logMessage = `Actualizó el operador de "${original.name}" a "${name}"`;
+      }
+
+      await logAdminAction(user?.username || 'Sistema', logMessage);
+      return Astro.redirect(`${cleanBase}admin/operadores?toast_msg=${encodeURIComponent("Operador y horarios actualizados con éxito.")}&toast_type=success`);
     }
   } catch (e: any) {
     console.error("POST Admin Operator Error:", e);
@@ -227,56 +174,53 @@ type OperatorRecord = {
 let operator: OperatorRecord | null = null;
 let operatorSchedulesData: Record<string, Record<string, any>> = {};
 
-if (!isNew) {
-  const agentId = Number(id);
-  const [result] = await db.select().from(agents).where(eq(agents.id, agentId));
+const agentId = Number(id);
+const [result] = await db.select().from(agents).where(eq(agents.id, agentId));
 
-  if (!result) return Astro.redirect(`${cleanBase}admin/operadores`);
+if (!result) return Astro.redirect(`${cleanBase}admin/operadores`);
 
-  // Calculate live availability to map old status
-  const availList = await getDisponibilidadHoy();
-  const currentAvail = availList.find((a) => a.agentId === agentId);
+const availList = await getDisponibilidadHoy();
+const currentAvail = availList.find((a) => a.agentId === agentId);
 
-  operator = {
-    id: String(result.id),
-    name: result.name,
-    username: result.username || "",
-    status: currentAvail?.disponible ? "disponible" : (currentAvail?.motivo || "Franco"),
-    location: result.location,
-    locationId: allLocations.find((l) => l.name === result.location)?.id || null,
-  };
+operator = {
+  id: String(result.id),
+  name: result.name,
+  username: result.username || "",
+  status: currentAvail?.disponible ? "disponible" : (currentAvail?.motivo || "Franco"),
+  location: result.location,
+  locationId: allLocations.find((l) => l.name === result.location)?.id || null,
+};
 
-  const esquemaSemanal = (result.esquemaSemanal as Record<string, string>) || {};
-  const esquemaHorario = (result.esquemaHorario as Record<string, string>) || {};
-  const esquemaBreakInicio = (result.esquemaBreakInicio as Record<string, string>) || {};
+const esquemaSemanal = (result.esquemaSemanal as Record<string, string>) || {};
+const esquemaHorario = (result.esquemaHorario as Record<string, string>) || {};
+const esquemaBreakInicio = (result.esquemaBreakInicio as Record<string, string>) || {};
 
-  for (const day of daysOfWeek) {
-    const cronoDay = dayNameMapping[day] || day;
-    const status = esquemaSemanal[cronoDay] || "Franco";
-    const horario = esquemaHorario[cronoDay] || "";
-    const breakInicio = esquemaBreakInicio[cronoDay] || "";
+for (const day of daysOfWeek) {
+  const cronoDay = dayNameMapping[day] || day;
+  const status = esquemaSemanal[cronoDay] || "Franco";
+  const horario = esquemaHorario[cronoDay] || "";
+  const breakInicio = esquemaBreakInicio[cronoDay] || "";
 
-    const [start, end] = horario.split(" - ");
+  const [start, end] = horario.split(" - ");
 
-    operatorSchedulesData[day] = {};
+  operatorSchedulesData[day] = {};
 
-    if (status === "Home Office") {
-      operatorSchedulesData[day]["home"] = {
-        shiftStart: start || "",
-        shiftEnd: end || "",
-        breakTime: breakInicio || "",
-      };
-    } else if (status?.startsWith("Presencial")) {
-      operatorSchedulesData[day]["presencial"] = {
-        shiftStart: start || "",
-        shiftEnd: end || "",
-        breakTime: breakInicio || "",
-      };
-    }
+  if (status === "Home Office") {
+    operatorSchedulesData[day]["home"] = {
+      shiftStart: start || "",
+      shiftEnd: end || "",
+      breakTime: breakInicio || "",
+    };
+  } else if (status?.startsWith("Presencial")) {
+    operatorSchedulesData[day]["presencial"] = {
+      shiftStart: start || "",
+      shiftEnd: end || "",
+      breakTime: breakInicio || "",
+    };
   }
 }
 
-const pageTitle = isNew ? "Nuevo operador" : `Editar: ${operator!.name}`;
+const pageTitle = `Editar: ${operator!.name}`;
 ---
 
 <BaseLayout title={pageTitle}>
@@ -295,9 +239,7 @@ const pageTitle = isNew ? "Nuevo operador" : `Editar: ${operator!.name}`;
 
     <PageHeader
       title={pageTitle}
-      description={isNew
-        ? "Completá los datos y horarios para registrar un nuevo operador."
-        : `ID de base de datos: ${operator!.id}`}
+      description={`ID de base de datos: ${operator!.id}`}
     />
 
     {
@@ -338,9 +280,8 @@ const pageTitle = isNew ? "Nuevo operador" : `Editar: ${operator!.name}`;
               value={operator?.username ?? ""}
               placeholder="ej: jperez"
               autocomplete="off"
-              readonly={!isNew}
-              inputClass={!isNew ? "input-sm font-mono input-disabled bg-base-200 cursor-not-allowed" : "input-sm font-mono"}
-              helpText={isNew ? "Identificador único de usuario del operador." : undefined}
+              readonly
+              inputClass="input-sm font-mono input-disabled bg-base-200 cursor-not-allowed"
             />
 
             <FormField
@@ -360,18 +301,14 @@ const pageTitle = isNew ? "Nuevo operador" : `Editar: ${operator!.name}`;
               label="Ubicación presencial"
               selectClass="select-sm"
             >
-              <option value="" selected={!isNew && !operator?.locationId}>
+              <option value="" selected={!operator?.locationId}>
                 Sin asignar
               </option>
               {
                 allLocations.map((loc) => (
                   <option
                     value={loc.id}
-                    selected={
-                      isNew
-                        ? loc.id === "MGR"
-                        : operator?.locationId === loc.id
-                    }
+                    selected={operator?.locationId === loc.id}
                   >
                     {loc.name}
                   </option>
@@ -384,7 +321,7 @@ const pageTitle = isNew ? "Nuevo operador" : `Editar: ${operator!.name}`;
               name="status"
               label="Estado"
               readonly
-              value={isNew ? "Disponible" : (operator?.status === "disponible" ? "Activo (en servicio)" : `No disponible / Excepción`)}
+              value={operator?.status === "disponible" ? "Activo (en servicio)" : "No disponible / Excepción"}
               inputClass="input-sm input-disabled bg-base-200 cursor-not-allowed"
               helpText="El estado de disponibilidad se calcula automáticamente basado en la matriz de horarios y Cronograma."
             />
@@ -493,7 +430,7 @@ const pageTitle = isNew ? "Nuevo operador" : `Editar: ${operator!.name}`;
         </a>
         <button type="submit" class="btn btn-primary btn-sm gap-2">
           <Icon name="boxicons:save-filled" size={16} />
-          {isNew ? "Crear operador" : "Guardar cambios"}
+          Guardar cambios
         </button>
       </div>
     </form>

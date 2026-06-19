@@ -641,7 +641,7 @@ const inventoryTabs = [
                       method="POST"
                       action={`${import.meta.env.BASE_URL}inventario-terminales/cubics/edit/${machine.id}/eliminar`}
                       class="inline"
-                      onsubmit="return confirm('¿Estás seguro de que deseas dar de baja el ordenador \"${machine.name}\"?');"
+                      onsubmit={`return confirm('¿Estás seguro de que deseas dar de baja el ordenador "${machine.name}"?');`}
                     >
                       <button
                         type="submit"

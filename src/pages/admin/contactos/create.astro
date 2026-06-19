@@ -13,32 +13,14 @@ import { logAdminAction } from "@lib/auditLogger";
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
 
-const user = Astro.locals.user;
-if (!user || !["admin", "supervisor", "team_leader"].includes(user.role)) return Astro.redirect(`${cleanBase}login`);
+const isNew = true;
 
-const { id } = Astro.params;
-const isNew = id === "new";
-
-let successMsg = "";
 let errorMsg = "";
 
-// Cargar categorías para el selector
 const allCategories = await db
   .select()
   .from(contactCategories)
   .orderBy(asc(contactCategories.title));
-
-let contact: typeof providerContacts.$inferSelect | null = null;
-
-if (!isNew) {
-  const [result] = await db
-    .select()
-    .from(providerContacts)
-    .where(eq(providerContacts.id, Number(id)));
-
-  if (!result) return Astro.redirect(`${cleanBase}admin/contactos`);
-  contact = result;
-}
 
 if (Astro.request.method === "POST") {
   try {
@@ -48,7 +30,6 @@ if (Astro.request.method === "POST") {
     const provider = fd.get("provider")?.toString().trim() ?? "";
     const service = fd.get("service")?.toString().trim() ?? "";
 
-    // Procesar phones
     const phones =
       fd
         .get("phones")
@@ -57,7 +38,6 @@ if (Astro.request.method === "POST") {
         .map((s) => s.trim())
         .filter(Boolean) ?? [];
 
-    // Procesar emails
     const emails =
       fd
         .get("emails")
@@ -66,7 +46,6 @@ if (Astro.request.method === "POST") {
         .map((s) => s.trim())
         .filter(Boolean) ?? [];
 
-    // Procesar urls (como objetos {label, url})
     const urls =
       fd
         .get("urls")
@@ -87,38 +66,17 @@ if (Astro.request.method === "POST") {
     if (!provider || !service) {
       errorMsg = "Proveedor y servicio son obligatorios.";
     } else {
-      if (isNew) {
-        await db.insert(providerContacts).values({
-          categoryId,
-          provider,
-          service,
-          phones,
-          emails,
-          urls,
-        });
-        await logAdminAction(user?.username || 'Sistema', `Creó el contacto "${provider} - ${service}"`);
-      } else {
-        await db
-          .update(providerContacts)
-          .set({
-            categoryId,
-            provider,
-            service,
-            phones,
-            emails,
-            urls,
-          })
-          .where(eq(providerContacts.id, Number(id)));
-        const oldName = contact ? `${contact.provider} - ${contact.service}` : "";
-        const newName = `${provider} - ${service}`;
-        if (oldName && oldName !== newName) {
-          await logAdminAction(user?.username || 'Sistema', `Actualizó el contacto de "${oldName}" a "${newName}"`);
-        } else {
-          await logAdminAction(user?.username || 'Sistema', `Actualizó el contacto "${newName}"`);
-        }
-      }
+      await db.insert(providerContacts).values({
+        categoryId,
+        provider,
+        service,
+        phones,
+        emails,
+        urls,
+      });
+      await logAdminAction(Astro.locals.user?.username || 'Sistema', `Creó el contacto "${provider} - ${service}"`);
 
-      const toastMessage = isNew ? "Contacto creado con éxito." : "Contacto actualizado con éxito.";
+      const toastMessage = "Contacto creado con éxito.";
       return Astro.redirect(
         `${cleanBase}admin/contactos?toast_msg=${encodeURIComponent(toastMessage)}&toast_type=success`
       );
@@ -127,21 +85,10 @@ if (Astro.request.method === "POST") {
     errorMsg = "Error al guardar el contacto.";
   }
 }
-
-const pageTitle = isNew ? "Nuevo contacto" : `Editar: ${contact!.provider}`;
-
-// Convertir arrays a formato multilínea para el textarea
-const phonesText = contact?.phones?.join("\n") ?? "";
-const emailsText = contact?.emails?.join("\n") ?? "";
-const urlsText =
-  contact?.urls
-    ?.map((u) => (u.label ? `${u.label}, ${u.url}` : u.url))
-    .join("\n") ?? "";
 ---
 
-<BaseLayout title={pageTitle}>
+<BaseLayout title="Nuevo contacto">
   <PageContainer>
-    {/* ── Breadcrumb / Volver ── */}
     <div class="flex items-center gap-2 text-sm text-base-content/60">
       <a
         href={`${cleanBase}admin/contactos`}
@@ -151,17 +98,14 @@ const urlsText =
         Contactos
       </a>
       <span>/</span>
-      <span class="text-base-content font-medium truncate">{pageTitle}</span>
+      <span class="text-base-content font-medium truncate">Nuevo contacto</span>
     </div>
 
     <PageHeader
-      title={pageTitle}
-      description={isNew
-        ? "Completá los datos para registrar un nuevo contacto útil."
-        : `ID de contacto: ${contact!.id}`}
+      title="Nuevo contacto"
+      description="Completá los datos para registrar un nuevo contacto útil."
     />
 
-    {/* Feedback */}
     {
       errorMsg && (
         <script is:inline define:vars={{ errorMsg }}>
@@ -169,18 +113,10 @@ const urlsText =
         </script>
       )
     }
-    {
-      successMsg && (
-        <script is:inline define:vars={{ successMsg }}>
-          window.showToast?.(successMsg, "alert-success");
-        </script>
-      )
-    }
 
     <form
       method="POST"
       id="contact-form"
-      onsubmit="return confirm('¿Estás seguro de que deseas guardar estas modificaciones?');"
       class="space-y-4"
     >
       <section class="card bg-base-100 border border-base-300 shadow-md">
@@ -203,10 +139,10 @@ const urlsText =
                 name="provider"
                 label="Proveedor"
                 required
-                value={contact?.provider ?? ""}
                 placeholder="ej: CORASA"
                 autocomplete="off"
                 inputClass="input-sm font-semibold"
+                autofocus
               />
 
               <FormField
@@ -214,7 +150,6 @@ const urlsText =
                 name="service"
                 label="Servicio"
                 required
-                value={contact?.service ?? ""}
                 placeholder="ej: Mesa de Ayuda"
                 autocomplete="off"
                 inputClass="input-sm"
@@ -226,14 +161,13 @@ const urlsText =
                 label="Categoría"
                 selectClass="select-sm"
               >
-                <option value="" selected={!contact?.categoryId}>
+                <option value="">
                   Ninguna
                 </option>
                 {
                   allCategories.map((cat) => (
                     <option
                       value={cat.id}
-                      selected={contact?.categoryId === cat.id}
                     >
                       {cat.title}
                     </option>
@@ -253,8 +187,7 @@ const urlsText =
                   class="textarea textarea-sm w-full text-xs font-mono"
                   placeholder="ej: 6316-1111
 0810-777-7787"
-                  >{phonesText}</textarea
-                >
+                ></textarea>
               </fieldset>
 
               <fieldset class="fieldset gap-1 font-mono">
@@ -265,8 +198,7 @@ const urlsText =
                   name="emails"
                   rows={2}
                   class="textarea textarea-sm w-full text-xs font-mono"
-                  placeholder="ej: soporte@correo.com.ar">{emailsText}</textarea
-                >
+                  placeholder="ej: soporte@correo.com.ar"></textarea>
               </fieldset>
 
               <fieldset class="fieldset gap-1 font-mono">
@@ -279,15 +211,13 @@ const urlsText =
                   class="textarea textarea-sm w-full text-xs font-mono"
                   placeholder="ej: Portal, http://sm.correo.local
 http://www.google.com"
-                  >{urlsText}</textarea
-                >
+                ></textarea>
               </fieldset>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Acciones ── */}
       <div class="flex items-center justify-between gap-3 pt-1">
         <a
           href={`${cleanBase}admin/contactos`}
@@ -298,7 +228,7 @@ http://www.google.com"
         </a>
         <button type="submit" class="btn btn-secondary btn-sm gap-2">
           <Icon name="boxicons:save-filled" size={16} />
-          {isNew ? "Crear contacto" : "Guardar cambios"}
+          Crear contacto
         </button>
       </div>
     </form>

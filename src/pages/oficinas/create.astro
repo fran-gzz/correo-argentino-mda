@@ -16,6 +16,7 @@ import { Icon } from "astro-icon/components";
 import { logAdminAction } from "@lib/auditLogger";
 import OfficeForm from "@components/admin/OfficeForm.astro";
 import { officeFormSchema } from "@lib/validations";
+import { normalizeSearchValue } from "@lib/clientSearch";
 import { isAllowed } from "@lib/rolesMatrix";
 
 const base = import.meta.env.BASE_URL || "/";
@@ -106,9 +107,24 @@ if (Astro.request.method === "POST") {
       const officeData = parsed.data;
       let officeId: number;
 
+      const nextSearchableText = normalizeSearchValue(
+        [
+          officeData.code,
+          officeData.name,
+          officeData.locality,
+          officeData.parentNis,
+          officeData.address,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+
       const [created] = await db
         .insert(offices)
-        .values(officeData)
+        .values({
+          ...officeData,
+          searchableText: nextSearchableText,
+        })
         .returning({ id: offices.id });
       officeId = created.id;
 
@@ -191,9 +207,10 @@ if (Astro.request.method === "POST") {
       return Astro.redirect(`${cleanBase}oficinas?toast_msg=${encodeURIComponent("Oficina creada con éxito.")}&toast_type=success`);
     }
   } catch (e: any) {
+    console.error("[CreateOffice] Error guardando la oficina:", e);
     errorMsg = e.message?.includes("UNIQUE")
       ? "Ya existe una oficina con ese código."
-      : "Error al guardar la oficina.";
+      : "Error al guardar la oficina: " + (e.message || "");
   }
 }
 
@@ -242,7 +259,9 @@ const pageTitle = "Nueva sucursal";
     {
       errorMsg && (
         <script is:inline define:vars={{ errorMsg }}>
-          window.showToast?.(errorMsg, "alert-error");
+          window.addEventListener('load', () => {
+            window.showToast?.(errorMsg, "alert-error");
+          });
         </script>
       )
     }

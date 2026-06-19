@@ -11,8 +11,7 @@ import { logAdminAction } from "@lib/auditLogger";
 import { processIconUpload } from "@lib/iconUpload";
 
 const { id } = Astro.params;
-const isNew = id === "nuevo";
-const initialCategoryId = Astro.url.searchParams.get("categoryId") || "";
+const isNew = false;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -24,7 +23,7 @@ const resolveUrl = (path: string) => {
 let errorMsg = "";
 let link = {
   id: "",
-  categoryId: initialCategoryId,
+  categoryId: "",
   title: "",
   url: "",
   subtitle: "",
@@ -34,7 +33,7 @@ let link = {
 
 const categories = await db.select().from(resourceCategories);
 
-if (!isNew && id) {
+if (id) {
   const existingLink = await db.query.resourceLinks.findFirst({
     where: eq(resourceLinks.id, id),
   });
@@ -77,19 +76,7 @@ if (Astro.request.method === "POST") {
       throw new Error("El título, la url y la categoría son obligatorios.");
     }
 
-    if (isNew) {
-      const newId = crypto.randomUUID();
-      await db.insert(resourceLinks).values({
-        id: newId,
-        categoryId,
-        title,
-        url,
-        subtitle,
-        iconPath,
-        deprecated,
-      });
-      await logAdminAction(Astro.locals.user?.username || 'Sistema', `Creó el enlace "${title}"`);
-    } else if (id) {
+    if (id) {
       const oldTitle = link.title;
       await db
         .update(resourceLinks)
@@ -109,7 +96,7 @@ if (Astro.request.method === "POST") {
       }
     }
 
-    const successMsg = isNew ? "Enlace creado con éxito." : "Enlace actualizado con éxito.";
+    const successMsg = "Enlace actualizado con éxito.";
     return Astro.redirect(resolveUrl(`/admin/recursos?toast_msg=${encodeURIComponent(successMsg)}&toast_type=success`));
   } catch (error: any) {
     errorMsg = error.message || "Error al guardar el enlace.";
@@ -124,14 +111,14 @@ if (Astro.request.method === "POST") {
 }
 ---
 
-<BaseLayout title={isNew ? "Nuevo Enlace" : "Editar Enlace"}>
+<BaseLayout title="Editar Enlace">
   <PageContainer>
     <div class="max-w-2xl mx-auto py-4 sm:py-8">
       <div class="card bg-base-100 border border-base-300 shadow-sm">
         <div class="card-body p-6 sm:p-8">
           <div class="flex items-start justify-between mb-6 border-b border-base-200 pb-4">
             <div>
-              <h1 class="text-xl font-bold text-base-content">{isNew ? "Nuevo Enlace" : "Editar Enlace"}</h1>
+              <h1 class="text-xl font-bold text-base-content">Editar Enlace</h1>
               <p class="text-sm text-base-content/60 mt-1">Configuración del acceso directo para operadores.</p>
             </div>
             <a href={resolveUrl("/admin/recursos")} class="btn btn-sm btn-ghost btn-square text-base-content/60 hover:bg-base-200" title="Cerrar">
@@ -156,7 +143,6 @@ if (Astro.request.method === "POST") {
                 required
                 value={link.title}
                 placeholder="Ej: Portal de Autogestión"
-                autofocus={isNew}
               />
 
               <SelectField

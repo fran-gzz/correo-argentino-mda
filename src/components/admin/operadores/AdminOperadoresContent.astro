@@ -83,7 +83,7 @@ const rowGridClass =
         class="w-full sm:w-64"
       />
       <a
-        href={`${cleanBase}admin/operadores/nuevo`}
+        href={`${cleanBase}admin/operadores/create`}
         class="btn btn-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent w-full sm:w-auto"
       >
         <Icon name="boxicons:plus" size={18} />
@@ -197,7 +197,7 @@ const rowGridClass =
 
               <div class="flex items-center justify-end gap-1">
                 <a
-                  href={`${cleanBase}admin/operadores/${op.id}`}
+                  href={`${cleanBase}admin/operadores/edit/${op.id}`}
                   class="btn btn-sm btn-ghost h-7 px-2 text-base-content/60 hover:text-secondary rounded-lg font-medium normal-case transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   aria-label={`Editar ${op.name}`}
                 >
@@ -207,15 +207,10 @@ const rowGridClass =
 
                 <form
                   method="POST"
+                  action={`${cleanBase}admin/operadores/edit/${op.id}/eliminar`}
                   class="inline"
                   onsubmit="return confirm('¿Estás seguro de que querés eliminar este operador? Se borrarán también sus turnos vinculados.')"
                 >
-                  <input
-                    type="hidden"
-                    name="action"
-                    value="delete_operator"
-                  />
-                  <input type="hidden" name="operatorId" value={op.id} />
                   <button
                     type="submit"
                     class="btn btn-ghost btn-sm h-7 rounded-lg px-2 text-base-content/60 hover:text-error hover:bg-error/10 transition-all duration-200"

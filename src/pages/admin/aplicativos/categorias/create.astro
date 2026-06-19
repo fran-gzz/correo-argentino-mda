@@ -5,11 +5,9 @@ import FormField from "@components/ui/forms/FormField.astro";
 import { Icon } from "astro-icon/components";
 import { db } from "@db/index";
 import { applicationCategories } from "@db/schema";
-import { eq } from "drizzle-orm";
 import { logAdminAction } from "@lib/auditLogger";
 
-const { id } = Astro.params;
-const isNew = id === "nueva";
+const isNew = true;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -19,18 +17,6 @@ const resolveUrl = (path: string) => {
 };
 
 let errorMsg = "";
-let category = { id: "", title: "" };
-
-if (!isNew && id) {
-  const existingCategory = await db.query.applicationCategories.findFirst({
-    where: eq(applicationCategories.id, id),
-  });
-  if (existingCategory) {
-    category = existingCategory;
-  } else {
-    return Astro.redirect(resolveUrl("/admin/aplicativos"));
-  }
-}
 
 if (Astro.request.method === "POST") {
   try {
@@ -41,36 +27,21 @@ if (Astro.request.method === "POST") {
       throw new Error("El título es obligatorio.");
     }
 
-    if (isNew) {
-      const newId = crypto.randomUUID();
-      await db.insert(applicationCategories).values({
-        id: newId,
-        title,
-      });
-      await logAdminAction(Astro.locals.user?.username || 'Sistema', `Creó la categoría de aplicativos "${title}"`);
-    } else if (id) {
-      const oldTitle = category.title;
-      await db
-        .update(applicationCategories)
-        .set({
-          title,
-        })
-        .where(eq(applicationCategories.id, id));
-      if (oldTitle && oldTitle !== title) {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó la categoría de aplicativos ID ${id} (de "${oldTitle}" a "${title}")`);
-      } else {
-        await logAdminAction(Astro.locals.user?.username || 'Sistema', `Actualizó la categoría de aplicativos "${title}" (ID ${id})`);
-      }
-    }
+    const newId = crypto.randomUUID();
+    await db.insert(applicationCategories).values({
+      id: newId,
+      title,
+    });
+    await logAdminAction(Astro.locals.user?.username || 'Sistema', `Creó la categoría de aplicativos "${title}"`);
 
-    return Astro.redirect(resolveUrl(`/admin/aplicativos?toast_msg=${encodeURIComponent(isNew ? "Categoría creada con éxito." : "Categoría actualizada con éxito.")}&toast_type=success`));
+    return Astro.redirect(resolveUrl(`/admin/aplicativos?toast_msg=${encodeURIComponent("Categoría creada con éxito.")}&toast_type=success`));
   } catch (error: any) {
     errorMsg = error.message || "Error al guardar la categoría.";
   }
 }
 ---
 
-<BaseLayout title={isNew ? "Nueva Categoría de Aplicativos" : "Editar Categoría de Aplicativos"}>
+<BaseLayout title="Nueva Categoría de Aplicativos">
   <PageContainer>
     <div class="max-w-2xl mx-auto py-4 sm:py-8">
       <div class="card bg-base-100 border border-base-300 shadow-sm">
@@ -80,7 +51,7 @@ if (Astro.request.method === "POST") {
           >
             <div>
               <h1 class="text-xl font-bold text-base-content">
-                {isNew ? "Nueva Categoría" : "Editar Categoría"}
+                Nueva Categoría
               </h1>
               <p class="text-sm text-base-content/60 mt-1">
                 Definí cómo se agruparán los aplicativos en la intranet.
@@ -110,10 +81,10 @@ if (Astro.request.method === "POST") {
                 name="title"
                 label="Título de la Categoría"
                 required
-                value={category.title}
+                value=""
                 placeholder="Ej: Herramientas de Red"
                 inputClass="font-medium"
-                autofocus={isNew}
+                autofocus
               />
             </div>
 

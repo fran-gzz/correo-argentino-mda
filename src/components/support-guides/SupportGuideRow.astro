@@ -130,7 +130,7 @@ const modalId = `modal_guide_${guide.id}`;
               method="POST"
               action={`${import.meta.env.BASE_URL}soportes/edit/${guide.id}/eliminar`}
               class="inline"
-              onsubmit="return confirm('¿Estás seguro de que deseas eliminar el soporte \"${guide.helpDeskName}\"?');"
+              onsubmit={`return confirm('¿Estás seguro de que deseas eliminar el soporte "${guide.helpDeskName}"?');`}
             >
               <button
                 type="submit"

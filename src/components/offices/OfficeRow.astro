@@ -201,7 +201,7 @@ const officeDirectoryRowGridClass = isAllowedAdmin
           method="POST"
           action={`${import.meta.env.BASE_URL}oficinas/edit/${office.dbId}/eliminar`}
           class="inline"
-          onsubmit="return confirm('¿Estás seguro de que deseas eliminar la oficina `${office.name}` (${office.code})?');"
+          onsubmit={`return confirm('¿Estás seguro de que deseas eliminar la oficina \`${office.name}\` (${office.code})?');`}
         >
           <button
             type="submit"

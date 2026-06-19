@@ -65,13 +65,13 @@ contacts.forEach((contact) => {
       description="Refactorizá, reordená y organizá los contactos de soporte técnico y helpdesk."
     />
     <div class="flex gap-2 shrink-0">
-      <a href={resolveUrl("/admin/contactos/categoria/nueva")} class="btn btn-outline btn-sm gap-2">
+      <a href={resolveUrl("/admin/contactos/categoria/create")} class="btn btn-outline btn-sm gap-2">
         <Icon name="boxicons:folder-plus" size={16} />
         Nueva Categoría
       </a>
       <a
         id="btn-add-contact"
-        href={resolveUrl("/admin/contactos/new")}
+        href={resolveUrl("/admin/contactos/create")}
         class="btn btn-primary btn-sm gap-2"
       >
         <Icon name="boxicons:plus" size={16} />
@@ -137,7 +137,7 @@ contacts.forEach((contact) => {
                     </span>
                     <div class="hidden group-hover:flex items-center gap-0.5">
                       <a
-                        href={resolveUrl(`/admin/contactos/categoria/${cat.id}`)}
+                        href={resolveUrl(`/admin/contactos/categoria/edit/${cat.id}`)}
                         class="btn btn-xs btn-ghost btn-square text-base-content/60 hover:text-primary"
                         title="Editar"
                         onclick="event.stopPropagation();"
@@ -272,7 +272,7 @@ contacts.forEach((contact) => {
                     <!-- Acciones -->
                     <div class="flex items-center justify-end gap-1">
                       <a
-                        href={resolveUrl(`/admin/contactos/${contact.id}`)}
+                        href={resolveUrl(`/admin/contactos/edit/${contact.id}`)}
                         class="btn btn-xs btn-ghost btn-square text-base-content/60 hover:text-primary hover:bg-primary/10"
                         title="Editar Contacto"
                       >
@@ -280,7 +280,7 @@ contacts.forEach((contact) => {
                       </a>
                       <form
                         method="POST"
-                        action={resolveUrl(`/admin/contactos/${contact.id}/eliminar`)}
+                        action={resolveUrl(`/admin/contactos/edit/${contact.id}/eliminar`)}
                         class="inline"
                         onsubmit="return confirm('¿Estás seguro de que deseas eliminar este contacto?');"
                       >
@@ -426,9 +426,9 @@ contacts.forEach((contact) => {
       const base = import.meta.env.BASE_URL || "/";
       const cleanBase = base.endsWith("/") ? base : base + "/";
       if (categoryId === "all") {
-        btnAddContact.href = `${cleanBase}admin/contactos/new`;
+        btnAddContact.href = `${cleanBase}admin/contactos/create`;
       } else {
-        btnAddContact.href = `${cleanBase}admin/contactos/new?categoryId=${encodeURIComponent(categoryId)}`;
+        btnAddContact.href = `${cleanBase}admin/contactos/create?categoryId=${encodeURIComponent(categoryId)}`;
       }
     }
 
@@ -682,7 +682,7 @@ contacts.forEach((contact) => {
     if (modal && form) {
       const base = import.meta.env.BASE_URL || "/";
       const cleanBase = base.endsWith("/") ? base : base + "/";
-      const cleanPath = `admin/contactos/categorias/${categoryId}/eliminar`;
+      const cleanPath = `admin/contactos/categoria/edit/${categoryId}/eliminar`;
       
       form.action = `${cleanBase}${cleanPath}`;
       modal.showModal();

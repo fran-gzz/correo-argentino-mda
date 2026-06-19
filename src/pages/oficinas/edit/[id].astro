@@ -16,6 +16,7 @@ import { Icon } from "astro-icon/components";
 import { logAdminAction } from "@lib/auditLogger";
 import OfficeForm from "@components/admin/OfficeForm.astro";
 import { officeFormSchema } from "@lib/validations";
+import { normalizeSearchValue } from "@lib/clientSearch";
 import { isAllowed } from "@lib/rolesMatrix";
 
 const base = import.meta.env.BASE_URL || "/";
@@ -118,9 +119,24 @@ if (Astro.request.method === "POST") {
         .where(eq(offices.id, officeId));
       const oldName = existing?.name || "";
 
+      const nextSearchableText = normalizeSearchValue(
+        [
+          officeData.code,
+          officeData.name,
+          officeData.locality,
+          officeData.parentNis,
+          officeData.address,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+
       await db
         .update(offices)
-        .set(officeData)
+        .set({
+          ...officeData,
+          searchableText: nextSearchableText,
+        })
         .where(eq(offices.id, officeId));
 
       await db.delete(officeAssets).where(eq(officeAssets.officeId, officeId));
@@ -206,9 +222,10 @@ if (Astro.request.method === "POST") {
       return Astro.redirect(`${cleanBase}oficinas?toast_msg=${encodeURIComponent("Oficina actualizada con éxito.")}&toast_type=success`);
     }
   } catch (e: any) {
+    console.error("[EditOffice] Error actualizando la oficina:", e);
     errorMsg = e.message?.includes("UNIQUE")
       ? "Ya existe una oficina con ese código."
-      : "Error al guardar la oficina.";
+      : "Error al guardar la oficina: " + (e.message || "");
   }
 }
 
@@ -326,7 +343,9 @@ const pageTitle = `Editar: ${office.name}`;
     {
       errorMsg && (
         <script is:inline define:vars={{ errorMsg }}>
-          window.showToast?.(errorMsg, "alert-error");
+          window.addEventListener('load', () => {
+            window.showToast?.(errorMsg, "alert-error");
+          });
         </script>
       )
     }
