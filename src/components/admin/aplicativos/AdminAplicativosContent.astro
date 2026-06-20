@@ -23,12 +23,24 @@ let deleteError = "";
 let categories = [];
 let allApps = [];
 
+let uncategorizedDbId: number | null = null;
+let filteredCategories: typeof categories = [];
+
 try {
-  categories = (await db
+  const dbCategories = await db
     .select()
     .from(applicationCategories)
-    .orderBy(applicationCategories.title))
-    .filter((cat) => cat.id !== "uncategorized");
+    .orderBy(applicationCategories.title);
+
+  dbCategories.forEach((cat) => {
+    const t = cat.title.toLowerCase();
+    if (t === "sin categoría" || t === "sin categoria") {
+      uncategorizedDbId = cat.id;
+    } else {
+      filteredCategories.push(cat);
+    }
+  });
+  categories = filteredCategories;
 
   allApps = await db
     .select({
@@ -57,10 +69,16 @@ try {
 const appsGridCols = "grid-cols-[40px_50px_1.5fr_2fr_100px] gap-4";
 
 // Calculate apps count per category
-const categoryCounts = new Map<string, number>();
+const categoryCounts = new Map<string | number, number>();
+let uncategorizedCount = 0;
+
 allApps.forEach((app) => {
-  const catId = app.categoryId || "uncategorized";
-  categoryCounts.set(catId, (categoryCounts.get(catId) || 0) + 1);
+  if (!app.categoryId || app.categoryId === uncategorizedDbId) {
+    uncategorizedCount++;
+    categoryCounts.set("uncategorized", uncategorizedCount);
+  } else {
+    categoryCounts.set(app.categoryId, (categoryCounts.get(app.categoryId) || 0) + 1);
+  }
 });
 
 const truncatePath = (filePath: string | null) => {
@@ -162,16 +180,16 @@ const truncatePath = (filePath: string | null) => {
                     <span class="badge badge-sm badge-ghost font-mono count-badge" data-count={count}>
                       {count}
                     </span>
-                    <div class="hidden group-hover:flex items-center gap-0.5">
-                      <a
-                        href={resolveUrl(`/admin/aplicativos/categorias/edit/${cat.id}`)}
-                        class="btn btn-xs btn-ghost btn-square text-base-content/60 hover:text-primary"
-                        title="Editar"
-                        onclick="event.stopPropagation();"
-                      >
-                        <Icon name="boxicons:pencil" size={14} />
-                      </a>
-                      {cat.id !== "uncategorized" && (
+                    {cat.title.toLowerCase() !== "sin categoría" && cat.title.toLowerCase() !== "sin categoria" && (
+                      <div class="hidden group-hover:flex items-center gap-0.5">
+                        <a
+                          href={resolveUrl(`/admin/aplicativos/categorias/edit/${cat.id}`)}
+                          class="btn btn-xs btn-ghost btn-square text-base-content/60 hover:text-primary"
+                          title="Editar"
+                          onclick="event.stopPropagation();"
+                        >
+                          <Icon name="boxicons:pencil" size={14} />
+                        </a>
                         <button
                           type="button"
                           class="btn btn-xs btn-ghost btn-square text-base-content/60 hover:text-error"
@@ -180,8 +198,8 @@ const truncatePath = (filePath: string | null) => {
                         >
                           <Icon name="boxicons:trash" size={14} />
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -278,7 +296,7 @@ const truncatePath = (filePath: string | null) => {
                     data-table-row
                     data-app-row
                     data-app-id={app.id}
-                    data-app-category={app.categoryId || "uncategorized"}
+                    data-app-category={(!app.categoryId || app.categoryId === uncategorizedDbId) ? "uncategorized" : app.categoryId}
                     data-app-search={`${app.title} ${app.filePath || ""}`.toLowerCase()}
                     draggable="true"
                   >
