@@ -33,9 +33,35 @@ function columnType(db: Database.Database, table: string, col: string): string |
   return row?.type ?? null;
 }
 
+function cleanupResidualTables(db: Database.Database): void {
+  const rows = db.prepare(
+    "SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE ? ESCAPE '\\' OR name LIKE ? ESCAPE '\\')"
+  ).all("\\_map\\_%", "\\_\\_new\\_%") as { name: string }[];
+  for (const { name } of rows) {
+    db.exec(`DROP TABLE IF EXISTS "${name}"`);
+    console.log(`[Fix]  → Tabla residual "${name}" eliminada.`);
+  }
+}
+
+function ensurePreMigrationState(db: Database.Database): void {
+  // If application_categories exists with INTEGER PK (from failed drizzle-kit push),
+  // we need to drop it and recreate with TEXT PK so migration 0002 can run properly.
+  const ac = db.prepare("SELECT type FROM pragma_table_info('application_categories') WHERE name='id'").get() as { type: string } | undefined;
+  if (!ac) {
+    console.log("[Fix]  → Creando application_categories (TEXT) para permitir migración 0002...");
+    db.exec("CREATE TABLE application_categories (id text PRIMARY KEY NOT NULL, title text NOT NULL);");
+  } else if (ac.type === "INTEGER") {
+    console.log("[Fix]  → Recreando application_categories como TEXT (pre-migración)...");
+    db.exec("DROP TABLE application_categories;");
+    db.exec("CREATE TABLE application_categories (id text PRIMARY KEY NOT NULL, title text NOT NULL);");
+  }
+}
+
 function applyMigrationFile(filePath: string): void {
   const db = new Database(DB_PATH);
   db.exec("PRAGMA foreign_keys = OFF;");
+  cleanupResidualTables(db);
+  ensurePreMigrationState(db);
   db.exec(readFileSync(filePath, "utf-8"));
   db.exec("PRAGMA foreign_keys = ON;");
   db.close();
