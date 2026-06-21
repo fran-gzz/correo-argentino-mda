@@ -60,10 +60,22 @@ const themeByTone: Record<UsefulContactCategory["tone"], CategoryTheme> = {
     topBorderClass: "border-t-warning",
     badgeClass: "badge-warning",
   },
+  error: {
+    iconContainerClass: "border-error bg-error text-error-content",
+    headerClass: "bg-error/10",
+    topBorderClass: "border-t-error",
+    badgeClass: "badge-error",
+  },
+  neutral: {
+    iconContainerClass: "border-neutral bg-neutral text-neutral-content",
+    headerClass: "bg-neutral/10",
+    topBorderClass: "border-t-neutral",
+    badgeClass: "badge-neutral",
+  },
 };
 
 const getCategoryTheme = (category: UsefulContactCategory): CategoryTheme =>
-  themeByTone[category.tone];
+  themeByTone[category.tone] ?? themeByTone.primary;
 
 const getCategorySearchText = (category: UsefulContactCategory): string =>
   category.contacts
