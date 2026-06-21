@@ -26,6 +26,7 @@ const rowGridClass = "grid grid-cols-[1fr_140px_320px] items-center gap-4";
 
 <PageContainer width="xl">
   <PageHeader
+    title="Gestión de usuarios"
     description="Alta de operadores, asignación de roles y revisión de accesos activos en el portal."
   />
 
@@ -635,7 +636,7 @@ const rowGridClass = "grid grid-cols-[1fr_140px_320px] items-center gap-4";
           containerEl.classList.add("bg-error/5", "border-error/30");
         } else if (role === "supervisor") {
           containerEl.classList.add("bg-info/5", "border-info/30");
-        } else if (role === "team_leader" || role === "team-leader" || role === "team leader") {
+        } else if (role === "team_leader") {
           containerEl.classList.add("bg-accent/5", "border-accent/30");
         } else if (role === "referent") {
           containerEl.classList.add("bg-warning/5", "border-warning/30");

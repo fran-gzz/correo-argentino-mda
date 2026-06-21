@@ -7,8 +7,6 @@ import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import SearchInput from "@components/ui/SearchInput.astro";
 import { Icon } from "astro-icon/components";
 
-
-
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
 
@@ -21,7 +19,7 @@ const allOperators = allOperatorsRaw.map((op) => ({
   name: op.nombre,
   username: op.username || "",
   locationName: op.location || "Monte Grande",
-  status: op.disponible ? "disponible" : (op.motivo || "Franco"),
+  status: op.disponible ? "disponible" : op.motivo || "Franco",
 }));
 
 const statusLabels: Record<string, string> = {
@@ -49,10 +47,9 @@ const rowGridClass =
 
 <PageContainer>
   <PageHeader
+    title="Gestión de operadores"
     description="Administración de la plantilla de operadores, ubicaciones y estados."
   />
-
-
 
   <div
     class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
@@ -73,9 +70,7 @@ const rowGridClass =
       }
     </div>
 
-    <div
-      class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto"
-    >
+    <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
       <SearchInput
         id="admin-operator-search"
         label="Buscar operador"
@@ -247,7 +242,7 @@ const rowGridClass =
     );
 
     function applyFilters() {
-      const query = searchInput.value.trim();
+      const query = searchInput?.value.trim();
       let visibleCount = 0;
 
       rows.forEach((row) => {

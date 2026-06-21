@@ -20,8 +20,24 @@ const resolveUrl = (p: string) => {
 let deleteSuccess = false;
 let deleteError = "";
 
-let categories = [];
-let allApps = [];
+interface Category {
+  id: number;
+  title: string;
+}
+
+interface AppInfo {
+  id: number;
+  title: string;
+  version: string | null;
+  filePath: string | null;
+  categoryId: number | null;
+  categoryTitle: string | null;
+  iconPath: string | null;
+  sortOrder: number | null;
+}
+
+let categories: Category[] = [];
+let allApps: AppInfo[] = [];
 
 let uncategorizedDbId: number | null = null;
 let filteredCategories: typeof categories = [];
@@ -99,7 +115,7 @@ const truncatePath = (filePath: string | null) => {
     <div class="flex gap-2 shrink-0">
       <a href={resolveUrl("/admin/aplicativos/categorias/create")} class="btn btn-outline btn-sm gap-2">
         <Icon name="boxicons:folder-plus" size={16} />
-        Nueva Categoría
+        Nueva categoría
       </a>
       <a
         id="btn-add-app"
@@ -107,7 +123,7 @@ const truncatePath = (filePath: string | null) => {
         class="btn btn-primary btn-sm gap-2"
       >
         <Icon name="boxicons:plus" size={16} />
-        Nuevo Aplicativo
+        Nuevo aplicativo
       </a>
     </div>
   </div>
