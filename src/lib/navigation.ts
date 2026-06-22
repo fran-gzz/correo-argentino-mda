@@ -106,21 +106,6 @@ export const navSections: NavSection[] = [
         icon: "boxicons:apps-filled",
         children: [
           {
-            href: "/admin/usuarios",
-            label: "Usuarios",
-            icon: "boxicons:group-filled",
-          },
-          {
-            href: "/inventario-terminales",
-            label: "Terminales",
-            icon: "boxicons:server-filled",
-          },
-          {
-            href: "/oficinas",
-            label: "Oficinas",
-            icon: "boxicons:building-filled",
-          },
-          {
             href: "/admin/contactos",
             label: "Contactos",
             icon: "boxicons:phone-filled",
@@ -129,6 +114,11 @@ export const navSections: NavSection[] = [
             href: "/admin/recursos",
             label: "Recursos",
             icon: "boxicons:link-filled",
+          },
+          {
+            href: "/admin/usuarios",
+            label: "Usuarios",
+            icon: "boxicons:group-filled",
           },
           {
             href: "/admin/operadores",
