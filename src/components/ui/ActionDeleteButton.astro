@@ -5,16 +5,27 @@ interface Props {
   ariaLabel: string;
   class?: string;
   formId?: string;
+  size?: "xs" | "default";
+  type?: "button" | "submit";
+  [key: string]: any;
 }
 
-const { ariaLabel, formId, class: className = "" } = Astro.props;
+const { ariaLabel, formId, class: className = "", size = "default", type = "submit", ...attrs } = Astro.props;
+
+const isXs = size === "xs";
+const btnClasses = isXs
+  ? "btn btn-xs btn-soft btn-error gap-2"
+  : "btn btn-sm md:btn-md btn-soft btn-error gap-2";
+const iconName = "boxicons:trash-filled";
+const iconSize = isXs ? 14 : 18;
 ---
 
 <button
-  type="submit"
+  type={type}
   form={formId}
-  class:list={["btn btn-sm md:btn-md btn-soft btn-error gap-2", className]}
+  class:list={[btnClasses, className]}
   aria-label={ariaLabel}
+  {...attrs}
 >
-  <Icon name="boxicons:trash-filled" size={18} />
+  <Icon name={iconName} size={iconSize} />
 </button>
