@@ -7,10 +7,10 @@ const fileUrl = (path) => new URL(path, root);
 const read = (path) => readFile(fileUrl(path), "utf8");
 const exists = (path) => existsSync(fileUrl(path));
 
-// 1. Check login page is prerendered
-console.log("Checking login.astro prerender configuration...");
+// 1. Check login page is NOT prerendered (needs SSR for form submission)
+console.log("Checking login.astro SSR configuration...");
 const loginPage = await read("src/pages/login/index.astro");
-assert.match(loginPage, /export\s+const\s+prerender\s*=\s*true/, "login/index.astro should export const prerender = true");
+assert.doesNotMatch(loginPage, /export\s+const\s+prerender\s*=\s*true/, "login/index.astro MUST NOT be prerendered since it handles POST requests");
 
 // 2. Check LinkItem.astro uses lazy loading and async decoding for img tags
 console.log("Checking LinkItem.astro image optimization...");
