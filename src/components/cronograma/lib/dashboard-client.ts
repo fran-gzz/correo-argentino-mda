@@ -1175,6 +1175,16 @@ function renderMonthly(): void {
     return;
   }
 
+  const container = document.getElementById('cronograma-container');
+  const userRole = container?.dataset.userRole || 'agent';
+  const isReadOnly = ['agent', 'referent'].includes(userRole);
+  const hideComments = isReadOnly;
+  const hideTotals = isReadOnly;
+
+  if (hideTotals) {
+    state.isTotalsCollapsed = true;
+  }
+
   const thead = document.getElementById('monthly-thead');
   const tbody = document.getElementById('monthly-tbody');
   const dateInput = document.getElementById('date-input') as HTMLInputElement | null;
@@ -1451,7 +1461,7 @@ function renderMonthly(): void {
         const isHoliday = isFeriado(date);
         if (isHoliday) cellClass += ' bg-orange-100 dark:bg-orange-950';
         
-        const hasComment = !!(op.comentarios && op.comentarios[date]);
+        const hasComment = !hideComments && !!(op.comentarios && op.comentarios[date]);
         const dayOvertime = (op.weekendOvertimes || []).find(s => s.date === date);
         const otAttr = dayOvertime ? `data-overtime="${escapeHtml(dayOvertime.startTime + ' - ' + dayOvertime.endTime)}"` : '';
 
@@ -1475,7 +1485,7 @@ function renderMonthly(): void {
               data-status="Franco"
               data-horario="${safeHorario}"
               data-username="${escapeHtml(username)}"
-              data-comment="${escapeHtml(op.comentarios?.[date] || '')}"
+              data-comment="${hideComments ? '' : escapeHtml(op.comentarios?.[date] || '')}"
               data-break-inicio="${escapeHtml(breakInicio)}"
               data-break-fin="${escapeHtml(breakFin)}"
               aria-label="${francoAria}"
@@ -1533,7 +1543,7 @@ function renderMonthly(): void {
               data-status="${safeStatus}"
               data-horario="${safeHorario}"
               data-username="${escapeHtml(username)}"
-              data-comment="${escapeHtml(op.comentarios?.[date] || '')}"
+              data-comment="${hideComments ? '' : escapeHtml(op.comentarios?.[date] || '')}"
               data-break-inicio="${escapeHtml(breakInicio)}"
               data-break-fin="${escapeHtml(breakFin)}"
               aria-label="${statusAria}"
@@ -2323,47 +2333,7 @@ function updateBrushUI(): void {
 }
 
 function updateMaximizeUI(isMax: boolean): void {
-  const htmlEl = document.documentElement;
-  
-  const maxBtn = document.getElementById('maximize-cronograma-btn');
-  const maxIcon = maxBtn?.querySelector('.max-icon');
-  const minIcon = maxBtn?.querySelector('.min-icon');
-  const maxText = document.getElementById('maximize-text');
-
-  const maxBtnDaily = document.getElementById('maximize-cronograma-btn-daily');
-  const maxIconDaily = maxBtnDaily?.querySelector('.max-icon');
-  const minIconDaily = maxBtnDaily?.querySelector('.min-icon');
-  const maxTextDaily = document.getElementById('maximize-text-daily');
-  
-  if (isMax) {
-    htmlEl.classList.add('cronograma-maximized');
-    
-    maxIcon?.classList.add('hidden');
-    minIcon?.classList.remove('hidden');
-    if (maxText) maxText.innerText = "Restaurar";
-    maxBtn?.setAttribute('title', 'Restaurar cronograma');
-    maxBtn?.setAttribute('aria-label', 'Restaurar cronograma');
-
-    maxIconDaily?.classList.add('hidden');
-    minIconDaily?.classList.remove('hidden');
-    if (maxTextDaily) maxTextDaily.innerText = "Restaurar";
-    maxBtnDaily?.setAttribute('title', 'Restaurar cronograma');
-    maxBtnDaily?.setAttribute('aria-label', 'Restaurar cronograma');
-  } else {
-    htmlEl.classList.remove('cronograma-maximized');
-    
-    maxIcon?.classList.remove('hidden');
-    minIcon?.classList.add('hidden');
-    if (maxText) maxText.innerText = "Maximizar";
-    maxBtn?.setAttribute('title', 'Maximizar cronograma');
-    maxBtn?.setAttribute('aria-label', 'Maximizar cronograma');
-
-    maxIconDaily?.classList.remove('hidden');
-    minIconDaily?.classList.add('hidden');
-    if (maxTextDaily) maxTextDaily.innerText = "Maximizar";
-    maxBtnDaily?.setAttribute('title', 'Maximizar cronograma');
-    maxBtnDaily?.setAttribute('aria-label', 'Maximizar cronograma');
-  }
+  document.documentElement.classList.add('cronograma-maximized');
 }
 
 function setupEventListeners(): void {
@@ -2651,6 +2621,11 @@ function setupEventListeners(): void {
   let activeCell: HTMLElement | null = null;
 
   monthlyBody?.addEventListener('contextmenu', (e) => {
+    const container = document.getElementById('cronograma-container');
+    const userRole = container?.dataset.userRole || 'agent';
+    const isReadOnly = ['agent', 'referent'].includes(userRole);
+    if (isReadOnly) return;
+
     const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-monthly-detail]');
     if (!trigger || !quickEditMenu) return;
     
@@ -2987,18 +2962,7 @@ function setupEventListeners(): void {
     importInput.addEventListener('change', handleImportCSV);
   }
 
-  // --- Maximize Mode Handler ---
-  const maxBtn = document.getElementById('maximize-cronograma-btn');
-  const maxBtnDaily = document.getElementById('maximize-cronograma-btn-daily');
-
-  const handleMaximizeClick = () => {
-    const isMax = !document.documentElement.classList.contains('cronograma-maximized');
-    safeSetItem('cronoMaximized', isMax ? 'true' : 'false');
-    updateMaximizeUI(isMax);
-  };
-
-  maxBtn?.addEventListener('click', handleMaximizeClick);
-  maxBtnDaily?.addEventListener('click', handleMaximizeClick);
+  // Maximize logic removed; forced unconditionally
 
   document.addEventListener('click', (e) => {
     const clickDayBtn = (e.target as HTMLElement).closest<HTMLElement>('[data-click-day]');
@@ -3407,6 +3371,10 @@ function renderOvertimeView(): void {
       referenteSelect.appendChild(opt);
     });
     if (currentVal) referenteSelect.value = currentVal;
+    const textEl = document.getElementById('overtime-referente-text');
+    if (textEl) {
+      textEl.textContent = referenteSelect.value ? referenteSelect.value : 'Sin asignar';
+    }
   }
 
   if (shiftAgentSelect) {
@@ -3433,6 +3401,10 @@ async function refreshOvertimeForWeekend(weekendDate: string): Promise<void> {
   const referenteSelect = document.getElementById('overtime-referente-select') as HTMLSelectElement | null;
   if (referenteSelect) {
     referenteSelect.value = existingConfig ? existingConfig.referente : '';
+    const textEl = document.getElementById('overtime-referente-text');
+    if (textEl) {
+      textEl.textContent = existingConfig && existingConfig.referente ? existingConfig.referente : 'Sin asignar';
+    }
   }
 
   try {
@@ -3869,9 +3841,8 @@ document.addEventListener('mouseout', (e) => {
   }
 });
 
-if (safeGetItem('cronoMaximized', 'false') === 'true') {
-  updateMaximizeUI(true);
-}
+// Force maximized layout unconditionally
+updateMaximizeUI(true);
 
 // ===================================================
 // PASIVA VIEW FUNCTIONS
@@ -4037,9 +4008,15 @@ async function renderPasivaView(): Promise<void> {
 
     state.pasivaState.operatorId = data.operatorId;
     state.pasivaState.originalOperatorId = data.operatorId;
+    state.pasivaState.supervisors = data.supervisors || [];
 
     if (monthlyOperatorSelect) {
       monthlyOperatorSelect.value = data.operatorId ? String(data.operatorId) : '';
+      const textEl = document.getElementById('pasiva-monthly-operator-text');
+      if (textEl) {
+        const selectedOpt = monthlyOperatorSelect.options[monthlyOperatorSelect.selectedIndex];
+        textEl.textContent = selectedOpt ? selectedOpt.textContent : 'SIN OPERADOR';
+      }
     }
 
     state.pasivaState.weeklyAssignments = {};
@@ -4087,37 +4064,70 @@ function populatePasivaWeekInputs(): void {
     tdLabel.textContent = label;
     tr.appendChild(tdLabel);
     
+    const container = document.getElementById('cronograma-app-container');
+    const userRole = container?.dataset.userRole || 'agent';
+    const isReadOnly = ['agent', 'referent'].includes(userRole);
+
     const tdSupervisor = document.createElement('td');
     tdSupervisor.className = 'py-2';
-    const supervisorInput = document.createElement('input');
-    supervisorInput.type = 'text';
-    supervisorInput.className = 'input input-bordered input-sm font-bold text-xs h-9 w-full max-w-xs rounded-xl bg-base-100 focus:outline-none focus:border-secondary';
-    supervisorInput.value = w.supervisorName;
-    supervisorInput.addEventListener('input', () => {
-      w.supervisorName = supervisorInput.value;
-      updatePasivaToolbarUI();
-    });
-    tdSupervisor.appendChild(supervisorInput);
+    if (isReadOnly) {
+      const supervisorText = document.createElement('span');
+      supervisorText.className = 'text-xs font-bold text-base-content/85 px-3 py-2 bg-base-200/50 rounded-xl border border-base-300 min-h-9 flex items-center w-full max-w-xs';
+      supervisorText.textContent = w.supervisorName || 'SIN ASIGNAR';
+      tdSupervisor.appendChild(supervisorText);
+    } else {
+      const supervisorSelect = document.createElement('select');
+      supervisorSelect.className = 'select select-bordered select-sm font-bold text-xs h-9 w-full max-w-xs rounded-xl bg-base-100 focus:outline-none focus:border-secondary';
+      
+      state.pasivaState.supervisors.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        supervisorSelect.appendChild(opt);
+      });
+      
+      if (w.supervisorName && !state.pasivaState.supervisors.includes(w.supervisorName)) {
+        const opt = document.createElement('option');
+        opt.value = w.supervisorName;
+        opt.textContent = w.supervisorName;
+        supervisorSelect.appendChild(opt);
+      }
+      
+      supervisorSelect.value = w.supervisorName || '';
+      supervisorSelect.addEventListener('change', () => {
+        w.supervisorName = supervisorSelect.value;
+        updatePasivaToolbarUI();
+      });
+      tdSupervisor.appendChild(supervisorSelect);
+    }
     tr.appendChild(tdSupervisor);
     
     const tdReferente = document.createElement('td');
     tdReferente.className = 'py-2 pr-4';
-    const referenteSelect = document.createElement('select');
-    referenteSelect.className = 'select select-bordered select-sm font-bold text-xs h-9 w-full max-w-xs rounded-xl bg-base-100 focus:outline-none focus:border-secondary';
-    
-    referenteSelect.innerHTML = '<option value="">SIN REFERENTE</option>';
-    state.cronoData.forEach(op => {
-      const opt = document.createElement('option');
-      opt.value = String(op.id ?? '');
-      opt.textContent = op.nombre;
-      referenteSelect.appendChild(opt);
-    });
-    referenteSelect.value = w.referenteId ? String(w.referenteId) : '';
-    referenteSelect.addEventListener('change', () => {
-      w.referenteId = referenteSelect.value ? parseInt(referenteSelect.value, 10) : null;
-      updatePasivaToolbarUI();
-    });
-    tdReferente.appendChild(referenteSelect);
+    if (isReadOnly) {
+      const referenteText = document.createElement('span');
+      referenteText.className = 'text-xs font-bold text-base-content/85 px-3 py-2 bg-base-200/50 rounded-xl border border-base-300 min-h-9 flex items-center w-full max-w-xs';
+      const selectedOp = state.cronoData.find(op => op.id === w.referenteId);
+      referenteText.textContent = selectedOp ? selectedOp.nombre : 'SIN REFERENTE';
+      tdReferente.appendChild(referenteText);
+    } else {
+      const referenteSelect = document.createElement('select');
+      referenteSelect.className = 'select select-bordered select-sm font-bold text-xs h-9 w-full max-w-xs rounded-xl bg-base-100 focus:outline-none focus:border-secondary';
+      
+      referenteSelect.innerHTML = '<option value="">SIN REFERENTE</option>';
+      state.cronoData.forEach(op => {
+        const opt = document.createElement('option');
+        opt.value = String(op.id ?? '');
+        opt.textContent = op.nombre;
+        referenteSelect.appendChild(opt);
+      });
+      referenteSelect.value = w.referenteId ? String(w.referenteId) : '';
+      referenteSelect.addEventListener('change', () => {
+        w.referenteId = referenteSelect.value ? parseInt(referenteSelect.value, 10) : null;
+        updatePasivaToolbarUI();
+      });
+      tdReferente.appendChild(referenteSelect);
+    }
     tr.appendChild(tdReferente);
     
     tbody.appendChild(tr);

@@ -1,8 +1,70 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import PageContainer from "@components/ui/PageContainer.astro";
-import PageHeader from "@components/ui/PageHeader.astro";
 import QuickAccessCard from "@components/ui/QuickAccessCard.astro";
+import { Icon } from "astro-icon/components";
+import { normalizeRole, hasPermission } from "@lib/rbac";
+import { db } from "@db/index";
+import { agents } from "@db/schema";
+import { eq } from "drizzle-orm";
+
+const user = Astro.locals.user;
+const userRole = normalizeRole(user?.role || "agent");
+
+let displayName = user?.username || "Usuario";
+if (user && user.id !== 0) {
+  const matchedAgent = await db
+    .select()
+    .from(agents)
+    .where(eq(agents.username, user.username))
+    .limit(1);
+  if (matchedAgent.length > 0) {
+    displayName = matchedAgent[0].name;
+  }
+}
+
+if (displayName === user?.username) {
+  displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+}
+
+const isRouteLocked = (href: string): boolean => {
+  const lowerHref = href.toLowerCase();
+  if (user?.id === 0 && (lowerHref === "/supervision" || lowerHref.startsWith("/supervision/") || lowerHref === "/admin" || lowerHref.startsWith("/admin/"))) {
+    return true;
+  }
+  return !hasPermission(href, userRole);
+};
+
+const mainModules = [
+  {
+    href: "/supervision/cronograma",
+    label: "Cronograma",
+    sublabel: "Gestión de turnos",
+    icon: "boxicons:calendar-filled",
+    tone: "bg-error/10 text-error",
+  },
+  {
+    href: "/supervision/asistencia",
+    label: "Asistencia",
+    sublabel: "Control de presentismo",
+    icon: "boxicons:clock-filled",
+    tone: "bg-success/10 text-success",
+  },
+  {
+    href: "/supervision/calidad-operadores",
+    label: "Calidad",
+    sublabel: "Auditoría de llamadas",
+    icon: "boxicons:bar-chart-big-filled",
+    tone: "bg-primary/10 text-primary",
+  },
+  {
+    href: "/supervision/asignacion-autogestiones",
+    label: "AGS",
+    sublabel: "Asignación de tareas",
+    icon: "boxicons:git-branch-filled",
+    tone: "bg-secondary/10 text-secondary",
+  },
+];
 
 type BoxiconName = `boxicons:${string}`;
 
@@ -79,22 +141,54 @@ const quickAccessItems: QuickAccessItem[] = [
 
 <BaseLayout>
   <PageContainer>
-    <PageHeader
-      title="¡Hola!"
-      description="Bienvenido al panel principal. Desde aquí puedes entrar rápido a los módulos operativos del portal."
-    />
+    <header class="space-y-2 mb-6">
+      <h1 class="text-3xl font-bold tracking-tight text-base-content">
+        {user?.id !== 0 ? (
+          <>¡Hola, <span class="text-secondary">{displayName}</span>!</>
+        ) : (
+          "¡Hola!"
+        )}
+      </h1>
+      <p class="max-w-3xl text-sm leading-relaxed text-base-content/70 sm:text-base">
+        Bienvenido al panel principal. Desde aquí puedes entrar rápido a los módulos operativos del portal.
+      </p>
+    </header>
 
+    <!-- Panel de Módulos y Accesos -->
     <section
-      aria-labelledby="accesos-rapidos-heading"
-      class="flex flex-col gap-4"
+      aria-label="Panel de módulos y accesos directos de la plataforma"
+      class="flex flex-col gap-6"
     >
-      <h2
-        id="accesos-rapidos-heading"
-        class="text-xl font-semibold text-base-content"
-      >
-        Accesos rápidos
-      </h2>
+      <!-- Módulos Principales -->
+      {user && user.id !== 0 && (
+        <div
+          class:list={[
+            "grid grid-cols-1 sm:grid-cols-2 gap-6",
+            userRole === "agent" ? "lg:grid-cols-3" : "lg:grid-cols-4"
+          ]}
+        >
+          {
+            mainModules
+              .filter((mod) => !(userRole === "agent" && mod.href === "/supervision/asistencia"))
+              .map((mod) => {
+                const locked = isRouteLocked(mod.href);
+                return (
+                  <QuickAccessCard
+                    href={mod.href}
+                    title={mod.label}
+                    description={mod.sublabel}
+                    icon={mod.icon}
+                    iconTone={mod.tone}
+                    locked={locked}
+                    layout="horizontal"
+                  />
+                );
+              })
+          }
+        </div>
+      )}
 
+      <!-- Enlaces de acceso rápido -->
       <div
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >

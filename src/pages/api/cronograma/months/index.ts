@@ -6,7 +6,12 @@ import { logAdminAction } from "@lib/auditLogger";
 
 const MONTH_LABELS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
+import { requireWriteAccess } from "@/lib/rbac-middleware";
+
 export const POST: APIRoute = async ({ request, locals }) => {
+  const denied = requireWriteAccess(locals, "cronograma");
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { year, month } = body; // month is 0-indexed (0 = Enero)
@@ -81,6 +86,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 };
 
 export const DELETE: APIRoute = async ({ request, locals }) => {
+  const denied = requireWriteAccess(locals, "cronograma");
+  if (denied) return denied;
+
   try {
     const body = await request.json();
     const { year, month } = body; // month is 0-indexed (0 = Enero)

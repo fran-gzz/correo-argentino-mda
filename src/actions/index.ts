@@ -1,5 +1,6 @@
-import { defineAction } from "astro:actions";
+import { defineAction, ActionError } from "astro:actions";
 import { z } from "astro:schema";
+import { requireWriteAccess } from "../lib/rbac-middleware";
 import { db } from "@db/index";
 import { agents, qualityAudits, auditParameters, auditScores, monthlySummaries } from "@db/schema";
 import { eq, inArray } from "drizzle-orm";
@@ -18,6 +19,13 @@ export const server = {
       }))
     }),
     handler: async (input, context) => {
+      const denied = requireWriteAccess(context.locals, "calidad");
+      if (denied) {
+        throw new ActionError({
+          code: "FORBIDDEN",
+          message: "No tiene permisos para modificar parámetros de calidad.",
+        });
+      }
       const generateCode = (name: string): string => {
         const base = name
           .toLowerCase()
@@ -157,6 +165,13 @@ export const server = {
       isCriticalFailure: z.any().transform(v => v === "on" || v === true || v === "true" || v === 1 || v === "1"),
     }).passthrough(),
     handler: async (input, context) => {
+      const denied = requireWriteAccess(context.locals, "calidad");
+      if (denied) {
+        throw new ActionError({
+          code: "FORBIDDEN",
+          message: "No tiene permisos para guardar auditorías.",
+        });
+      }
       // 1. Obtener los parámetros correspondientes
       let allParams;
       if (input.id) {
@@ -280,6 +295,13 @@ export const server = {
       id: z.string().transform(v => parseInt(v, 10)),
     }),
     handler: async (input, context) => {
+      const denied = requireWriteAccess(context.locals, "calidad");
+      if (denied) {
+        throw new ActionError({
+          code: "FORBIDDEN",
+          message: "No tiene permisos para eliminar auditorías.",
+        });
+      }
       try {
         const [auditToDelete] = await db
           .select({ agentId: qualityAudits.agentId, callId: qualityAudits.callId })
@@ -320,6 +342,13 @@ export const server = {
       summary: z.preprocess(v => (v == null ? "" : String(v)), z.string()).optional().default(""),
     }),
     handler: async (input, context) => {
+      const denied = requireWriteAccess(context.locals, "calidad");
+      if (denied) {
+        throw new ActionError({
+          code: "FORBIDDEN",
+          message: "No tiene permisos para guardar resúmenes mensuales.",
+        });
+      }
       try {
         const [agentForSummary] = await db
           .select({ name: agents.name })

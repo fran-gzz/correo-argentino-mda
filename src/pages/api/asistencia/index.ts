@@ -3,11 +3,14 @@ import { db } from "@/db";
 import { operatorAttendance } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getAttendanceData, calculateCompliance } from "@/lib/attendance";
-import { logAdminAction } from "@lib/auditLogger";
+import { requireReadAccess, requireWriteAccess } from "@/lib/rbac-middleware";
+import { logAdminAction } from "@/lib/auditLogger";
 
 export { calculateCompliance };
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, locals }) => {
+  const denied = requireReadAccess(locals, "asistencia");
+  if (denied) return denied;
   try {
     const startDate = url.searchParams.get("startDate") || url.searchParams.get("date");
 
@@ -35,6 +38,8 @@ export const GET: APIRoute = async ({ url }) => {
 };
 
 export const POST: APIRoute = async ({ request, locals }) => {
+  const denied = requireWriteAccess(locals, "asistencia");
+  if (denied) return denied;
   try {
     const body = await request.json();
     const { date, edits } = body;
