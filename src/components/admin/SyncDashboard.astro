@@ -3,12 +3,13 @@ import { Icon } from "astro-icon/components";
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="sync-dashboard">
-  <!-- Card 1: Sincronización de Terminales -->
   <div
-    class="card bg-base-100 border border-base-300 shadow-sm flex flex-row items-center justify-between p-5 md:p-6"
+    class="card bg-base-100 border border-base-300 flex flex-row items-center justify-between p-5 md:p-6"
   >
     <div class="flex-1 min-w-0">
-      <div class="text-xs font-semibold uppercase tracking-wider text-base-content/60 truncate">
+      <div
+        class="text-xs font-semibold uppercase tracking-wider text-base-content/60 truncate"
+      >
         Sincronización de Terminales
       </div>
       <div
@@ -17,10 +18,7 @@ import { Icon } from "astro-icon/components";
       >
         Cargando...
       </div>
-      <div
-        class="text-xs text-base-content/50 mt-1 truncate"
-        id="sync-desc"
-      >
+      <div class="text-xs text-base-content/50 mt-1 truncate" id="sync-desc">
         Esperando datos...
       </div>
     </div>
@@ -36,12 +34,13 @@ import { Icon } from "astro-icon/components";
     </div>
   </div>
 
-  <!-- Card 2: Monitoreo de Cubics (Ping) -->
   <div
-    class="card bg-base-100 border border-base-300 shadow-sm flex flex-row items-center justify-between p-5 md:p-6"
+    class="card bg-base-100 border border-base-300 flex flex-row items-center justify-between p-5 md:p-6"
   >
     <div class="flex-1 min-w-0">
-      <div class="text-xs font-semibold uppercase tracking-wider text-base-content/60 truncate">
+      <div
+        class="text-xs font-semibold uppercase tracking-wider text-base-content/60 truncate"
+      >
         Monitoreo de Cubics (Ping)
       </div>
       <div
@@ -50,10 +49,7 @@ import { Icon } from "astro-icon/components";
       >
         Cargando...
       </div>
-      <div
-        class="text-xs text-base-content/50 mt-1 truncate"
-        id="ping-desc"
-      >
+      <div class="text-xs text-base-content/50 mt-1 truncate" id="ping-desc">
         Esperando datos...
       </div>
     </div>
@@ -102,22 +98,27 @@ import { Icon } from "astro-icon/components";
       if (data.sync) {
         let statusText = "Detenido";
         let statusClass = "text-lg md:text-xl font-bold mt-0.5 text-error";
-        let iconContainerClass = "bg-error/15 text-error p-3 rounded-xl shrink-0 ml-4";
+        let iconContainerClass =
+          "bg-error/15 text-error p-3 rounded-xl shrink-0 ml-4";
         let isSpinning = false;
 
         if (data.sync.status === "online") {
           statusText = "En Ejecución";
           statusClass = "text-lg md:text-xl font-bold mt-0.5 text-success";
-          iconContainerClass = "bg-success/15 text-success p-3 rounded-xl shrink-0 ml-4";
+          iconContainerClass =
+            "bg-success/15 text-success p-3 rounded-xl shrink-0 ml-4";
           isSpinning = true;
         } else if (data.sync.lastStatus === "error") {
           statusText = "Fallo de Sincronización";
-          statusClass = "text-lg md:text-xl font-bold mt-0.5 text-error font-bold";
-          iconContainerClass = "bg-error/15 text-error p-3 rounded-xl shrink-0 ml-4";
+          statusClass =
+            "text-lg md:text-xl font-bold mt-0.5 text-error font-bold";
+          iconContainerClass =
+            "bg-error/15 text-error p-3 rounded-xl shrink-0 ml-4";
         } else if (data.sync.lastStatus === "success") {
           statusText = "Sincronizado";
           statusClass = "text-lg md:text-xl font-bold mt-0.5 text-success";
-          iconContainerClass = "bg-success/15 text-success p-3 rounded-xl shrink-0 ml-4";
+          iconContainerClass =
+            "bg-success/15 text-success p-3 rounded-xl shrink-0 ml-4";
         }
 
         if (syncStatusEl) {
@@ -151,13 +152,15 @@ import { Icon } from "astro-icon/components";
       if (data.ping) {
         let statusText = "Inactivo";
         let statusClass = "text-lg md:text-xl font-bold mt-0.5 text-error";
-        let iconContainerClass = "bg-error/15 text-error p-3 rounded-xl shrink-0 ml-4";
+        let iconContainerClass =
+          "bg-error/15 text-error p-3 rounded-xl shrink-0 ml-4";
         let isPulse = false;
 
         if (data.ping.status === "online") {
           statusText = "Activo";
           statusClass = "text-lg md:text-xl font-bold mt-0.5 text-success";
-          iconContainerClass = "bg-success/15 text-success p-3 rounded-xl shrink-0 ml-4";
+          iconContainerClass =
+            "bg-success/15 text-success p-3 rounded-xl shrink-0 ml-4";
           isPulse = true;
         }
 
@@ -193,23 +196,26 @@ import { Icon } from "astro-icon/components";
 
       if (syncStatusEl) {
         syncStatusEl.textContent = "Error de Conexión";
-        syncStatusEl.className = "text-lg md:text-xl font-bold mt-0.5 text-warning";
+        syncStatusEl.className =
+          "text-lg md:text-xl font-bold mt-0.5 text-warning";
       }
       if (pingStatusEl) {
         pingStatusEl.textContent = "Error de Conexión";
-        pingStatusEl.className = "text-lg md:text-xl font-bold mt-0.5 text-warning";
+        pingStatusEl.className =
+          "text-lg md:text-xl font-bold mt-0.5 text-warning";
       }
       if (syncIconContainer) {
-        syncIconContainer.className = "bg-warning/15 text-warning p-3 rounded-xl shrink-0 ml-4";
+        syncIconContainer.className =
+          "bg-warning/15 text-warning p-3 rounded-xl shrink-0 ml-4";
       }
       if (pingIconContainer) {
-        pingIconContainer.className = "bg-warning/15 text-warning p-3 rounded-xl shrink-0 ml-4";
+        pingIconContainer.className =
+          "bg-warning/15 text-warning p-3 rounded-xl shrink-0 ml-4";
       }
     }
   }
 
-  // Ejecución inicial y programación de polling cada 30 segundos
   updateDashboard();
-  document.addEventListener("astro:page-load", updateDashboard); // Compatibilidad con transiciones de Astro si se usan
+  document.addEventListener("astro:page-load", updateDashboard);
   setInterval(updateDashboard, 30000);
 </script>
