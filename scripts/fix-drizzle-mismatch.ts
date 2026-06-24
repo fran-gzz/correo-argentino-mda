@@ -44,7 +44,7 @@ function cleanupResidualTables(db: Database.Database): void {
 
   const ftsTriggers = db.prepare(
     "SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE ? ESCAPE '\\'"
-  ).all("\\%\\_fts\\_%") as { name: string }[];
+  ).all("%\\_fts\\_%") as { name: string }[];
   for (const { name } of ftsTriggers) {
     db.exec(`DROP TRIGGER IF EXISTS "${name}"`);
     console.log(`[Fix]  → Trigger FTS "${name}" eliminado.`);
@@ -52,7 +52,8 @@ function cleanupResidualTables(db: Database.Database): void {
 
   const ftsTables = db.prepare(
     "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE ? ESCAPE '\\'"
-  ).all("\\%\\_fts") as { name: string }[];
+  ).all("%\\_fts") as { name: string }[];
+
   for (const { name } of ftsTables) {
     db.exec(`DROP TABLE IF EXISTS "${name}"`);
     console.log(`[Fix]  → Tabla FTS "${name}" eliminada.`);
@@ -114,7 +115,12 @@ function run(): void {
   catch { console.error("[Fix] No se encuentra database/mda.db"); process.exit(1); }
 
   const db = new Database(DB_PATH);
+  
+  // Clean up residual tables and obsolete FTS triggers on every run
+  cleanupResidualTables(db);
+
   const issues: string[] = [];
+
 
   // 1. Check all TEXT→INTEGER tables
   for (const { table } of TEXT_TO_INT_TABLES) {
