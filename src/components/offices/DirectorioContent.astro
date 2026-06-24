@@ -462,7 +462,7 @@ const mainTabs = [
         </section>
 
         <!-- Controles del Mapa -->
-        <div id="map-controls" class="flex flex-col gap-6 shrink-0">
+        <div id="map-controls" class="flex flex-col gap-6 shrink-0 lg:w-64 w-full">
           <div class="flex flex-col gap-3">
             <label class="label cursor-pointer justify-start gap-3 px-0">
               <input
@@ -943,7 +943,9 @@ const mainTabs = [
             regionLayers[regionName].forEach((layer: any) => {
               if (highlight) {
                 layer.setStyle({ fillOpacity: 0.45, weight: 2.5 });
-                layer.bringToFront();
+                if (map && map.hasLayer(layer)) {
+                  layer.bringToFront();
+                }
               } else {
                 const name = layer.feature?.properties?.nombre;
                 const opacity =
@@ -969,6 +971,21 @@ const mainTabs = [
               item.getAttribute("data-region") ?? undefined,
               false,
             );
+          });
+
+          legendEl.addEventListener("click", (e) => {
+            const item = (e.target as HTMLElement).closest(".legend-item");
+            if (!item) return;
+            const regionName = item.getAttribute("data-region");
+            if (!regionName || !regionLayers[regionName]) return;
+
+            if (chkPolygons && !chkPolygons.checked) {
+              chkPolygons.checked = true;
+              chkPolygons.dispatchEvent(new Event("change"));
+            }
+
+            const group = L.featureGroup(regionLayers[regionName]);
+            map.fitBounds(group.getBounds(), { padding: [40, 40] });
           });
         }
       });
