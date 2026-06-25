@@ -1,53 +1,9 @@
 import type { APIRoute } from "astro";
-import { db } from "@db/index";
+import { handleReorder } from "@lib/reorderHandler";
 import { contactCategories } from "@db/schema";
-import { eq } from "drizzle-orm";
-import { logAdminAction } from "@lib/auditLogger";
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  if (!locals.user) {
-    return new Response(JSON.stringify({ error: "No autorizado" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  try {
-    const { items } = await request.json();
-
-    if (!Array.isArray(items)) {
-      return new Response(JSON.stringify({ error: "Datos inválidos" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    db.transaction((tx) => {
-      for (const item of items) {
-        tx.update(contactCategories)
-          .set({ sortOrder: item.sortOrder })
-          .where(eq(contactCategories.id, item.id))
-          .run();
-      }
-    });
-
-    await logAdminAction(
-      locals.user.username || "Sistema",
-      `Reordenó ${items.length} categorías de contactos`
-    );
-
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (err: any) {
-    console.error("[Reorder Categorias Contactos API] Error:", err);
-    return new Response(
-      JSON.stringify({ error: "Error interno al reordenar categorías" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-  }
-};
+export const POST: APIRoute = async ({ request, locals }) =>
+  handleReorder(request, locals, contactCategories, (count) =>
+    `Reordenó ${count} categorías de contactos`,
+    { errorLabel: "Reorder Categorias Contactos API" },
+  );
