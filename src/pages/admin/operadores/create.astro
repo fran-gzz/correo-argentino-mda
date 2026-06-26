@@ -15,7 +15,6 @@ const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
 
 const user = Astro.locals.user;
-if (!["admin", "supervisor", "team_leader"].includes(user.role)) return Astro.redirect(`${cleanBase}login`);
 
 const isNew = true;
 let successMsg = "";
