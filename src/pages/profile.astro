@@ -3,7 +3,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import { Icon } from "astro-icon/components";
-import { rolesMatrix } from "@lib/rolesMatrix";
+import { isAllowed } from "@lib/rolesMatrix";
 
 const user = Astro.locals.user;
 if (!user || user.id === 0) {
@@ -218,12 +218,6 @@ const categories: CategoryCard[] = [
     ],
   },
 ];
-
-const isAllowed = (featureName: string, role: string) => {
-  const feature = rolesMatrix.find((f) => f.feature === featureName);
-  const normalizedRole = role.replace(/[- ]/g, "_");
-  return feature ? feature[normalizedRole as keyof typeof feature] === true : false;
-};
 
 const visibleCategories = categories
   .map((cat) => ({
