@@ -7,6 +7,7 @@ interface Props {
   icon?: string;
   class?: string;
   titleClass?: string;
+  id?: string;
 }
 
 const {
@@ -15,10 +16,12 @@ const {
   icon,
   class: className,
   titleClass,
+  id,
 } = Astro.props;
 ---
 
 <section
+  id={id}
   class:list={[
     "card card-compact bg-base-100 border border-base-300 shadow-sm",
     className,
