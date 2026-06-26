@@ -10,6 +10,7 @@ import SelectField from "@components/ui/forms/SelectField.astro";
 import { Icon } from "astro-icon/components";
 import { logAdminAction } from "@lib/auditLogger";
 import AsyncFormScript from "@components/admin/ui/AsyncFormScript.astro";
+import SectionCard from "@components/ui/SectionCard.astro";
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -220,8 +221,7 @@ const pageTitle = "Nuevo operador";
     }
 
     <form method="POST" id="operator-form" class="space-y-4" data-async-form>
-      <section class="card bg-base-100 border border-base-300 shadow-md">
-        <div class="card-body gap-4 p-5">
+      <SectionCard class="shadow-md">
           <h2
             class="flex items-center gap-2 text-sm font-semibold text-base-content"
           >
@@ -285,11 +285,9 @@ const pageTitle = "Nuevo operador";
               helpText="El estado de disponibilidad se calcula automáticamente basado en la matriz de horarios y Cronograma."
             />
           </div>
-        </div>
-      </section>
+      </SectionCard>
 
-      <section class="card bg-base-100 border border-base-300 shadow-md">
-        <div class="card-body gap-4 p-5">
+      <SectionCard class="shadow-md">
           <h2
             class="flex items-center gap-2 text-sm font-semibold text-base-content"
           >
@@ -376,8 +374,7 @@ const pageTitle = "Nuevo operador";
               ))
             }
           </div>
-        </div>
-      </section>
+      </SectionCard>
 
       <div class="flex items-center justify-between gap-3 pt-1">
         <a
