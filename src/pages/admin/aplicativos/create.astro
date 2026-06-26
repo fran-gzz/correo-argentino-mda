@@ -10,15 +10,12 @@ import { logAdminAction } from "@lib/auditLogger";
 import { processIconUpload } from "@lib/iconUpload";
 import { encryptData } from "@lib/encryption";
 import AsyncFormScript from "@components/admin/ui/AsyncFormScript.astro";
+import { resolveUrl } from "@lib/url";
 
 const isNew = true;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
-const resolveUrl = (p: string) => {
-  const cleanPath = p.startsWith("/") ? p.slice(1) : p;
-  return `${cleanBase}${cleanPath}`;
-};
 
 let errorMsg = "";
 let app = {

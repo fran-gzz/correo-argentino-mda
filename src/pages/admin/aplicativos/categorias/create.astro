@@ -7,15 +7,12 @@ import { db } from "@db/index";
 import { applicationCategories } from "@db/schema";
 import { logAdminAction } from "@lib/auditLogger";
 import AsyncFormScript from "@components/admin/ui/AsyncFormScript.astro";
+import { resolveUrl } from "@lib/url";
 
 const isNew = true;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
-const resolveUrl = (path: string) => {
-  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${cleanBase}${cleanPath}`;
-};
 
 let errorMsg = "";
 

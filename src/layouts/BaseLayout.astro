@@ -10,6 +10,7 @@ import { navSections, getSectionTitle, getResolvedPathname, type NavItem } from 
 import ToastContainer from "@components/ui/ToastContainer.astro";
 import GithubLink from "@components/ui/GithubLink.astro";
 import { normalizeRole, hasPermission } from "@lib/rbac";
+import { resolveUrl } from "@lib/url";
 
 interface Props {
   title?: string;
@@ -71,11 +72,6 @@ const getRelativePath = (path: string) => {
     return "/";
   }
   return path;
-};
-
-const resolveUrl = (path: string) => {
-  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${cleanBase}${cleanPath}`;
 };
 
 const relativeCurrentPath = getRelativePath(currentPath);
