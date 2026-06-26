@@ -28,7 +28,7 @@ Panel de control para supervisores y referentes que centraliza el cronograma (as
 
 <!-- Screenshot: Módulo de Supervisión Operativa (Cronograma, Calidad y Autogestiones) -->
 
-![Supervisión](public/images/supervision.png)
+![Supervisión](docs/screenshots/supervision.png)
 
 ### 2. Títulos de tickets
 
@@ -36,7 +36,7 @@ Módulo de tipificación rápida de incidencias recurrentes con funciones de cop
 
 <!-- Screenshot: Listado de Títulos de Tickets para tipificación rápida -->
 
-![Títulos de tickets](public/images/titulos-tickets.png)
+![Títulos de tickets](docs/screenshots/titulos-tickets.png)
 
 ### 3. Guía de soportes
 
@@ -44,7 +44,7 @@ Matriz de derivación interactiva que define responsables, prioridades y canales
 
 <!-- Screenshot: Matriz de Guía de Soportes y derivaciones -->
 
-![Guía de soportes](public/images/guia-soportes.png)
+![Guía de soportes](docs/screenshots/guia-soportes.png)
 
 ### 4. Buscador de usuarios
 
@@ -52,7 +52,7 @@ Buscador de personal de la corporación para validar cuentas, nombres, legajos y
 
 <!-- Screenshot: Buscador de personal y validación de usuarios -->
 
-![Buscador de usuarios](public/images/buscador-usuarios.png)
+![Buscador de usuarios](docs/screenshots/buscador-usuarios.png)
 
 ### 5. Generador de firmas
 
@@ -60,7 +60,7 @@ Creador interactivo de firmas de correo electrónico institucionales adaptado a 
 
 <!-- Screenshot: Creador interactivo de firmas corporativas -->
 
-![Generador de firmas](public/images/generador-firmas.png)
+![Generador de firmas](docs/screenshots/generador-firmas.png)
 
 ### 6. Contactos
 
@@ -68,7 +68,7 @@ Directorio de teléfonos internos de soporte y correos corporativos útiles.
 
 <!-- Screenshot: Directorio telefónico y de contactos de soporte -->
 
-![Contactos](public/images/contactos.png)
+![Contactos](docs/screenshots/contactos.png)
 
 ### 7. Enlaces y recursos (Catálogo de aplicativos)
 
@@ -76,7 +76,7 @@ Hub de accesos rápidos a utilidades web externas y catálogo integrado de insta
 
 <!-- Screenshot: Hub de Enlaces y Catálogo de Aplicativos homologados -->
 
-![Catálogo de Aplicativos](public/images/catalogo-aplicativos.png)
+![Catálogo de Aplicativos](docs/screenshots/catalogo-aplicativos.png)
 
 ### 8. Directorio de oficinas
 
@@ -84,7 +84,7 @@ Catálogo completo de sucursales a lo largo de todo el país.
 
 <!-- Screenshot: Directorio de oficinas -->
 
-![Directorio de oficinas](public/images/directorio-oficinas.png)
+![Directorio de oficinas](docs/screenshots/directorio-oficinas.png)
 
 ### 9. Inventario de equipos
 
@@ -92,7 +92,7 @@ Monitoreo y consulta del parque de terminales operativas (hostnames, direcciones
 
 <!-- Screenshot: Inventario técnico de terminales activas -->
 
-![Inventario de equipos](public/images/inventario-equipos.png)
+![Inventario de equipos](docs/screenshots/inventario-equipos.png)
 
 ### 10. Panel de administración
 
@@ -100,7 +100,7 @@ Consola CRUD exclusiva para la gestión integral de base de datos (usuarios, cub
 
 <!-- Screenshot: Panel de administración y auditoría de la base de datos -->
 
-![Panel de administración](public/images/admin.png)
+![Panel de administración](docs/screenshots/admin.png)
 
 ---
 
