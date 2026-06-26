@@ -34,9 +34,6 @@
       "@types/*": [
         "./src/types/*"
       ],
-      "@middleware/*": [
-        "./src/middleware/*"
-      ],
       "@config/*": [
         "./src/config/*"
       ],
