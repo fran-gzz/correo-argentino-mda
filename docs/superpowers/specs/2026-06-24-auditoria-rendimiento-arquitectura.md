@@ -50,22 +50,16 @@ Total: **18 intervenidos** de los cuales 11 están resueltos, 7 aún pendientes,
 **Esfuerzo:** 5 min.
 **Impacto:** Seguridad.
 
-### 1.6 🟡 `NODE_ENV="development"` hardcodeado en esbuild define
+### 1.6 ✅ `NODE_ENV="development"` hardcodeado en esbuild define
 
-**No intervenido.** Sigue presente:
+**Resuelto.** Ahora lee el valor real del entorno:
 
 ```js
-vite: {
-  optimizeDeps: {
-    esbuildOptions: {
-      define: { "process.env.NODE_ENV": JSON.stringify("development") },
-    },
-  },
-},
+define: { "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? "development") },
 ```
 
-**Estado:** ❌ Sin cambios.
-**Fix:** Remover el bloque `optimizeDeps` o condicionarlo a `import.meta.env.DEV`.
+**Estado:** ✅ Resuelto — 2026-06-26.
+**Fix:** `JSON.stringify("development")` → `JSON.stringify(process.env.NODE_ENV ?? "development")` en `astro.config.mjs`.
 **Esfuerzo:** 5 min.
 **Impacto:** Calidad de build.
 
@@ -222,7 +216,7 @@ Repetido en `admin/aplicativos/create.astro`, `admin/aplicativos/edit/[id].astro
 | **P1** | 3.1 | 🔴 20 diálogos raw sin Modal.astro | 2-4 h | -400+ líneas boilerplate |
 | **P1** | N3.8 | 🟡 `fieldset-legend` repetido 20+ veces | 30 min | Mantenibilidad |
 | **P1** | N3.11 | 🟡 Botones btn-sm repetidos (14 instancias) | 30 min | Mantenibilidad |
-| **P2** | 1.6 | 🟡 `NODE_ENV=development` en esbuild define | 5 min | Calidad build |
+| **P2** | 1.6 | ✅ `NODE_ENV=development` en esbuild define | 5 min | Calidad build |
 | **P2** | 3.2 | 🟡 SectionCard.astro dead code o adopción | 5 min-3 h | Mantenibilidad |
 | **P2** | 3.6 / N3.10 / N3.12 | 🟢 Clases input/label/file repetidas | 3-4 h | -350+ líneas |
 | **P2** | N3.9 | 🟡 `text-tiny font-black` 32 veces | 15 min | Mantenibilidad |

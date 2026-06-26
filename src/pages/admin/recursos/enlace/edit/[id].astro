@@ -67,9 +67,16 @@ if (Astro.request.method === "POST") {
     const categoryId = formData.get("categoryId")?.toString().trim();
     const subtitle = formData.get("subtitle")?.toString().trim() || null;
     const deprecated = formData.get("deprecated") === "on";
-    const credentialUsername = formData.get("credentialUsername")?.toString().trim() || null;
-    const rawPassword = formData.get("credentialPassword")?.toString().trim() || "";
-    const credentialPassword = rawPassword ? encrypt(rawPassword) : (link.credentialPassword || null);
+    const deleteCredentials = formData.get("deleteCredentials") === "on";
+
+    let credentialUsername = null;
+    let credentialPassword = null;
+
+    if (!deleteCredentials) {
+      credentialUsername = formData.get("credentialUsername")?.toString().trim() || null;
+      const rawPassword = formData.get("credentialPassword")?.toString().trim() || "";
+      credentialPassword = rawPassword ? encrypt(rawPassword) : (link.credentialPassword || null);
+    }
 
     let iconPath = link.iconPath || null;
 
@@ -223,6 +230,23 @@ if (Astro.request.method === "POST") {
                 placeholder="••••••••"
                 helpText="(Opcional, dejar vacío para no modificar)"
               />
+
+              {
+                (link.credentialUsername || link.credentialPassword) && (
+                  <div class="sm:col-span-2 flex items-center gap-3 bg-error/10 border border-error/20 rounded-lg p-3">
+                    <input
+                      id="checkbox-deleteCredentials"
+                      type="checkbox"
+                      name="deleteCredentials"
+                      class="checkbox checkbox-error"
+                    />
+                    <label for="checkbox-deleteCredentials" class="label cursor-pointer flex flex-col items-start p-0">
+                      <span class="label-text font-semibold text-error">Eliminar credenciales guardadas</span>
+                      <span class="label-text-alt text-base-content/60">Marcar para borrar el usuario y la contraseña almacenados para este enlace.</span>
+                    </label>
+                  </div>
+                )
+              }
 
               <div class="sm:col-span-2 flex items-center gap-3">
                 <input
