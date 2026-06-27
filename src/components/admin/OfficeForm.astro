@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import FormField from "@components/ui/forms/FormField.astro";
 import SelectField from "@components/ui/forms/SelectField.astro";
+import FormLegend from "@components/ui/forms/FormLegend.astro";
 import { officeTypeLabelByType } from "@lib/officeHelpers";
 import SectionCard from "@components/ui/SectionCard.astro";
 
@@ -211,7 +212,7 @@ if (office?.type === "SUCURSAL") {
           </SelectField>
 
           <fieldset class="fieldset gap-1">
-            <legend class="fieldset-legend text-xs">Dirección *</legend>
+            <FormLegend class="normal-case tracking-normal">Dirección *</FormLegend>
             <div class="relative w-full">
               <input
                 type="text"
@@ -276,7 +277,7 @@ if (office?.type === "SUCURSAL") {
 
         <div class="col-span-1 md:col-span-3">
           <fieldset class="fieldset gap-1">
-            <legend class="fieldset-legend text-xs">Notas</legend>
+            <FormLegend class="normal-case tracking-normal">Notas</FormLegend>
             <textarea
               name="notes"
               rows={2}
