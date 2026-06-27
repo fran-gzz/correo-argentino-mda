@@ -358,18 +358,20 @@ export async function getTerminalModelsByBrand(): Promise<ModelBrandEntry[]> {
     .orderBy(asc(terminals.model));
 
   const seen = new Set<string>();
-  return rows
-    .map((r) => ({
-      model: r.model.trim(),
-      brand: inferBrandFromManufacturer(r.manufacturer),
-    }))
-    .filter((entry) => {
-      if (!entry.model || !entry.brand) return false;
-      if (blockedModelPatterns.some((p) => p.test(entry.model))) return false;
-      if (seen.has(entry.model)) return false;
-      seen.add(entry.model);
-      return true;
-    });
+  const result: ModelBrandEntry[] = [];
+
+  for (const row of rows) {
+    if (!row.model) continue;
+    const model = row.model.trim();
+    const brand = inferBrandFromManufacturer(row.manufacturer);
+    if (!model || !brand) continue;
+    if (blockedModelPatterns.some((p) => p.test(model))) continue;
+    if (seen.has(model)) continue;
+    seen.add(model);
+    result.push({ model, brand });
+  }
+
+  return result;
 }
 
 export async function getDistinctTerminalModels(): Promise<string[]> {
