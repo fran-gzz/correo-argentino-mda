@@ -1,6 +1,6 @@
 import { db } from "@db/index";
 import { terminals, offices, provinces, regions } from "@db/schema";
-import { eq, like, or, and, sql, gte, lt, isNull, asc, desc } from "drizzle-orm";
+import { eq, like, or, and, sql, gte, lt, lte, isNull, asc, desc } from "drizzle-orm";
 import { normalizeSearchValue } from "@lib/clientSearch";
 
 import { type OsFamily, toOsFamily } from "@lib/terminalHelpers";
@@ -76,6 +76,10 @@ export interface GetTerminalsParams {
   brand?: string;
   ram?: string;
   status?: string;
+  model?: string;
+  officeType?: string;
+  lastContactFrom?: string;
+  lastContactTo?: string;
   sortBy?: TerminalSortKey;
   sortOrder?: SortOrder;
 }
@@ -105,6 +109,11 @@ export async function getTerminals(params: GetTerminalsParams = {}) {
     .leftJoin(provinces, eq(offices.provinceCode, provinces.code))
     .leftJoin(regions, eq(provinces.regionId, regions.id))
     .$dynamic();
+
+  const modelFilter = params.model || "all";
+  const officeTypeFilter = params.officeType || "all";
+  const lastContactFrom = params.lastContactFrom || "";
+  const lastContactTo = params.lastContactTo || "";
 
   const filters = [];
 
@@ -228,6 +237,24 @@ export async function getTerminals(params: GetTerminalsParams = {}) {
         )
       );
     }
+  }
+
+  // Model filter
+  if (modelFilter !== "all") {
+    filters.push(eq(terminals.model, modelFilter));
+  }
+
+  // Office type filter (via offices left join)
+  if (officeTypeFilter !== "all") {
+    filters.push(eq(offices.type, officeTypeFilter));
+  }
+
+  // Last contact date range
+  if (lastContactFrom) {
+    filters.push(gte(terminals.lastContact, lastContactFrom));
+  }
+  if (lastContactTo) {
+    filters.push(lte(terminals.lastContact, lastContactTo + " 23:59:59"));
   }
 
   if (filters.length > 0) {

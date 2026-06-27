@@ -15,10 +15,11 @@ import {
   terminals as terminalsTable,
   agents,
   operatorAttendance,
+  offices,
 } from "@db/schema";
 import { getTerminals } from "@lib/terminalQueries";
 import type { TerminalSortKey, SortOrder } from "@lib/terminalQueries";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getShiftType } from "@lib/cubics";
 import OperatorAvatar from "@components/cubics/OperatorAvatar.astro";
 import { isAllowed } from "@lib/rolesMatrix";
@@ -50,6 +51,54 @@ const osMap = {
   ubuntu: osVariations.filter((os) => os?.toLowerCase().includes("ubuntu")),
   debian: osVariations.filter((os) => os?.toLowerCase().includes("debian")),
 };
+
+// Distinct terminal models (filtered to remove junk)
+const allModels = await db
+  .select({ model: terminalsTable.model })
+  .from(terminalsTable)
+  .where(
+    sql`${terminalsTable.model} IS NOT NULL AND ${terminalsTable.model} != ''`,
+  )
+  .groupBy(terminalsTable.model)
+  .orderBy(terminalsTable.model);
+
+// Filter out junk/non-terminal models
+const JUNK_PATTERNS = [
+  /To [Bb]e [Ff]illed/,
+  /System Product/,
+  /VMware/,
+  /^Virtual/,
+  /All Series/,
+  /^PC$/,
+  /^Intel$/,
+  /^AHV$/,
+  /^DSDT_PRJ$/,
+  /MS-\d+/,
+  /^MZGLKDP/,
+  /^(A|B|H)\d{2,}[A-Z]?[0-9]?-?[A-Z0-9]*$/,
+  /^[0-9]{2}[A-Z]{2,}[0-9]?$/,
+  /^ENTERPRISE/,
+  /CROSS B02 \(Default string\)/,
+  /CROSS B02 Advanced Micro Devices/,
+  /[ï¿½]/,
+];
+
+const uniqueModels = allModels
+  .map((r) => r.model.trim())
+  .filter((m) => m.length > 0 && !JUNK_PATTERNS.some((p) => p.test(m)))
+  .sort((a, b) => a.localeCompare(b, "es"));
+
+// Distinct office types (for filtering terminals by office type)
+const distinctOfficeTypes = await db
+  .select({ type: offices.type })
+  .from(offices)
+  .where(sql`${offices.type} IS NOT NULL AND ${offices.type} != ''`)
+  .groupBy(offices.type)
+  .orderBy(offices.type);
+
+const uniqueOfficeTypes = distinctOfficeTypes
+  .map((r) => r.type)
+  .filter((t): t is string => Boolean(t));
 
 const sortBy = (Astro.url.searchParams.get("sortBy") || undefined) as
   | TerminalSortKey
@@ -232,6 +281,34 @@ const inventoryTabs = [
             <option value=">=16gb">&ge; 16 GB</option>
           </select>
         </div>
+        <div class="form-control grow">
+          <select
+            id="filter-model"
+            class="select select-bordered w-full font-medium text-base-content/80"
+            aria-label="Filtrar por modelo"
+          >
+            <option value="all">Modelo (Todos)</option>
+            {
+              uniqueModels.map((m) => (
+                <option value={m}>{m}</option>
+              ))
+            }
+          </select>
+        </div>
+        <div class="form-control grow">
+          <select
+            id="filter-office-type"
+            class="select select-bordered w-full font-medium text-base-content/80"
+            aria-label="Filtrar por tipo de sucursal"
+          >
+            <option value="all">Tipo Sucursal (Todas)</option>
+            {
+              uniqueOfficeTypes.map((t) => (
+                <option value={t}>{t}</option>
+              ))
+            }
+          </select>
+        </div>
         <div
           class="tabs tabs-box"
           role="radiogroup"
@@ -270,6 +347,30 @@ const inventoryTabs = [
           <Icon name="boxicons:trash" class="size-4" />
           Limpiar filtros
         </button>
+        <div class="flex flex-wrap items-center gap-3 w-full">
+          <div class="form-control grow">
+            <label class="label py-1" for="filter-last-contact-from">
+              <span class="label-text text-xs text-base-content/60">Último contacto desde</span>
+            </label>
+            <input
+              type="date"
+              id="filter-last-contact-from"
+              class="input input-bordered w-full font-medium text-base-content/80"
+              aria-label="Filtrar por fecha de último contacto desde"
+            />
+          </div>
+          <div class="form-control grow">
+            <label class="label py-1" for="filter-last-contact-to">
+              <span class="label-text text-xs text-base-content/60">Último contacto hasta</span>
+            </label>
+            <input
+              type="date"
+              id="filter-last-contact-to"
+              class="input input-bordered w-full font-medium text-base-content/80"
+              aria-label="Filtrar por fecha de último contacto hasta"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Filtros para Cúbics -->
@@ -728,6 +829,14 @@ const inventoryTabs = [
     document.querySelector<HTMLSelectElement>("#filter-brand");
   const ramFilterSelect =
     document.querySelector<HTMLSelectElement>("#filter-ram");
+  const modelFilterSelect =
+    document.querySelector<HTMLSelectElement>("#filter-model");
+  const officeTypeFilterSelect =
+    document.querySelector<HTMLSelectElement>("#filter-office-type");
+  const lastContactFromInput =
+    document.querySelector<HTMLInputElement>("#filter-last-contact-from");
+  const lastContactToInput =
+    document.querySelector<HTMLInputElement>("#filter-last-contact-to");
   const statusRadioInputs = Array.from(
     document.querySelectorAll<HTMLInputElement>("[data-terminal-status]"),
   );
@@ -746,6 +855,10 @@ const inventoryTabs = [
   let currentArch = archFilterSelect?.value || "all";
   let currentBrand = brandFilterSelect?.value || "all";
   let currentRam = ramFilterSelect?.value || "all";
+  let currentModel = modelFilterSelect?.value || "all";
+  let currentOfficeType = officeTypeFilterSelect?.value || "all";
+  let currentLastContactFrom = lastContactFromInput?.value || "";
+  let currentLastContactTo = lastContactToInput?.value || "";
   let currentStatus =
     statusRadioInputs.find((r) => r.checked)?.dataset.terminalStatus || "all";
   let isLoading = false;
@@ -812,6 +925,14 @@ const inventoryTabs = [
       if (currentBrand && currentBrand !== "all")
         params.set("brand", currentBrand);
       if (currentRam && currentRam !== "all") params.set("ram", currentRam);
+      if (currentModel && currentModel !== "all")
+        params.set("model", currentModel);
+      if (currentOfficeType && currentOfficeType !== "all")
+        params.set("officeType", currentOfficeType);
+      if (currentLastContactFrom)
+        params.set("lastContactFrom", currentLastContactFrom);
+      if (currentLastContactTo)
+        params.set("lastContactTo", currentLastContactTo);
       if (currentStatus && currentStatus !== "all")
         params.set("status", currentStatus);
       if (currentSortBy) {
@@ -910,6 +1031,10 @@ const inventoryTabs = [
       currentArch = archFilterSelect?.value || "all";
       currentBrand = brandFilterSelect?.value || "all";
       currentRam = ramFilterSelect?.value || "all";
+      currentModel = modelFilterSelect?.value || "all";
+      currentOfficeType = officeTypeFilterSelect?.value || "all";
+      currentLastContactFrom = lastContactFromInput?.value || "";
+      currentLastContactTo = lastContactToInput?.value || "";
       currentStatus =
         statusRadioInputs.find((r) => r.checked)?.dataset.terminalStatus ||
         "all";
@@ -934,6 +1059,10 @@ const inventoryTabs = [
     if (archFilterSelect) archFilterSelect.value = "all";
     if (brandFilterSelect) brandFilterSelect.value = "all";
     if (ramFilterSelect) ramFilterSelect.value = "all";
+    if (modelFilterSelect) modelFilterSelect.value = "all";
+    if (officeTypeFilterSelect) officeTypeFilterSelect.value = "all";
+    if (lastContactFromInput) lastContactFromInput.value = "";
+    if (lastContactToInput) lastContactToInput.value = "";
     statusRadioInputs.forEach((radio, idx) => {
       radio.checked = idx === 0;
     });
@@ -944,6 +1073,10 @@ const inventoryTabs = [
     currentArch = "all";
     currentBrand = "all";
     currentRam = "all";
+    currentModel = "all";
+    currentOfficeType = "all";
+    currentLastContactFrom = "";
+    currentLastContactTo = "";
     currentStatus = "all";
     fetchTerminals(true);
   });
@@ -995,6 +1128,10 @@ const inventoryTabs = [
   archFilterSelect?.addEventListener("change", triggerSearch);
   brandFilterSelect?.addEventListener("change", triggerSearch);
   ramFilterSelect?.addEventListener("change", triggerSearch);
+  modelFilterSelect?.addEventListener("change", triggerSearch);
+  officeTypeFilterSelect?.addEventListener("change", triggerSearch);
+  lastContactFromInput?.addEventListener("change", triggerSearch);
+  lastContactToInput?.addEventListener("change", triggerSearch);
   statusRadioInputs.forEach((radio) =>
     radio.addEventListener("change", triggerSearch),
   );
