@@ -1,6 +1,6 @@
 import { db } from "@db/index";
 import { terminals, offices, provinces, regions } from "@db/schema";
-import { eq, like, or, and, sql, gte, lt, lte, isNull, asc, desc } from "drizzle-orm";
+import { eq, like, or, and, sql, gte, lt, isNull, asc, desc } from "drizzle-orm";
 import { normalizeSearchValue } from "@lib/clientSearch";
 
 import { type OsFamily, toOsFamily } from "@lib/terminalHelpers";
@@ -77,9 +77,6 @@ export interface GetTerminalsParams {
   ram?: string;
   status?: string;
   model?: string;
-  officeType?: string;
-  lastContactFrom?: string;
-  lastContactTo?: string;
   sortBy?: TerminalSortKey;
   sortOrder?: SortOrder;
 }
@@ -109,11 +106,6 @@ export async function getTerminals(params: GetTerminalsParams = {}) {
     .leftJoin(provinces, eq(offices.provinceCode, provinces.code))
     .leftJoin(regions, eq(provinces.regionId, regions.id))
     .$dynamic();
-
-  const modelFilter = params.model || "all";
-  const officeTypeFilter = params.officeType || "all";
-  const lastContactFrom = params.lastContactFrom || "";
-  const lastContactTo = params.lastContactTo || "";
 
   const filters = [];
 
@@ -239,22 +231,8 @@ export async function getTerminals(params: GetTerminalsParams = {}) {
     }
   }
 
-  // Model filter
-  if (modelFilter !== "all") {
-    filters.push(eq(terminals.model, modelFilter));
-  }
-
-  // Office type filter (via offices left join)
-  if (officeTypeFilter !== "all") {
-    filters.push(eq(offices.type, officeTypeFilter));
-  }
-
-  // Last contact date range
-  if (lastContactFrom) {
-    filters.push(gte(terminals.lastContact, lastContactFrom));
-  }
-  if (lastContactTo) {
-    filters.push(lte(terminals.lastContact, lastContactTo + " 23:59:59"));
+  if (params.model && params.model !== "all") {
+    filters.push(eq(terminals.model, params.model));
   }
 
   if (filters.length > 0) {
@@ -321,4 +299,50 @@ export async function getTerminals(params: GetTerminalsParams = {}) {
     data,
     hasMore,
   };
+}
+
+const knownBrandConditions = or(
+  like(sql`lower(${terminals.manufacturer})`, "%dell%"),
+  like(sql`lower(${terminals.manufacturer})`, "%lenovo%"),
+  like(sql`lower(${terminals.manufacturer})`, "%hp%"),
+  like(sql`lower(${terminals.manufacturer})`, "%hewlett-packard%"),
+  like(sql`lower(${terminals.manufacturer})`, "%hewlett packard%"),
+  like(sql`lower(${terminals.manufacturer})`, "%bangho%"),
+  like(sql`lower(${terminals.manufacturer})`, "%coradir%"),
+);
+
+const blockedModelPatterns = [
+  /^to be filled/i,
+  /o\.?\s*e\.?\s*m/i,
+  /advanced micro devices/i,
+  /virtualbox/i,
+  /vmware/i,
+  /virtual machine/i,
+  /^intel$/i,
+  /^ahv$/i,
+  /^system product name$/i,
+  /^all series$/i,
+  /^default string/i,
+  /^dsdt_prj/i,
+  /\(garbled\)/i,
+  /[ï¿½]/,
+];
+
+export async function getDistinctTerminalModels(): Promise<string[]> {
+  const rows = await db
+    .select({ model: terminals.model })
+    .from(terminals)
+    .where(
+      and(
+        sql`${terminals.model} IS NOT NULL AND ${terminals.model} != ''`,
+        knownBrandConditions,
+      ),
+    )
+    .groupBy(terminals.model)
+    .orderBy(asc(terminals.model));
+
+  return rows
+    .map((r) => r.model.trim())
+    .filter((m): m is string => Boolean(m))
+    .filter((m) => !blockedModelPatterns.some((p) => p.test(m)));
 }
