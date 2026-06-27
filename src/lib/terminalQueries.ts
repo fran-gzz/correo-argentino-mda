@@ -325,6 +325,7 @@ const blockedModelPatterns = [
   /^default string/i,
   /^dsdt_prj/i,
   /\(garbled\)/i,
+  /^pc$/i,
   /[ï¿½]/,
 ];
 
