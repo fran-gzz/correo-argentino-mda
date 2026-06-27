@@ -1,0 +1,78 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  entityType: "aplicativos" | "contactos" | "recursos";
+}
+
+const { entityType } = Astro.props;
+
+const config = {
+  aplicativos: {
+    title: "Eliminar Categoría de Aplicativos",
+    entityPlural: "aplicativos",
+    deletePath: "admin/aplicativos/categorias/edit",
+  },
+  contactos: {
+    title: "Eliminar Categoría",
+    entityPlural: "contactos",
+    deletePath: "admin/contactos/categoria/edit",
+  },
+  recursos: {
+    title: "Eliminar Categoría",
+    entityPlural: "enlaces",
+    deletePath: "admin/recursos/categoria/edit",
+  },
+}[entityType];
+---
+
+<dialog id="delete-category-modal" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box max-w-lg w-full">
+    <h3 class="font-bold text-lg text-base-content">{config.title}</h3>
+    <p class="py-4 text-base-content/80 text-sm">
+      ¿Qué deseas hacer con los {config.entityPlural} que están asignados a esta categoría?
+    </p>
+    <form id="delete-category-form" method="POST" action="" data-delete-prefix={config.deletePath}>
+      <div class="flex flex-col gap-3 mt-2">
+        <label class="label cursor-pointer flex-row items-start justify-start gap-4 p-4 border border-base-300 rounded-lg hover:bg-base-200 transition-colors">
+          <input type="radio" name="deleteOption" value="unassign" class="radio radio-primary shrink-0 mt-0.5" checked />
+          <div class="flex flex-col gap-1 flex-1 min-w-0">
+            <span class="label-text font-bold text-base leading-tight whitespace-normal">Desvincular y conservar {config.entityPlural}</span>
+            <span class="text-xs text-base-content/60 leading-relaxed whitespace-normal">La categoría será eliminada, pero los {config.entityPlural} se conservarán y se moverán a "Sin categoría".</span>
+          </div>
+        </label>
+        <label class="label cursor-pointer flex-row items-start justify-start gap-4 p-4 border border-base-300 rounded-lg hover:bg-base-200 transition-colors">
+          <input type="radio" name="deleteOption" value="cascade" class="radio radio-error shrink-0 mt-0.5" />
+          <div class="flex flex-col gap-1 flex-1 min-w-0">
+            <span class="label-text font-bold text-error text-base leading-tight whitespace-normal">Eliminar todo en Cascada</span>
+            <span class="text-xs text-base-content/60 leading-relaxed whitespace-normal">La categoría y todos los {config.entityPlural} que contenga serán eliminados permanentemente. Esta acción no se puede deshacer.</span>
+          </div>
+        </label>
+      </div>
+      <div class="modal-action flex-col sm:flex-row mt-6 gap-2">
+        <button type="button" class="btn btn-ghost w-full sm:w-auto" onclick="document.getElementById('delete-category-modal').close()">Cancelar</button>
+        <button type="submit" class="btn btn-error gap-2 w-full sm:w-auto ml-0 sm:ml-2">
+          <Icon name="boxicons:trash" size={20} />
+          Confirmar Eliminación
+        </button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>cerrar</button>
+  </form>
+</dialog>
+
+<script>
+  (window as any).openDeleteCategoryModal = (categoryId: string) => {
+    const modal = document.getElementById("delete-category-modal") as (HTMLDialogElement & { showModal(): void }) | null;
+    const form = document.getElementById("delete-category-form") as HTMLFormElement | null;
+    if (modal && form) {
+      const base = import.meta.env.BASE_URL || "/";
+      const cleanBase = base.endsWith("/") ? base : base + "/";
+      const prefix = form.dataset.deletePrefix!;
+      form.action = `${cleanBase}${prefix}/${categoryId}/eliminar`;
+      modal.showModal();
+    }
+  };
+</script>

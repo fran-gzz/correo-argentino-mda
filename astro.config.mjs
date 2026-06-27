@@ -1,4 +1,5 @@
 // @ts-check
+// Trigger dev server reload for registering new Astro actions
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -25,7 +26,7 @@ export default defineConfig({
     optimizeDeps: {
       esbuildOptions: {
         define: {
-          "process.env.NODE_ENV": JSON.stringify("development"),
+          "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? "development"),
         },
       },
     },

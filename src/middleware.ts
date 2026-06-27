@@ -4,6 +4,8 @@ import { users, sessions } from "./db/schema";
 import { eq } from "drizzle-orm";
 import { verifySessionId, deleteSessionCookie } from "./lib/session";
 import { hasPermission } from "./lib/rbac";
+import { resolveUrl } from "./lib/url";
+import { jsonError } from "@lib/apiResponse";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { cookies, url, redirect, locals } = context;
@@ -20,11 +22,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return '/';
     }
     return pathname;
-  };
-
-  const resolveUrl = (pathStr: string) => {
-    const cleanPath = pathStr.startsWith('/') ? pathStr.slice(1) : pathStr;
-    return `${cleanBase}${cleanPath}`;
   };
 
   const relativePath = getRelativePath(path);
@@ -86,10 +83,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     lowerPath.startsWith("/api/admin")
   ) {
     if (currentUser.id === 0) {
-      return new Response(JSON.stringify({ error: "Sesión no iniciada" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
+      return jsonError("Sesión no iniciada", 401);
     }
   }
 

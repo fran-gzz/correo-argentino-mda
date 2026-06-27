@@ -518,6 +518,7 @@ const mainTabs = [
 
 <script>
   import { highlightSearchTargets } from "@lib/clientSearch";
+  import { feature } from "topojson-client";
 
   declare const L: any;
 
@@ -886,9 +887,10 @@ const mainTabs = [
       "Tierra del Fuego, Antártida e Islas del Atlántico Sur": [-54.3, -67.0],
     };
 
-    fetch("/data/argentina_provincias.geojson")
+    fetch("/data/argentina_provincias.topojson")
       .then((res) => res.json())
-      .then((geoData) => {
+      .then((topoData) => {
+        const geoData = feature(topoData, topoData.objects.argentina_provincias);
         L.geoJSON(geoData, {
           style: function (feature: any) {
             const name = feature.properties.nombre;

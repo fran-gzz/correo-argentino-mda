@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components";
 import CatalogSoftBadge from "./CatalogSoftBadge.astro";
 import { decryptData } from "@lib/encryption";
 import CopyButton from "@components/ui/CopyButton.astro";
+import { resolveUrl } from "@lib/url";
 
 interface Props {
   id: number;
@@ -48,28 +49,7 @@ const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
 const isWebUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 
-const resolveUrl = (path: string): string => {
-  if (!path) return "";
-
-  if (isWebUrl(path)) {
-    if (path.includes("/api/download/")) {
-      const urlObj = new URL(path);
-      const fileName = urlObj.pathname.split(/[\/\\]/).pop() || "";
-      return `${cleanBase}api/download/${fileName}`;
-    }
-    return path;
-  }
-
-  if (path.startsWith("mailto:") || path.startsWith("tel:")) {
-    return path;
-  }
-
-  const pathWithoutQuery = path.split("?")[0] || "";
-  const fileName = pathWithoutQuery.split(/[\/\\]/).pop() || "";
-  return `${cleanBase}api/download/${fileName}`;
-};
-
-const itemUrl = resolveUrl(filePath?.trim() ?? "");
+const itemUrl = filePath?.trim() ? resolveUrl(filePath.trim()) : "";
 const hasItemUrl = itemUrl.length > 0;
 const isExternal =
   hasItemUrl && !itemUrl.includes("/api/download/") && isWebUrl(itemUrl);

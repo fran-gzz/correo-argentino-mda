@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import { db } from "@/db";
-import { weekendOvertimeShifts } from "@/db/schema";
+import { db } from "@db/index";
+import { weekendOvertimeShifts } from "@db/schema";
 import { eq } from "drizzle-orm";
 
 export const GET: APIRoute = async ({ url }) => {
@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ url }) => {
       .where(eq(weekendOvertimeShifts.weekendStartDate, weekendStartDate));
     return new Response(
       JSON.stringify(res),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "private, max-age=60" } }
     );
   } catch (error: any) {
     console.error("GET overtime shifts API Error:", error);
@@ -29,7 +29,7 @@ export const GET: APIRoute = async ({ url }) => {
   }
 };
 
-import { requireWriteAccess } from "@/lib/rbac-middleware";
+import { requireWriteAccess } from "@lib/rbac-middleware";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const denied = requireWriteAccess(locals, "cronograma");
