@@ -13,6 +13,7 @@ import { encryptData, decryptData } from "@lib/encryption";
 import AsyncFormScript from "@components/admin/ui/AsyncFormScript.astro";
 import { resolveUrl } from "@lib/url";
 import SectionCard from "@components/ui/SectionCard.astro";
+import FormLegend from "@components/ui/forms/FormLegend.astro";
 
 const { id } = Astro.params;
 const isNew = false;
@@ -404,14 +405,12 @@ const isExternal = formUploadType
             </div>
 
             <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-              >
+              <FormLegend>
                 Ícono
                 <span class="text-base-content/40 font-normal normal-case ml-1"
                   >(Opcional, .png, .jpg, .svg, .ico)</span
                 >
-              </legend>
+              </FormLegend>
               <div class="flex items-center gap-4">
                 {
                   app.iconPath && (
@@ -434,11 +433,9 @@ const isExternal = formUploadType
             </fieldset>
 
             <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs mb-2"
-              >
+              <FormLegend class="mb-2">
                 Origen del archivo
-              </legend>
+              </FormLegend>
               <div
                 class="flex gap-1 rounded-lg bg-base-200/60 p-1"
                 role="radiogroup"
@@ -495,15 +492,13 @@ const isExternal = formUploadType
 
             <div id="localUploadGroup" class:list={[isExternal && "hidden"]}>
               <fieldset class="fieldset">
-                <legend
-                  class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-                >
+                <FormLegend>
                   Archivo
                   <span
                     class="text-base-content/40 font-normal normal-case ml-1"
                     >(.zip, .exe, .msi, .rar)</span
                   >
-                </legend>
+                </FormLegend>
                 <input
                   type="file"
                   name="file"
@@ -515,11 +510,9 @@ const isExternal = formUploadType
 
             <div id="externalUrlGroup" class:list={[!isExternal && "hidden"]}>
               <fieldset class="fieldset">
-                <legend
-                  class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-                >
+                <FormLegend>
                   URL externa
-                </legend>
+                </FormLegend>
                 <input
                   type="url"
                   name="externalUrl"
@@ -572,14 +565,12 @@ const isExternal = formUploadType
             }
 
             <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-              >
+              <FormLegend>
                 Instructivo PDF
                 <span class="text-base-content/40 font-normal normal-case ml-1"
                   >(Opcional, archivo .pdf confidencial)</span
                 >
-              </legend>
+              </FormLegend>
               <input
                 type="file"
                 name="instructionPdf"
@@ -623,11 +614,9 @@ const isExternal = formUploadType
             <fieldset
               class="fieldset border border-base-300 rounded-box p-4 bg-base-200/30"
             >
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs px-2"
-              >
+              <FormLegend class="px-2">
                 Credenciales / Metadatos Sensibles
-              </legend>
+              </FormLegend>
               <p class="text-xs text-base-content/60 mb-3 px-2">
                 Agregá credenciales o información confidencial (ej. Entorno:
                 Contraseña). Se almacenarán cifradas.
@@ -657,14 +646,12 @@ const isExternal = formUploadType
             </fieldset>
 
             <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-              >
+              <FormLegend>
                 Descripción
                 <span class="text-base-content/40 font-normal normal-case ml-1"
                   >(Opcional)</span
                 >
-              </legend>
+              </FormLegend>
               <textarea
                 name="description"
                 rows="3"
