@@ -46,91 +46,10 @@ const rowGridClass = "grid grid-cols-[1fr_140px_320px] items-center gap-4";
     </button>
   </div>
 
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <!-- ─── Form: Nuevo usuario ─── -->
-    <section class="lg:order-2" aria-labelledby="form-nuevo-usuario">
-      <SectionCard class="shadow-md">
-          <h2 id="form-nuevo-usuario" class="card-title text-base gap-2">
-            <div
-              aria-hidden="true"
-              class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary"
-            >
-              <Icon name="boxicons:user-plus-filled" size={18} />
-            </div>
-            Nuevo usuario
-          </h2>
-
-          <!-- Feedback -->
-          {
-            (successMsg || errorMsg) && (
-              <script is:inline define:vars={{ successMsg, errorMsg }}>
-                (() => {
-                  const triggerToast = () => {
-                    if (typeof window.showToast === "function") {
-                      if (successMsg) {
-                        window.showToast(successMsg, "alert-success");
-                      }
-                      if (errorMsg) {
-                        window.showToast(errorMsg, "alert-error");
-                      }
-                    } else {
-                      setTimeout(triggerToast, 50);
-                    }
-                  };
-                  triggerToast();
-                })();
-              </script>
-            )
-          }
-
-          <form method="POST" class="space-y-4" data-async-form>
-            <FormField
-              id="admin-username"
-              name="username"
-              required
-              label="Nombre de red"
-              placeholder="ej: jgonzalez"
-              autocomplete="off"
-              helpText="Credencial de dominio del operador."
-            />
-
-            <PasswordField
-              id="admin-password"
-              name="password"
-              required
-              label="Contraseña inicial"
-              confirmPassword={true}
-              confirmLabel="Repetir contraseña"
-              autocomplete="new-password"
-            />
-
-            <SelectField
-              id="admin-role"
-              name="role"
-              label="Rol en sistema"
-              options={[
-                { value: "agent", label: "Agente" },
-                { value: "referent", label: "Referente" },
-                { value: "team_leader", label: "Team Leader" },
-                { value: "supervisor", label: "Supervisor" },
-                { value: "admin", label: "Administrador" }
-              ]}
-              helpText="Define el nivel de acceso a módulos del portal."
-            />
-
-            <input type="hidden" name="action" value="create" />
-            <button type="submit" class="btn btn-secondary w-full gap-2 mt-2">
-              <Icon name="boxicons:user-check-filled" size={18} />
-              Dar de alta
-            </button>
-          </form>
-        </div>
-      </SectionCard>
-    </section>
-
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_400px]">
     <!-- ─── Table: Usuarios registrados ─── -->
     <section
-      class="lg:col-span-2 lg:order-1"
+      class="lg:order-1"
       aria-labelledby="tabla-usuarios"
     >
       <div class="flex flex-col gap-3">
@@ -381,6 +300,85 @@ const rowGridClass = "grid grid-cols-[1fr_140px_320px] items-center gap-4";
           }
         </DataTable>
       </div>
+    </section>
+
+    <!-- ─── Form: Nuevo usuario ─── -->
+    <section class="lg:order-2" aria-labelledby="form-nuevo-usuario">
+      <SectionCard class="shadow-md lg:sticky lg:top-24">
+        <h2 id="form-nuevo-usuario" class="card-title text-base gap-2">
+          <div
+            aria-hidden="true"
+            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary"
+          >
+            <Icon name="boxicons:user-plus-filled" size={18} />
+          </div>
+          Nuevo usuario
+        </h2>
+
+        {
+          (successMsg || errorMsg) && (
+            <script is:inline define:vars={{ successMsg, errorMsg }}>
+              (() => {
+                const triggerToast = () => {
+                  if (typeof window.showToast === "function") {
+                    if (successMsg) {
+                      window.showToast(successMsg, "alert-success");
+                    }
+                    if (errorMsg) {
+                      window.showToast(errorMsg, "alert-error");
+                    }
+                  } else {
+                    setTimeout(triggerToast, 50);
+                  }
+                };
+                triggerToast();
+              })();
+            </script>
+          )
+        }
+
+        <form method="POST" class="space-y-4" data-async-form>
+          <FormField
+            id="admin-username"
+            name="username"
+            required
+            label="Nombre de red"
+            placeholder="ej: jgonzalez"
+            autocomplete="off"
+            helpText="Credencial de dominio del operador."
+          />
+
+          <PasswordField
+            id="admin-password"
+            name="password"
+            required
+            label="Contraseña inicial"
+            confirmPassword={true}
+            confirmLabel="Repetir contraseña"
+            autocomplete="new-password"
+          />
+
+          <SelectField
+            id="admin-role"
+            name="role"
+            label="Rol en sistema"
+            options={[
+              { value: "agent", label: "Agente" },
+              { value: "referent", label: "Referente" },
+              { value: "team_leader", label: "Team Leader" },
+              { value: "supervisor", label: "Supervisor" },
+              { value: "admin", label: "Administrador" }
+            ]}
+            helpText="Define el nivel de acceso a módulos del portal."
+          />
+
+          <input type="hidden" name="action" value="create" />
+          <button type="submit" class="btn btn-secondary w-full gap-2 mt-2">
+            <Icon name="boxicons:user-check-filled" size={18} />
+            Dar de alta
+          </button>
+        </form>
+      </SectionCard>
     </section>
   </div>
 </PageContainer>
