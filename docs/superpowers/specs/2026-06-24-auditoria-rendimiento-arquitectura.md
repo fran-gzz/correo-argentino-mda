@@ -9,18 +9,18 @@
 
 ## Resumen Ejecutivo
 
-Se intervinieron **13 de 18 hallazgos** originales (72%). Quedan **5 pendientes** de la auditoría inicial.
+Se intervinieron **14 de 18 hallazgos** originales (78%). Quedan **4 pendientes** de la auditoría inicial.
 
 | Estado | Cantidad |
 |--------|----------|
-| 🔴 Corregidos | 13 |
-| 🟡 Pendientes originales | 5 |
+| 🔴 Corregidos | 14 |
+| 🟡 Pendientes originales | 4 |
 
-Total: **18 intervenidos** de los cuales 13 están resueltos y 5 aún pendientes.
+Total: **18 intervenidos** de los cuales 14 están resueltos y 4 aún pendientes.
 
 ---
 
-## Hallazgos Corregidos (13)
+## Hallazgos Corregidos (14)
 
 | ID | Hallazgo | Severidad | Resolución | Commit(s) |
 |----|----------|-----------|------------|-----------|
@@ -37,6 +37,7 @@ Total: **18 intervenidos** de los cuales 13 están resueltos y 5 aún pendientes
 | 3.5 | Triple modal de eliminación de categoría (~105 líneas duplicadas) | 🔴 | Extraído a `src/components/ui/DeleteCategoryModal.astro`. 3 content components actualizados (-74 líneas netas) | `9877c30` |
 | 3.7 | Guard de acceso inline repetido en 5+ páginas | 🟡 | Centralizado en `routePermissions` + middleware `hasPermission()`. Guards removidos de 15+ archivos de página. 28 tests RBAC agregados | 7 commits (sesión 3.7) |
 | N3.8 | `fieldset-legend` repetido 20+ veces en admin CRUD | 🟡 | Creado `FormLegend.astro` y aplicado en 14 archivos (~33 instancias) | 8 commits (sesión FormLegend) |
+| 3.2 | `SectionCard.astro` reportado como dead code | 🟢 | Reevaluado: está en uso en 20 archivos. Aplicado adicionalmente en `admin/feedback.astro` | Esta sesión |
 
 ---
 
@@ -85,25 +86,18 @@ Se intervinieron ~10 modales en M-02 (7 archivos), pero quedan **20 diálogos ra
 **Esfuerzo:** ~2-3 h para candidatos directos + 1-2 h para cronograma.
 **Impacto:** -400+ líneas de boilerplate.
 
-### 3.2 🟡 `SectionCard.astro` sin uso (dead code)
+### 3.2 🟢 `SectionCard.astro` — reevaluación del hallazgo
 
-**El componente fue creado en M-01 pero NUNCA importado en ningún archivo del código fuente.** Es dead code.
+**Hallazgo original:** Se reportó como dead code asumiendo que nunca fue importado.
 
-Paralelamente, existen **~46 archivos** que construyen cards manualmente con `bg-base-100 border border-base-300 shadow-md/shadow-sm`. Entre ellos:
+**Revisión:** El componente está activo en **20 archivos** (admin CRUD forms, operadores, inventario, etc.). La estimación de "46 archivos con cards manuales" era incorrecta: la mayoría de esos patrones `bg-base-100 border border-base-300` no son cards DaisyUI sino contenedores con clases sueltas (`rounded-box p-4`, modales, menús, inputs), que no calzan con SectionCard.
 
-| Archivo | Instancias |
-|---------|-----------|
-| `OfficeForm.astro` | 6 |
-| `SignatureGenerator.astro` | 3 |
-| `AsignacionContent.astro` | 4 |
-| Admin CRUD pages (create/edit, ~25 archivos) | 1-2 c/u |
-| `profile.astro`, `admin/index.astro`, etc. | 2 c/u |
+**Acción:** Se aplicó SectionCard en `admin/feedback.astro` como reemplazo adicional viable.
+**Archivos que ya usan SectionCard:** AdminUsersContent, AdminUsersSkeleton, OfficeForm, SignatureGenerator, admin create/edit CRUD (aplicativos, contactos, recursos, operadores, cubic), category CRUD pages.
 
-**Decisión requerida:** (a) Eliminar `SectionCard.astro` si no se justifica su existencia, o (b) aplicarlo a los 46 archivos que construyen cards manualmente.
-
-**Estado:** ⚠️ Componente creado pero sin adoptar.
-**Esfuerzo:** 5 min si se elimina; 2-3 h si se aplica a los 46 archivos.
-**Impacto:** Mantenibilidad.
+**Nuevo estado:** ✅ Componente adoptado. No es dead code.
+**Esfuerzo real:** 5 min (1 reemplazo en feedback.astro).
+**Impacto:** Mantenibilidad — el componente ya está en uso y disponible para futuros reemplazos.
 
 ### 3.6 🟢 Clases de input/label repetidas
 
@@ -177,11 +171,12 @@ Botones de acción en cronograma modals y CalidadContent con estructura idéntic
 **Esfuerzo:** 30 min.
 **Impacto:** -50+ líneas.
 
-### N3.12 🟢 `file-input file-input-bordered w-full` 8 veces en admin forms
+### N3.12 🟢 `file-input file-input-bordered w-full` 8 veces en admin forms **[RESUELTO 2026-06-28]**
 
 Repetido en `admin/aplicativos/create.astro`, `admin/aplicativos/edit/[id].astro`, `admin/recursos/enlace/create.astro`, `admin/recursos/enlace/edit/[id].astro`.
 
 **Fix:** Incluir en componente `FormInput` (3.6) con variante `type="file"`.
+**Resolución (2026-06-28):** Se extendió `FormField.astro` con un branch `type="file"` que usa `file-input file-input-bordered w-full` centralizado + slot `preview` para íconos. Las 8 instancias reemplazadas.
 **Esfuerzo:** Incluido en 3.6.
 **Impacto:** Mantenibilidad.
 
@@ -194,8 +189,7 @@ Repetido en `admin/aplicativos/create.astro`, `admin/aplicativos/edit/[id].astro
 | **P0** | 1.5 | 🔴 `security.checkOrigin: false` | 5 min | Seguridad |
 | **P1** | 3.1 | 🔴 20 diálogos raw sin Modal.astro | 2-4 h | -400+ líneas boilerplate |
 | **P1** | N3.11 | 🟡 Botones btn-sm repetidos (14 instancias) | 30 min | Mantenibilidad |
-| **P2** | 3.2 | 🟡 SectionCard.astro dead code o adopción | 5 min-3 h | Mantenibilidad |
-| **P2** | 3.6 / N3.10 / N3.12 | 🟢 Clases input/label/file repetidas | 3-4 h | -350+ líneas |
+| **P2** | 3.6 / N3.10 | N3.12 ✅ | 🟢 Clases input/label/file repetidas | 3-4 h | -350+ líneas |
 | **P2** | N3.9 | 🟡 `text-tiny font-black` 32 veces | 15 min | Mantenibilidad |
 | **P3** | 2.3 | 🟢 CSS bundle 263 KB | 30 min | Rendimiento |
 | **P3** | 4.1 | 🟢 Migrar TitleDrawer + Skeleton a Astro | 1 h | -115 líneas React |
