@@ -54,7 +54,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
     // 1. Consultar estado en PM2
     let processes: any[] = [];
     try {
-      const { stdout } = await execPromise("pm2 jlist");
+      const { stdout } = await execPromise("pm2 jlist", { windowsHide: true });
       processes = JSON.parse(stdout);
     } catch (pm2Error) {
       console.warn("[SyncStatus API] PM2 no disponible o falló:", pm2Error);
