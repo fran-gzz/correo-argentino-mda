@@ -8,18 +8,17 @@ import { db } from "@db/index";
 import { resourceCategories, resourceLinks } from "@db/schema";
 import { logAdminAction } from "@lib/auditLogger";
 import { processIconUpload } from "@lib/iconUpload";
-import { encrypt } from "@/lib/encryption";
+import { encrypt } from "@lib/encryption";
 import AsyncFormScript from "@components/admin/ui/AsyncFormScript.astro";
+import { resolveUrl } from "@lib/url";
+import SectionCard from "@components/ui/SectionCard.astro";
+import FormLegend from "@components/ui/forms/FormLegend.astro";
 
 const isNew = true;
 const initialCategoryId = Astro.url.searchParams.get("categoryId") || "";
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
-const resolveUrl = (path: string) => {
-  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${cleanBase}${cleanPath}`;
-};
 
 let errorMsg = "";
 let link = {
@@ -104,8 +103,8 @@ if (Astro.request.method === "POST") {
 <BaseLayout title="Nuevo enlace">
   <PageContainer>
     <div class="max-w-2xl mx-auto py-4 sm:py-8">
-      <div class="card bg-base-100 border border-base-300 shadow-sm">
-        <div class="card-body p-6 sm:p-8">
+      <SectionCard>
+        <div class="p-6 sm:p-8">
           <div class="flex items-start justify-between mb-6 border-b border-base-200 pb-4">
             <div>
               <h1 class="text-xl font-bold text-base-content">Nuevo enlace</h1>
@@ -212,35 +211,26 @@ if (Astro.request.method === "POST") {
               </div>
             </div>
 
-            <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-              >
-                Ícono
-                <span class="text-base-content/40 font-normal normal-case ml-1"
-                  >(Opcional, .png, .jpg, .svg, .ico)</span
-                >
-              </legend>
-              <div class="flex items-center gap-4">
-                {
-                  link.iconPath && (
-                    <div class="w-12 h-12 shrink-0 rounded-box border border-base-300 bg-base-200 flex items-center justify-center overflow-hidden p-1">
-                      <img
-                        src={resolveUrl(`api/icons/${link.iconPath}`)}
-                        alt="Preview del ícono"
-                        class="w-full h-full object-contain"
-                      />
-                    </div>
-                  )
-                }
-                <input
-                  type="file"
-                  name="iconFile"
-                  accept="image/png, image/jpeg, image/svg+xml, .ico"
-                  class="file-input file-input-bordered w-full"
-                />
-              </div>
-            </fieldset>
+            <FormField
+              type="file"
+              id="input-icon-file"
+              name="iconFile"
+              label="Ícono"
+              accept="image/png, image/jpeg, image/svg+xml, .ico"
+              helpText="(Opcional, .png, .jpg, .svg, .ico)"
+            >
+              {
+                link.iconPath && (
+                  <div slot="preview" class="w-12 h-12 shrink-0 rounded-box border border-base-300 bg-base-200 flex items-center justify-center overflow-hidden p-1">
+                    <img
+                      src={resolveUrl(`api/icons/${link.iconPath}`)}
+                      alt="Preview del ícono"
+                      class="w-full h-full object-contain"
+                    />
+                  </div>
+                )
+              }
+            </FormField>
 
             <div class="flex justify-end gap-3 pt-6 mt-2 border-t border-base-200">
               <a href={resolveUrl("/admin/recursos")} class="btn btn-ghost">Cancelar</a>
@@ -251,7 +241,7 @@ if (Astro.request.method === "POST") {
             </div>
           </form>
         </div>
-      </div>
+      </SectionCard>
     </div>
   </PageContainer>
   <AsyncFormScript />

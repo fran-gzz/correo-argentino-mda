@@ -76,6 +76,7 @@ export interface GetTerminalsParams {
   brand?: string;
   ram?: string;
   status?: string;
+  model?: string;
   sortBy?: TerminalSortKey;
   sortOrder?: SortOrder;
 }
@@ -230,6 +231,10 @@ export async function getTerminals(params: GetTerminalsParams = {}) {
     }
   }
 
+  if (params.model && params.model !== "all") {
+    filters.push(eq(terminals.model, params.model));
+  }
+
   if (filters.length > 0) {
     queryBuilder = queryBuilder.where(and(...filters));
   }
@@ -294,4 +299,82 @@ export async function getTerminals(params: GetTerminalsParams = {}) {
     data,
     hasMore,
   };
+}
+
+const knownBrandConditions = or(
+  like(sql`lower(${terminals.manufacturer})`, "%dell%"),
+  like(sql`lower(${terminals.manufacturer})`, "%lenovo%"),
+  like(sql`lower(${terminals.manufacturer})`, "%hp%"),
+  like(sql`lower(${terminals.manufacturer})`, "%hewlett-packard%"),
+  like(sql`lower(${terminals.manufacturer})`, "%hewlett packard%"),
+  like(sql`lower(${terminals.manufacturer})`, "%bangho%"),
+  like(sql`lower(${terminals.manufacturer})`, "%coradir%"),
+);
+
+const blockedModelPatterns = [
+  /^to be filled/i,
+  /o\.?\s*e\.?\s*m/i,
+  /advanced micro devices/i,
+  /virtualbox/i,
+  /vmware/i,
+  /virtual machine/i,
+  /^intel$/i,
+  /^ahv$/i,
+  /^system product name$/i,
+  /^all series$/i,
+  /^default string/i,
+  /^dsdt_prj/i,
+  /\(garbled\)/i,
+  /^pc$/i,
+  /[ï¿½]/,
+];
+
+export interface ModelBrandEntry {
+  model: string;
+  brand: string;
+}
+
+function inferBrandFromManufacturer(manufacturer: string): string | null {
+  const lower = manufacturer.toLowerCase();
+  if (lower.includes("dell")) return "dell";
+  if (lower.includes("lenovo")) return "lenovo";
+  if (lower.includes("hp") || lower.includes("hewlett")) return "hp";
+  if (lower.includes("bangho")) return "bangho";
+  if (lower.includes("coradir")) return "coradir";
+  return null;
+}
+
+export async function getTerminalModelsByBrand(): Promise<ModelBrandEntry[]> {
+  const rows = await db
+    .select({ model: terminals.model, manufacturer: terminals.manufacturer })
+    .from(terminals)
+    .where(
+      and(
+        sql`${terminals.model} IS NOT NULL AND ${terminals.model} != ''`,
+        knownBrandConditions,
+      ),
+    )
+    .groupBy(terminals.model, terminals.manufacturer)
+    .orderBy(asc(terminals.model));
+
+  const seen = new Set<string>();
+  const result: ModelBrandEntry[] = [];
+
+  for (const row of rows) {
+    if (!row.model) continue;
+    const model = row.model.trim();
+    const brand = inferBrandFromManufacturer(row.manufacturer);
+    if (!model || !brand) continue;
+    if (blockedModelPatterns.some((p) => p.test(model))) continue;
+    if (seen.has(model)) continue;
+    seen.add(model);
+    result.push({ model, brand });
+  }
+
+  return result;
+}
+
+export async function getDistinctTerminalModels(): Promise<string[]> {
+  const entries = await getTerminalModelsByBrand();
+  return entries.map((e) => e.model);
 }

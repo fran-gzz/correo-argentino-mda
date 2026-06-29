@@ -10,6 +10,8 @@ import SelectField from "@components/ui/forms/SelectField.astro";
 import { Icon } from "astro-icon/components";
 import { logAdminAction } from "@lib/auditLogger";
 import AsyncFormScript from "@components/admin/ui/AsyncFormScript.astro";
+import SectionCard from "@components/ui/SectionCard.astro";
+import FormLegend from "@components/ui/forms/FormLegend.astro";
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
@@ -128,8 +130,7 @@ if (Astro.request.method === "POST") {
       data-async-form
       class="space-y-4"
     >
-      <section class="card bg-base-100 border border-base-300 shadow-md">
-        <div class="card-body gap-4 p-5">
+      <SectionCard class="shadow-md">
           <h2
             class="flex items-center gap-2 text-sm font-semibold text-base-content"
           >
@@ -187,8 +188,8 @@ if (Astro.request.method === "POST") {
 
             <div class="space-y-3">
               <fieldset class="fieldset gap-1 font-mono">
-                <legend class="fieldset-legend text-xs"
-                  >Teléfonos (uno por línea)</legend
+                <FormLegend class="normal-case tracking-normal"
+                  >Teléfonos (uno por línea)</FormLegend
                 >
                 <textarea
                   name="phones"
@@ -200,8 +201,8 @@ if (Astro.request.method === "POST") {
               </fieldset>
 
               <fieldset class="fieldset gap-1 font-mono">
-                <legend class="fieldset-legend text-xs"
-                  >Correos electrónicos (uno por línea)</legend
+                <FormLegend class="normal-case tracking-normal"
+                  >Correos electrónicos (uno por línea)</FormLegend
                 >
                 <textarea
                   name="emails"
@@ -211,8 +212,8 @@ if (Astro.request.method === "POST") {
               </fieldset>
 
               <fieldset class="fieldset gap-1 font-mono">
-                <legend class="fieldset-legend text-xs"
-                  >Enlaces web (uno por línea como: Etiqueta, URL)</legend
+                <FormLegend class="normal-case tracking-normal"
+                  >Enlaces web (uno por línea como: Etiqueta, URL)</FormLegend
                 >
                 <textarea
                   name="urls"
@@ -224,8 +225,7 @@ http://www.google.com"
               </fieldset>
             </div>
           </div>
-        </div>
-      </section>
+      </SectionCard>
 
       <div class="flex items-center justify-between gap-3 pt-1">
         <a

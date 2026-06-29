@@ -17,15 +17,11 @@ import { logAdminAction } from "@lib/auditLogger";
 import OfficeForm from "@components/admin/OfficeForm.astro";
 import { officeFormSchema } from "@lib/validations";
 import { normalizeSearchValue } from "@lib/clientSearch";
-import { isAllowed } from "@lib/rolesMatrix";
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
 
 const user = Astro.locals.user;
-if (!user || !isAllowed("Administrar Contenido", user.role)) {
-  return Astro.redirect(`${cleanBase}oficinas`);
-}
 
 const isNew = true;
 let successMsg = "";
@@ -107,6 +103,24 @@ if (Astro.request.method === "POST") {
       const officeData = parsed.data;
       let officeId: number;
 
+      const activeCostCenter = [
+        officeData.cctAdminOffice,
+        officeData.ccCommercial,
+        officeData.ccCommercialCorp,
+        officeData.ccElectoral,
+        officeData.ccNetworkMgmt,
+        officeData.ccOperations,
+        officeData.ccOperational,
+        officeData.ccHr,
+        officeData.ccSecurity,
+        officeData.ccAdmin,
+        officeData.ccAdmission,
+        officeData.ccCtp,
+        officeData.ccCtt,
+        officeData.ccTransport,
+        officeData.ccLogistics
+      ].find((val) => val && val.trim() !== "");
+
       const nextSearchableText = normalizeSearchValue(
         [
           officeData.code,
@@ -114,6 +128,7 @@ if (Astro.request.method === "POST") {
           officeData.locality,
           officeData.parentNis,
           officeData.address,
+          activeCostCenter,
         ]
           .filter(Boolean)
           .join(" ")

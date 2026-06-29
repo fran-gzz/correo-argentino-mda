@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import FormField from "@components/ui/forms/FormField.astro";
 import logoFirma from "@assets/firma.png";
+import SectionCard from "@components/ui/SectionCard.astro";
 
 interface Props {
   origin?: string;
@@ -17,10 +18,7 @@ const { origin = "" } = Astro.props;
     data-origin={origin}
     data-logo-default={logoFirma.src}
   >
-    <section
-      class="card bg-base-100 border border-base-300 shadow-md overflow-hidden"
-    >
-      <div class="card-body p-4 sm:p-6 md:p-8">
+    <SectionCard class="shadow-md overflow-hidden">
         <div class="flex items-center gap-2 mb-2">
           <div class="p-2 bg-primary/10 rounded-lg text-primary">
             <Icon name="boxicons:contact-book-filled" size={20} />
@@ -209,8 +207,7 @@ const { origin = "" } = Astro.props;
   </div>
 
   <!-- Guía de Configuración en Outlook -->
-  <section class="card bg-base-100 border border-base-300 shadow-md">
-    <div class="card-body p-4 sm:p-6 md:p-8">
+  <SectionCard class="shadow-md">
       <div class="flex items-center gap-2 mb-4">
         <div class="p-2 bg-secondary/10 rounded-lg text-secondary">
           <Icon name="boxicons:info-circle" size={20} />
@@ -291,8 +288,7 @@ const { origin = "" } = Astro.props;
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </SectionCard>
 </div>
 
 <script>

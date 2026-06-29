@@ -2,7 +2,9 @@
 import { Icon } from "astro-icon/components";
 import FormField from "@components/ui/forms/FormField.astro";
 import SelectField from "@components/ui/forms/SelectField.astro";
+import FormLegend from "@components/ui/forms/FormLegend.astro";
 import { officeTypeLabelByType } from "@lib/officeHelpers";
+import SectionCard from "@components/ui/SectionCard.astro";
 
 export interface OfficeFormData {
   id?: number;
@@ -109,8 +111,7 @@ if (office?.type === "SUCURSAL") {
   class="space-y-4"
 >
   {/* ── Top: Datos básicos ── */}
-  <section class="card bg-base-100 border border-base-300 shadow-md">
-    <div class="card-body gap-4 p-5">
+      <SectionCard class="shadow-md">
       <h2 class="flex items-center gap-2 text-sm font-semibold text-base-content">
         <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-secondary/10 text-secondary">
           <Icon name="boxicons:building-filled" size={15} />
@@ -211,7 +212,7 @@ if (office?.type === "SUCURSAL") {
           </SelectField>
 
           <fieldset class="fieldset gap-1">
-            <legend class="fieldset-legend text-xs">Dirección *</legend>
+            <FormLegend class="normal-case tracking-normal">Dirección *</FormLegend>
             <div class="relative w-full">
               <input
                 type="text"
@@ -276,7 +277,7 @@ if (office?.type === "SUCURSAL") {
 
         <div class="col-span-1 md:col-span-3">
           <fieldset class="fieldset gap-1">
-            <legend class="fieldset-legend text-xs">Notas</legend>
+            <FormLegend class="normal-case tracking-normal">Notas</FormLegend>
             <textarea
               name="notes"
               rows={2}
@@ -286,12 +287,10 @@ if (office?.type === "SUCURSAL") {
           </fieldset>
         </div>
       </div>
-    </div>
-  </section>
+      </SectionCard>
 
   {/* ── Clasificación y Organización ── */}
-  <section class="card bg-base-100 border border-base-300 shadow-md">
-    <div class="card-body gap-4 p-5">
+      <SectionCard class="shadow-md">
       <h2 class="flex items-center gap-2 text-sm font-semibold text-base-content">
         <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
           <Icon name="boxicons:sitemap" size={15} />
@@ -304,12 +303,10 @@ if (office?.type === "SUCURSAL") {
         <FormField id="input-warehouse" name="warehouse" label="Almacén" value={office?.warehouse ?? ""} placeholder="ej: ALM-01" inputClass="input-sm" />
         <FormField id="input-profitCenter" name="profitCenter" label="Centro de Beneficio" value={office?.profitCenter ?? ""} placeholder="ej: CB-123" inputClass="input-sm" />
       </div>
-    </div>
-  </section>
+      </SectionCard>
 
   {/* ── Centros de Costo ── */}
-  <section class="card bg-base-100 border border-base-300 shadow-md">
-    <div class="card-body gap-4 p-5">
+      <SectionCard class="shadow-md">
       <h2 class="flex items-center gap-2 text-sm font-semibold text-base-content">
         <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent/10 text-accent">
           <Icon name="boxicons:wallet" size={15} />
@@ -333,12 +330,10 @@ if (office?.type === "SUCURSAL") {
         <FormField id="input-ccTransport" name="ccTransport" label="Transporte" value={office?.ccTransport ?? ""} inputClass="input-sm font-mono" />
         <FormField id="input-ccLogistics" name="ccLogistics" label="Logística" value={office?.ccLogistics ?? ""} inputClass="input-sm font-mono" />
       </div>
-    </div>
-  </section>
+      </SectionCard>
 
   {/* ── Puntos de Venta (POS) ── */}
-  <section class="card bg-base-100 border border-base-300 shadow-md">
-    <div class="card-body gap-4 p-5">
+      <SectionCard class="shadow-md">
       <h2 class="flex items-center gap-2 text-sm font-semibold text-base-content">
         <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-success/10 text-success">
           <Icon name="boxicons:store-alt" size={15} />
@@ -355,14 +350,12 @@ if (office?.type === "SUCURSAL") {
         <FormField id="input-posAutoAuto2" name="posAutoAuto2" label="Auto-Auto 2" value={office?.posAutoAuto2 ?? ""} inputClass="input-sm font-mono" />
         <FormField id="input-posSapTerminal" name="posSapTerminal" label="Terminal SAP" value={office?.posSapTerminal ?? ""} inputClass="input-sm font-mono" />
       </div>
-    </div>
-  </section>
+      </SectionCard>
 
   {/* ── Bottom: Infra + Contactos ── */}
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
     {/* ── Infraestructura ── */}
-    <section id="section-assets" class="card bg-base-100 border border-base-300 shadow-md">
-      <div class="card-body gap-3 p-5">
+      <SectionCard id="section-assets" class="shadow-md">
         <div class="flex items-center justify-between">
           <h2 class="flex items-center gap-2 text-sm font-semibold text-base-content">
             <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-info/10 text-info">
@@ -426,8 +419,7 @@ if (office?.type === "SUCURSAL") {
     </section>
 
     {/* ── Personal a cargo ── */}
-    <section id="section-contacts" class="card bg-base-100 border border-base-300 shadow-md flex-1">
-      <div class="card-body gap-3 p-5">
+      <SectionCard id="section-contacts" class="shadow-md flex-1">
         <div class="flex items-center justify-between">
           <h2 class="flex items-center gap-2 text-sm font-semibold text-base-content">
             <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-warning/10 text-warning">

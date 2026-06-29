@@ -4,6 +4,8 @@ import PageContainer from "@components/ui/PageContainer.astro";
 import PageHeader from "@components/ui/PageHeader.astro";
 import { Icon } from "astro-icon/components";
 import SyncDashboard from "@components/admin/SyncDashboard.astro";
+import { resolveUrl } from "@lib/url";
+import { can } from "@lib/roleConfig";
 
 const user = Astro.locals.user;
 
@@ -18,17 +20,19 @@ interface AdminModule {
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
 
-const resolveUrl = (path: string) => {
-  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${cleanBase}${cleanPath}`;
-};
-
 const modulesGroup1: AdminModule[] = [
   {
     title: "Usuarios",
     icon: "boxicons:group-filled",
     iconTone: "text-secondary",
     href: "/admin/usuarios",
+    active: true,
+  },
+  {
+    title: "Sugerencias y Reportes",
+    icon: "boxicons:mail-open-filled",
+    iconTone: "text-primary",
+    href: "/admin/feedback",
     active: true,
   },
   {
@@ -94,8 +98,9 @@ const modulesGroup2: AdminModule[] = [
         modulesGroup1.map((mod) => {
           const isLocked =
             (mod.href === "/admin/usuarios" ||
-              mod.href === "/admin/auditoria") &&
-            user.role !== "admin";
+              mod.href === "/admin/auditoria" ||
+              mod.href === "/admin/feedback") &&
+            !can(user.role, "admin");
 
           if (mod.active && mod.href && !isLocked) {
             return (

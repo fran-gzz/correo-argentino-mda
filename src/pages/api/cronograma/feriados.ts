@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
-import { db } from "@/db";
-import { holidays } from "@/db/schema";
+import { db } from "@db/index";
+import { holidays } from "@db/schema";
+import { jsonResponse } from "@lib/apiResponse";
+import { requireWriteAccess } from "@lib/rbac-middleware";
 
 export const GET: APIRoute = async () => {
   try {
@@ -9,19 +11,11 @@ export const GET: APIRoute = async () => {
     for (const h of dbHolidays) {
       feriados[h.date] = h.name;
     }
-    return new Response(JSON.stringify(feriados), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    return jsonResponse(feriados, 200, "no-store, no-cache, must-revalidate");
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return jsonResponse({ error: err.message }, 500);
   }
 };
-
-import { requireWriteAccess } from "@/lib/rbac-middleware";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const denied = requireWriteAccess(locals, "cronograma");
@@ -31,13 +25,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const body = await request.json();
     const { feriados } = body;
     if (!feriados || typeof feriados !== "object") {
-      return new Response(JSON.stringify({ error: "Invalid payload: 'feriados' must be an object" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+      return jsonResponse({ error: "Invalid payload: 'feriados' must be an object" }, 400);
     }
 
-    db.transaction((tx) => {
+    await db.transaction((tx) => {
       tx.delete(holidays).run();
       
       const insertData = Object.entries(feriados).map(([date, name]) => ({
@@ -50,14 +41,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }
     });
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    return jsonResponse({ success: true });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return jsonResponse({ error: err.message }, 500);
   }
 };

@@ -16,14 +16,14 @@ import {
   agents,
   operatorAttendance,
 } from "@db/schema";
-import { getTerminals } from "@lib/terminalQueries";
+import { getTerminals, getTerminalModelsByBrand } from "@lib/terminalQueries";
 import type { TerminalSortKey, SortOrder } from "@lib/terminalQueries";
 import { and, eq } from "drizzle-orm";
 import { getShiftType } from "@lib/cubics";
 import OperatorAvatar from "@components/cubics/OperatorAvatar.astro";
 import { isAllowed } from "@lib/rolesMatrix";
-import ActionEditButton from "@/components/ui/ActionEditButton.astro";
-import ActionDeleteButton from "@/components/ui/ActionDeleteButton.astro";
+import ActionEditButton from "@components/ui/ActionEditButton.astro";
+import ActionDeleteButton from "@components/ui/ActionDeleteButton.astro";
 
 const user = Astro.locals.user;
 const isAllowedAdmin = user
@@ -50,6 +50,8 @@ const osMap = {
   ubuntu: osVariations.filter((os) => os?.toLowerCase().includes("ubuntu")),
   debian: osVariations.filter((os) => os?.toLowerCase().includes("debian")),
 };
+
+const terminalModelsByBrand = await getTerminalModelsByBrand();
 
 const sortBy = (Astro.url.searchParams.get("sortBy") || undefined) as
   | TerminalSortKey
@@ -142,9 +144,11 @@ const inventoryTabs = [
 ---
 
 <PageContainer width="xxl">
-  <PageHeader
-    description="Gestión centralizada del parque operativo: terminales y estaciones de trabajo."
-  />
+  <PageHeader>
+    <span slot="description">
+      Los datos mostrados en esta página son provistos por la página de <a href="http://b1842zacs0255/mda/index.php" class="link link-accent link-hover font-semibold" target="_blank" rel="noopener noreferrer">Inventario de Terminales</a>.
+    </span>
+  </PageHeader>
 
   <div class="w-full">
     <ViewSwitcher
@@ -216,6 +220,20 @@ const inventoryTabs = [
             <option value="hp">HP</option>
             <option value="bangho">Banghó</option>
             <option value="coradir">Coradir</option>
+          </select>
+        </div>
+        <div class="form-control grow">
+          <select
+            id="filter-model"
+            class="select select-bordered w-full font-medium text-base-content/80"
+            aria-label="Filtrar por modelo de terminal"
+          >
+            <option value="all">Modelo (Todos)</option>
+            {
+              terminalModelsByBrand.map((entry) => (
+                <option value={entry.model} data-brand={entry.brand}>{entry.model}</option>
+              ))
+            }
           </select>
         </div>
         <div class="form-control grow">
@@ -728,6 +746,8 @@ const inventoryTabs = [
     document.querySelector<HTMLSelectElement>("#filter-brand");
   const ramFilterSelect =
     document.querySelector<HTMLSelectElement>("#filter-ram");
+  const modelFilterSelect =
+    document.querySelector<HTMLSelectElement>("#filter-model");
   const statusRadioInputs = Array.from(
     document.querySelectorAll<HTMLInputElement>("[data-terminal-status]"),
   );
@@ -746,6 +766,7 @@ const inventoryTabs = [
   let currentArch = archFilterSelect?.value || "all";
   let currentBrand = brandFilterSelect?.value || "all";
   let currentRam = ramFilterSelect?.value || "all";
+  let currentModel = modelFilterSelect?.value || "all";
   let currentStatus =
     statusRadioInputs.find((r) => r.checked)?.dataset.terminalStatus || "all";
   let isLoading = false;
@@ -812,6 +833,8 @@ const inventoryTabs = [
       if (currentBrand && currentBrand !== "all")
         params.set("brand", currentBrand);
       if (currentRam && currentRam !== "all") params.set("ram", currentRam);
+      if (currentModel && currentModel !== "all")
+        params.set("model", currentModel);
       if (currentStatus && currentStatus !== "all")
         params.set("status", currentStatus);
       if (currentSortBy) {
@@ -910,6 +933,7 @@ const inventoryTabs = [
       currentArch = archFilterSelect?.value || "all";
       currentBrand = brandFilterSelect?.value || "all";
       currentRam = ramFilterSelect?.value || "all";
+      currentModel = modelFilterSelect?.value || "all";
       currentStatus =
         statusRadioInputs.find((r) => r.checked)?.dataset.terminalStatus ||
         "all";
@@ -933,7 +957,9 @@ const inventoryTabs = [
     }
     if (archFilterSelect) archFilterSelect.value = "all";
     if (brandFilterSelect) brandFilterSelect.value = "all";
+    syncModelOptionsWithBrand();
     if (ramFilterSelect) ramFilterSelect.value = "all";
+    if (modelFilterSelect) modelFilterSelect.value = "all";
     statusRadioInputs.forEach((radio, idx) => {
       radio.checked = idx === 0;
     });
@@ -944,6 +970,7 @@ const inventoryTabs = [
     currentArch = "all";
     currentBrand = "all";
     currentRam = "all";
+    currentModel = "all";
     currentStatus = "all";
     fetchTerminals(true);
   });
@@ -964,6 +991,40 @@ const inventoryTabs = [
     selectedCubicFilter = "all";
     updateMachineRows();
   });
+
+  // Parse model brand mapping from server
+  const modelBrandData = JSON.parse(
+    document.getElementById("model-brand-data")?.textContent || "[]",
+  );
+
+  // Style for disabled model options
+  const modelSelectStyle = document.createElement("style");
+  modelSelectStyle.textContent =
+    "#filter-model option:disabled { opacity: 0.4; }";
+  document.head.appendChild(modelSelectStyle);
+
+  // Keep model options in sync with selected brand
+  const syncModelOptionsWithBrand = () => {
+    if (!modelFilterSelect || !brandFilterSelect) return;
+    const selectedBrand = brandFilterSelect.value;
+    let currentModelStillValid = false;
+
+    Array.from(modelFilterSelect.options).forEach((opt) => {
+      if (opt.value === "all") return;
+      const brand = (opt as HTMLOptionElement).dataset.brand || "";
+      const matches = selectedBrand === "all" || brand === selectedBrand;
+      opt.disabled = !matches;
+      opt.classList.toggle("opacity-40", !matches);
+      if (opt.value === modelFilterSelect.value && matches) {
+        currentModelStillValid = true;
+      }
+    });
+
+    if (!currentModelStillValid) {
+      modelFilterSelect.value = "all";
+      currentModel = "all";
+    }
+  };
 
   // Configurar mapa de OS desde el servidor usando un JSON en el script o variable global inyectada
   const osMapData = JSON.parse(
@@ -993,8 +1054,12 @@ const inventoryTabs = [
 
   osVariantFilterSelect?.addEventListener("change", triggerSearch);
   archFilterSelect?.addEventListener("change", triggerSearch);
-  brandFilterSelect?.addEventListener("change", triggerSearch);
+  brandFilterSelect?.addEventListener("change", () => {
+    syncModelOptionsWithBrand();
+    triggerSearch();
+  });
   ramFilterSelect?.addEventListener("change", triggerSearch);
+  modelFilterSelect?.addEventListener("change", triggerSearch);
   statusRadioInputs.forEach((radio) =>
     radio.addEventListener("change", triggerSearch),
   );
@@ -1169,4 +1234,9 @@ const inventoryTabs = [
   type="application/json"
   id="os-map-data"
   set:html={JSON.stringify(osMap)}
+/>
+<script
+  type="application/json"
+  id="model-brand-data"
+  set:html={JSON.stringify(terminalModelsByBrand)}
 />

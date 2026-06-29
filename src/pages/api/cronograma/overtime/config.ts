@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import { db } from "@/db";
-import { weekendOvertimeConfig } from "@/db/schema";
+import { db } from "@db/index";
+import { weekendOvertimeConfig } from "@db/schema";
 import { eq } from "drizzle-orm";
 
 export const GET: APIRoute = async ({ url }) => {
@@ -19,7 +19,7 @@ export const GET: APIRoute = async ({ url }) => {
       .limit(1);
     return new Response(
       JSON.stringify(res[0] || { referente: "" }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store, no-cache, must-revalidate" } }
     );
   } catch (error: any) {
     console.error("GET overtime config API Error:", error);
@@ -30,7 +30,7 @@ export const GET: APIRoute = async ({ url }) => {
   }
 };
 
-import { requireWriteAccess } from "@/lib/rbac-middleware";
+import { requireWriteAccess } from "@lib/rbac-middleware";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const denied = requireWriteAccess(locals, "cronograma");
@@ -60,7 +60,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         .values({ weekendStartDate, referente });
     }
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ weekendStartDate, referente }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {

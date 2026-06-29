@@ -179,8 +179,8 @@ const uniqueZones = allZonesRaw
   .sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
 
 const officeDirectoryHeaderGridClass = isAllowedAdmin
-  ? "grid-cols-[48px_80px_1.2fr_90px_1.8fr_120px] gap-4"
-  : "grid-cols-[48px_80px_1.2fr_90px_1.8fr] gap-4";
+  ? "grid-cols-[48px_80px_1.2fr_90px_1.8fr_110px_120px] gap-4"
+  : "grid-cols-[48px_80px_1.2fr_90px_1.8fr_110px] gap-4";
 
 const mainTabs = [
   { label: "Directorio de Oficinas", value: "directory" },
@@ -402,6 +402,11 @@ const mainTabs = [
               >Dirección</DataTableHeaderCell
             >
           </div>
+          <div slot="header">
+            <DataTableHeaderCell sortKey="cost-center"
+              >CECO</DataTableHeaderCell
+            >
+          </div>
           {
             isAllowedAdmin && (
               <div slot="header">
@@ -518,6 +523,7 @@ const mainTabs = [
 
 <script>
   import { highlightSearchTargets } from "@lib/clientSearch";
+  import { feature } from "topojson-client";
 
   declare const L: any;
 
@@ -886,9 +892,10 @@ const mainTabs = [
       "Tierra del Fuego, Antártida e Islas del Atlántico Sur": [-54.3, -67.0],
     };
 
-    fetch("/data/argentina_provincias.geojson")
+    fetch("/data/argentina_provincias.topojson")
       .then((res) => res.json())
-      .then((geoData) => {
+      .then((topoData) => {
+        const geoData = feature(topoData, topoData.objects.argentina_provincias);
         L.geoJSON(geoData, {
           style: function (feature: any) {
             const name = feature.properties.nombre;

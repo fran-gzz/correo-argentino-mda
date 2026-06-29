@@ -11,17 +11,15 @@ import { logAdminAction } from "@lib/auditLogger";
 import { processIconUpload } from "@lib/iconUpload";
 import { encryptData, decryptData } from "@lib/encryption";
 import AsyncFormScript from "@components/admin/ui/AsyncFormScript.astro";
+import { resolveUrl } from "@lib/url";
+import SectionCard from "@components/ui/SectionCard.astro";
+import FormLegend from "@components/ui/forms/FormLegend.astro";
 
 const { id } = Astro.params;
 const isNew = false;
 
 const base = import.meta.env.BASE_URL || "/";
 const cleanBase = base.endsWith("/") ? base : base + "/";
-const resolveUrl = (p: string) => {
-  const cleanPath = p.startsWith("/") ? p.slice(1) : p;
-  return `${cleanBase}${cleanPath}`;
-};
-
 let errorMsg = "";
 let app = {
   id: 0,
@@ -335,8 +333,8 @@ const isExternal = formUploadType
 <BaseLayout title="Editar aplicativo">
   <PageContainer>
     <div class="max-w-2xl mx-auto py-4 sm:py-8">
-      <div class="card bg-base-100 border border-base-300 shadow-sm">
-        <div class="card-body p-6 sm:p-8">
+      <SectionCard>
+        <div class="p-6 sm:p-8">
           <div
             class="flex items-start justify-between mb-6 border-b border-base-200 pb-4"
           >
@@ -406,42 +404,31 @@ const isExternal = formUploadType
               />
             </div>
 
-            <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-              >
-                Ícono
-                <span class="text-base-content/40 font-normal normal-case ml-1"
-                  >(Opcional, .png, .jpg, .svg, .ico)</span
-                >
-              </legend>
-              <div class="flex items-center gap-4">
-                {
-                  app.iconPath && (
-                    <div class="w-14 h-14 shrink-0 rounded-box border border-base-300 bg-base-200 flex items-center justify-center overflow-hidden p-1">
-                      <img
-                        src={resolveUrl(`api/icons/${app.iconPath}`)}
-                        alt="Icon preview"
-                        class="w-full h-full object-contain"
-                      />
-                    </div>
-                  )
-                }
-                <input
-                  type="file"
-                  name="icon"
-                  accept="image/png, image/jpeg, image/svg+xml, .ico"
-                  class="file-input file-input-bordered w-full"
-                />
-              </div>
-            </fieldset>
+            <FormField
+              type="file"
+              id="input-icon"
+              name="icon"
+              label="Ícono"
+              accept="image/png, image/jpeg, image/svg+xml, .ico"
+              helpText="(Opcional, .png, .jpg, .svg, .ico)"
+            >
+              {
+                app.iconPath && (
+                  <div slot="preview" class="w-12 h-12 shrink-0 rounded-box border border-base-300 bg-base-200 flex items-center justify-center overflow-hidden p-1">
+                    <img
+                      src={resolveUrl(`api/icons/${app.iconPath}`)}
+                      alt="Preview del ícono"
+                      class="w-full h-full object-contain"
+                    />
+                  </div>
+                )
+              }
+            </FormField>
 
             <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs mb-2"
-              >
+              <FormLegend class="mb-2">
                 Origen del archivo
-              </legend>
+              </FormLegend>
               <div
                 class="flex gap-1 rounded-lg bg-base-200/60 p-1"
                 role="radiogroup"
@@ -497,32 +484,21 @@ const isExternal = formUploadType
             </fieldset>
 
             <div id="localUploadGroup" class:list={[isExternal && "hidden"]}>
-              <fieldset class="fieldset">
-                <legend
-                  class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-                >
-                  Archivo
-                  <span
-                    class="text-base-content/40 font-normal normal-case ml-1"
-                    >(.zip, .exe, .msi, .rar)</span
-                  >
-                </legend>
-                <input
-                  type="file"
-                  name="file"
-                  accept=".zip,.exe,.msi,.rar"
-                  class="file-input file-input-bordered w-full"
-                />
-              </fieldset>
+              <FormField
+                type="file"
+                id="input-file"
+                name="file"
+                label="Archivo"
+                accept=".zip,.exe,.msi,.rar"
+                helpText="Formatos: .zip, .exe, .msi, .rar"
+              />
             </div>
 
             <div id="externalUrlGroup" class:list={[!isExternal && "hidden"]}>
               <fieldset class="fieldset">
-                <legend
-                  class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-                >
+                <FormLegend>
                   URL externa
-                </legend>
+                </FormLegend>
                 <input
                   type="url"
                   name="externalUrl"
@@ -574,22 +550,14 @@ const isExternal = formUploadType
               )
             }
 
-            <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-              >
-                Instructivo PDF
-                <span class="text-base-content/40 font-normal normal-case ml-1"
-                  >(Opcional, archivo .pdf confidencial)</span
-                >
-              </legend>
-              <input
-                type="file"
-                name="instructionPdf"
-                accept=".pdf"
-                class="file-input file-input-bordered w-full"
-              />
-            </fieldset>
+            <FormField
+              type="file"
+              id="input-instruction-pdf"
+              name="instructionPdf"
+              label="Instructivo PDF"
+              accept=".pdf"
+              helpText="(Opcional, archivo .pdf confidencial)"
+            />
 
             {
               app.instructionPdfPath && (
@@ -626,11 +594,9 @@ const isExternal = formUploadType
             <fieldset
               class="fieldset border border-base-300 rounded-box p-4 bg-base-200/30"
             >
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs px-2"
-              >
+              <FormLegend class="px-2">
                 Credenciales / Metadatos Sensibles
-              </legend>
+              </FormLegend>
               <p class="text-xs text-base-content/60 mb-3 px-2">
                 Agregá credenciales o información confidencial (ej. Entorno:
                 Contraseña). Se almacenarán cifradas.
@@ -660,14 +626,12 @@ const isExternal = formUploadType
             </fieldset>
 
             <fieldset class="fieldset">
-              <legend
-                class="fieldset-legend font-semibold uppercase tracking-wide text-xs"
-              >
+              <FormLegend>
                 Descripción
                 <span class="text-base-content/40 font-normal normal-case ml-1"
                   >(Opcional)</span
                 >
-              </legend>
+              </FormLegend>
               <textarea
                 name="description"
                 rows="3"
@@ -691,7 +655,7 @@ const isExternal = formUploadType
             </div>
           </form>
         </div>
-      </div>
+      </SectionCard>
     </div>
   </PageContainer>
 </BaseLayout>

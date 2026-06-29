@@ -1,0 +1,9 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+<legend class:list={["fieldset-legend uppercase tracking-wide", className]}>
+  <slot />
+</legend>

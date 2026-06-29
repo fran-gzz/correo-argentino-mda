@@ -1,10 +1,10 @@
 import type { APIRoute } from "astro";
-import { asignarManual } from "@/lib/disponibilidad";
+import { asignarManual } from "@lib/disponibilidad";
 import { db } from "@db/index";
 import { agents } from "@db/schema";
 import { eq } from "drizzle-orm";
-
-import { requireWriteAccess } from "@/lib/rbac-middleware";
+import { requireWriteAccess } from "@lib/rbac-middleware";
+import { jsonResponse } from "@lib/apiResponse";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const denied = requireWriteAccess(locals, "asignacion_ag");
@@ -14,13 +14,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const { agentId } = await request.json();
 
     if (!agentId || typeof agentId !== "number") {
-      return new Response(JSON.stringify({ success: false, error: "ID de agente inválido" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return jsonResponse({ success: false, error: "ID de agente inválido" }, 400);
     }
 
-    const result = await asignarManual(agentId);
+    const assignedBy = locals.user?.username || "Sistema";
+    const result = await asignarManual(agentId, assignedBy);
     
     let agentName = `ID ${agentId}`;
     try {
@@ -35,15 +33,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
       console.error("Error retrieving agent name:", dbErr);
     }
 
-    return new Response(JSON.stringify({ ...result, agentName }), {
-      status: result.success ? 200 : 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonResponse({ ...result, agentName }, result.success ? 200 : 400);
   } catch (error: any) {
     console.error("POST /api/disponibilidad/asignar-manual Error:", error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return jsonResponse({ success: false, error: error.message }, 500);
   }
 };

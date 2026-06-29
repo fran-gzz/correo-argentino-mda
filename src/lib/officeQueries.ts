@@ -5,7 +5,7 @@ import type {
   OfficeDirectoryItem,
   OfficeAssetType,
   OfficeType,
-} from "@/types/offices";
+} from "@types/offices";
 import { normalizeSearchValue } from "@lib/clientSearch";
 
 export type OfficeSortKey = "code" | "name" | "parent-nis" | "address" | "type" | "region";
@@ -198,7 +198,23 @@ export async function getOffices(params: GetOfficesParams) {
       provinceCode: office.provinceCode,
       provinceName: office.province?.name ?? "",
       location: office.province?.name ?? "",
-      costCenter: "",
+      costCenter: [
+        office.cctAdminOffice,
+        office.ccCommercial,
+        office.ccCommercialCorp,
+        office.ccElectoral,
+        office.ccNetworkMgmt,
+        office.ccOperations,
+        office.ccOperational,
+        office.ccHr,
+        office.ccSecurity,
+        office.ccAdmin,
+        office.ccAdmission,
+        office.ccCtp,
+        office.ccCtt,
+        office.ccTransport,
+        office.ccLogistics
+      ].find((val) => val && val.trim() !== "") || "—",
       postalCode: "",
       region: office.province?.region?.name ?? "",
       address: office.address ?? "",
