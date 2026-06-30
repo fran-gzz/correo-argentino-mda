@@ -38,6 +38,15 @@ import { parseInvgateLocationName, matchLocations } from "../../../src/lib/invga
   assert.equal(parsed.cc, null);
 }
 
+{
+  const input = "SUC. SANTA ROSA (NO_NIS) CC_71011101";
+  const parsed = parseInvgateLocationName(input);
+  assert.equal(parsed.displayName, "SUC. SANTA ROSA");
+  assert.equal(parsed.nis, null);
+  assert.equal(parsed.cp, null);
+  assert.equal(parsed.cc, "71011101");
+}
+
 // Test matchLocations
 {
   const invgateLocations = [

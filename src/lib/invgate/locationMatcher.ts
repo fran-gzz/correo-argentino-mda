@@ -29,7 +29,7 @@ export interface LocationComparisonResult {
 }
 
 export function parseInvgateLocationName(name: string): Omit<ParsedInvgateLocation, "id" | "name"> {
-  let displayName = name;
+  let displayName = name.split('(')[0].trim();
   let nis: string | null = null;
   let cp: string | null = null;
   let cc: string | null = null;
@@ -39,11 +39,6 @@ export function parseInvgateLocationName(name: string): Omit<ParsedInvgateLocati
   const nisMatch = name.match(nisRegex);
   if (nisMatch) {
     nis = nisMatch[1].trim();
-    // displayName is the part before the first parentheses
-    const index = name.indexOf(nisMatch[0]);
-    if (index !== -1) {
-      displayName = name.substring(0, index);
-    }
   }
 
   // Extract CP: second parenthesized match matching postal code pattern `([A-Z]\d{4}[A-Z]{3})`
