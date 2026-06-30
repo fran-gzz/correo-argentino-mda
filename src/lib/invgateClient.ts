@@ -3,6 +3,7 @@ import type { InvgateResult } from "@/types/invgate";
 export async function invgateGet<T>(endpoint: string): Promise<InvgateResult<T>> {
   const apiKey = import.meta.env.INVGATE_API_KEY;
   const baseUrl = import.meta.env.INVGATE_BASE_URL;
+  const rawUsername = import.meta.env.INVGATE_API_USERNAME;
 
   if (!apiKey) {
     throw new Error("[InvGate] Variable de entorno INVGATE_API_KEY no definida.");
@@ -12,7 +13,9 @@ export async function invgateGet<T>(endpoint: string): Promise<InvgateResult<T>>
     throw new Error("[InvGate] Variable de entorno INVGATE_BASE_URL no definida.");
   }
 
-  const credentials = btoa("portalmda:" + apiKey);
+  const apiUsername = rawUsername || "portalmda";
+
+  const credentials = btoa(apiUsername + ":" + apiKey);
 
   const headers = {
     "Authorization": `Basic ${credentials}`,

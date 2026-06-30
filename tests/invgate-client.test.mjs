@@ -25,6 +25,7 @@ function restoreFetch() {
 async function simulateInvgateGet(endpoint) {
   const apiKey = process.env.INVGATE_API_KEY;
   const baseUrl = process.env.INVGATE_BASE_URL;
+  const rawUsername = process.env.INVGATE_API_USERNAME;
 
   if (!apiKey) {
     throw new Error("[InvGate] Variable de entorno INVGATE_API_KEY no definida.");
@@ -33,8 +34,9 @@ async function simulateInvgateGet(endpoint) {
     throw new Error("[InvGate] Variable de entorno INVGATE_BASE_URL no definida.");
   }
 
-  // Must use "portalmda" as the Basic Auth username (matching src/lib/invgateClient.ts)
-  const credentials = Buffer.from("portalmda:" + apiKey).toString("base64");
+  const apiUsername = rawUsername || "portalmda";
+
+  const credentials = Buffer.from(apiUsername + ":" + apiKey).toString("base64");
   const headers = {
     Authorization: `Basic ${credentials}`,
     "Content-Type": "application/json",
@@ -66,6 +68,7 @@ async function simulateInvgateGet(endpoint) {
 const envBackup = { ...process.env };
 process.env.INVGATE_API_KEY = "test-api-key-123";
 process.env.INVGATE_BASE_URL = "https://invgate.test/api/v1/";
+process.env.INVGATE_API_USERNAME = "portalmda";
 
 // --- Test 1: Successful GET ---
 mockFetch({ data: [{ id: 1, title: "Test" }], pagination: { total_entries: 1 } });
@@ -129,5 +132,6 @@ restoreFetch();
 // --- Cleanup ---
 process.env.INVGATE_API_KEY = envBackup.INVGATE_API_KEY;
 process.env.INVGATE_BASE_URL = envBackup.INVGATE_BASE_URL;
+process.env.INVGATE_API_USERNAME = envBackup.INVGATE_API_USERNAME;
 
 console.log("All invgate client tests passed!");
