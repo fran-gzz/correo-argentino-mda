@@ -268,6 +268,7 @@ export const agents = sqliteTable("agents", {
   minPWeek: integer("min_p_week"),
   lastAutogestionAssignedAt: integer("last_autogestion_assigned_at"),
   lastAutogestionAssignedBy: text("last_autogestion_assigned_by"),
+  lastAutogestionUndo: integer("last_autogestion_undo"),
   estadoExcepcional: text("estado_excepcional"),
   estadoExcepcionalMotivo: text("estado_excepcional_motivo"),
   estadoExcepcionalAt: integer("estado_excepcional_at"),
@@ -775,3 +776,12 @@ export const feedbackRelations = relations(feedback, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const assignmentLock = sqliteTable("assignment_lock", {
+  id: integer("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  username: text("username").notNull(),
+  acquiredAt: integer("acquired_at").notNull(),
+  lastActivityAt: integer("last_activity_at").notNull(),
+  releaseRequested: integer("release_requested").notNull().default(0),
+});
