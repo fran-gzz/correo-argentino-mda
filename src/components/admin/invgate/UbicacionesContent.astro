@@ -6,6 +6,8 @@ import DataTable from "@components/ui/DataTable.astro";
 import DataTableHeaderCell from "@components/ui/DataTableHeaderCell.astro";
 import { Icon } from "astro-icon/components";
 import UbicacionRow from "./UbicacionRow.astro";
+import FormField from "@components/ui/forms/FormField.astro";
+import SelectField from "@components/ui/forms/SelectField.astro";
 import { db } from "@db/index";
 import { provinces } from "@db/schema";
 import { officeTypeLabelByType } from "@lib/officeHelpers";
@@ -205,40 +207,22 @@ const rowGridClass = "grid grid-cols-[120px_1.5fr_100px_120px_100px_1.2fr_120px_
   <div class="modal-box max-w-lg">
     <h3 class="font-bold text-lg mb-4 text-base-content">Crear nueva oficina</h3>
     <form id="create_office_form" class="space-y-4">
-      <div>
-        <label class="label"><span class="label-text font-medium text-base-content/80">Código NIS <span class="text-error">*</span></span></label>
-        <input type="text" name="code" class="input input-bordered w-full" required />
-      </div>
-      <div>
-        <label class="label"><span class="label-text font-medium text-base-content/80">Nombre <span class="text-error">*</span></span></label>
-        <input type="text" name="name" class="input input-bordered w-full" required />
-      </div>
-      <div>
-        <label class="label"><span class="label-text font-medium text-base-content/80">Dirección</span></label>
-        <input type="text" name="address" class="input input-bordered w-full" />
-      </div>
-      <div>
-        <label class="label"><span class="label-text font-medium text-base-content/80">Provincia <span class="text-error">*</span></span></label>
-        <select name="provinceCode" class="select select-bordered w-full" required>
-          <option value="" disabled selected>Seleccioná una provincia</option>
-          {allProvinces.map((prov) => (
-            <option value={prov.code}>{prov.name}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label class="label"><span class="label-text font-medium text-base-content/80">Centro de Costo</span></label>
-        <input type="text" name="cc" class="input input-bordered w-full" />
-      </div>
-      <div>
-        <label class="label"><span class="label-text font-medium text-base-content/80">Tipo <span class="text-error">*</span></span></label>
-        <select name="type" class="select select-bordered w-full" required>
-          <option value="" disabled selected>Seleccioná un tipo</option>
-          {Object.entries(officeTypeLabelByType).map(([key, label]) => (
-            <option value={key}>{label}</option>
-          ))}
-        </select>
-      </div>
+      <FormField id="office-code" name="code" label="Código NIS" required />
+      <FormField id="office-name" name="name" label="Nombre" required />
+      <FormField id="office-address" name="address" label="Dirección" />
+      <SelectField id="office-province" name="provinceCode" label="Provincia" required>
+        <option value="" disabled selected>Seleccioná una provincia</option>
+        {allProvinces.map((prov) => (
+          <option value={prov.code}>{prov.name}</option>
+        ))}
+      </SelectField>
+      <FormField id="office-cc" name="cc" label="Centro de Costo" />
+      <SelectField id="office-type" name="type" label="Tipo" required>
+        <option value="" disabled selected>Seleccioná un tipo</option>
+        {Object.entries(officeTypeLabelByType).map(([key, label]) => (
+          <option value={key}>{label}</option>
+        ))}
+      </SelectField>
       <div class="modal-action flex justify-end gap-2 mt-6">
         <button type="button" class="btn btn-outline" onclick="document.getElementById('create_office_modal').close()">Cancelar</button>
         <button type="submit" class="btn btn-primary">Crear</button>
