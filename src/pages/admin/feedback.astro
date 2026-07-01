@@ -11,6 +11,7 @@ import { feedback, users } from "../../db/schema";
 import { eq, desc } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 import SelectField from "@components/ui/forms/SelectField.astro";
+import Modal from "@components/ui/Modal.astro";
 
 // Verificar autenticación y rol de administrador
 const user = Astro.locals.user;
@@ -178,14 +179,10 @@ const formatDateTime = (date: Date) => {
       )}
     </SectionCard>
 
-    {/* Modal de Detalles del Feedback */}
-    <dialog id="modal-details" class="modal" data-current-user-id={user.id}>
-      <div class="modal-box max-w-3xl border border-base-300 p-6 rounded-2xl bg-base-100 relative">
-        <button
-          type="button"
-          class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
-          onclick="document.getElementById('modal-details').close()"
-        >
+    <span id="modal-details-user-id" data-user-id={user.id} class="hidden"></span>
+    <Modal id="modal-details" size="3xl" class="p-6 relative">
+      <Fragment slot="content">
+        <button type="button" class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 z-10" onclick="document.getElementById('modal-details').close()">
           <Icon name="boxicons:x" size={20} />
         </button>
 
@@ -204,12 +201,10 @@ const formatDateTime = (date: Date) => {
               <span class="text-xxs font-bold uppercase tracking-wider text-base-content/50 block mb-1">Asunto</span>
               <p id="detail-subject" class="text-lg font-semibold text-base-content leading-snug"></p>
             </div>
-
             <div class="border-t border-base-200 pt-4">
               <span class="text-xxs font-bold uppercase tracking-wider text-base-content/50 block mb-2">Descripción / Propuesta</span>
               <p id="detail-description" class="text-sm text-base-content leading-relaxed whitespace-pre-wrap pl-1"></p>
             </div>
-
             <div id="detail-bug-steps-container" class="hidden border-t border-base-200 pt-4">
               <span class="text-xxs font-bold uppercase tracking-wider text-base-content/50 block mb-2">Pasos para reproducir</span>
               <p id="detail-steps" class="text-sm text-base-content leading-relaxed whitespace-pre-wrap pl-1"></p>
@@ -243,12 +238,10 @@ const formatDateTime = (date: Date) => {
                 <span class="text-xxs font-black uppercase tracking-wider text-base-content/50">TIPO:</span>
                 <span id="detail-type-badge" class="badge badge-sm font-bold uppercase tracking-wide"></span>
               </div>
-
               <div id="detail-category-container" class="flex items-center justify-between hidden">
                 <span class="text-xxs font-black uppercase tracking-wider text-base-content/50">CATEGORÍA:</span>
                 <span id="detail-category" class="badge badge-sm font-semibold"></span>
               </div>
-
               <div id="detail-severity-container" class="flex items-center justify-between hidden">
                 <span class="text-xxs font-black uppercase tracking-wider text-base-content/50">GRAVEDAD:</span>
                 <span id="detail-severity" class="badge badge-sm font-semibold uppercase"></span>
@@ -285,19 +278,14 @@ const formatDateTime = (date: Date) => {
             </div>
           </div>
         </div>
-
-        <!-- Acciones Inferiores (Resolver, En Revisión, Descartar) -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-2 mt-8 pt-4 border-t border-base-200">
-          <input type="hidden" id="detail-feedback-id" />
-          <button type="button" class="btn btn-sm btn-outline btn-warning font-semibold" data-status-btn="en_revision">En Revisión</button>
-          <button type="button" class="btn btn-sm btn-success text-success-content font-semibold" data-status-btn="resuelto">Resolver</button>
-          <button type="button" class="btn btn-sm btn-outline btn-error font-semibold" data-status-btn="descartado">Descartar</button>
-        </div>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button>cerrar</button>
-      </form>
-    </dialog>
+      </Fragment>
+      <Fragment slot="actions">
+        <input type="hidden" id="detail-feedback-id" />
+        <button type="button" class="btn btn-sm btn-outline btn-warning font-semibold" data-status-btn="en_revision">En Revisión</button>
+        <button type="button" class="btn btn-sm btn-success text-success-content font-semibold" data-status-btn="resuelto">Resolver</button>
+        <button type="button" class="btn btn-sm btn-outline btn-error font-semibold" data-status-btn="descartado">Descartar</button>
+      </Fragment>
+    </Modal>
   </PageContainer>
 </BaseLayout>
 
@@ -509,7 +497,7 @@ const formatDateTime = (date: Date) => {
         const assignedToEl = document.getElementById("detail-assigned-to");
         const btnAssign = document.getElementById("btn-assign-self");
         const btnUnassign = document.getElementById("btn-unassign-self");
-        const currentUserId = Number(detailsModal?.getAttribute("data-current-user-id") || 0);
+        const currentUserId = Number(document.getElementById("modal-details-user-id")?.getAttribute("data-user-id") || 0);
 
         if (assignedToEl) {
           assignedToEl.textContent = item.assignedToUsername ? item.assignedToUsername : "Sin asignar";
