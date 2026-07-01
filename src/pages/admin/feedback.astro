@@ -10,6 +10,7 @@ import { db } from "../../db/index";
 import { feedback, users } from "../../db/schema";
 import { eq, desc } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
+import SelectField from "@components/ui/forms/SelectField.astro";
 
 // Verificar autenticación y rol de administrador
 const user = Astro.locals.user;
@@ -77,13 +78,13 @@ const formatDateTime = (date: Date) => {
           </button>
         </div>
         <div class="w-full md:w-auto flex justify-end md:pr-4">
-          <select class="select select-bordered select-sm rounded-md w-full md:w-48" id="filter-status">
+          <SelectField id="filter-status" name="filter-status" label="Filtrar por estado" size="sm" selectClass="rounded-md w-full md:w-48">
             <option value="all">Cualquier Estado</option>
             <option value="pendiente">Pendiente</option>
             <option value="en_revision">En Revisión</option>
             <option value="resuelto">Resuelto</option>
             <option value="descartado">Descartado</option>
-          </select>
+          </SelectField>
         </div>
       </div>
 
