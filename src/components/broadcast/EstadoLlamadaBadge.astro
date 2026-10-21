@@ -1,0 +1,24 @@
+---
+import {
+  LLAMADA_ESTADO_LABELS,
+  LLAMADA_ESTADO_TONES,
+  type LlamadaEstado,
+} from "@/lib/llamadas/estados";
+
+interface Props {
+  estado: LlamadaEstado;
+  /** Texto a mostrar (por defecto, la etiqueta canónica del estado). */
+  label?: string;
+  class?: string;
+}
+
+const { estado, label, class: className = "" } = Astro.props;
+const tone = LLAMADA_ESTADO_TONES[estado] ?? "neutral";
+---
+
+<span
+  class:list={["badge badge-sm badge-soft", `badge-${tone}`, className]}
+  data-estado-badge
+>
+  {label ?? LLAMADA_ESTADO_LABELS[estado] ?? estado}
+</span>

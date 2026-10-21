@@ -103,6 +103,11 @@ export const navSections: NavSection[] = [
         icon: "boxicons:headphone-mic-filled",
       },
       {
+        href: "/broadcast",
+        label: "Broadcast",
+        icon: "boxicons:tv",
+      },
+      {
         href: "/base-conocimiento",
         label: "Base de Conocimiento",
         icon: "boxicons:book-bookmark-filled",

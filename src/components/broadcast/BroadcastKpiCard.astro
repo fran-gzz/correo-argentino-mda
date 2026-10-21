@@ -1,0 +1,28 @@
+---
+interface Props {
+  /** Clave del KPI (para el refresco por polling). */
+  key: string;
+  label: string;
+  value: number;
+  hint?: string;
+}
+
+const { key, label, value, hint } = Astro.props;
+const isZero = value === 0;
+---
+
+<article class="border-base-300 bg-base-100 border px-6 py-8 text-center">
+  <span
+    class:list={[
+      "block text-8xl leading-none font-black tabular-nums",
+      isZero ? "text-base-content/40" : "text-secondary",
+    ]}
+    data-broadcast-kpi={key}
+    title={hint}
+  >
+    {value}
+  </span>
+  <span class="text-base-content/70 mt-3 block text-xl font-bold tracking-widest uppercase">
+    {label}
+  </span>
+</article>

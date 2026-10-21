@@ -1,0 +1,45 @@
+---
+import EstadoLlamadaBadge from "./EstadoLlamadaBadge.astro";
+import { describeCall } from "@/lib/broadcast/display";
+import type { WiseCallLive } from "@/lib/wise-cx-calls";
+import { formatDuration } from "@/lib/wise-cx-calls";
+
+interface Props {
+  call: WiseCallLive;
+}
+
+const { call } = Astro.props;
+const display = describeCall(call);
+---
+
+<article
+  class="border-base-300 bg-base-100 border p-4"
+  data-broadcast-card
+  data-created-at={call.createdAt}
+>
+  <div class="flex items-center justify-between gap-2">
+    <EstadoLlamadaBadge estado={call.state} />
+    <span
+      class="text-base-content/80 font-mono text-lg font-bold tabular-nums"
+      data-field="tiempo"
+    >
+      {formatDuration(call.elapsedSeconds)}
+    </span>
+  </div>
+
+  <p
+    class="text-base-content mt-2 truncate text-lg font-semibold"
+    data-field="agente"
+    title={display.title}
+  >
+    {display.title}
+  </p>
+
+  <p
+    class="text-base-content/60 truncate text-sm"
+    data-field="grupo"
+    title={display.subtitle}
+  >
+    {display.subtitle}
+  </p>
+</article>

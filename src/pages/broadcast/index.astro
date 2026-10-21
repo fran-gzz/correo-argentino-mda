@@ -1,0 +1,269 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
+---
+
+<BaseLayout title="Broadcast | Portal MDA">
+  <h1 class="sr-only">Broadcast de llamadas en vivo</h1>
+
+  <BroadcastContent server:defer>
+    <div slot="fallback" class="space-y-6">
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+        {
+          [1, 2, 3, 4].map(() => (
+            <div class="border-base-300 border px-6 py-8 text-center">
+              <div class="bg-base-200 mx-auto h-20 w-24 animate-pulse"></div>
+              <div class="bg-base-200 mx-auto mt-4 h-5 w-28 animate-pulse"></div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </BroadcastContent>
+</BaseLayout>
+
+<script>
+  import {
+    LLAMADA_ESTADO_LABELS,
+    LLAMADA_ESTADO_TONES,
+    type LlamadaEstado,
+  } from "@/lib/llamadas/estados";
+  import { describeCall } from "@/lib/broadcast/display";
+  import { getCleanBase } from "@/lib/baseUrl";
+  import { initFullscreenToggle } from "@/lib/fullscreenToggle";
+
+  interface LlamadaApi {
+    callId: number;
+    agentName: string;
+    state: LlamadaEstado;
+    stateLabel: string;
+    groupName: string;
+    elapsedSeconds: number;
+    createdAt: string;
+  }
+
+  interface BroadcastApi {
+    kpis: {
+      active: number;
+      attended: number;
+      ringing: number;
+      enqueued: number;
+      ivr: number;
+      overflow: number;
+      avgWaitSeconds: number;
+      avgWaitLabel: string;
+    };
+    calls: LlamadaApi[];
+    fetchedAt: string;
+    stale: boolean;
+    warning?: string;
+  }
+
+  const POLL_INTERVAL_MS = 10_000;
+  const TICK_INTERVAL_MS = 1_000;
+
+  let pollTimer: number | null = null;
+  let tickTimer: number | null = null;
+  let requestInFlight = false;
+
+  const getRoot = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>("[data-broadcast-root]");
+
+  const formatDuration = (seconds: number): string => {
+    const total = Math.max(0, Math.floor(seconds));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
+    if (hours > 0) return `${hours}h ${String(minutes).padStart(2, "0")}m`;
+    if (minutes > 0) return `${minutes}m ${String(secs).padStart(2, "0")}s`;
+    return `${secs}s`;
+  };
+
+  const setKpi = (key: string, value: string | number): void => {
+    const el = document.querySelector<HTMLElement>(
+      `[data-broadcast-kpi="${key}"]`,
+    );
+    if (!el) return;
+
+    el.textContent = String(value);
+
+    // Gris cuando el estado esta en 0; acento cuando hay llamadas.
+    const isZero = Number(value) === 0;
+    el.classList.toggle("text-secondary", !isZero);
+    el.classList.toggle("text-base-content/40", isZero);
+  };
+
+  const buildEstadoBadge = (state: LlamadaEstado, label: string): HTMLElement => {
+    const badge = document.createElement("span");
+    const tone = LLAMADA_ESTADO_TONES[state] ?? "neutral";
+    badge.className = `badge badge-sm badge-soft badge-${tone}`;
+    badge.textContent = label || LLAMADA_ESTADO_LABELS[state] || state;
+    return badge;
+  };
+
+  const renderCalls = (calls: LlamadaApi[]): void => {
+    const container = document.querySelector<HTMLElement>(
+      "[data-broadcast-cards]",
+    );
+    const template = document.querySelector<HTMLTemplateElement>(
+      "#bcast-tpl-card",
+    );
+    if (!container || !template?.content.firstElementChild) return;
+
+    container.textContent = "";
+
+    for (const call of calls) {
+      const card = template.content.firstElementChild.cloneNode(true) as HTMLElement;
+
+      const estadoField = card.querySelector<HTMLElement>('[data-field="estado"]');
+      if (estadoField) {
+        estadoField.textContent = "";
+        estadoField.appendChild(buildEstadoBadge(call.state, call.stateLabel));
+      }
+
+      const tiempoField = card.querySelector<HTMLElement>('[data-field="tiempo"]');
+      if (tiempoField) {
+        tiempoField.textContent = formatDuration(call.elapsedSeconds ?? 0);
+      }
+
+      const agenteField = card.querySelector<HTMLElement>('[data-field="agente"]');
+      if (agenteField) {
+        const display = describeCall(call);
+        agenteField.textContent = display.title;
+        agenteField.setAttribute("title", display.title);
+      }
+
+      const grupoField = card.querySelector<HTMLElement>('[data-field="grupo"]');
+      if (grupoField) {
+        const display = describeCall(call);
+        grupoField.textContent = display.subtitle;
+        grupoField.setAttribute("title", display.subtitle);
+      }
+
+      if (call.createdAt) card.dataset.createdAt = call.createdAt;
+
+      container.appendChild(card);
+    }
+
+    const total = document.querySelector<HTMLElement>("[data-broadcast-total]");
+    if (total) total.textContent = String(calls.length);
+
+    const empty = document.querySelector<HTMLElement>("[data-broadcast-empty]");
+    if (empty) empty.hidden = calls.length > 0;
+  };
+
+  /** Timer en vivo: "3m 12s" de cada llamada, segundo a segundo. */
+  const updateElapsed = (): void => {
+    const now = Date.now();
+    document
+      .querySelectorAll<HTMLElement>("[data-broadcast-card][data-created-at]")
+      .forEach((card) => {
+        const created = card.dataset.createdAt;
+        if (!created) return;
+        const started = new Date(created).getTime();
+        if (Number.isNaN(started)) return;
+        const seconds = Math.max(0, Math.floor((now - started) / 1000));
+        const el = card.querySelector<HTMLElement>('[data-field="tiempo"]');
+        if (el) el.textContent = formatDuration(seconds);
+      });
+  };
+
+  const updateFreshness = (): void => {
+    const root = getRoot();
+    if (!root) return;
+    const el = root.querySelector<HTMLElement>("[data-broadcast-freshness]");
+    if (!el) return;
+
+    const fetchedAt = root.dataset.fetchedAt;
+    if (!fetchedAt) {
+      el.textContent = "--";
+      return;
+    }
+
+    const seconds = Math.max(
+      0,
+      Math.floor((Date.now() - new Date(fetchedAt).getTime()) / 1000),
+    );
+    if (seconds < 5) {
+      el.textContent = "actualizado ahora";
+    } else if (seconds < 60) {
+      el.textContent = `actualizado hace ${seconds}s`;
+    } else {
+      el.textContent = `actualizado hace ${Math.floor(seconds / 60)} min`;
+    }
+  };
+
+  const applySnapshot = (data: BroadcastApi): void => {
+    const root = getRoot();
+    if (!root) return;
+
+    root.dataset.fetchedAt = data.fetchedAt;
+    setKpi("ivr", data.kpis.ivr);
+    setKpi("enqueued", data.kpis.enqueued);
+    setKpi("attended", data.kpis.attended);
+    setKpi("ringing", data.kpis.ringing);
+    renderCalls(data.calls ?? []);
+    updateFreshness();
+    updateElapsed();
+  };
+
+  const fetchSnapshot = async (): Promise<void> => {
+    if (requestInFlight) return;
+    requestInFlight = true;
+
+    try {
+      const url = `${getCleanBase()}api/broadcast/estado`;
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      applySnapshot((await response.json()) as BroadcastApi);
+    } catch (error) {
+      console.warn("[Broadcast] No se pudo refrescar el snapshot:", error);
+    } finally {
+      requestInFlight = false;
+    }
+  };
+
+  const startPolling = (): void => {
+    if (pollTimer !== null) return;
+    pollTimer = window.setInterval(() => {
+      void fetchSnapshot();
+    }, POLL_INTERVAL_MS);
+  };
+
+  const initBroadcast = (): void => {
+    const root = getRoot();
+    if (!root) return;
+    if (root.dataset.bcastInit === "true") return;
+    root.dataset.bcastInit = "true";
+
+    updateFreshness();
+    startPolling();
+  };
+
+  document.addEventListener("astro:page-load", initBroadcast);
+
+  // Boton "Pantalla completa" (mismo mecanismo que las tablas del portal).
+  initFullscreenToggle();
+
+  // El server island se resuelve de forma diferida: se espera a que aparezca.
+  const observer = new MutationObserver(() => {
+    initBroadcast();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  initBroadcast();
+
+  if (tickTimer === null) {
+    tickTimer = window.setInterval(() => {
+      updateFreshness();
+      updateElapsed();
+    }, TICK_INTERVAL_MS);
+  }
+</script>

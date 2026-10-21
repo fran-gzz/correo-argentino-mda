@@ -6,6 +6,8 @@ interface Props {
   targetLabel?: string;
   size?: "xs" | "sm" | "md" | "default";
   variant?: "solid" | "soft" | "outline" | "ghost";
+  /** Texto visible junto al ícono (ej. "Pantalla completa"). */
+  label?: string;
   class?: string;
 }
 
@@ -13,6 +15,7 @@ const {
   targetLabel = "pantalla completa",
   size = "xs",
   variant = "ghost",
+  label,
   class: className = "",
 } = Astro.props;
 ---
@@ -34,4 +37,5 @@ const {
     data-fs-exit
     is:inline
   />
+  {label && <span class="fs-text text-xs">{label}</span>}
 </ActionButton>

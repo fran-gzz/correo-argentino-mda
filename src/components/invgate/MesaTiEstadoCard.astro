@@ -1,0 +1,133 @@
+---
+/**
+ * Tarjeta con el estado de la Mesa de Ayuda TI Nivel 1 (InvGate).
+ *
+ * CONSERVADA SIN USO: la vista `/broadcast` mostro que el dato de InvGate no
+ * suma en un wallboard de TV (ocupa espacio y agrega una dependencia externa
+ * a un tablero que solo muestra el estado de las llamadas). Se conserva para
+ * usarla en una vista de detalle o de reporteria.
+ *
+ * Depende de `src/lib/invgate/mesaEstado.ts`.
+ */
+import { Icon } from "astro-icon/components";
+import SectionCard from "@components/ui/SectionCard.astro";
+import StatsCard from "@components/ui/StatsCard.astro";
+import type { MesaEstadoResumen } from "@/lib/invgate/mesaEstado";
+
+interface Props {
+  mesa: MesaEstadoResumen;
+}
+
+const { mesa } = Astro.props;
+
+const porAgente = mesa.porAgente.filter((agente) => agente.casos > 0).slice(0, 8);
+const porEstado = mesa.porEstado.slice(0, 6);
+const maxEstado = porEstado.reduce((acc, item) => Math.max(acc, item.count), 0);
+---
+
+<SectionCard
+  id="llm-card-mesa"
+  title="Mesa de Ayuda TI Nivel 1"
+  description={mesa.helpdeskName}
+  icon="boxicons:headphone-mic-filled"
+  class="h-full"
+>
+  <div class="space-y-5">
+    <div class="grid grid-cols-2 gap-4">
+      <div data-live-mesa="total">
+        <StatsCard
+          label="Casos"
+          value={mesa.total}
+          icon="ticket"
+          color="secondary"
+          class="shadow-xs"
+        />
+      </div>
+      <div data-live-mesa="abiertos">
+        <StatsCard
+          label="Abiertos"
+          value={mesa.abiertos}
+          icon="hourglass-filled"
+          color="warning"
+          class="shadow-xs"
+        />
+      </div>
+    </div>
+
+    {
+      porEstado.length > 0 && (
+        <div>
+          <h3 class="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+            Por estado
+          </h3>
+          <ul class="space-y-2">
+            {porEstado.map((estado) => (
+              <li class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                <span class="text-base-content/70 truncate text-xs">
+                  {estado.name}
+                </span>
+                <span class="font-mono text-base-content tabular-nums text-xs">
+                  {estado.count}
+                </span>
+                <progress
+                  class="progress progress-secondary col-span-2 h-1 w-full"
+                  value={estado.count}
+                  max={maxEstado || 1}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      porAgente.length > 0 && (
+        <div>
+          <h3 class="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+            Agentes con casos
+          </h3>
+          <ul class="space-y-2">
+            {porAgente.map((agente) => (
+              <li class="border-base-200 flex items-center justify-between gap-3 border-b pb-2 last:border-0 last:pb-0">
+                <span class="min-w-0">
+                  <span class="text-base-content block truncate text-sm">
+                    {agente.nombre}
+                  </span>
+                  {agente.email && (
+                    <span class="text-base-content/60 block truncate text-xs">
+                      {agente.email}
+                    </span>
+                  )}
+                </span>
+                <span class="flex shrink-0 items-center gap-1.5">
+                  {agente.abiertos > 0 && (
+                    <span class="badge badge-sm badge-warning badge-soft font-mono">
+                      {agente.abiertos}
+                    </span>
+                  )}
+                  <span class="font-mono text-base-content/70 text-xs tabular-nums">
+                    {agente.casos} total
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      mesa.warning && (
+        <p
+          class="alert alert-warning text-sm"
+          data-live-mesa-warning
+          role="status"
+        >
+          <Icon name="boxicons:alert-triangle-filled" size={20} is:inline />
+          <span>{mesa.warning}</span>
+        </p>
+      )
+    }
+  </div>
+</SectionCard>

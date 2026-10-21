@@ -1,0 +1,158 @@
+---
+import FullscreenButton from "@components/ui/FullscreenButton.astro";
+import BroadcastKpiCard from "./BroadcastKpiCard.astro";
+import LlamadaCard from "./LlamadaCard.astro";
+import { getWiseCallsSnapshot } from "@/lib/wise-cx-calls";
+
+/**
+ * Wallboard de llamadas en vivo (Wise CX).
+ *
+ * Pensado para proyectarse en una TV: 4 KPIs grandes y un grid de cards con
+ * las llamadas activas. Se pone en pantalla completa con el botón del header
+ * (mismo mecanismo que las tablas del portal).
+ *
+ * Los datos los resuelve el server island para que la pagina principal no
+ * bloquee el render esperando a Wise CX.
+ */
+const snapshot = await getWiseCallsSnapshot();
+const { kpis, calls, fetchedAt } = snapshot;
+
+/**
+ * Los cuatro estados que la mesa necesita ver en vivo.
+ * "Activas" es el estado "En curso" de Wise (total_call_attended).
+ */
+const kpiCards = [
+  {
+    key: "ringing",
+    label: "Sonando",
+    value: kpis.ringing,
+    hint: "Llamadas en el ring de un agente, esperando que atienda.",
+  },
+  {
+    key: "attended",
+    label: "Activas",
+    value: kpis.attended,
+    hint: "Llamadas que un agente está atendiendo en este momento.",
+  },
+  {
+    key: "enqueued",
+    label: "En Cola",
+    value: kpis.enqueued,
+    hint: "Llamadas esperando a que se les asigne un agente.",
+  },
+  {
+    key: "ivr",
+    label: "En IVR",
+    value: kpis.ivr,
+    hint: "Llamadas recorriendo el menú de voz.",
+  },
+];
+---
+
+<div
+  id="bcast-root"
+  class="space-y-6"
+  data-broadcast-root
+  data-fullscreen-root
+  data-fetched-at={fetchedAt}
+>
+  <header class="flex items-center justify-end gap-3">
+    <span
+      class="badge badge-lg badge-success badge-soft gap-2"
+      data-broadcast-vivo
+    >
+      <span class="bg-success inline-block size-2 animate-pulse rounded-full"></span>
+      En vivo
+    </span>
+    <span
+      class="text-base-content/60 font-mono text-sm tabular-nums"
+      data-broadcast-freshness
+    >
+      --
+    </span>
+    <FullscreenButton
+      variant="outline"
+      size="sm"
+      label="Pantalla completa"
+      targetLabel="el tablero de llamadas"
+    />
+  </header>
+
+  <section
+    class="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6"
+    aria-label="Estado de las llamadas"
+  >
+    {
+      kpiCards.map((card) => (
+        <BroadcastKpiCard
+          key={card.key}
+          label={card.label}
+          value={card.value}
+          hint={card.hint}
+        />
+      ))
+    }
+  </section>
+
+  <section class="space-y-4" aria-label="Llamadas activas">
+    <div class="flex items-center gap-3">
+      <h2 class="text-base-content text-2xl font-bold tracking-tight">
+        Llamadas activas
+      </h2>
+      <span
+        class="badge badge-lg badge-secondary font-mono font-black tabular-nums"
+        data-broadcast-total
+      >
+        {calls.length}
+      </span>
+    </div>
+
+    <template id="bcast-tpl-card">
+      <article class="border-base-300 bg-base-100 border p-4" data-broadcast-card>
+        <div class="flex items-center justify-between gap-2">
+          <span data-field="estado"></span>
+          <span
+            class="text-base-content/80 font-mono text-lg font-bold tabular-nums"
+            data-field="tiempo"
+          ></span>
+        </div>
+        <p
+          class="text-base-content mt-2 truncate text-lg font-semibold"
+          data-field="agente"
+        ></p>
+        <p
+          class="text-base-content/60 truncate text-sm"
+          data-field="grupo"
+        ></p>
+      </article>
+    </template>
+
+    <div
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      data-broadcast-cards
+    >
+      {
+        calls.map((call) => (
+          <LlamadaCard call={call} />
+        ))
+      }
+    </div>
+
+    <div
+      class="border-base-300 text-base-content/60 flex items-center justify-center border border-dashed p-10 text-xl"
+      data-broadcast-empty
+      hidden={calls.length > 0}
+    >
+      <span>Sin llamadas activas en este momento</span>
+    </div>
+  </section>
+</div>
+
+<style is:global>
+  [data-fullscreen-root].is-fullscreen {
+    background-color: var(--color-base-100);
+    height: 100%;
+    overflow-y: auto;
+    padding: 2rem;
+  }
+</style>
