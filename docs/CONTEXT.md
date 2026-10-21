@@ -59,10 +59,21 @@ WISE_CX_API_USER            — Usuario para autenticacion Wise CX
 WISE_CX_WALLBOARD_COMPANY   — Codigo de compania para Wallboard de presencia Wise CX
 WISE_CX_WALLBOARD_TAB_GUID  — GUID del tablero de presencia en vivo de Wise CX
 WISE_CX_WALLBOARD_WIDGET_ID — ID del widget de presencia de agentes en Wise CX
+WISE_CX_ANALYTICS_BASE_URL  — URL base de Wise CX Analytics (vista "Broadcast" de llamadas)
+WISE_CX_ANALYTICS_COMPANY   — Codigo de compania en Wise Analytics
+WISE_CX_ANALYTICS_TAB_GUID  — GUID del tab publico de Wise Analytics
+WISE_CX_CALLS_WIDGET_ID     — Widget "Estado de Llamadas" de Wise (KPIs por estado)
+WISE_CX_CALLS_DETAIL_WIDGET_ID — Widget de Wise reusado para el listado de llamadas
+WISE_CX_TIMEZONE_OFFSET     — Offset de la cuenta Wise para parsear call_created
 EXTERNAL_STORAGE_DIR        — Directorio raiz para archivos subidos (apps, iconos, PDFs)
 ```
 
 Copiar `.env.example` a `.env` y llenar valores. **Nunca committear `.env`.**
+
+> **Wise CX Analytics es público.** A diferencia de la API core de Wise CX
+> (`WISE_CX_API_KEY` + `Bearer`), los endpoints `Reports.svc` de
+> `analytics.wcx.cloud` no requieren credenciales: se resuelven con
+> `{ codeCompany, tab_guid }`. La vista `/broadcast` funciona sin API key.
 
 ---
 
@@ -308,6 +319,7 @@ Todas las graficas del portal usan `src/components/ui/ChartCard.astro` (con `cha
 | 8   | `/recursos/aplicativos`  | Catalogo de aplicativos con descargas                   |
 | 9   | `/oficinas`              | Directorio de oficinas, activos de red y datos tecnicos |
 | 10  | `/inventario-terminales` | Consulta y estado del parque de terminales              |
+| 11  | `/broadcast`           | Wallboard de llamadas en vivo (Wise CX Analytics) para proyectar en una TV: 4 KPIs grandes en orden (Sonando / Activas / En Cola / En IVR) y grid de cards con las llamadas activas (estado, agente, grupo, tiempo). Sin encabezado ni filtros; botón de pantalla completa y auto-refresh de 10 s. Lectura para todos los logueados |
 | 11  | `/automatizaciones`      | Monitoreo de workflows de automatizacion de sucursales (InvGate). Lectura (listado y detalle) para todos los usuarios con sesion iniciada. Cierre/reapertura local (portal, no InvGate) y edicion de datos manuales para `supervisor`+ desde el detalle cuando el progreso supera `AUTOMATION_CLOSE_THRESHOLD` (80%); auto-finalizado al 100% sin etapas bloqueantes faltantes. Listado con busqueda y filtros (estado/region/antiguedad), orden (nuevas/antiguas/actualizadas), vista tarjetas/tabla y export CSV (`/api/automatizaciones/export.csv`) |
 | 11b | `/automatizaciones/metricas` | KPIs del flujo (total, WIP, finalizadas, lead time, SLA, tiempo trabajado), resumen ejecutivo, gráficos (líneas de casos/tiempo de ciclo por mes, donuts de región y SLA), ritmo de cierre + ETA del backlog, backlog por antiguedad, ranking de sucursales y monitoreo post-automatización (errores Mosaic por sucursal). Se calculan sobre el historial local (`automation_parents` + `automation_closures` + `automation_activity_days`), sin consultar InvGate salvo la vista Mosaic. Lectura para todos los logueados |
 

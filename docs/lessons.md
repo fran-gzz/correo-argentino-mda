@@ -837,3 +837,46 @@ Cada entrada sigue este formato:
 **Solución:** Reemplazar por nombres válidos verificados contra `node_modules/@iconify-json/boxicons/icons.json` (`user-account` → `user-circle`, `error-circle` → `bug-alt`). El diagnóstico salió de leer los logs del daemon con `npx astro dev logs` (JSON por línea), que sí muestra el stack del render. Quedó cubierto por `tests/oficinas-estadisticas.spec.ts` (11/11).
 **Regla:** Todo `name` pasado a `<Icon>` tiene que existir en el set instalado; `tsc` y `astro build` **no** lo validan, solo el render. Antes de dar por buena una pantalla con iconos nuevos, verificar cada nombre contra `@iconify-json/boxicons/icons.json` y cubrirla con un E2E que cargue la pagina (un test que solo mira `status` pasa igual: el render roto sale `200`). En `astro dev`, los errores de render **no** se ven en la consola del shell: se leen con `npx astro dev logs`.
 **Archivos afectados:** src/components/offices/stats/OficinasEstadisticasContent.astro, src/components/offices/stats/OficinaDetalleContent.astro, tests/oficinas-estadisticas.spec.ts
+
+---
+
+### 2026-10-21 - Wise CX Analytics: `Reports.svc` es una API PÚBLICA, distinta de la API core
+
+**Problema:** Para armar la vista de llamadas en vivo habia que traer el estado por llamada (Sonando / En curso / En cola / En IVR) desde Wise. El unico cliente del repo (`src/lib/wise-cx-client.ts`) pegaba a la API core (`api.wcx.cloud`), que exige `x-api-key` + `Bearer` y no expone llamadas en vivo.
+**Causa:** El front web de Wise Analytics (Angular 1.x) no consume la API core sino `analytics.wcx.cloud/Reports.svc/*`, y esos endpoints **no piden token**: se resuelven con `{ codeCompany, tab_guid }`. Contrato medido el 2026-10-21 sobre la cuenta Me599:
+
+- `POST /Reports.svc/LoadPage` con body `{ reportValues: { codeCompany, tab_guid } }` devuelve el tab completo con sus widgets, los catalogos (grupos, agentes) y el `socketURL`. El shape plano `{ codeCompany, tab_guid }` responde **500 INVALID_LOGIN**.
+- `POST /Reports.svc/getDataReportByWidget` con `{ widgetType, widgetID, widget, reportValues }` devuelve los KPIs (el widget "Estado de Llamadas", type 53, expone `total_call_ringing/attended/enqueued/ivr/active/overflow` y `avg_call_wait_time`).
+- `POST /Reports.svc/getCallsListData` con `{ widgetID, page, widget, reportValues, getTotals }` devuelve el detalle fila por fila (`call_agent`, `call_status`, `call_created`, `call_wait_time`, `company_ticket`, `call_group`).
+- El `widgetID` tiene que existir **en el tab**: si no, el backend responde `"Invalid Tab - WidgetID: N - TabID: 0"`. Se puede reusar el ID de un widget existente y cambiar `widget.type`/`config` en el payload para armar consultas a medida, sin crear nada en Wise.
+- El `widget` del payload debe conservar la **config completa** del widget real (sacada de `LoadPage`): con un config minimo el backend responde `data: null` sin error.
+- Un WQL invalido tambien devuelve `data: null` **sin error de envelope**: hay que validar `data != null` explicito, no confiar en `ok`.
+- `orderBy: call_created DESC` **no se aplica** (las filas llegan en orden ascendente). Por eso el listado usa ventana relativa (`#Last6Hours#`) y no `#Today#`: con `pageSize` acotado, el dia completo trunca y se pierden justo las filas mas recientes (las vivas).
+- `call_created` viene en **hora local de la cuenta** (-03:00), no en UTC: parsear con offset explicito (`WISE_CX_TIMEZONE_OFFSET`).
+- El mismo estado de llamada tiene dos nombres segun la vista: el agrupado dice "En Curso" y el detalle "Respondida". Normalizar a un estado canonico.
+- `company_ticket` (id del caso de InvGate) viene en **0 en toda la cuenta Me599**: no sirve para cruzar con InvGate. El cruce que si funciona es por nombre de agente -> `GET users` de InvGate -> email (el nombre de Wise trae punto final: "Bruno. Gutierrez").
+- SignalR: el front de Wise usa SignalR (`socketURL` + `signalr/hubs`, o SignalR Core en `realtime.a.wcx.cloud` con JWT rotativo), pero refresca los widgets por **polling** (`autorefresh: "5s"`). El SignalR solo avisa "hay cambios": no aporta el dato.
+
+**Solucion:** `src/lib/wise-cx-analytics.ts` (cliente HTTP de `Reports.svc`, sin credenciales) + `src/lib/wise-cx-calls.ts` (dominio: KPIs, detalle, normalizacion de estados, cache de 10 s con single-flight) + `src/lib/llamadas/service.ts` (agrega Wise con InvGate y cruza agente -> email). El polling del portal contra Wise lo hace **un** server-side cada 10 s: N usuarios mirando la vista generan una sola consulta.
+**Regla:** Antes de asumir que una API de terceros exige credenciales, mirar que consume el front web del producto: puede ser una API publica distinta (y gratuita de usar). Y cuando una API devuelva `data: null` sin error, tratar `null` como error explicito. Para "tiempo real" no asumir websocket: si el propio front refresca por polling, copiar el polling.
+**Archivos afectados:** src/lib/wise-cx-analytics.ts, src/lib/wise-cx-calls.ts, src/lib/llamadas/service.ts, src/lib/llamadas/estados.ts, src/components/broadcast/*, src/pages/broadcast/index.astro, src/pages/api/broadcast/estado.ts
+
+---
+
+### 2026-10-21 - Pantalla completa vs. ocultar el chrome: no duplicar el `<slot />` de `BaseLayout`
+
+**Problema:** La vista `/broadcast` se proyecta en una TV. El primer intento fue que la ruta ocultara el sidebar y el navbar del portal (y el contenido aparecio **duplicado** en el HTML). El segundo, capturar el slot con `Astro.slots.render("default")` y reinyectarlo, dejaba el server island **sin resolver**.
+**Causa:** En Astro, `<slot />` renderiza el contenido del slot en **cada** punto de uso: con dos `<slot />` (una rama para la ruta y otra para el resto) el contenido se emite dos veces. Y si se captura con `Astro.slots.render("default")` + `{html}`, los `<script>` inline del server island se insertan via `set:html` y **no se ejecutan** (los scripts insertados con innerHTML no corren), asi que el island queda como placeholder vacio.
+**Solucion final:** No se toca el layout por ruta. El portal mantiene siempre su sidebar y su navbar, y la vista ofrece un boton **"Pantalla completa"** con la Fullscreen API, el mismo mecanismo que ya usan las tablas (`data-fullscreen-root` + `data-fullscreen-toggle` + `initFullscreenToggle()`). Se extendio `FullscreenButton` con una prop opcional `label` para mostrar el texto, y el root recibe estilos en `[data-fullscreen-root].is-fullscreen` (fondo `base-100`, padding y scroll). Salir: boton de la barra o `Esc`.
+**Regla:** Para "modo TV" o pantalla completa, usar la Fullscreen API sobre el contenedor (con `data-fullscreen-root`), no modificar el layout global por ruta. Si alguna vez hace falta cambiar la estructura de `BaseLayout` segun la ruta: mantener **un solo** `<slot />` y condicionar solo la estructura que lo rodea; nunca duplicarlo ni capturarlo con `Astro.slots.render()` cuando el slot contiene server islands.
+**Archivos afectados:** src/components/ui/FullscreenButton.astro, src/components/broadcast/BroadcastContent.astro, src/pages/broadcast/index.astro
+
+---
+
+### 2026-10-21 - La API de InvGate NO tiene el concepto de "tablero" (vista guardada)
+
+**Problema:** El pedido era "traer los tableros que se encuentran asignados a Mesa de Ayuda TI Nivel 1" desde InvGate.
+**Causa:** Ese concepto no es alcanzable por API. Verificado contra la API de produccion el 2026-10-21: `views`, `reports`, `dashboards`, `boards`, `savedviews`, `views.by.helpdesk` y `helpdesks.views` no existen (404 / cuerpo vacio). `incidents.by.view?view_id=N` es la unica via, pero acepta **solo un ID opaco** (hay dos en `.env`: `INVGATE_AUTOMATION_VIEW_ID` y `INVGATE_MOSAIC_VIEW_ID`); no hay forma de listar vistas ni de saber a que mesa pertenecen.
+**Solucion:** Cubrir la necesidad con el estado real de la cola, que es lo que la mesa necesita para saber como viene working: `helpdesksandlevels` (mesa 2509 "TI_GSM_MDA TI", **Nivel 1 = 2510**, 29 miembros), `incidents.by.helpdesk?helpdesk_id=2510` (ids de la cola), `incidents?ids[]=` (detalle: estado, asignado, fechas), `incident.attributes.status` (nombres de estado) y `GET users` (**email** de cada agente). Implementado en `src/lib/invgate/mesaEstado.ts`.
+**Regla:** No prometer "tableros de InvGate" sin verificar: la API no los expone. Lo que se puede listar es el estado de la cola (casos + agente asignado + email). Si hacen falta los tableros reales, la unica via seria scraping de la UI (Playwright + SSO, ya existe en `src/lib/invgate/webSession.ts`) y es fragíl: preferible el estado de la cola.
+**Archivos afectados:** src/lib/invgate/mesaEstado.ts, src/components/invgate/MesaTiEstadoCard.astro
