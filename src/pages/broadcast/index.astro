@@ -50,7 +50,6 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
     categoryLabel: string;
     creatorName: string | null;
     locationName: string | null;
-    assignedName: string | null;
     /** Epoch en segundos. */
     createdAt: number;
   }
@@ -213,10 +212,6 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
       setText("titulo", caso.title);
       setText("creador", caso.creatorName ?? "Sin creador");
       setText("ubicacion", caso.locationName ?? "");
-      setText(
-        "asignado",
-        caso.assignedName ? `Asignado: ${caso.assignedName}` : "Sin asignar",
-      );
 
       const categoria = card.querySelector<HTMLElement>(
         '[data-field="categoria"]',

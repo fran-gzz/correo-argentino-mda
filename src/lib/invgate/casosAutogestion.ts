@@ -8,9 +8,9 @@
  *  - `2591` "Solicitudes rechazadas en revisión" -> volvió a la cola para
  *    reasignarse (es la categoría que usa la regla P1 del motor).
  *
- * Incluye casos asignados y sin asignar (la mesa necesita ver los dos), y
- * descarta los ya resueltos/cerrados. No escribe nada: ni en InvGate ni en
- * SQLite. Es un listado para el wallboard `/broadcast`.
+ * Solo lista casos SIN agente asignado: son los que la mesa todavia tiene que
+ * tomar. Descarta tambien los ya resueltos/cerrados. No escribe nada: ni en
+ * InvGate ni en SQLite. Es un listado para el wallboard `/broadcast`.
  *
  * Reusa la misma config de InvGate que el resto del portal (`invgateClient`:
  * `INVGATE_BASE_URL` + `INVGATE_API_KEY`), así que no hay integración nueva.
@@ -52,8 +52,8 @@ export interface CasoAutogestion {
   categoryKey: CasoAutogestionKey;
   statusId: number;
   statusName: string;
-  assignedId: number | null;
-  assignedName: string | null;
+  /** Siempre null: el panel lista solo casos sin agente asignado. */
+  assignedId: null;
   creatorName: string | null;
   locationName: string | null;
   /** Epoch en segundos (formato de InvGate). */
@@ -183,10 +183,11 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
     if (!categorySet.has(incident.category_id)) continue;
     // Solo casos abiertos: los resueltos/cerrados no son accionables.
     if (incident.solved_at || incident.closed_at) continue;
+    // Solo los que todavía no tienen agente: son los que la mesa debe tomar.
+    if (incident.assigned_id) continue;
 
     const categoryName = categoryMap.get(incident.category_id) ?? "";
     const meta = CATEGORY_META[incident.category_id];
-    const assigned = incident.assigned_id ?? null;
 
     casos.push({
       id: incident.id,
@@ -199,11 +200,7 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
       statusId: incident.status_id,
       statusName:
         statusNameById.get(incident.status_id) ?? `Estado ${incident.status_id}`,
-      assignedId: assigned,
-      assignedName: displayName(
-        assigned ? users.get(assigned) : undefined,
-        assigned,
-      ),
+      assignedId: null,
       creatorName: displayName(
         incident.creator_id ? users.get(incident.creator_id) : undefined,
         incident.creator_id ?? null,

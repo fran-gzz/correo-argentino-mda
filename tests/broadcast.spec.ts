@@ -309,8 +309,7 @@ test.describe("Broadcast de llamadas", () => {
             categoryLabel: "Nueva solicitud",
             statusId: 3,
             statusName: "Pendiente",
-            assignedId: 44909,
-            assignedName: "Ramiro Rojas",
+            assignedId: null,
             creatorName: "Marcelo Perez",
             locationName: "CONCEPCION DEL URUGUAY - SUC MOSAIC",
             createdAt: nowSeconds - 3600,
@@ -326,7 +325,6 @@ test.describe("Broadcast de llamadas", () => {
             statusId: 2,
             statusName: "Abierto",
             assignedId: null,
-            assignedName: null,
             creatorName: "Agustin Aguirre",
             locationName: "RIO CUARTO - SUC MOSAIC",
             createdAt: nowSeconds - 90000,
@@ -358,14 +356,15 @@ test.describe("Broadcast de llamadas", () => {
     const nueva = page.locator("[data-caso-card]").filter({ hasText: "#99999" });
     await expect(nueva).toContainText("Nueva solicitud");
     await expect(nueva).toContainText("pago facil");
-    await expect(nueva).toContainText("Asignado: Ramiro Rojas");
     await expect(nueva.locator('[data-field="edad"]')).not.toBeEmpty();
+    // Solo se listan casos sin asignar: no hay linea de "Asignado".
+    await expect(nueva).not.toContainText("Asignado");
 
     const rechazada = page
       .locator("[data-caso-card]")
       .filter({ hasText: "#99998" });
     await expect(rechazada).toContainText("Rechazadas en revisión");
-    await expect(rechazada).toContainText("Sin asignar");
+    await expect(rechazada).not.toContainText("Asignado");
 
     // Los contadores acompanan al snapshot.
     await expect(
@@ -434,10 +433,12 @@ test.describe("Broadcast de llamadas", () => {
     expect(body.casos).toHaveProperty("total");
     expect(Array.isArray(body.casos.casos)).toBe(true);
 
-    // Si hay casos, todos son de las dos categorias de interes y estan abiertos.
+    // Si hay casos, todos son de las dos categorias de interes, estan abiertos
+    // y NO tienen agente asignado (es el filtro del panel).
     for (const caso of body.casos.casos) {
       expect(["nueva_solicitud", "rechazada"]).toContain(caso.categoryKey);
       expect([1127, 2591]).toContain(caso.categoryId);
+      expect(caso.assignedId).toBeNull();
     }
     expect(body).not.toHaveProperty("mesa");
   });

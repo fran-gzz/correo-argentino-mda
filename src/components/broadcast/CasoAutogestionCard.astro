@@ -54,12 +54,4 @@ const tone = caso.categoryKey === "rechazada" ? "warning" : "info";
   >
     {caso.locationName ?? ""}
   </p>
-
-  <p
-    class="text-base-content/70 mt-1 truncate text-xs"
-    data-field="asignado"
-    title={caso.assignedName ?? "Sin asignar"}
-  >
-    {caso.assignedName ? `Asignado: ${caso.assignedName}` : "Sin asignar"}
-  </p>
 </article>

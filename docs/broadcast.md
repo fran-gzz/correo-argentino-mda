@@ -91,8 +91,8 @@ tiene botones, no toma el lock y no escribe en InvGate ni en SQLite.
 | Fuente | `src/lib/invgate/casosAutogestion.ts` |
 | Mesa | `INVGATE_AUTOGESTION_HELPDESK_ID` -> si esta vacia, `INVGATE_AGENTS_HELPDESK_ID` |
 | Categorias | `INVGATE_AUTOGESTION_CATEGORY_IDS` -> default `1127,2591` |
-| Filtro | `category_id` en {1127, 2591} **y** sin `solved_at`/`closed_at` (solo abiertos) |
-| Incluye | casos **asignados y sin asignar** (la mesa necesita ver los dos) |
+| Filtro | `category_id` en {1127, 2591}, **sin agente asignado** y sin `solved_at`/`closed_at` |
+| Incluye | solo casos **sin asignar** (los que la mesa todavia tiene que tomar) |
 | Orden | mas antiguos primero |
 | Cache | 60 s + single-flight (el wallboard refresca a 10 s) |
 | Si InvGate falla | `casos: []` + `warning`; el wallboard sigue funcionando |
