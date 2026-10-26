@@ -7,7 +7,6 @@ interface Props {
 }
 
 const { caso } = Astro.props;
-const tone = caso.categoryKey === "rechazada" ? "warning" : "info";
 ---
 
 <article
@@ -27,8 +26,8 @@ const tone = caso.categoryKey === "rechazada" ? "warning" : "info";
     </span>
   </div>
 
-  <span class:list={["badge badge-sm badge-soft mt-2", `badge-${tone}`]}>
-    {caso.categoryLabel}
+  <span class="badge badge-sm badge-soft badge-info mt-2" data-field="categoria">
+    {caso.categoryName}
   </span>
 
   <p

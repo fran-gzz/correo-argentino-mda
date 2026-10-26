@@ -158,20 +158,33 @@ const kpiCards = [
       <h2 class="text-base-content text-2xl font-bold tracking-tight">
         Casos de autogestión
       </h2>
-      {
-        casos.porCategoria.map((categoria) => (
-          <span
-            class:list={[
-              "badge badge-lg badge-soft font-mono tabular-nums",
-              categoria.key === "rechazada" ? "badge-warning" : "badge-info",
-            ]}
-            data-casos-count={categoria.key}
-            title={categoria.label}
-          >
-            {categoria.label}: {categoria.count}
-          </span>
-        ))
-      }
+      <span
+        class="badge badge-lg badge-secondary font-mono font-black tabular-nums"
+        data-casos-total
+      >
+        {casos.total}
+      </span>
+      <span
+        class="text-base-content/60 text-sm font-semibold tracking-wide uppercase"
+      >
+        sin asignar
+      </span>
+      <div
+        class="ml-auto flex flex-wrap items-center justify-end gap-2"
+        data-casos-breakdown
+      >
+        {
+          casos.porCategoria.map((categoria) => (
+            <span
+              class="badge badge-sm badge-soft badge-ghost font-mono tabular-nums"
+              data-casos-count={categoria.categoryId}
+              title={categoria.label}
+            >
+              {categoria.label}: {categoria.count}
+            </span>
+          ))
+        }
+      </div>
     </div>
 
     <template id="bcast-tpl-caso">

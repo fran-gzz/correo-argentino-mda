@@ -46,8 +46,8 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
     id: number;
     prettyId: string;
     title: string;
-    categoryKey: "nueva_solicitud" | "rechazada";
-    categoryLabel: string;
+    categoryId: number;
+    categoryName: string;
     creatorName: string | null;
     locationName: string | null;
     /** Epoch en segundos. */
@@ -72,7 +72,7 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
     casos: {
       total: number;
       porCategoria: {
-        key: "nueva_solicitud" | "rechazada";
+        categoryId: number;
         label: string;
         count: number;
       }[];
@@ -217,20 +217,33 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
         '[data-field="categoria"]',
       );
       if (categoria) {
-        const tone = caso.categoryKey === "rechazada" ? "warning" : "info";
-        categoria.className = `badge badge-sm badge-soft mt-2 badge-${tone}`;
-        categoria.textContent = caso.categoryLabel;
+        categoria.className = "badge badge-sm badge-soft mt-2 badge-info";
+        categoria.textContent = caso.categoryName;
+        categoria.setAttribute("title", caso.categoryName);
       }
 
       card.dataset.createdAt = String(caso.createdAt);
       container.appendChild(card);
     }
 
-    for (const categoria of data.porCategoria ?? []) {
-      const el = document.querySelector<HTMLElement>(
-        `[data-casos-count="${categoria.key}"]`,
-      );
-      if (el) el.textContent = `${categoria.label}: ${categoria.count}`;
+    // Total + desglose por categoria real.
+    const total = document.querySelector<HTMLElement>("[data-casos-total]");
+    if (total) total.textContent = String(data.total ?? casos.length);
+
+    const breakdown = document.querySelector<HTMLElement>(
+      "[data-casos-breakdown]",
+    );
+    if (breakdown) {
+      breakdown.textContent = "";
+      for (const categoria of data.porCategoria ?? []) {
+        const badge = document.createElement("span");
+        badge.className =
+          "badge badge-sm badge-soft badge-ghost font-mono tabular-nums";
+        badge.dataset.casosCount = String(categoria.categoryId);
+        badge.title = categoria.label;
+        badge.textContent = `${categoria.label}: ${categoria.count}`;
+        breakdown.appendChild(badge);
+      }
     }
 
     const empty = document.querySelector<HTMLElement>("[data-casos-empty]");

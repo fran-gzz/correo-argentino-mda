@@ -248,7 +248,7 @@ test.describe("Broadcast de llamadas", () => {
     );
   });
 
-  test("muestra la seccion de casos de autogestion con sus contadores", async ({
+  test("muestra la seccion de casos de autogestion con el total sin asignar", async ({
     context,
     page,
   }) => {
@@ -262,16 +262,11 @@ test.describe("Broadcast de llamadas", () => {
       page.getByRole("heading", { name: "Casos de autogestión" }),
     ).toBeVisible();
 
-    // Un contador por cada categoria que la mesa considera entrante.
-    await expect(
-      root.locator('[data-casos-count="nueva_solicitud"]'),
-    ).toContainText("Nueva solicitud");
-    await expect(root.locator('[data-casos-count="rechazada"]')).toContainText(
-      "Rechazadas en revisión",
-    );
+    // El total de casos sin asignar, siempre presente (puede ser 0).
+    await expect(root.locator("[data-casos-total]")).not.toBeEmpty();
   });
 
-  test("renderiza un caso de cada categoria con asignado y antiguedad", async ({
+  test("renderiza los casos sin asignar con su categoria real", async ({
     context,
     page,
   }) => {
@@ -296,19 +291,18 @@ test.describe("Broadcast de llamadas", () => {
         helpdeskId: 2510,
         total: 2,
         porCategoria: [
-          { key: "nueva_solicitud", label: "Nueva solicitud", count: 1 },
-          { key: "rechazada", label: "Rechazadas en revisión", count: 1 },
+          { categoryId: 439, label: "Mosaic- Consulta", count: 1 },
+          { categoryId: 2577, label: "Teclado", count: 1 },
         ],
         casos: [
           {
             id: 99999,
             prettyId: "99999",
-            title: "pago facil",
-            categoryId: 1127,
-            categoryKey: "nueva_solicitud",
-            categoryLabel: "Nueva solicitud",
-            statusId: 3,
-            statusName: "Pendiente",
+            title: "Impresora de LABEL con error",
+            categoryId: 439,
+            categoryName: "Mosaic- Consulta",
+            statusId: 2,
+            statusName: "Abierto",
             assignedId: null,
             creatorName: "Marcelo Perez",
             locationName: "CONCEPCION DEL URUGUAY - SUC MOSAIC",
@@ -318,10 +312,9 @@ test.describe("Broadcast de llamadas", () => {
           {
             id: 99998,
             prettyId: "99998",
-            title: "Laser - Imprime con manchas",
-            categoryId: 2591,
-            categoryKey: "rechazada",
-            categoryLabel: "Rechazadas en revisión",
+            title: "REPOSICION TECLADO",
+            categoryId: 2577,
+            categoryName: "Teclado",
             statusId: 2,
             statusName: "Abierto",
             assignedId: null,
@@ -353,26 +346,26 @@ test.describe("Broadcast de llamadas", () => {
       timeout: 25_000,
     });
 
-    const nueva = page.locator("[data-caso-card]").filter({ hasText: "#99999" });
-    await expect(nueva).toContainText("Nueva solicitud");
-    await expect(nueva).toContainText("pago facil");
-    await expect(nueva.locator('[data-field="edad"]')).not.toBeEmpty();
+    const primera = page.locator("[data-caso-card]").filter({ hasText: "#99999" });
+    await expect(primera).toContainText("Mosaic- Consulta");
+    await expect(primera).toContainText("Impresora de LABEL con error");
+    await expect(primera.locator('[data-field="edad"]')).not.toBeEmpty();
     // Solo se listan casos sin asignar: no hay linea de "Asignado".
-    await expect(nueva).not.toContainText("Asignado");
+    await expect(primera).not.toContainText("Asignado");
 
-    const rechazada = page
+    const segunda = page
       .locator("[data-caso-card]")
       .filter({ hasText: "#99998" });
-    await expect(rechazada).toContainText("Rechazadas en revisión");
-    await expect(rechazada).not.toContainText("Asignado");
+    await expect(segunda).toContainText("Teclado");
 
-    // Los contadores acompanan al snapshot.
+    // Total + desglose por categoria real.
+    await expect(page.locator("[data-casos-total]")).toHaveText("2");
     await expect(
-      page.locator('[data-casos-count="nueva_solicitud"]'),
-    ).toContainText("1");
-    await expect(page.locator('[data-casos-count="rechazada"]')).toContainText(
-      "1",
-    );
+      page.locator('[data-casos-count="439"]'),
+    ).toContainText("Mosaic- Consulta: 1");
+    await expect(
+      page.locator('[data-casos-count="2577"]'),
+    ).toContainText("Teclado: 1");
   });
 
   test("el polling refresca el tablero sin recargar la pagina", async ({
@@ -433,12 +426,11 @@ test.describe("Broadcast de llamadas", () => {
     expect(body.casos).toHaveProperty("total");
     expect(Array.isArray(body.casos.casos)).toBe(true);
 
-    // Si hay casos, todos son de las dos categorias de interes, estan abiertos
-    // y NO tienen agente asignado (es el filtro del panel).
+    // Si hay casos, todos estan sin agente asignado (es el filtro del panel).
     for (const caso of body.casos.casos) {
-      expect(["nueva_solicitud", "rechazada"]).toContain(caso.categoryKey);
-      expect([1127, 2591]).toContain(caso.categoryId);
       expect(caso.assignedId).toBeNull();
+      expect(caso.categoryId).toBeGreaterThan(0);
+      expect(caso.categoryName).toBeTruthy();
     }
     expect(body).not.toHaveProperty("mesa");
   });

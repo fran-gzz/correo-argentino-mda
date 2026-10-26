@@ -82,27 +82,21 @@ WISE_CX_TIMEZONE_OFFSET="-03:00"
 
 ## Casos de autogestion (InvGate, solo lectura)
 
-Debajo de las llamadas, el panel lista los casos de la mesa AGS que estan en
-las dos categorias que la mesa considera "entrantes". **No asigna nada**: no
-tiene botones, no toma el lock y no escribe en InvGate ni en SQLite.
+Debajo de las llamadas, el panel lista los casos de la mesa AGS que estan
+**abiertos y sin agente asignado**: son los que la mesa todavia tiene que
+tomar. **No asigna nada**: no tiene botones, no toma el lock y no escribe en
+InvGate ni en SQLite.
 
 | Que | Como |
 | --- | --- |
 | Fuente | `src/lib/invgate/casosAutogestion.ts` |
 | Mesa | `INVGATE_AUTOGESTION_HELPDESK_ID` -> si esta vacia, `INVGATE_AGENTS_HELPDESK_ID` |
-| Categorias | `INVGATE_AUTOGESTION_CATEGORY_IDS` -> default `1127,2591` |
-| Filtro | `category_id` en {1127, 2591}, **sin agente asignado** y sin `solved_at`/`closed_at` |
-| Incluye | solo casos **sin asignar** (los que la mesa todavia tiene que tomar) |
+| Filtro | **sin `assigned_id`** y sin `solved_at`/`closed_at` |
+| Categorias | todas: a la mesa llegan casos de cualquier tema |
+| Contadores | total de sin asignar + desglose por categoria real (top 8) |
 | Orden | mas antiguos primero |
 | Cache | 60 s + single-flight (el wallboard refresca a 10 s) |
 | Si InvGate falla | `casos: []` + `warning`; el wallboard sigue funcionando |
-
-Categorias de InvGate:
-
-- **1127** `Nueva Solicitud` — caso nuevo que entra a la mesa.
-- **2591** `Solicitudes rechazadas en revision` — volvio a la cola para
-  reasignarse (es la misma categoria que usa la regla P1 del motor de
-  autogestiones).
 
 > Para verlo con datos en un entorno cuyo `INVGATE_AGENTS_HELPDESK_ID` cae al
 > fallback de QA (3950), definir `INVGATE_AUTOGESTION_HELPDESK_ID=2510`.

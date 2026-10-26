@@ -1,16 +1,13 @@
 /**
  * Casos de autogestión de InvGate — SOLO LECTURA.
  *
- * Trae los casos de la mesa AGS que están en las categorías que la mesa
- * considera "entrantes":
+ * Lista todos los casos de la mesa AGS que están **abiertos y sin agente
+ * asignado**: son los que la mesa todavía tiene que tomar. No filtra por
+ * categoría (a la mesa llegan de cualquier tema) y no incluye los ya
+ * resueltos/cerrados.
  *
- *  - `1127` "Nueva Solicitud"                 -> caso nuevo que llega a la mesa.
- *  - `2591` "Solicitudes rechazadas en revisión" -> volvió a la cola para
- *    reasignarse (es la categoría que usa la regla P1 del motor).
- *
- * Solo lista casos SIN agente asignado: son los que la mesa todavia tiene que
- * tomar. Descarta tambien los ya resueltos/cerrados. No escribe nada: ni en
- * InvGate ni en SQLite. Es un listado para el wallboard `/broadcast`.
+ * No escribe nada: ni en InvGate ni en SQLite. Es un listado para el
+ * wallboard `/broadcast`.
  *
  * Reusa la misma config de InvGate que el resto del portal (`invgateClient`:
  * `INVGATE_BASE_URL` + `INVGATE_API_KEY`), así que no hay integración nueva.
@@ -24,32 +21,17 @@ import { getFullUserMap } from "@/lib/invgate/userCache";
 import { getLocationsMap } from "@/lib/invgate/locationsMapCache";
 import { AGS_HELPDESK_ID } from "@/lib/invgate/agsHelpdesk";
 
-/** "Nueva Solicitud" en InvGate. */
-export const CATEGORIA_NUEVA_SOLICITUD = 1127;
-/** "Solicitudes rechazadas en revisión" en InvGate. */
-export const CATEGORIA_RECHAZADAS = 2591;
-
-const DEFAULT_CATEGORIES = [CATEGORIA_NUEVA_SOLICITUD, CATEGORIA_RECHAZADAS];
 const CACHE_TTL_MS = 60_000;
-
-export type CasoAutogestionKey = "nueva_solicitud" | "rechazada";
-
-const CATEGORY_META: Record<
-  number,
-  { key: CasoAutogestionKey; label: string }
-> = {
-  [CATEGORIA_NUEVA_SOLICITUD]: { key: "nueva_solicitud", label: "Nueva solicitud" },
-  [CATEGORIA_RECHAZADAS]: { key: "rechazada", label: "Rechazadas en revisión" },
-};
+/** Tope de categorías distintas que se devuelven en el desglose. */
+const MAX_CATEGORY_BREAKDOWN = 8;
 
 export interface CasoAutogestion {
   id: number;
   prettyId: string;
   title: string;
   categoryId: number;
+  /** Último segmento del nombre de la categoría (ej. "Mosaic- Consulta"). */
   categoryName: string;
-  categoryLabel: string;
-  categoryKey: CasoAutogestionKey;
   statusId: number;
   statusName: string;
   /** Siempre null: el panel lista solo casos sin agente asignado. */
@@ -65,7 +47,8 @@ export interface CasoAutogestion {
 export interface CasosAutogestionResumen {
   helpdeskId: number;
   total: number;
-  porCategoria: { key: CasoAutogestionKey; label: string; count: number }[];
+  /** Desglose por categoría real, de mayor a menor cantidad. */
+  porCategoria: { categoryId: number; label: string; count: number }[];
   casos: CasoAutogestion[];
   actualizadoAt: string;
   warning?: string;
@@ -102,32 +85,14 @@ export function getAutogestionHelpdeskId(): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : AGS_HELPDESK_ID;
 }
 
-/** Categorías a listar: `INVGATE_AUTOGESTION_CATEGORY_IDS="1127,2591"`. */
-export function getAutogestionCategoryIds(): number[] {
-  const raw = getEnv("INVGATE_AUTOGESTION_CATEGORY_IDS");
-  if (!raw) return DEFAULT_CATEGORIES;
-
-  const parsed = raw
-    .split(",")
-    .map((value) => Number(value.trim()))
-    .filter((value) => Number.isFinite(value) && value > 0);
-
-  return parsed.length > 0 ? parsed : DEFAULT_CATEGORIES;
-}
-
 function emptyResumen(
   helpdeskId: number,
-  categories: number[],
   warning?: string,
 ): CasosAutogestionResumen {
   return {
     helpdeskId,
     total: 0,
-    porCategoria: categories.map((id) => ({
-      key: CATEGORY_META[id]?.key ?? "nueva_solicitud",
-      label: CATEGORY_META[id]?.label ?? `Categoría ${id}`,
-      count: 0,
-    })),
+    porCategoria: [],
     casos: [],
     actualizadoAt: new Date().toISOString(),
     warning,
@@ -148,15 +113,13 @@ function displayName(
 
 async function buildResumen(): Promise<CasosAutogestionResumen> {
   const helpdeskId = getAutogestionHelpdeskId();
-  const categories = getAutogestionCategoryIds();
-  const categorySet = new Set(categories);
 
   const idsResult = await getIncidentIdsByHelpdesk(helpdeskId);
   if (!idsResult.ok) {
-    return emptyResumen(helpdeskId, categories, idsResult.message);
+    return emptyResumen(helpdeskId, idsResult.message);
   }
   if (idsResult.data.length === 0) {
-    return emptyResumen(helpdeskId, categories);
+    return emptyResumen(helpdeskId);
   }
 
   const [incidentsResult, categoryMap, statuses, users, locations] =
@@ -169,7 +132,7 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
     ]);
 
   if (!incidentsResult.ok) {
-    return emptyResumen(helpdeskId, categories, incidentsResult.message);
+    return emptyResumen(helpdeskId, incidentsResult.message);
   }
 
   const statusNameById = new Map<number, string>(
@@ -180,23 +143,22 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
   const casos: CasoAutogestion[] = [];
 
   for (const incident of Object.values(incidentsResult.data)) {
-    if (!categorySet.has(incident.category_id)) continue;
-    // Solo casos abiertos: los resueltos/cerrados no son accionables.
-    if (incident.solved_at || incident.closed_at) continue;
     // Solo los que todavía no tienen agente: son los que la mesa debe tomar.
     if (incident.assigned_id) continue;
+    // Y solo los abiertos: los resueltos/cerrados no son accionables.
+    if (incident.solved_at || incident.closed_at) continue;
 
     const categoryName = categoryMap.get(incident.category_id) ?? "";
-    const meta = CATEGORY_META[incident.category_id];
 
     casos.push({
       id: incident.id,
       prettyId: incident.pretty_id,
       title: incident.title,
       categoryId: incident.category_id,
-      categoryName: getLastCategoryName(categoryName) || categoryName,
-      categoryLabel: meta?.label ?? categoryName,
-      categoryKey: meta?.key ?? "nueva_solicitud",
+      categoryName:
+        getLastCategoryName(categoryName) ||
+        categoryName ||
+        `Categoría ${incident.category_id}`,
       statusId: incident.status_id,
       statusName:
         statusNameById.get(incident.status_id) ?? `Estado ${incident.status_id}`,
@@ -219,11 +181,20 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
   // Los mas viejos primero: son los que llevan mas tiempo esperando.
   casos.sort((a, b) => a.createdAt - b.createdAt);
 
-  const porCategoria = categories.map((id) => ({
-    key: CATEGORY_META[id]?.key ?? "nueva_solicitud",
-    label: CATEGORY_META[id]?.label ?? `Categoría ${id}`,
-    count: casos.filter((caso) => caso.categoryId === id).length,
-  }));
+  const counts = new Map<number, number>();
+  for (const caso of casos) {
+    counts.set(caso.categoryId, (counts.get(caso.categoryId) ?? 0) + 1);
+  }
+
+  const porCategoria = Array.from(counts.entries())
+    .map(([categoryId, count]) => {
+      const label =
+        casos.find((caso) => caso.categoryId === categoryId)?.categoryName ??
+        `Categoría ${categoryId}`;
+      return { categoryId, label, count };
+    })
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "es"))
+    .slice(0, MAX_CATEGORY_BREAKDOWN);
 
   return {
     helpdeskId,
@@ -235,8 +206,9 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
 }
 
 /**
- * Snapshot de los casos de autogestión. Cache de 60 s + single-flight: el
- * wallboard refresca cada 10 s, así que InvGate se consulta una vez por minuto.
+ * Snapshot de los casos de autogestión sin asignar. Cache de 60 s +
+ * single-flight: el wallboard refresca cada 10 s, así que InvGate se consulta
+ * una vez por minuto.
  */
 export async function getCasosAutogestion(
   options: { forceRefresh?: boolean } = {},
