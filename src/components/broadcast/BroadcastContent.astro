@@ -47,6 +47,12 @@ const kpiCards = [
     hint: "Llamadas esperando a que se les asigne un agente.",
   },
   {
+    key: "onHold",
+    label: "En espera",
+    value: kpis.onHold,
+    hint: "Llamadas atendidas que el agente puso en espera (hold).",
+  },
+  {
     key: "ivr",
     label: "En IVR",
     value: kpis.ivr,
@@ -85,7 +91,7 @@ const kpiCards = [
   </header>
 
   <section
-    class="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6"
+    class="grid grid-cols-2 gap-4 lg:grid-cols-5 lg:gap-6"
     aria-label="Estado de las llamadas"
   >
     {
@@ -100,6 +106,10 @@ const kpiCards = [
     }
   </section>
 
+  <div
+    class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2"
+    data-broadcast-columns
+  >
   <section class="space-y-4" aria-label="Llamadas activas">
     <div class="flex items-center gap-3">
       <h2 class="text-base-content text-2xl font-bold tracking-tight">
@@ -134,7 +144,7 @@ const kpiCards = [
     </template>
 
     <div
-      class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      class="grid grid-cols-1 gap-3 sm:grid-cols-2"
       data-broadcast-cards
     >
       {
@@ -153,21 +163,16 @@ const kpiCards = [
     </div>
   </section>
 
-  <section class="space-y-4" aria-label="Casos de autogestión">
+  <section class="space-y-4" aria-label="Casos sin asignar">
     <div class="flex flex-wrap items-center gap-3">
       <h2 class="text-base-content text-2xl font-bold tracking-tight">
-        Casos de autogestión
+        Casos sin asignar
       </h2>
       <span
         class="badge badge-lg badge-secondary font-mono font-black tabular-nums"
         data-casos-total
       >
         {casos.total}
-      </span>
-      <span
-        class="text-base-content/60 text-sm font-semibold tracking-wide uppercase"
-      >
-        sin asignar
       </span>
       <div
         class="ml-auto flex flex-wrap items-center justify-end gap-2"
@@ -207,7 +212,7 @@ const kpiCards = [
     </template>
 
     <div
-      class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      class="grid grid-cols-1 gap-3 sm:grid-cols-2"
       data-casos-cards
     >
       {casos.casos.map((caso) => <CasoAutogestionCard caso={caso} />)}
@@ -218,7 +223,7 @@ const kpiCards = [
       data-casos-empty
       hidden={casos.casos.length > 0}
     >
-      <span>Sin casos de autogestión pendientes</span>
+      <span>Sin casos pendientes de asignación</span>
     </div>
 
     {
@@ -229,6 +234,7 @@ const kpiCards = [
       )
     }
   </section>
+  </div>
 </div>
 
 <style is:global>

@@ -89,8 +89,10 @@ export interface WiseCallsKpi {
   attended: number;
   /** Sonando (en el ring del agente). */
   ringing: number;
-  /** En cola (esperando asignación). */
+  /** En cola (esperando asignación, sin agente). */
   enqueued: number;
+  /** En espera: el agente atendio y puso la llamada en hold. */
+  onHold: number;
   /** En IVR. */
   ivr: number;
   /** Desbordes (llamadas que no ingresaron al sistema). */
@@ -117,6 +119,7 @@ const EMPTY_KPI: WiseCallsKpi = {
   attended: 0,
   ringing: 0,
   enqueued: 0,
+  onHold: 0,
   ivr: 0,
   overflow: 0,
   avgWaitSeconds: 0,
@@ -279,6 +282,8 @@ async function fetchKpis(page: WiseAnalyticsPage): Promise<WiseCallsKpi> {
     attended: toNumber(row.total_call_attended),
     ringing: toNumber(row.total_call_ringing),
     enqueued: toNumber(row.total_call_enqueued),
+    // El widget 53 no expone el hold: lo calcula getWiseCallsSnapshot con el listado.
+    onHold: 0,
     ivr: toNumber(row.total_call_ivr),
     overflow: toNumber(row.total_call_overflow),
     avgWaitSeconds: parseWiseDuration(waitLabel),
@@ -315,16 +320,29 @@ const DETAIL_SERIES = [
   { field: "call_associated_case", type: "string" },
 ];
 
+/** true si Wise reporta un agente real (no vacío ni "[Sin Asignar]"). */
+function hasAssignedAgent(agentName: string): boolean {
+  const key = agentName.trim().toLowerCase();
+  return key !== "" && key !== "[sin asignar]" && key !== "sin asignar";
+}
+
 function mapCallRow(
   row: WiseCallRow,
   groupIdByName: Map<string, number>,
   now: number,
-): WiseCallLive | null {
-  const callId = toNumber(row.call_num ?? row.call_auto_id);
+): WiseCallLive | null {  const callId = toNumber(row.call_num ?? row.call_auto_id);
   if (!callId) return null;
 
   const rawStatus = (row.call_status ?? "").trim();
-  const state = classifyWiseCallState(rawStatus);
+  const agentName = (row.call_agent ?? "").trim();
+
+  let state = classifyWiseCallState(rawStatus);
+  // Wise reporta el hold como "En Cola". Si la llamada ya tiene agente, no
+  // esta esperando en la cola: es una llamada atendida que quedo en espera.
+  if (state === "en_cola" && hasAssignedAgent(agentName)) {
+    state = "en_espera";
+  }
+
   const groupName = (row.call_group ?? "").trim();
   const created = parseWiseDateTime(row.call_created ?? "");
   const createdIso = created ? created.toISOString() : "";
@@ -339,7 +357,7 @@ function mapCallRow(
     callId,
     convId: row.conv_auto_id ? toNumber(row.conv_auto_id) : null,
     movId: row.mov_auto_id ? toNumber(row.mov_auto_id) : null,
-    agentName: (row.call_agent ?? "").trim(),
+    agentName,
     agentEmail: null,
     rawStatus,
     state,
@@ -512,8 +530,11 @@ export async function getWiseCallsSnapshot(
       .filter((call) => groupId === null || call.groupId === groupId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
+    // El widget 53 no expone el hold: se cuenta del listado.
+    const onHold = calls.filter((call) => call.state === "en_espera").length;
+
     const snapshot: WiseCallsSnapshot = {
-      kpis,
+      kpis: { ...kpis, onHold },
       calls,
       groups: page.groups,
       fetchedAt: new Date().toISOString(),

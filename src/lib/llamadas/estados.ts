@@ -10,6 +10,7 @@ export type LlamadaEstado =
   | "sonando"
   | "en_curso"
   | "en_cola"
+  | "en_espera"
   | "en_ivr"
   | "no_atendida"
   | "finalizada"
@@ -19,6 +20,7 @@ export const LLAMADA_ESTADO_LABELS: Record<LlamadaEstado, string> = {
   sonando: "Sonando",
   en_curso: "En curso",
   en_cola: "En cola",
+  en_espera: "En espera",
   en_ivr: "En IVR",
   no_atendida: "No atendida",
   finalizada: "Finalizada",
@@ -30,6 +32,7 @@ export const LLAMADA_ESTADO_TONES: Record<LlamadaEstado, string> = {
   sonando: "warning",
   en_curso: "success",
   en_cola: "info",
+  en_espera: "secondary",
   en_ivr: "accent",
   no_atendida: "error",
   finalizada: "neutral",
@@ -41,6 +44,7 @@ export const LLAMADA_ESTADOS_VIVOS: LlamadaEstado[] = [
   "sonando",
   "en_curso",
   "en_cola",
+  "en_espera",
   "en_ivr",
 ];
 

@@ -16,7 +16,7 @@ import {
  */
 
 /** Orden de los KPIs en pantalla. */
-const KPI_ORDER = ["ringing", "attended", "enqueued", "ivr"];
+const KPI_ORDER = ["ringing", "attended", "enqueued", "onHold", "ivr"];
 
 let agentUser: Awaited<ReturnType<typeof createTestUserAndSession>>;
 
@@ -61,7 +61,7 @@ test.describe("Broadcast de llamadas", () => {
     await expect(root).toBeVisible({ timeout: 30_000 });
 
     const kpis = root.locator("[data-broadcast-kpi]");
-    await expect(kpis).toHaveCount(4);
+    await expect(kpis).toHaveCount(5);
 
     // Orden: Sonando | Activas | En Cola | En IVR.
     const keys = await kpis.evaluateAll((els) =>
@@ -73,6 +73,7 @@ test.describe("Broadcast de llamadas", () => {
     await expect(root).toContainText("Sonando");
     await expect(root).toContainText("Activas");
     await expect(root).toContainText("En Cola");
+    await expect(root).toContainText("En espera");
     await expect(root).toContainText("En IVR");
 
     // El numero se lee a distancia: fuente grande.
@@ -248,6 +249,65 @@ test.describe("Broadcast de llamadas", () => {
     );
   });
 
+  test("las llamadas y los casos se muestran en dos columnas", async ({
+    context,
+    page,
+  }) => {
+    await setSessionCookie(context, agentUser.signedSessionId);
+    await page.goto("/broadcast");
+
+    const root = page.locator("[data-broadcast-root]");
+    await expect(root).toBeVisible({ timeout: 30_000 });
+
+    const columnas = root.locator("[data-broadcast-columns]");
+    await expect(columnas).toBeVisible();
+
+    const layout = await columnas.evaluate((el) => {
+      const styles = getComputedStyle(el);
+      return {
+        display: styles.display,
+        columns: styles.gridTemplateColumns.split(" ").length,
+      };
+    });
+
+    expect(layout.display).toBe("grid");
+    expect(layout.columns).toBe(2);
+
+    // Cada columna contiene su bloque.
+    await expect(
+      columnas.getByRole("heading", { name: "Llamadas activas" }),
+    ).toBeVisible();
+    await expect(
+      columnas.getByRole("heading", { name: "Casos sin asignar" }),
+    ).toBeVisible();
+  });
+
+  test("el contador En espera coincide con las llamadas en espera", async ({
+    context,
+    page,
+  }) => {
+    await setSessionCookie(context, agentUser.signedSessionId);
+    await page.goto("/broadcast");
+
+    const root = page.locator("[data-broadcast-root]");
+    await expect(root).toBeVisible({ timeout: 30_000 });
+
+    const enEspera = page
+      .locator("[data-broadcast-card]")
+      .filter({ hasText: "En espera" });
+
+    const cards = await enEspera.count();
+    const kpi = Number(
+      (await root
+        .locator('[data-broadcast-kpi="onHold"]')
+        .textContent())?.trim() ?? "0",
+    );
+
+    // Coherente siempre: el contador se calcula del mismo listado. Si hay una
+    // llamada en hold en este momento, ademas valida el caso.
+    expect(kpi).toBe(cards);
+  });
+
   test("muestra la seccion de casos de autogestion con el total sin asignar", async ({
     context,
     page,
@@ -259,7 +319,7 @@ test.describe("Broadcast de llamadas", () => {
     await expect(root).toBeVisible({ timeout: 30_000 });
 
     await expect(
-      page.getByRole("heading", { name: "Casos de autogestión" }),
+      page.getByRole("heading", { name: "Casos sin asignar" }),
     ).toBeVisible();
 
     // El total de casos sin asignar, siempre presente (puede ser 0).

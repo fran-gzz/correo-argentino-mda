@@ -1,6 +1,6 @@
 # Broadcast de llamadas en vivo (`/broadcast`)
 
-Wallboard para proyectar en una TV de la mesa. Muestra 4 KPIs de estado, un
+Wallboard para proyectar en una TV de la mesa. Muestra 5 KPIs de estado, un
 grid de cards con las llamadas vivas de Wise CX y, debajo, los casos de
 autogestión de InvGate (solo lectura).
 
@@ -75,12 +75,27 @@ WISE_CX_TIMEZONE_OFFSET="-03:00"
 
 | Qué | Cómo |
 | --- | --- |
-| KPIs (Sonando / Activas / En Cola / En IVR) | `getDataReportByWidget` con el widget **464249** (type 53): `total_call_ringing`, `total_call_attended`, `total_call_enqueued`, `total_call_ivr` |
+| KPIs (Sonando / Activas / En Cola / En espera / En IVR) | `getDataReportByWidget` con el widget **464249** (type 53): `total_call_ringing`, `total_call_attended`, `total_call_enqueued`, `total_call_ivr`. **"En espera" no viene de Wise**: se cuenta del listado (ver abajo). |
 | Detalle fila por fila | `getCallsListData` reusando el widget **464546** (type 76) con series extendidas: `call_num`, `call_agent`, `call_status`, `call_created`, `call_wait_time`, `call_group` |
 | Ventana del listado | `call_created IN #Last6Hours#` |
 | "Activas" | Es el estado **en curso** de Wise (`total_call_attended`). Se muestra con ese label a pedido de la mesa. |
 
-## Casos de autogestion (InvGate, solo lectura)
+### Hold: "En espera" vs "En Cola"
+
+Wise reporta una llamada en **hold** con `call_status = "En Cola"`, pero el KPI
+`total_call_enqueued` **no la cuenta** (ese contador solo incluye las que
+esperan sin agente asignado). Para que el contador y las cards no se
+contradigan:
+
+- Si el estado es `En Cola` **y la llamada tiene agente** -> se clasifica como
+  **"En espera"** (`en_espera`) y se cuenta en el KPI `onHold`.
+- Si el estado es `En Cola` **sin agente** -> sigue siendo **"En Cola"** y lo
+  cuenta Wise.
+
+`onHold` se deriva del listado (`calls.filter(state === "en_espera")`), porque
+el widget 53 no expone ese total. Los otros cuatro contadores vienen de Wise.
+
+## Casos sin asignar (InvGate, solo lectura)
 
 Debajo de las llamadas, el panel lista los casos de la mesa AGS que estan
 **abiertos y sin agente asignado**: son los que la mesa todavia tiene que
