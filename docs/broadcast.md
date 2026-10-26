@@ -1,7 +1,8 @@
 # Broadcast de llamadas en vivo (`/broadcast`)
 
-Wallboard para proyectar en una TV de la mesa. Muestra 4 KPIs de estado y un
-grid de cards con las llamadas vivas de Wise CX.
+Wallboard para proyectar en una TV de la mesa. Muestra 4 KPIs de estado, un
+grid de cards con las llamadas vivas de Wise CX y, debajo, los casos de
+autogestión de InvGate (solo lectura).
 
 - **Ruta**: `/broadcast` (sección Accesos rápidos del sidebar, ícono `tv`)
 - **Endpoint**: `GET /api/broadcast/estado`
@@ -78,6 +79,33 @@ WISE_CX_TIMEZONE_OFFSET="-03:00"
 | Detalle fila por fila | `getCallsListData` reusando el widget **464546** (type 76) con series extendidas: `call_num`, `call_agent`, `call_status`, `call_created`, `call_wait_time`, `call_group` |
 | Ventana del listado | `call_created IN #Last6Hours#` |
 | "Activas" | Es el estado **en curso** de Wise (`total_call_attended`). Se muestra con ese label a pedido de la mesa. |
+
+## Casos de autogestion (InvGate, solo lectura)
+
+Debajo de las llamadas, el panel lista los casos de la mesa AGS que estan en
+las dos categorias que la mesa considera "entrantes". **No asigna nada**: no
+tiene botones, no toma el lock y no escribe en InvGate ni en SQLite.
+
+| Que | Como |
+| --- | --- |
+| Fuente | `src/lib/invgate/casosAutogestion.ts` |
+| Mesa | `INVGATE_AUTOGESTION_HELPDESK_ID` -> si esta vacia, `INVGATE_AGENTS_HELPDESK_ID` |
+| Categorias | `INVGATE_AUTOGESTION_CATEGORY_IDS` -> default `1127,2591` |
+| Filtro | `category_id` en {1127, 2591} **y** sin `solved_at`/`closed_at` (solo abiertos) |
+| Incluye | casos **asignados y sin asignar** (la mesa necesita ver los dos) |
+| Orden | mas antiguos primero |
+| Cache | 60 s + single-flight (el wallboard refresca a 10 s) |
+| Si InvGate falla | `casos: []` + `warning`; el wallboard sigue funcionando |
+
+Categorias de InvGate:
+
+- **1127** `Nueva Solicitud` — caso nuevo que entra a la mesa.
+- **2591** `Solicitudes rechazadas en revision` — volvio a la cola para
+  reasignarse (es la misma categoria que usa la regla P1 del motor de
+  autogestiones).
+
+> Para verlo con datos en un entorno cuyo `INVGATE_AGENTS_HELPDESK_ID` cae al
+> fallback de QA (3950), definir `INVGATE_AUTOGESTION_HELPDESK_ID=2510`.
 
 ## Decisiones de diseño
 

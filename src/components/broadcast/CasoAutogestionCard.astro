@@ -1,0 +1,65 @@
+---
+import { formatAge } from "@/lib/broadcast/display";
+import type { CasoAutogestion } from "@/lib/invgate/casosAutogestion";
+
+interface Props {
+  caso: CasoAutogestion;
+}
+
+const { caso } = Astro.props;
+const tone = caso.categoryKey === "rechazada" ? "warning" : "info";
+---
+
+<article
+  class="border-base-300 bg-base-100 border p-4"
+  data-caso-card
+  data-created-at={caso.createdAt}
+>
+  <div class="flex items-center justify-between gap-2">
+    <span class="text-base-content font-mono text-sm font-bold">
+      #{caso.prettyId}
+    </span>
+    <span
+      class="text-base-content/60 font-mono text-xs tabular-nums"
+      data-field="edad"
+    >
+      {formatAge(caso.ageHours * 3600)}
+    </span>
+  </div>
+
+  <span class:list={["badge badge-sm badge-soft mt-2", `badge-${tone}`]}>
+    {caso.categoryLabel}
+  </span>
+
+  <p
+    class="text-base-content mt-2 truncate text-sm font-semibold"
+    title={caso.title}
+    data-field="titulo"
+  >
+    {caso.title}
+  </p>
+
+  <p
+    class="text-base-content/60 truncate text-xs"
+    title={caso.creatorName ?? ""}
+    data-field="creador"
+  >
+    {caso.creatorName ?? "Sin creador"}
+  </p>
+
+  <p
+    class="text-base-content/60 truncate text-xs"
+    title={caso.locationName ?? ""}
+    data-field="ubicacion"
+  >
+    {caso.locationName ?? ""}
+  </p>
+
+  <p
+    class="text-base-content/70 mt-1 truncate text-xs"
+    data-field="asignado"
+    title={caso.assignedName ?? "Sin asignar"}
+  >
+    {caso.assignedName ? `Asignado: ${caso.assignedName}` : "Sin asignar"}
+  </p>
+</article>

@@ -2,19 +2,25 @@
 import FullscreenButton from "@components/ui/FullscreenButton.astro";
 import BroadcastKpiCard from "./BroadcastKpiCard.astro";
 import LlamadaCard from "./LlamadaCard.astro";
+import CasoAutogestionCard from "./CasoAutogestionCard.astro";
 import { getWiseCallsSnapshot } from "@/lib/wise-cx-calls";
+import { getCasosAutogestion } from "@/lib/invgate/casosAutogestion";
 
 /**
- * Wallboard de llamadas en vivo (Wise CX).
+ * Wallboard de llamadas en vivo (Wise CX) + casos de autogestión (InvGate).
  *
- * Pensado para proyectarse en una TV: 4 KPIs grandes y un grid de cards con
- * las llamadas activas. Se pone en pantalla completa con el botón del header
- * (mismo mecanismo que las tablas del portal).
+ * Pensado para proyectarse en una TV: 4 KPIs grandes, grid de cards con las
+ * llamadas activas y, debajo, los casos de autogestión en solo lectura.
+ * Se pone en pantalla completa con el botón del header (mismo mecanismo que
+ * las tablas del portal).
  *
  * Los datos los resuelve el server island para que la pagina principal no
- * bloquee el render esperando a Wise CX.
+ * bloquee el render esperando a las APIs externas.
  */
-const snapshot = await getWiseCallsSnapshot();
+const [snapshot, casos] = await Promise.all([
+  getWiseCallsSnapshot(),
+  getCasosAutogestion(),
+]);
 const { kpis, calls, fetchedAt } = snapshot;
 
 /**
@@ -145,6 +151,71 @@ const kpiCards = [
     >
       <span>Sin llamadas activas en este momento</span>
     </div>
+  </section>
+
+  <section class="space-y-4" aria-label="Casos de autogestión">
+    <div class="flex flex-wrap items-center gap-3">
+      <h2 class="text-base-content text-2xl font-bold tracking-tight">
+        Casos de autogestión
+      </h2>
+      {
+        casos.porCategoria.map((categoria) => (
+          <span
+            class:list={[
+              "badge badge-lg badge-soft font-mono tabular-nums",
+              categoria.key === "rechazada" ? "badge-warning" : "badge-info",
+            ]}
+            data-casos-count={categoria.key}
+            title={categoria.label}
+          >
+            {categoria.label}: {categoria.count}
+          </span>
+        ))
+      }
+    </div>
+
+    <template id="bcast-tpl-caso">
+      <article class="border-base-300 bg-base-100 border p-4" data-caso-card>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-base-content font-mono text-sm font-bold" data-field="numero"></span>
+          <span
+            class="text-base-content/60 font-mono text-xs tabular-nums"
+            data-field="edad"
+          ></span>
+        </div>
+        <span class="badge badge-sm badge-soft mt-2" data-field="categoria"></span>
+        <p
+          class="text-base-content mt-2 truncate text-sm font-semibold"
+          data-field="titulo"
+        ></p>
+        <p class="text-base-content/60 truncate text-xs" data-field="creador"></p>
+        <p class="text-base-content/60 truncate text-xs" data-field="ubicacion"></p>
+        <p class="text-base-content/70 mt-1 truncate text-xs" data-field="asignado"></p>
+      </article>
+    </template>
+
+    <div
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      data-casos-cards
+    >
+      {casos.casos.map((caso) => <CasoAutogestionCard caso={caso} />)}
+    </div>
+
+    <div
+      class="border-base-300 text-base-content/60 flex items-center justify-center border border-dashed p-8 text-lg"
+      data-casos-empty
+      hidden={casos.casos.length > 0}
+    >
+      <span>Sin casos de autogestión pendientes</span>
+    </div>
+
+    {
+      casos.warning && (
+        <p class="alert alert-warning text-sm" role="status">
+          <span>{casos.warning}</span>
+        </p>
+      )
+    }
   </section>
 </div>
 

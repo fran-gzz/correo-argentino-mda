@@ -194,7 +194,7 @@ test.describe("Broadcast de llamadas", () => {
         },
         {
           callId: 2,
-          agentName: "Tamara Cardenas.",
+          agentName: "MOCK AGENTE CURSO",
           state: "en_curso",
           stateLabel: "En curso",
           groupName: "Track and Trace",
@@ -221,13 +221,12 @@ test.describe("Broadcast de llamadas", () => {
     });
 
     // El render inicial viene del server island (datos reales); el primer
-    // ciclo de polling (10 s) aplica el snapshot controlado.
-    await expect
-      .poll(() => page.locator("[data-broadcast-card]").count(), {
-        timeout: 25_000,
-        intervals: [1000],
-      })
-      .toBe(2);
+    // ciclo de polling (10 s) aplica el snapshot controlado. Se espera un
+    // texto exclusivo del mock para no confundirlo con datos en vivo.
+    await expect(page.locator("[data-broadcast-cards]")).toContainText(
+      "MOCK AGENTE CURSO",
+      { timeout: 25_000 },
+    );
 
     const ivrCard = page
       .locator("[data-broadcast-card]")
@@ -246,6 +245,134 @@ test.describe("Broadcast de llamadas", () => {
     );
     await expect(page.locator('[data-broadcast-kpi="ringing"]')).toHaveClass(
       /text-base-content\/40/,
+    );
+  });
+
+  test("muestra la seccion de casos de autogestion con sus contadores", async ({
+    context,
+    page,
+  }) => {
+    await setSessionCookie(context, agentUser.signedSessionId);
+    await page.goto("/broadcast");
+
+    const root = page.locator("[data-broadcast-root]");
+    await expect(root).toBeVisible({ timeout: 30_000 });
+
+    await expect(
+      page.getByRole("heading", { name: "Casos de autogestión" }),
+    ).toBeVisible();
+
+    // Un contador por cada categoria que la mesa considera entrante.
+    await expect(
+      root.locator('[data-casos-count="nueva_solicitud"]'),
+    ).toContainText("Nueva solicitud");
+    await expect(root.locator('[data-casos-count="rechazada"]')).toContainText(
+      "Rechazadas en revisión",
+    );
+  });
+
+  test("renderiza un caso de cada categoria con asignado y antiguedad", async ({
+    context,
+    page,
+  }) => {
+    await setSessionCookie(context, agentUser.signedSessionId);
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const snapshot = {
+      kpis: {
+        active: 0,
+        attended: 0,
+        ringing: 0,
+        enqueued: 0,
+        ivr: 0,
+        overflow: 0,
+        avgWaitSeconds: 0,
+        avgWaitLabel: "0s",
+      },
+      calls: [],
+      fetchedAt: new Date().toISOString(),
+      stale: false,
+      casos: {
+        helpdeskId: 2510,
+        total: 2,
+        porCategoria: [
+          { key: "nueva_solicitud", label: "Nueva solicitud", count: 1 },
+          { key: "rechazada", label: "Rechazadas en revisión", count: 1 },
+        ],
+        casos: [
+          {
+            id: 99999,
+            prettyId: "99999",
+            title: "pago facil",
+            categoryId: 1127,
+            categoryKey: "nueva_solicitud",
+            categoryLabel: "Nueva solicitud",
+            statusId: 3,
+            statusName: "Pendiente",
+            assignedId: 44909,
+            assignedName: "Ramiro Rojas",
+            creatorName: "Marcelo Perez",
+            locationName: "CONCEPCION DEL URUGUAY - SUC MOSAIC",
+            createdAt: nowSeconds - 3600,
+            ageHours: 1,
+          },
+          {
+            id: 99998,
+            prettyId: "99998",
+            title: "Laser - Imprime con manchas",
+            categoryId: 2591,
+            categoryKey: "rechazada",
+            categoryLabel: "Rechazadas en revisión",
+            statusId: 2,
+            statusName: "Abierto",
+            assignedId: null,
+            assignedName: null,
+            creatorName: "Agustin Aguirre",
+            locationName: "RIO CUARTO - SUC MOSAIC",
+            createdAt: nowSeconds - 90000,
+            ageHours: 25,
+          },
+        ],
+        actualizadoAt: new Date().toISOString(),
+      },
+    };
+
+    await page.route("**/api/broadcast/estado", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(snapshot),
+      });
+    });
+
+    await page.goto("/broadcast");
+    await expect(page.locator("[data-broadcast-root]")).toBeVisible({
+      timeout: 30_000,
+    });
+
+    // El primer ciclo de polling (10 s) aplica el snapshot controlado.
+    await expect(page.locator("[data-casos-cards]")).toContainText("#99999", {
+      timeout: 25_000,
+    });
+
+    const nueva = page.locator("[data-caso-card]").filter({ hasText: "#99999" });
+    await expect(nueva).toContainText("Nueva solicitud");
+    await expect(nueva).toContainText("pago facil");
+    await expect(nueva).toContainText("Asignado: Ramiro Rojas");
+    await expect(nueva.locator('[data-field="edad"]')).not.toBeEmpty();
+
+    const rechazada = page
+      .locator("[data-caso-card]")
+      .filter({ hasText: "#99998" });
+    await expect(rechazada).toContainText("Rechazadas en revisión");
+    await expect(rechazada).toContainText("Sin asignar");
+
+    // Los contadores acompanan al snapshot.
+    await expect(
+      page.locator('[data-casos-count="nueva_solicitud"]'),
+    ).toContainText("1");
+    await expect(page.locator('[data-casos-count="rechazada"]')).toContainText(
+      "1",
     );
   });
 
@@ -301,7 +428,17 @@ test.describe("Broadcast de llamadas", () => {
     expect(body.kpis).toHaveProperty("ivr");
     expect(body).toHaveProperty("calls");
     expect(Array.isArray(body.calls)).toBe(true);
-    // La vista no consume InvGate: el payload no trae mesa ni grupos.
+
+    // Casos de autogestion: solo lectura, sin mesa ni grupos de la vista vieja.
+    expect(body).toHaveProperty("casos");
+    expect(body.casos).toHaveProperty("total");
+    expect(Array.isArray(body.casos.casos)).toBe(true);
+
+    // Si hay casos, todos son de las dos categorias de interes y estan abiertos.
+    for (const caso of body.casos.casos) {
+      expect(["nueva_solicitud", "rechazada"]).toContain(caso.categoryKey);
+      expect([1127, 2591]).toContain(caso.categoryId);
+    }
     expect(body).not.toHaveProperty("mesa");
   });
 
