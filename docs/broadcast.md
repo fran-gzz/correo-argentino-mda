@@ -1,6 +1,6 @@
 # Broadcast de llamadas en vivo (`/broadcast`)
 
-Wallboard para proyectar en una TV de la mesa. Muestra 5 KPIs de estado, un
+Wallboard para proyectar en una TV de la mesa. Muestra 4 KPIs de estado, un
 grid de cards con las llamadas vivas de Wise CX y, debajo, los casos de
 autogestión de InvGate (solo lectura).
 
@@ -30,7 +30,7 @@ Tests relevantes:
 
 | Comando | Qué cubre |
 | --- | --- |
-| `npx playwright test tests/broadcast.spec.ts` | 9 casos: sidebar + botón pantalla completa, orden y tamaño de los 4 KPIs, color gris/acento, chip En vivo, grid de cards + badge del total, caso IVR sin agente (snapshot mockeado), polling, shape del endpoint, 401 sin sesión |
+| `npx playwright test tests/broadcast.spec.ts` | 15 casos: chrome del portal + boton pantalla completa, 4 KPIs y su orden, color gris/acento, chip En vivo, cards de llamadas (IVR y hold), dos columnas con divisoria, casos sin asignar, calidad visible para todos, polling, shape del endpoint y 401 sin sesion |
 | `npm run test:unit` | Suite general. **2 fallos pre-existentes** ajenos a esta vista (ver Pendientes) |
 | `npm run test:domain` | Tests de dominio con `node:test` |
 
@@ -75,26 +75,23 @@ WISE_CX_TIMEZONE_OFFSET="-03:00"
 
 | Qué | Cómo |
 | --- | --- |
-| KPIs (Sonando / Activas / En Cola / En espera / En IVR) | `getDataReportByWidget` con el widget **464249** (type 53): `total_call_ringing`, `total_call_attended`, `total_call_enqueued`, `total_call_ivr`. **"En espera" no viene de Wise**: se cuenta del listado (ver abajo). |
+| KPIs (Sonando / Activas / En Cola / En IVR) | `getDataReportByWidget` con el widget **464249** (type 53): `total_call_ringing`, `total_call_attended`, `total_call_enqueued`, `total_call_ivr`. |
 | Detalle fila por fila | `getCallsListData` reusando el widget **464546** (type 76) con series extendidas: `call_num`, `call_agent`, `call_status`, `call_created`, `call_wait_time`, `call_group` |
 | Ventana del listado | `call_created IN #Last6Hours#` |
 | "Activas" | Es el estado **en curso** de Wise (`total_call_attended`). Se muestra con ese label a pedido de la mesa. |
 
-### Hold: "En espera" vs "En Cola"
+### Hold: badge "En espera" en la card
 
 Wise reporta una llamada en **hold** con `call_status = "En Cola"`, pero el KPI
-`total_call_enqueued` **no la cuenta** (ese contador solo incluye las que
-esperan sin agente asignado). Para que el contador y las cards no se
-contradigan:
+`total_call_enqueued` no la cuenta (ese contador solo incluye las que esperan
+sin agente asignado). Para no mostrar "En Cola" en la card de una llamada que
+ya esta atendida:
 
-- Si el estado es `En Cola` **y la llamada tiene agente** -> se clasifica como
-  **"En espera"** (`en_espera`) y se cuenta en el KPI `onHold`.
-- Si el estado es `En Cola` **sin agente** -> sigue siendo **"En Cola"** y lo
-  cuenta Wise.
+- Estado `En Cola` **y la llamada tiene agente** -> se clasifica como
+  **"En espera"** (`en_espera`) y la card muestra ese badge.
+- Estado `En Cola` **sin agente** -> sigue siendo **"En Cola"** y lo cuenta Wise.
 
-`onHold` se deriva del listado (`calls.filter(state === "en_espera")`), porque
-el widget 53 no expone ese total. Los otros cuatro contadores vienen de Wise.
-
+"En espera" es **solo un badge**: no tiene KPI propio en el tablero.
 ## Casos sin asignar (InvGate, solo lectura)
 
 Debajo de las llamadas, el panel lista los casos de la mesa AGS que estan
@@ -116,6 +113,26 @@ InvGate ni en SQLite.
 > Para verlo con datos en un entorno cuyo `INVGATE_AGENTS_HELPDESK_ID` cae al
 > fallback de QA (3950), definir `INVGATE_AUTOGESTION_HELPDESK_ID=2510`.
 
+## Calidad: top de operadores y promedios
+
+Columna derecha del wallboard. **Visible para todos los roles con acceso a la
+vista** (el server island y el endpoint la devuelven siempre).
+
+| Que | Como |
+| --- | --- |
+| Fuente | `src/lib/calidad/broadcastResumen.ts` |
+| Score por operador | `calculateOperatorChannelStats().globalAverage` (promedio de los promedios de canal, igual que `/supervision/calidad-operadores`) |
+| Promedios por canal | `calculateChannelAverages()` |
+| Promedio general | media de los promedios por operador (mismo criterio que el "Promedio MDA" del Excel, **no** la media plana de auditorias) |
+| Aprobados | operadores con promedio >= 75 (umbral del Excel) |
+| Top | 3 operadores con mas promedio; desempate por cantidad de auditorias y luego nombre |
+| Universo | operadores con `incluidoCalidad = true`, usuario activo y >= 1 auditoria |
+| Periodo | mes corriente; si tiene **menos de 5 auditorias**, usa el anterior e indica cual |
+| Cache | 5 min |
+
+> Limitacion conocida: `quality_audits` no guarda quien hizo la auditoria, asi
+> que el top no puede mostrar el auditor. Y el score por parametro es
+> booleano (cumple/no cumple), por lo que no existe un "promedio por criterio".
 ## Decisiones de diseño
 
 1. **Polling, no websocket.** Wise Analytics usa SignalR (`socketURL` +

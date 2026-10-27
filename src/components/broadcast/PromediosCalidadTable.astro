@@ -1,0 +1,83 @@
+---
+import {
+  formatChannelAverageScore,
+  getChannelAverageTextClass,
+} from "@/lib/qualityCalculator";
+import type { CalidadResumenBroadcast } from "@/lib/calidad/broadcastResumen";
+
+interface Props {
+  resumen: CalidadResumenBroadcast;
+}
+
+const { resumen } = Astro.props;
+
+const filas = [
+  {
+    key: "general",
+    label: "Promedio general",
+    avg: resumen.promedioGeneral,
+    count: resumen.totalAuditorias,
+  },
+  ...resumen.porCanal.map((canal) => ({
+    key: canal.key,
+    label: canal.label,
+    avg: canal.avg,
+    count: canal.count,
+  })),
+];
+---
+
+<div class="space-y-1" data-calidad-tabla>
+  <template id="bcast-tpl-calidad-fila">
+    <div
+      class="border-base-300 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-b py-2 last:border-0"
+      data-calidad-fila
+    >
+      <span class="text-base-content/70 truncate text-sm" data-field="label"></span>
+      <span
+        class="text-base-content/50 font-mono text-xs tabular-nums"
+        data-field="count"
+      ></span>
+      <span
+        class="font-mono text-lg font-bold tabular-nums"
+        data-field="avg"
+      ></span>
+    </div>
+  </template>
+
+  {
+    filas.map((fila) => (
+      <div
+        class="border-base-300 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-b py-2 last:border-0"
+        data-calidad-row={fila.key}
+      >
+        <span class="text-base-content/70 truncate text-sm">{fila.label}</span>
+        <span
+          class="text-base-content/50 font-mono text-xs tabular-nums"
+          data-field="count"
+        >
+          {fila.count}
+        </span>
+        <span
+          class:list={[
+            "font-mono text-lg font-bold tabular-nums",
+            getChannelAverageTextClass(fila.avg),
+          ]}
+          data-field="avg"
+        >
+          {formatChannelAverageScore(fila.avg)}
+        </span>
+      </div>
+    ))
+  }
+
+  <div class="flex items-center justify-between gap-3 pt-2">
+    <span class="text-base-content/70 text-sm">Aprobados (≥75%)</span>
+    <span
+      class="text-base-content font-mono text-lg font-bold tabular-nums"
+      data-calidad-aprobados
+    >
+      {resumen.aprobados}/{resumen.aprobadosTotal}
+    </span>
+  </div>
+</div>

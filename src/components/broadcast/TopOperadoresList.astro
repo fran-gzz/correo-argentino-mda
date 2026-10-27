@@ -1,0 +1,84 @@
+---
+import {
+  formatChannelAverageScore,
+  getChannelAverageTextClass,
+} from "@/lib/qualityCalculator";
+import type { CalidadTopOperador } from "@/lib/calidad/broadcastResumen";
+
+interface Props {
+  operadores: CalidadTopOperador[];
+}
+
+const { operadores } = Astro.props;
+const posiciones = ["1º", "2º", "3º"];
+---
+
+<template id="bcast-tpl-top">
+  <li
+    class="border-base-300 flex items-center gap-4 border-b py-3 last:border-0"
+    data-top-operador
+  >
+    <span
+      class="text-base-content/40 w-10 shrink-0 text-3xl font-black tabular-nums"
+      data-field="posicion"
+    ></span>
+    <span class="min-w-0 flex-1">
+      <span
+        class="text-base-content block truncate text-lg font-semibold"
+        data-field="nombre"
+      ></span>
+      <span class="text-base-content/60 block text-xs" data-field="detalle"></span>
+    </span>
+    <span
+      class="font-mono text-3xl font-black tabular-nums"
+      data-field="score"
+    ></span>
+  </li>
+</template>
+
+<ol class="space-y-1" data-top-operadores>
+  {
+    operadores.map((operador, index) => (
+      <li class="border-base-300 flex items-center gap-4 border-b py-3 last:border-0">
+        <span
+          class:list={[
+            "w-10 shrink-0 text-3xl font-black tabular-nums",
+            index === 0 ? "text-secondary" : "text-base-content/40",
+          ]}
+          data-field="posicion"
+        >
+          {posiciones[index] ?? `${index + 1}º`}
+        </span>
+        <span class="min-w-0 flex-1">
+          <span
+            class="text-base-content block truncate text-lg font-semibold"
+            data-field="nombre"
+          >
+            {operador.name}
+          </span>
+          <span class="text-base-content/60 block text-xs" data-field="detalle">
+            {operador.audits} auditorías
+            {operador.quotaFulfilled ? " · cuota completa" : ""}
+          </span>
+        </span>
+        <span
+          class:list={[
+            "font-mono text-3xl font-black tabular-nums",
+            getChannelAverageTextClass(operador.score),
+          ]}
+          data-field="score"
+        >
+          {formatChannelAverageScore(operador.score)}
+        </span>
+      </li>
+    ))
+  }
+</ol>
+
+{
+  operadores.length === 0 && (
+    <p class="text-base-content/60 text-sm">
+      Todavía no hay auditorías suficientes para armar el ranking.
+    </p>
+  )
+}

@@ -16,16 +16,19 @@ import {
  */
 
 /** Orden de los KPIs en pantalla. */
-const KPI_ORDER = ["ringing", "attended", "enqueued", "onHold", "ivr"];
+const KPI_ORDER = ["ringing", "attended", "enqueued", "ivr"];
 
 let agentUser: Awaited<ReturnType<typeof createTestUserAndSession>>;
+let supervisorUser: Awaited<ReturnType<typeof createTestUserAndSession>>;
 
 test.beforeAll(async () => {
   agentUser = await createTestUserAndSession("agent");
+  supervisorUser = await createTestUserAndSession("supervisor");
 });
 
 test.afterAll(async () => {
   await cleanupTestUser(agentUser.userId, agentUser.sessionId);
+  await cleanupTestUser(supervisorUser.userId, supervisorUser.sessionId);
 });
 
 test.describe("Broadcast de llamadas", () => {
@@ -61,7 +64,7 @@ test.describe("Broadcast de llamadas", () => {
     await expect(root).toBeVisible({ timeout: 30_000 });
 
     const kpis = root.locator("[data-broadcast-kpi]");
-    await expect(kpis).toHaveCount(5);
+    await expect(kpis).toHaveCount(4);
 
     // Orden: Sonando | Activas | En Cola | En IVR.
     const keys = await kpis.evaluateAll((els) =>
@@ -73,7 +76,6 @@ test.describe("Broadcast de llamadas", () => {
     await expect(root).toContainText("Sonando");
     await expect(root).toContainText("Activas");
     await expect(root).toContainText("En Cola");
-    await expect(root).toContainText("En espera");
     await expect(root).toContainText("En IVR");
 
     // El numero se lee a distancia: fuente grande.
@@ -266,12 +268,13 @@ test.describe("Broadcast de llamadas", () => {
       const styles = getComputedStyle(el);
       return {
         display: styles.display,
-        columns: styles.gridTemplateColumns.split(" ").length,
+        direction: styles.flexDirection,
       };
     });
 
-    expect(layout.display).toBe("grid");
-    expect(layout.columns).toBe(2);
+    // Dos columnas lado a lado con la divisoria en el medio.
+    expect(layout.display).toBe("flex");
+    expect(layout.direction).toBe("row");
 
     // Cada columna contiene su bloque.
     await expect(
@@ -280,32 +283,77 @@ test.describe("Broadcast de llamadas", () => {
     await expect(
       columnas.getByRole("heading", { name: "Casos sin asignar" }),
     ).toBeVisible();
+
+    // La divisoria existe entre las dos secciones.
+    await expect(columnas.locator(".divider")).toHaveCount(1);
   });
 
-  test("el contador En espera coincide con las llamadas en espera", async ({
+  test("una llamada en hold se muestra con el badge En espera", async ({
     context,
     page,
   }) => {
     await setSessionCookie(context, agentUser.signedSessionId);
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const snapshot = {
+      kpis: {
+        active: 1,
+        attended: 1,
+        ringing: 0,
+        enqueued: 0,
+        ivr: 0,
+        overflow: 0,
+        avgWaitSeconds: 0,
+        avgWaitLabel: "0s",
+      },
+      calls: [
+        {
+          callId: 9001,
+          agentName: "MOCK AGENTE HOLD",
+          agentEmail: null,
+          state: "en_espera",
+          stateLabel: "En espera",
+          groupName: "Track and Trace",
+          elapsedSeconds: 120,
+          waitSeconds: 0,
+          createdAt: new Date(nowSeconds * 1000).toISOString(),
+          createdAtLocal: "2026-10-26 12:00:00.0000",
+        },
+      ],
+      fetchedAt: new Date().toISOString(),
+      stale: false,
+      casos: {
+        helpdeskId: 2510,
+        total: 0,
+        porCategoria: [],
+        casos: [],
+        actualizadoAt: new Date().toISOString(),
+      },
+      calidad: null,
+    };
+
+    await page.route("**/api/broadcast/estado", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(snapshot),
+      });
+    });
+
     await page.goto("/broadcast");
+    await expect(page.locator("[data-broadcast-root]")).toBeVisible({
+      timeout: 30_000,
+    });
 
-    const root = page.locator("[data-broadcast-root]");
-    await expect(root).toBeVisible({ timeout: 30_000 });
-
-    const enEspera = page
-      .locator("[data-broadcast-card]")
-      .filter({ hasText: "En espera" });
-
-    const cards = await enEspera.count();
-    const kpi = Number(
-      (await root
-        .locator('[data-broadcast-kpi="onHold"]')
-        .textContent())?.trim() ?? "0",
+    await expect(page.locator("[data-broadcast-cards]")).toContainText(
+      "MOCK AGENTE HOLD",
+      { timeout: 25_000 },
     );
 
-    // Coherente siempre: el contador se calcula del mismo listado. Si hay una
-    // llamada en hold en este momento, ademas valida el caso.
-    expect(kpi).toBe(cards);
+    const card = page
+      .locator("[data-broadcast-card]")
+      .filter({ hasText: "MOCK AGENTE HOLD" });
+    await expect(card.locator("[data-estado-badge]")).toHaveText("En espera");
   });
 
   test("muestra la seccion de casos de autogestion con el total sin asignar", async ({
@@ -428,6 +476,40 @@ test.describe("Broadcast de llamadas", () => {
     ).toContainText("Teclado: 1");
   });
 
+  test("todos los roles ven el top 3 y los promedios de calidad", async ({
+    context,
+    page,
+  }) => {
+    await setSessionCookie(context, agentUser.signedSessionId);
+    await page.goto("/broadcast");
+
+    const root = page.locator("[data-broadcast-root]");
+    await expect(root).toBeVisible({ timeout: 30_000 });
+
+    const quality = page.locator("[data-broadcast-quality]");
+    await expect(quality).toBeVisible();
+
+    await expect(
+      quality.getByRole("heading", { name: "Top operadores" }),
+    ).toBeVisible();
+    await expect(
+      quality.getByRole("heading", { name: "Promedios generales" }),
+    ).toBeVisible();
+
+    // A lo sumo 3 operadores, y cada uno con score.
+    const filasTop = quality.locator("[data-top-operadores] li");
+    expect(await filasTop.count()).toBeLessThanOrEqual(3);
+    if ((await filasTop.count()) > 0) {
+      await expect(
+        filasTop.first().locator('[data-field="score"]'),
+      ).not.toBeEmpty();
+    }
+
+    // Tabla: fila de promedio general siempre presente.
+    await expect(quality.locator('[data-calidad-row="general"]')).toBeVisible();
+    await expect(quality.locator("[data-calidad-aprobados]")).not.toBeEmpty();
+  });
+
   test("el polling refresca el tablero sin recargar la pagina", async ({
     context,
     page,
@@ -451,11 +533,11 @@ test.describe("Broadcast de llamadas", () => {
       .toBeGreaterThan(hitsAfterLoad);
   });
 
-  test("el endpoint de estado responde con el shape esperado", async ({
+  test("el endpoint de estado responde con el shape esperado (supervision)", async ({
     context,
     page,
   }) => {
-    await setSessionCookie(context, agentUser.signedSessionId);
+    await setSessionCookie(context, supervisorUser.signedSessionId);
     await page.goto("/broadcast");
 
     const baseURL = test.info().project.use.baseURL;
@@ -492,7 +574,39 @@ test.describe("Broadcast de llamadas", () => {
       expect(caso.categoryId).toBeGreaterThan(0);
       expect(caso.categoryName).toBeTruthy();
     }
+
+    // Calidad: se devuelve para todos los roles con acceso a la vista.
+    expect(body).toHaveProperty("calidad");
+    expect(body.calidad).not.toBeNull();
+    expect(body.calidad).toHaveProperty("top");
+    expect(Array.isArray(body.calidad.top)).toBe(true);
+    expect(body.calidad.top.length).toBeLessThanOrEqual(3);
+    expect(body.calidad).toHaveProperty("promedioGeneral");
+
     expect(body).not.toHaveProperty("mesa");
+  });
+
+  test("el endpoint devuelve calidad tambien a un agente", async ({
+    context,
+    page,
+  }) => {
+    await setSessionCookie(context, agentUser.signedSessionId);
+    await page.goto("/broadcast");
+
+    const baseURL = test.info().project.use.baseURL;
+    const endpoint = new URL("api/broadcast/estado", baseURL!).toString();
+
+    const result = await page.evaluate(async (url) => {
+      const response = await fetch(url, {
+        credentials: "same-origin",
+        headers: { Accept: "application/json" },
+      });
+      return { status: response.status, body: await response.json() };
+    }, endpoint);
+
+    expect(result.status).toBe(200);
+    expect(result.body.calidad).not.toBeNull();
+    expect(result.body.calidad).toHaveProperty("top");
   });
 
   test("el endpoint de estado exige sesion", async ({ request }) => {

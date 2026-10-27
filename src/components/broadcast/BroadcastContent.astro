@@ -3,23 +3,33 @@ import FullscreenButton from "@components/ui/FullscreenButton.astro";
 import BroadcastKpiCard from "./BroadcastKpiCard.astro";
 import LlamadaCard from "./LlamadaCard.astro";
 import CasoAutogestionCard from "./CasoAutogestionCard.astro";
+import TopOperadoresList from "./TopOperadoresList.astro";
+import PromediosCalidadTable from "./PromediosCalidadTable.astro";
 import { getWiseCallsSnapshot } from "@/lib/wise-cx-calls";
 import { getCasosAutogestion } from "@/lib/invgate/casosAutogestion";
+import { getCalidadResumenBroadcast } from "@/lib/calidad/broadcastResumen";
 
 /**
- * Wallboard de llamadas en vivo (Wise CX) + casos de autogestión (InvGate).
+ * Wallboard de llamadas en vivo (Wise CX) + casos sin asignar (InvGate) +
+ * resumen de calidad.
  *
- * Pensado para proyectarse en una TV: 4 KPIs grandes, grid de cards con las
- * llamadas activas y, debajo, los casos de autogestión en solo lectura.
- * Se pone en pantalla completa con el botón del header (mismo mecanismo que
- * las tablas del portal).
+ * Pensado para proyectarse en una TV:
+ *  - header con chip "En vivo" y botón de pantalla completa (independiente del
+ *    resto: no vive dentro de un bloque condicional);
+ *  - 4 KPIs de estado;
+ *  - dos columnas (llamadas activas | casos sin asignar) con una divisoria;
+ *  - columna derecha con el top de operadores y los promedios de calidad.
+ *
+ * El bloque de calidad es visible para todos los roles (el endpoint tambien lo
+ * devuelve siempre).
  *
  * Los datos los resuelve el server island para que la pagina principal no
  * bloquee el render esperando a las APIs externas.
  */
-const [snapshot, casos] = await Promise.all([
+const [snapshot, casos, calidad] = await Promise.all([
   getWiseCallsSnapshot(),
   getCasosAutogestion(),
+  getCalidadResumenBroadcast(),
 ]);
 const { kpis, calls, fetchedAt } = snapshot;
 
@@ -47,12 +57,6 @@ const kpiCards = [
     hint: "Llamadas esperando a que se les asigne un agente.",
   },
   {
-    key: "onHold",
-    label: "En espera",
-    value: kpis.onHold,
-    hint: "Llamadas atendidas que el agente puso en espera (hold).",
-  },
-  {
     key: "ivr",
     label: "En IVR",
     value: kpis.ivr,
@@ -63,177 +67,225 @@ const kpiCards = [
 
 <div
   id="bcast-root"
-  class="space-y-6"
+  class="grid h-full grid-cols-4 gap-x-2"
   data-broadcast-root
   data-fullscreen-root
   data-fetched-at={fetchedAt}
 >
-  <header class="flex items-center justify-end gap-3">
-    <span
-      class="badge badge-lg badge-success badge-soft gap-2"
-      data-broadcast-vivo
-    >
-      <span class="bg-success inline-block size-2 animate-pulse rounded-full"></span>
-      En vivo
-    </span>
-    <span
-      class="text-base-content/60 font-mono text-sm tabular-nums"
-      data-broadcast-freshness
-    >
-      --
-    </span>
-    <FullscreenButton
-      variant="outline"
-      size="sm"
-      label="Pantalla completa"
-      targetLabel="el tablero de llamadas"
-    />
-  </header>
-
-  <section
-    class="grid grid-cols-2 gap-4 lg:grid-cols-5 lg:gap-6"
-    aria-label="Estado de las llamadas"
-  >
-    {
-      kpiCards.map((card) => (
-        <BroadcastKpiCard
-          key={card.key}
-          label={card.label}
-          value={card.value}
-          hint={card.hint}
-        />
-      ))
-    }
-  </section>
-
-  <div
-    class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2"
-    data-broadcast-columns
-  >
-  <section class="space-y-4" aria-label="Llamadas activas">
-    <div class="flex items-center gap-3">
-      <h2 class="text-base-content text-2xl font-bold tracking-tight">
-        Llamadas activas
-      </h2>
-      <span
-        class="badge badge-lg badge-secondary font-mono font-black tabular-nums"
-        data-broadcast-total
-      >
-        {calls.length}
-      </span>
-    </div>
-
-    <template id="bcast-tpl-card">
-      <article class="border-base-300 bg-base-100 border p-4" data-broadcast-card>
-        <div class="flex items-center justify-between gap-2">
-          <span data-field="estado"></span>
-          <span
-            class="text-base-content/80 font-mono text-lg font-bold tabular-nums"
-            data-field="tiempo"
-          ></span>
-        </div>
-        <p
-          class="text-base-content mt-2 truncate text-lg font-semibold"
-          data-field="agente"
-        ></p>
-        <p
-          class="text-base-content/60 truncate text-sm"
-          data-field="grupo"
-        ></p>
-      </article>
-    </template>
-
-    <div
-      class="grid grid-cols-1 gap-3 sm:grid-cols-2"
-      data-broadcast-cards
+  <div class="col-span-3 flex h-full min-h-0 flex-col">
+    <section
+      class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6"
+      aria-label="Estado de las llamadas"
     >
       {
-        calls.map((call) => (
-          <LlamadaCard call={call} />
+        kpiCards.map((card) => (
+          <BroadcastKpiCard
+            key={card.key}
+            label={card.label}
+            value={card.value}
+            hint={card.hint}
+          />
         ))
       }
-    </div>
+    </section>
 
     <div
-      class="border-base-300 text-base-content/60 flex items-center justify-center border border-dashed p-10 text-xl"
-      data-broadcast-empty
-      hidden={calls.length > 0}
+      class="flex w-full flex-1 flex-col lg:flex-row lg:items-stretch"
+      data-broadcast-columns
     >
-      <span>Sin llamadas activas en este momento</span>
-    </div>
-  </section>
-
-  <section class="space-y-4" aria-label="Casos sin asignar">
-    <div class="flex flex-wrap items-center gap-3">
-      <h2 class="text-base-content text-2xl font-bold tracking-tight">
-        Casos sin asignar
-      </h2>
-      <span
-        class="badge badge-lg badge-secondary font-mono font-black tabular-nums"
-        data-casos-total
-      >
-        {casos.total}
-      </span>
-      <div
-        class="ml-auto flex flex-wrap items-center justify-end gap-2"
-        data-casos-breakdown
-      >
-        {
-          casos.porCategoria.map((categoria) => (
-            <span
-              class="badge badge-sm badge-soft badge-ghost font-mono tabular-nums"
-              data-casos-count={categoria.categoryId}
-              title={categoria.label}
-            >
-              {categoria.label}: {categoria.count}
-            </span>
-          ))
-        }
-      </div>
-    </div>
-
-    <template id="bcast-tpl-caso">
-      <article class="border-base-300 bg-base-100 border p-4" data-caso-card>
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-base-content font-mono text-sm font-bold" data-field="numero"></span>
+      <section class="min-w-0 flex-1 space-y-4" aria-label="Llamadas activas">
+        <div class="flex items-center gap-3">
+          <h2 class="text-base-content text-2xl font-bold tracking-tight">
+            Llamadas activas
+          </h2>
           <span
-            class="text-base-content/60 font-mono text-xs tabular-nums"
-            data-field="edad"
-          ></span>
+            class="badge badge-lg font-mono font-black tabular-nums"
+            data-broadcast-total
+          >
+            {calls.length}
+          </span>
         </div>
-        <span class="badge badge-sm badge-soft mt-2" data-field="categoria"></span>
-        <p
-          class="text-base-content mt-2 truncate text-sm font-semibold"
-          data-field="titulo"
-        ></p>
-        <p class="text-base-content/60 truncate text-xs" data-field="creador"></p>
-        <p class="text-base-content/60 truncate text-xs" data-field="ubicacion"></p>
-      </article>
-    </template>
 
-    <div
-      class="grid grid-cols-1 gap-3 sm:grid-cols-2"
-      data-casos-cards
-    >
-      {casos.casos.map((caso) => <CasoAutogestionCard caso={caso} />)}
+        <template id="bcast-tpl-card">
+          <article
+            class="border-base-300 bg-base-100 flex h-36 flex-col justify-center gap-2 border p-4"
+            data-broadcast-card
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span data-field="estado"></span>
+              <span
+                class="text-base-content/80 font-mono text-lg font-bold tabular-nums"
+                data-field="tiempo"></span>
+            </div>
+            <div class="min-w-0">
+              <p
+                class="text-base-content truncate text-lg font-semibold"
+                data-field="agente"
+              >
+              </p>
+              <p class="text-base-content/60 truncate text-sm" data-field="grupo">
+              </p>
+            </div>
+          </article>
+        </template>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" data-broadcast-cards>
+          {calls.map((call) => <LlamadaCard call={call} />)}
+        </div>
+
+        <div
+          class="border-base-300 text-base-content/60 flex h-36 items-center justify-center border border-dashed p-6 text-center text-xl"
+          data-broadcast-empty
+          hidden={calls.length > 0}
+        >
+          <span>Sin llamadas activas en este momento</span>
+        </div>
+      </section>
+
+      <div class="divider divider-vertical lg:divider-horizontal lg:mx-4"></div>
+
+      <section class="min-w-0 flex-1 space-y-4" aria-label="Casos sin asignar">
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 class="text-base-content text-2xl font-bold tracking-tight">
+            Casos sin asignar
+          </h2>
+          <span
+            class="badge badge-lg font-mono font-black tabular-nums"
+            data-casos-total
+          >
+            {casos.total}
+          </span>
+          <div
+            class="ml-auto flex flex-wrap items-center justify-end gap-2"
+            data-casos-breakdown
+          >
+            {
+              casos.porCategoria.map((categoria) => (
+                <span
+                  class="badge badge-sm badge-soft badge-ghost font-mono tabular-nums"
+                  data-casos-count={categoria.categoryId}
+                  title={categoria.label}
+                >
+                  {categoria.label}: {categoria.count}
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        <template id="bcast-tpl-caso">
+          <article
+            class="border-base-300 bg-base-100 flex h-36 flex-col justify-center gap-1.5 border p-4"
+            data-caso-card
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span
+                class="text-base-content font-mono text-sm font-bold"
+                data-field="numero"></span>
+              <span
+                class="text-base-content/60 font-mono text-xs tabular-nums"
+                data-field="edad"></span>
+            </div>
+            <span class="badge badge-sm badge-soft" data-field="categoria"
+            ></span>
+            <p
+              class="text-base-content truncate text-sm font-semibold"
+              data-field="titulo"
+            >
+            </p>
+            <p
+              class="text-base-content/60 truncate text-xs"
+              data-field="creador"
+            >
+            </p>
+            <p
+              class="text-base-content/60 truncate text-xs"
+              data-field="ubicacion"
+            >
+            </p>
+          </article>
+        </template>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" data-casos-cards>
+          {casos.casos.map((caso) => <CasoAutogestionCard caso={caso} />)}
+        </div>
+
+        <div
+          class="border-base-300 text-base-content/60 flex h-36 items-center justify-center border border-dashed p-6 text-center text-xl"
+          data-casos-empty
+          hidden={casos.casos.length > 0}
+        >
+          <span>Sin casos pendientes de asignación</span>
+        </div>
+
+        {
+          casos.warning && (
+            <p class="alert alert-warning text-sm" role="status">
+              <span>{casos.warning}</span>
+            </p>
+          )
+        }
+      </section>
     </div>
+  </div>
 
-    <div
-      class="border-base-300 text-base-content/60 flex items-center justify-center border border-dashed p-8 text-lg"
-      data-casos-empty
-      hidden={casos.casos.length > 0}
-    >
-      <span>Sin casos pendientes de asignación</span>
-    </div>
+  <div
+    class="border-neutral-400 flex h-full flex-col space-y-8 border-l py-2 pl-4"
+    data-broadcast-quality
+  >
+    <header class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span
+          class="badge badge-lg badge-success badge-soft gap-2"
+          data-broadcast-vivo
+        >
+          <span class="bg-success inline-block size-2 animate-pulse rounded-full"></span>
+          En vivo
+        </span>
+        <span
+          class="text-base-content/60 font-mono text-sm tabular-nums"
+          data-broadcast-freshness
+        >
+          --
+        </span>
+      </div>
+      <FullscreenButton
+        variant="outline"
+        size="sm"
+        label="Pantalla completa"
+        targetLabel="el tablero de llamadas"
+      />
+    </header>
 
-    {
-      casos.warning && (
-        <p class="alert alert-warning text-sm" role="status">
-          <span>{casos.warning}</span>
-        </p>
-      )
-    }
-  </section>
+    <section class="space-y-4" aria-label="Top de operadores por calidad">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-base-content text-2xl font-bold tracking-tight">
+          Top operadores
+        </h2>
+        <span class="text-base-content/60 font-mono text-sm" data-calidad-mes>
+          {calidad.monthLabel || "--"}
+        </span>
+        {calidad.usedFallback && (
+          <span class="text-base-content/50 text-xs">
+            (el mes en curso todavía no tiene auditorías suficientes)
+          </span>
+        )}
+      </div>
+      <TopOperadoresList operadores={calidad.top} />
+    </section>
+
+    <section class="space-y-4" aria-label="Promedios generales de calidad">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-base-content text-2xl font-bold tracking-tight">
+          Promedios generales
+        </h2>
+        <span class="text-base-content/60 text-xs">
+          {calidad.operadoresAuditados} operadores ·{" "}
+          {calidad.totalAuditorias} auditorías
+        </span>
+      </div>
+      <PromediosCalidadTable resumen={calidad} />
+    </section>
   </div>
 </div>
 

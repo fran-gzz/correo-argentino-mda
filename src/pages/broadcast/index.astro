@@ -54,13 +54,36 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
     createdAt: number;
   }
 
+  interface CalidadApi {
+    month: string;
+    monthLabel: string;
+    usedFallback: boolean;
+    totalAuditorias: number;
+    operadoresAuditados: number;
+    promedioGeneral: number | null;
+    aprobados: number;
+    aprobadosTotal: number;
+    porCanal: {
+      key: string;
+      label: string;
+      avg: number | null;
+      count: number;
+    }[];
+    top: {
+      agentId: number;
+      name: string;
+      score: number;
+      audits: number;
+      quotaFulfilled: boolean;
+    }[];
+  }
+
   interface BroadcastApi {
     kpis: {
       active: number;
       attended: number;
       ringing: number;
       enqueued: number;
-      onHold: number;
       ivr: number;
       overflow: number;
       avgWaitSeconds: number;
@@ -81,6 +104,7 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
       actualizadoAt: string;
       warning?: string;
     };
+    calidad: CalidadApi;
   }
 
   const POLL_INTERVAL_MS = 10_000;
@@ -121,6 +145,7 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
     const badge = document.createElement("span");
     const tone = LLAMADA_ESTADO_TONES[state] ?? "neutral";
     badge.className = `badge badge-sm badge-soft badge-${tone}`;
+    badge.dataset.estadoBadge = "";
     badge.textContent = label || LLAMADA_ESTADO_LABELS[state] || state;
     return badge;
   };
@@ -294,6 +319,115 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
     }
   };
 
+  const scoreTextClass = (avg: number | null): string => {
+    if (avg === null || Number.isNaN(avg)) return "text-base-content/40";
+    if (avg >= 85) return "text-success";
+    if (avg >= 70) return "text-warning";
+    return "text-error";
+  };
+
+  const formatScore = (avg: number | null): string =>
+    avg === null || Number.isNaN(avg) ? "--" : `${Math.round(avg)}%`;
+
+  /** Actualiza el bloque de calidad. */
+  const renderCalidad = (calidad: CalidadApi): void => {
+    const section = document.querySelector<HTMLElement>(
+      "[data-broadcast-quality]",
+    );
+    if (!section) return;
+
+    const mes = section.querySelector<HTMLElement>("[data-calidad-mes]");
+    if (mes) mes.textContent = calidad.monthLabel || "--";
+
+    // Top de operadores.
+    const lista = section.querySelector<HTMLElement>("[data-top-operadores]");
+    const template = document.querySelector<HTMLTemplateElement>(
+      "#bcast-tpl-top",
+    );
+    if (lista && template?.content.firstElementChild) {
+      lista.textContent = "";
+      const posiciones = ["1º", "2º", "3º"];
+
+      calidad.top.forEach((operador, index) => {
+        const item = template.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+
+        const posicion = item.querySelector<HTMLElement>(
+          '[data-field="posicion"]',
+        );
+        if (posicion) {
+          posicion.textContent = posiciones[index] ?? `${index + 1}º`;
+          posicion.classList.toggle("text-secondary", index === 0);
+          posicion.classList.toggle("text-base-content/40", index !== 0);
+        }
+
+        const nombre = item.querySelector<HTMLElement>(
+          '[data-field="nombre"]',
+        );
+        if (nombre) nombre.textContent = operador.name;
+
+        const detalle = item.querySelector<HTMLElement>(
+          '[data-field="detalle"]',
+        );
+        if (detalle) {
+          detalle.textContent = `${operador.audits} auditorías${
+            operador.quotaFulfilled ? " · cuota completa" : ""
+          }`;
+        }
+
+        const score = item.querySelector<HTMLElement>('[data-field="score"]');
+        if (score) {
+          score.textContent = formatScore(operador.score);
+          score.className = `font-mono text-3xl font-black tabular-nums ${scoreTextClass(
+            operador.score,
+          )}`;
+        }
+
+        lista.appendChild(item);
+      });
+    }
+
+    // Tabla de promedios.
+    const filas: { key: string; avg: number | null; count: number }[] = [
+      {
+        key: "general",
+        avg: calidad.promedioGeneral,
+        count: calidad.totalAuditorias,
+      },
+      ...calidad.porCanal.map((canal) => ({
+        key: canal.key,
+        avg: canal.avg,
+        count: canal.count,
+      })),
+    ];
+
+    for (const fila of filas) {
+      const row = section.querySelector<HTMLElement>(
+        `[data-calidad-row="${fila.key}"]`,
+      );
+      if (!row) continue;
+
+      const count = row.querySelector<HTMLElement>('[data-field="count"]');
+      if (count) count.textContent = String(fila.count);
+
+      const avg = row.querySelector<HTMLElement>('[data-field="avg"]');
+      if (avg) {
+        avg.textContent = formatScore(fila.avg);
+        avg.className = `font-mono text-lg font-bold tabular-nums ${scoreTextClass(
+          fila.avg,
+        )}`;
+      }
+    }
+
+    const aprobados = section.querySelector<HTMLElement>(
+      "[data-calidad-aprobados]",
+    );
+    if (aprobados) {
+      aprobados.textContent = `${calidad.aprobados}/${calidad.aprobadosTotal}`;
+    }
+  };
+
   const applySnapshot = (data: BroadcastApi): void => {
     const root = getRoot();
     if (!root) return;
@@ -301,11 +435,11 @@ import BroadcastContent from "@components/broadcast/BroadcastContent.astro";
     root.dataset.fetchedAt = data.fetchedAt;
     setKpi("ivr", data.kpis.ivr);
     setKpi("enqueued", data.kpis.enqueued);
-    setKpi("onHold", data.kpis.onHold);
     setKpi("attended", data.kpis.attended);
     setKpi("ringing", data.kpis.ringing);
     renderCalls(data.calls ?? []);
     renderCasos(data.casos);
+    renderCalidad(data.calidad);
     updateFreshness();
     updateElapsed();
   };

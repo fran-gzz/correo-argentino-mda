@@ -91,8 +91,6 @@ export interface WiseCallsKpi {
   ringing: number;
   /** En cola (esperando asignación, sin agente). */
   enqueued: number;
-  /** En espera: el agente atendio y puso la llamada en hold. */
-  onHold: number;
   /** En IVR. */
   ivr: number;
   /** Desbordes (llamadas que no ingresaron al sistema). */
@@ -119,7 +117,6 @@ const EMPTY_KPI: WiseCallsKpi = {
   attended: 0,
   ringing: 0,
   enqueued: 0,
-  onHold: 0,
   ivr: 0,
   overflow: 0,
   avgWaitSeconds: 0,
@@ -282,8 +279,6 @@ async function fetchKpis(page: WiseAnalyticsPage): Promise<WiseCallsKpi> {
     attended: toNumber(row.total_call_attended),
     ringing: toNumber(row.total_call_ringing),
     enqueued: toNumber(row.total_call_enqueued),
-    // El widget 53 no expone el hold: lo calcula getWiseCallsSnapshot con el listado.
-    onHold: 0,
     ivr: toNumber(row.total_call_ivr),
     overflow: toNumber(row.total_call_overflow),
     avgWaitSeconds: parseWiseDuration(waitLabel),
@@ -530,11 +525,8 @@ export async function getWiseCallsSnapshot(
       .filter((call) => groupId === null || call.groupId === groupId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
-    // El widget 53 no expone el hold: se cuenta del listado.
-    const onHold = calls.filter((call) => call.state === "en_espera").length;
-
     const snapshot: WiseCallsSnapshot = {
-      kpis: { ...kpis, onHold },
+      kpis,
       calls,
       groups: page.groups,
       fetchedAt: new Date().toISOString(),

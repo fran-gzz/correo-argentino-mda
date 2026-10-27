@@ -13,7 +13,7 @@ const display = describeCall(call);
 ---
 
 <article
-  class="border-base-300 bg-base-100 border p-4"
+  class="border-base-300 bg-base-100 flex h-36 flex-col justify-center gap-2 border p-4"
   data-broadcast-card
   data-created-at={call.createdAt}
 >
@@ -27,19 +27,21 @@ const display = describeCall(call);
     </span>
   </div>
 
-  <p
-    class="text-base-content mt-2 truncate text-lg font-semibold"
-    data-field="agente"
-    title={display.title}
-  >
-    {display.title}
-  </p>
+  <div class="min-w-0">
+    <p
+      class="text-base-content truncate text-lg font-semibold"
+      data-field="agente"
+      title={display.title}
+    >
+      {display.title}
+    </p>
 
-  <p
-    class="text-base-content/60 truncate text-sm"
-    data-field="grupo"
-    title={display.subtitle}
-  >
-    {display.subtitle}
-  </p>
+    <p
+      class="text-base-content/60 truncate text-sm"
+      data-field="grupo"
+      title={display.subtitle}
+    >
+      {display.subtitle}
+    </p>
+  </div>
 </article>

@@ -4,15 +4,19 @@ import { requireReadAccess } from "@lib/rbac-middleware";
 import { getWiseCallsSnapshot } from "@/lib/wise-cx-calls";
 import { getCasosAutogestion } from "@/lib/invgate/casosAutogestion";
 import type { CasosAutogestionResumen } from "@/lib/invgate/casosAutogestion";
+import { getCalidadResumenBroadcast } from "@/lib/calidad/broadcastResumen";
+import type { CalidadResumenBroadcast } from "@/lib/calidad/broadcastResumen";
 
 /**
  * GET /api/broadcast/estado
  *
  * Snapshot del wallboard: KPIs y detalle de llamadas en vivo (Wise CX) + los
- * casos de autogestión de InvGate (solo lectura).
+ * casos de autogestión de InvGate (solo lectura) + el resumen de calidad.
  *
- * Caches: Wise 10 s, casos de InvGate 60 s. N clientes golpeando este endpoint
- * generan una sola consulta por fuente y por ventana.
+ * El bloque `calidad` (top de operadores y promedios) se devuelve para todos
+ * los roles con acceso a la vista.
+ *
+ * Caches: Wise 10 s, casos de InvGate 60 s, calidad 5 min.
  */
 export const GET: APIRoute = async ({ locals }) => {
   const denied = await requireReadAccess(locals, "broadcast");
@@ -27,12 +31,34 @@ export const GET: APIRoute = async ({ locals }) => {
       actualizadoAt: new Date().toISOString(),
     };
 
-    const [snapshot, casos] = await Promise.all([
+    const emptyCalidad: CalidadResumenBroadcast = {
+      month: "",
+      monthLabel: "",
+      requestedMonth: "",
+      usedFallback: false,
+      totalAuditorias: 0,
+      operadoresAuditados: 0,
+      promedioGeneral: null,
+      aprobados: 0,
+      aprobadosTotal: 0,
+      porCanal: [],
+      top: [],
+      actualizadoAt: new Date().toISOString(),
+    };
+
+    const [snapshot, casos, calidad] = await Promise.all([
       getWiseCallsSnapshot(),
       getCasosAutogestion().catch((error) => ({
         ...emptyCasos,
         warning: sanitizeError(error),
       })),
+      getCalidadResumenBroadcast().catch((error) => {
+        console.error(
+          "[Broadcast] No se pudo calcular el resumen de calidad:",
+          error,
+        );
+        return emptyCalidad;
+      }),
     ]);
 
     return jsonResponse(
@@ -43,6 +69,7 @@ export const GET: APIRoute = async ({ locals }) => {
         stale: snapshot.stale,
         warning: snapshot.warning,
         casos,
+        calidad,
       },
       200,
       "no-store",

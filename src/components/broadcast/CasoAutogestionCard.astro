@@ -10,7 +10,7 @@ const { caso } = Astro.props;
 ---
 
 <article
-  class="border-base-300 bg-base-100 border p-4"
+  class="border-base-300 bg-base-100 flex h-36 flex-col justify-center gap-1.5 border p-4"
   data-caso-card
   data-created-at={caso.createdAt}
 >
@@ -26,12 +26,12 @@ const { caso } = Astro.props;
     </span>
   </div>
 
-  <span class="badge badge-sm badge-soft badge-info mt-2" data-field="categoria">
+  <span class="badge badge-sm badge-soft badge-info" data-field="categoria">
     {caso.categoryName}
   </span>
 
   <p
-    class="text-base-content mt-2 truncate text-sm font-semibold"
+    class="text-base-content truncate text-sm font-semibold"
     title={caso.title}
     data-field="titulo"
   >
