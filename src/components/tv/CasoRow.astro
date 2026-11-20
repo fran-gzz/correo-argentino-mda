@@ -1,0 +1,37 @@
+---
+import { formatAge } from "@/lib/tv/display";
+import type { CasoAutogestion } from "@/lib/invgate/casosAutogestion";
+
+interface Props {
+  caso: CasoAutogestion;
+}
+
+const { caso } = Astro.props;
+const meta = [caso.categoryName, caso.locationName].filter(Boolean).join(" · ");
+---
+
+<li
+  class="border-base-300 flex items-center gap-3 border-b py-1.5 last:border-0"
+  data-tv-caso
+  data-created-at={caso.createdAt}
+>
+  <span class="text-base-content shrink-0 font-mono text-xs font-bold">
+    #{caso.prettyId}
+  </span>
+
+  <div class="min-w-0 flex-1">
+    <p class="text-base-content truncate text-sm font-semibold" title={caso.title}>
+      {caso.title}
+    </p>
+    <p class="text-base-content/70 truncate text-xs" title={meta}>
+      {meta}
+    </p>
+  </div>
+
+  <span
+    class="text-base-content/70 shrink-0 font-mono text-xs tabular-nums"
+    data-field="edad"
+  >
+    {formatAge(caso.ageHours * 3600)}
+  </span>
+</li>

@@ -4,34 +4,41 @@ import { requireReadAccess } from "@lib/rbac-middleware";
 import { getWiseCallsSnapshot } from "@/lib/wise-cx-calls";
 import { getCasosAutogestion } from "@/lib/invgate/casosAutogestion";
 import type { CasosAutogestionResumen } from "@/lib/invgate/casosAutogestion";
-import { getCalidadResumenBroadcast } from "@/lib/calidad/broadcastResumen";
-import type { CalidadResumenBroadcast } from "@/lib/calidad/broadcastResumen";
+import { getCalidadResumenTv } from "@/lib/calidad/resumenTv";
+import type { CalidadResumenTv } from "@/lib/calidad/resumenTv";
 
 /**
- * GET /api/broadcast/estado
+ * GET /api/tv/estado
  *
- * Snapshot del wallboard: KPIs y detalle de llamadas en vivo (Wise CX) + los
- * casos de autogestión de InvGate (solo lectura) + el resumen de calidad.
- *
- * El bloque `calidad` (top de operadores y promedios) se devuelve para todos
- * los roles con acceso a la vista.
+ * Snapshot del wallboard: KPIs y detalle de llamadas en vivo (Wise CX), la
+ * cola de la mesa (InvGate, solo lectura) con sus métricas, y el resumen de
+ * calidad con el ranking completo de operadores.
  *
  * Caches: Wise 10 s, casos de InvGate 60 s, calidad 5 min.
  */
 export const GET: APIRoute = async ({ locals }) => {
-  const denied = await requireReadAccess(locals, "broadcast");
+  const denied = await requireReadAccess(locals, "tv");
   if (denied) return denied;
 
   try {
     const emptyCasos: CasosAutogestionResumen = {
       helpdeskId: 0,
+      helpdeskExplicit: false,
       total: 0,
       porCategoria: [],
       casos: [],
+      metricas: {
+        abiertos: 0,
+        sinAsignar: 0,
+        asignados: 0,
+        porEstado: [],
+        antiguedadMedianaHoras: 0,
+        masAntiguoHoras: 0,
+      },
       actualizadoAt: new Date().toISOString(),
     };
 
-    const emptyCalidad: CalidadResumenBroadcast = {
+    const emptyCalidad: CalidadResumenTv = {
       month: "",
       monthLabel: "",
       requestedMonth: "",
@@ -42,7 +49,7 @@ export const GET: APIRoute = async ({ locals }) => {
       aprobados: 0,
       aprobadosTotal: 0,
       porCanal: [],
-      top: [],
+      ranking: [],
       actualizadoAt: new Date().toISOString(),
     };
 
@@ -52,9 +59,9 @@ export const GET: APIRoute = async ({ locals }) => {
         ...emptyCasos,
         warning: sanitizeError(error),
       })),
-      getCalidadResumenBroadcast().catch((error) => {
+      getCalidadResumenTv().catch((error) => {
         console.error(
-          "[Broadcast] No se pudo calcular el resumen de calidad:",
+          "[TV] No se pudo calcular el resumen de calidad:",
           error,
         );
         return emptyCalidad;

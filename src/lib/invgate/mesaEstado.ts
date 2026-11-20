@@ -1,7 +1,7 @@
 /**
  * Estado de la Mesa de Ayuda TI Nivel 1 en InvGate.
  *
- * CONSERVADO SIN USO: la vista `/broadcast` mostro que este dato no suma en
+ * CONSERVADO SIN USO: la vista `/tv` (antes `/broadcast`) mostro que el dato no suma en
  * un wallboard de TV. Se conserva para una vista de detalle o de reporteria.
  *
  * La API de InvGate NO expone los "tableros" (vistas guardadas): los endpoints

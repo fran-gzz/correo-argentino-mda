@@ -1,7 +1,7 @@
 /**
  * Agregador de la vista "Llamadas en vivo".
  *
- * CONSERVADO SIN USO: la vista paso a ser `/broadcast` (wallboard de TV) y
+ * CONSERVADO SIN USO: la vista paso a ser `/tv` (wallboard de TV) y
  * consume unicamente Wise CX, asi que el endpoint llama directo a
  * `getWiseCallsSnapshot`. Este modulo se conserva (junto con
  * `src/lib/invgate/mesaEstado.ts` y `src/components/invgate/MesaTiEstadoCard.astro`)

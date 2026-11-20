@@ -41,6 +41,7 @@ import {
 } from "@/lib/autogestion/rulesEngine";
 import { evaluateGeneralCyclicRule } from "@/lib/autogestion/rules/generalCyclicRule";
 import { reassignTicketToAgent, addTicketComment, invalidateUnassignedTicketsCache } from "@/lib/invgate/agsTickets";
+import { AGS_HELPDESK_ID } from "@/lib/invgate/agsHelpdesk";
 import { db } from "@db/index";
 
 describe("Autogestión Automation Rules - Asignación Cíclica General", () => {
@@ -185,7 +186,12 @@ describe("Autogestión Automation Rules - Asignación Cíclica General", () => {
     const execRes = await executeAutoAssignment(evalResult as any, "Sistema de Automatizaciones");
 
     expect(execRes.success).toBe(true);
-    expect(reassignTicketToAgent).toHaveBeenCalledWith(8001, 102, 3950, expect.any(Number));
+    expect(reassignTicketToAgent).toHaveBeenCalledWith(
+      8001,
+      102,
+      AGS_HELPDESK_ID,
+      expect.any(Number),
+    );
     expect(addTicketComment).toHaveBeenCalledWith(
       8001,
       "[Portal MDA] Se asigna para su gestión.",

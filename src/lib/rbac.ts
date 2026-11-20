@@ -166,10 +166,12 @@ export const routePermissions: RoutePermission[] = [
   { path: "/oficinas", roles: ALL_ROLES },
   { path: "/recursos", roles: ALL_ROLES },
   { path: "/titulos", roles: ALL_ROLES },
-  // Broadcast de llamadas (Wise CX): lectura para todos los logueados. La
-  // vista es de solo lectura y se proyecta en una TV de la mesa.
+  // TV de la mesa (Wise CX + InvGate + calidad): lectura para todos los
+  // logueados. La vista es de solo lectura y se proyecta en una pantalla.
+  { path: "/tv", roles: ALL_ROLES },
+  { path: "/api/tv", roles: ALL_ROLES },
+  // Ruta anterior: redirect 302 a /tv para no romper bookmarks.
   { path: "/broadcast", roles: ALL_ROLES },
-  { path: "/api/broadcast", roles: ALL_ROLES },
   // Monitoreo de automatizaciones: lectura para todos los logueados. La
   // escritura (cerrar/reabrir/editar datos) se decide por módulo en
   // getModulePermissions (supervisor+), no por esta whitelist.
@@ -329,8 +331,8 @@ export function getModulePermissions(
   } else if (moduleName === "reportes") {
     perm.canRead = rank >= ROLE_HIERARCHY.admin;
     perm.canWrite = rank >= ROLE_HIERARCHY.admin;
-  } else if (moduleName === "broadcast") {
-    // Wallboard de llamadas en vivo: lectura para todos los roles logueados.
+  } else if (moduleName === "tv") {
+    // Wallboard de TV: lectura para todos los roles logueados.
     // Es de solo lectura (no hay acciones de escritura sobre Wise/InvGate).
     perm.canRead = true;
     perm.canWrite = false;

@@ -1,0 +1,25 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  puesto: 1 | 2 | 3;
+  size?: number;
+  class?: string;
+}
+
+const { puesto, size = 24, class: className = "" } = Astro.props;
+const tono = puesto === 1 ? "oro" : puesto === 2 ? "plata" : "bronce";
+const icono =
+  puesto === 1 ? "boxicons:medal-star-filled" : "boxicons:medal-filled";
+---
+
+<span
+  class:list={[
+    "tv-medal inline-flex shrink-0 items-center justify-center",
+    `tv-medal-${tono}`,
+    className,
+  ]}
+  aria-hidden="true"
+>
+  <Icon name={icono} size={size} />
+</span>

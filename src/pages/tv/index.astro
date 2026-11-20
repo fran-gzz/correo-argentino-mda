@@ -1,0 +1,614 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import TvContent from "@components/tv/TvContent.astro";
+---
+
+<BaseLayout title="TV | Portal MDA">
+  <h1 class="sr-only">
+    Tablero de la mesa: llamadas en vivo, casos y calidad
+  </h1>
+
+  <TvContent server:defer>
+    <div slot="fallback" class="space-y-4">
+      <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {
+          [1, 2, 3, 4].map(() => (
+            <div class="border-base-300 border px-6 py-8 text-center">
+              <div class="bg-base-200 motion-safe:animate-pulse mx-auto h-16 w-24"></div>
+              <div class="bg-base-200 motion-safe:animate-pulse mx-auto mt-4 h-5 w-28"></div>
+            </div>
+          ))
+        }
+      </div>
+      <div class="bg-base-200 motion-safe:animate-pulse h-40 w-full"></div>
+      <div class="grid gap-4 lg:grid-cols-12">
+        <div class="bg-base-200 motion-safe:animate-pulse h-56 lg:col-span-7"></div>
+        <div class="bg-base-200 motion-safe:animate-pulse h-56 lg:col-span-5"></div>
+      </div>
+    </div>
+  </TvContent>
+</BaseLayout>
+
+<script>
+  import {
+    LLAMADA_ESTADO_LABELS,
+    LLAMADA_ESTADO_TONES,
+    type LlamadaEstado,
+  } from "@/lib/llamadas/estados";
+  import {
+    describeCall,
+    formatAge,
+    formatDuration,
+    formatScore,
+    scoreToneClass,
+  } from "@/lib/tv/display";
+  import { getCleanBase } from "@/lib/baseUrl";
+  import { initFullscreenToggle } from "@/lib/fullscreenToggle";
+
+  interface LlamadaApi {
+    callId: number;
+    agentName: string;
+    state: LlamadaEstado;
+    stateLabel: string;
+    groupName: string;
+    elapsedSeconds: number;
+    createdAt: string;
+  }
+
+  interface CasoApi {
+    id: number;
+    prettyId: string;
+    title: string;
+    categoryId: number;
+    categoryName: string;
+    creatorName: string | null;
+    locationName: string | null;
+    /** Epoch en segundos. */
+    createdAt: number;
+  }
+
+  interface CasosApi {
+    helpdeskId: number;
+    helpdeskExplicit: boolean;
+    total: number;
+    porCategoria: { categoryId: number; label: string; count: number }[];
+    casos: CasoApi[];
+    metricas: {
+      abiertos: number;
+      sinAsignar: number;
+      asignados: number;
+      porEstado: { statusId: number; name: string; count: number }[];
+      antiguedadMedianaHoras: number;
+      masAntiguoHoras: number;
+    };
+    warning?: string;
+  }
+
+  interface CalidadApi {
+    month: string;
+    monthLabel: string;
+    usedFallback: boolean;
+    totalAuditorias: number;
+    operadoresAuditados: number;
+    promedioGeneral: number | null;
+    aprobados: number;
+    aprobadosTotal: number;
+    porCanal: { key: string; label: string; avg: number | null; count: number }[];
+    ranking: {
+      agentId: number;
+      name: string;
+      score: number;
+      audits: number;
+      quotaFulfilled: boolean;
+    }[];
+  }
+
+  interface TvApi {
+    kpis: {
+      active: number;
+      attended: number;
+      ringing: number;
+      enqueued: number;
+      ivr: number;
+      overflow: number;
+      avgWaitSeconds: number;
+      avgWaitLabel: string;
+    };
+    calls: LlamadaApi[];
+    fetchedAt: string;
+    stale: boolean;
+    warning?: string;
+    casos: CasosApi;
+    calidad: CalidadApi;
+  }
+
+  const POLL_INTERVAL_MS = 10_000;
+  const TICK_INTERVAL_MS = 1_000;
+
+  let pollTimer: number | null = null;
+  let tickTimer: number | null = null;
+  let requestInFlight = false;
+  let lastCalidadSignature = "";
+  let rankingModalInit = false;
+
+  const getRoot = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>("[data-tv-root]");
+
+  const query = <T extends HTMLElement>(
+    selector: string,
+    root: ParentNode = document,
+  ): T | null => root.querySelector<T>(selector);
+
+  const setKpi = (key: string, value: string | number): void => {
+    const el = query<HTMLElement>(`[data-tv-kpi="${key}"]`);
+    if (!el) return;
+
+    el.textContent = String(value);
+
+    // Gris cuando el estado está en 0; acento cuando hay llamadas.
+    const isZero = Number(value) === 0;
+    el.classList.toggle("text-secondary", !isZero);
+    el.classList.toggle("dark:text-accent", !isZero);
+    el.classList.toggle("text-base-content/50", isZero);
+  };
+
+  const buildEstadoBadge = (state: LlamadaEstado, label: string): HTMLElement => {
+    const badge = document.createElement("span");
+    const tone = LLAMADA_ESTADO_TONES[state] ?? "neutral";
+    badge.className = `badge badge-sm badge-${tone}${tone === "error" ? " dark:bg-error/80" : ""}`;
+    badge.dataset.estadoBadge = "";
+    badge.textContent = label || LLAMADA_ESTADO_LABELS[state] || state;
+    return badge;
+  };
+
+  const setField = (item: HTMLElement, field: string, value: string): void => {
+    const el = query<HTMLElement>(`[data-field="${field}"]`, item);
+    if (!el) return;
+    el.textContent = value;
+    if (value) el.setAttribute("title", value);
+  };
+
+  const setWarning = (
+    selector: string,
+    text: string | undefined,
+    useInnerField = false,
+  ): void => {
+    const el = query<HTMLElement>(selector);
+    if (!el) return;
+    el.classList.toggle("hidden", !text);
+    if (!text) return;
+
+    const target = useInnerField
+      ? query<HTMLElement>('[data-field="text"]', el)
+      : el;
+    if (target) target.textContent = text;
+    el.setAttribute("title", text);
+  };
+
+  const renderCalls = (calls: LlamadaApi[]): void => {
+    const container = query<HTMLElement>("[data-tv-cards]");
+    const template = document.querySelector<HTMLTemplateElement>(
+      "#tv-tpl-card",
+    );
+    if (!container || !template?.content.firstElementChild) return;
+
+    container.textContent = "";
+
+    for (const call of calls) {
+      const card = template.content.firstElementChild.cloneNode(true) as HTMLElement;
+
+      const estadoField = query<HTMLElement>('[data-field="estado"]', card);
+      if (estadoField) {
+        estadoField.textContent = "";
+        estadoField.appendChild(buildEstadoBadge(call.state, call.stateLabel));
+      }
+
+      setField(card, "tiempo", formatDuration(call.elapsedSeconds ?? 0));
+
+      const display = describeCall(call);
+      setField(card, "agente", display.title);
+      setField(card, "grupo", display.subtitle);
+
+      if (call.createdAt) card.dataset.createdAt = call.createdAt;
+
+      container.appendChild(card);
+    }
+
+    container.hidden = calls.length === 0;
+
+    const total = query<HTMLElement>("[data-tv-total]");
+    if (total) total.textContent = String(calls.length);
+
+    const empty = query<HTMLElement>("[data-tv-empty]");
+    if (empty) empty.hidden = calls.length > 0;
+  };
+
+  /** Antigüedad en vivo de los casos sin asignar. */
+  const updateCasoAges = (): void => {
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    document
+      .querySelectorAll<HTMLElement>("[data-tv-caso][data-created-at]")
+      .forEach((card) => {
+        const createdAt = Number(card.dataset.createdAt);
+        if (!Number.isFinite(createdAt) || createdAt <= 0) return;
+        const el = query<HTMLElement>('[data-field="edad"]', card);
+        if (el) el.textContent = formatAge(nowSeconds - createdAt);
+      });
+  };
+
+  const renderCasos = (data: CasosApi): void => {
+    const container = query<HTMLElement>("[data-tv-casos-cards]");
+    const template = document.querySelector<HTMLTemplateElement>(
+      "#tv-tpl-caso",
+    );
+    if (container && template?.content.firstElementChild) {
+      const casos = data.casos ?? [];
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      container.textContent = "";
+
+      for (const caso of casos) {
+        const item = template.content.firstElementChild.cloneNode(
+          true,
+        ) as HTMLElement;
+
+        setField(item, "numero", `#${caso.prettyId}`);
+        setField(item, "titulo", caso.title);
+        setField(
+          item,
+          "meta",
+          [caso.categoryName, caso.locationName].filter(Boolean).join(" · "),
+        );
+        setField(item, "edad", formatAge(nowSeconds - caso.createdAt));
+
+        item.dataset.createdAt = String(caso.createdAt);
+        container.appendChild(item);
+      }
+
+      container.hidden = casos.length === 0;
+
+      const empty = query<HTMLElement>("[data-tv-casos-empty]");
+      if (empty) empty.hidden = casos.length > 0;
+    }
+
+    const total = query<HTMLElement>("[data-tv-casos-total]");
+    if (total) total.textContent = String(data.total ?? data.casos?.length ?? 0);
+
+    const breakdown = query<HTMLElement>("[data-tv-casos-breakdown]");
+    if (breakdown) {
+      breakdown.textContent = "";
+      for (const categoria of data.porCategoria ?? []) {
+        const badge = document.createElement("span");
+        badge.className =
+          "badge badge-xs badge-soft badge-ghost font-mono tabular-nums";
+        badge.dataset.tvCasoCategoria = String(categoria.categoryId);
+        badge.title = categoria.label;
+        badge.textContent = `${categoria.label}: ${categoria.count}`;
+        breakdown.appendChild(badge);
+      }
+    }
+
+    setWarning("[data-tv-casos-warning]", data.warning, true);
+    updateCasoAges();
+  };
+
+  const renderPodio = (calidad: CalidadApi): void => {
+    const podio = calidad.ranking.slice(0, 3);
+
+    const mes = query<HTMLElement>("[data-tv-podio-mes]");
+    if (mes) mes.textContent = calidad.monthLabel || "--";
+
+    for (let index = 0; index < 3; index++) {
+      const row = query<HTMLElement>(`[data-tv-podio-row="${index + 1}"]`);
+      if (!row) continue;
+
+      const operador = podio[index];
+      row.hidden = !operador;
+      if (!operador) continue;
+
+      setField(row, "nombre", operador.name);
+
+      const score = query<HTMLElement>('[data-field="score"]', row);
+      if (score) {
+        score.textContent = formatScore(operador.score);
+        score.className = [
+          "mt-0.5 block text-center font-mono font-black tabular-nums",
+          index === 0 ? "text-2xl 2xl:text-3xl" : "text-lg 2xl:text-xl",
+          scoreToneClass(operador.score),
+        ].join(" ");
+      }
+    }
+
+    const rows = query<HTMLElement>("[data-tv-podio-rows]");
+    if (rows) rows.hidden = podio.length === 0;
+
+    const empty = query<HTMLElement>("[data-tv-podio-empty]");
+    if (empty) empty.hidden = podio.length > 0;
+
+    const cta = query<HTMLElement>("[data-tv-podio-cta]");
+    if (cta) {
+      cta.hidden = podio.length === 0;
+      cta.classList.toggle("hidden", podio.length === 0);
+    }
+
+    const resto = calidad.ranking.slice(3, 10);
+    const list = query<HTMLElement>("[data-tv-top10-list]");
+    const listTemplate = document.querySelector<HTMLTemplateElement>(
+      "#tv-tpl-top10-row",
+    );
+    if (list && listTemplate?.content.firstElementChild) {
+      list.textContent = "";
+      resto.forEach((operador, index) => {
+        const row = listTemplate.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+        setField(row, "posicion", `${index + 4}º`);
+        setField(row, "nombre", operador.name);
+        const score = query<HTMLElement>('[data-field="score"]', row);
+        if (score) {
+          score.textContent = formatScore(operador.score);
+          score.className = `shrink-0 font-mono text-lg font-bold tabular-nums ${scoreToneClass(operador.score)}`;
+        }
+        list.appendChild(row);
+      });
+      list.hidden = resto.length === 0;
+    }
+
+    const open = query<HTMLButtonElement>("[data-tv-ranking-open]");
+    if (open) open.disabled = podio.length === 0;
+  };
+
+  const renderRankingModal = (calidad: CalidadApi): void => {
+    const body = query<HTMLElement>("[data-tv-modal-body]");
+    const template = document.querySelector<HTMLTemplateElement>(
+      "#tv-tpl-modal-row",
+    );
+    const scroll = query<HTMLElement>("[data-tv-modal-scroll]");
+    const previousScroll = scroll?.scrollTop ?? 0;
+    const vacio = calidad.ranking.length === 0;
+
+    if (body && template?.content.firstElementChild) {
+      body.textContent = "";
+
+      calidad.ranking.forEach((operador, index) => {
+        const row = template.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+
+        const posicion = query<HTMLElement>('[data-field="posicion"]', row);
+        if (posicion) {
+          posicion.textContent = `${index + 1}º`;
+          posicion.classList.toggle("text-secondary", index === 0);
+          posicion.classList.toggle("dark:text-accent", index === 0);
+          posicion.classList.toggle("text-base-content/70", index !== 0);
+        }
+
+        setField(row, "nombre", operador.name);
+        setField(row, "auditorias", String(operador.audits));
+
+        const score = query<HTMLElement>('[data-field="score"]', row);
+        if (score) {
+          score.textContent = formatScore(operador.score);
+          score.className = `py-1.5 text-right font-mono text-lg font-bold tabular-nums ${scoreToneClass(operador.score)}`;
+        }
+
+        row.classList.toggle("bg-base-200/50", index === 0);
+        body.appendChild(row);
+      });
+    }
+
+    const table = query<HTMLElement>("[data-tv-modal-table]");
+    if (table) table.hidden = vacio;
+
+    const empty = query<HTMLElement>("[data-tv-modal-empty]");
+    if (empty) empty.hidden = !vacio;
+
+    if (scroll) scroll.scrollTop = previousScroll;
+  };
+
+  const renderCalidad = (calidad: CalidadApi): void => {
+    const signature = JSON.stringify(calidad);
+    if (signature === lastCalidadSignature) return;
+    lastCalidadSignature = signature;
+
+    renderPodio(calidad);
+    renderRankingModal(calidad);
+
+    const mes = query<HTMLElement>("[data-tv-mes]");
+    if (mes) mes.textContent = calidad.monthLabel || "--";
+
+    const general = query<HTMLElement>("[data-tv-calidad-general]");
+    if (general) {
+      general.textContent = formatScore(calidad.promedioGeneral);
+      general.className = `font-mono text-lg font-bold tabular-nums ${scoreToneClass(calidad.promedioGeneral)}`;
+    }
+
+    for (const canal of calidad.porCanal ?? []) {
+      const item = query<HTMLElement>(`[data-tv-calidad-canal="${canal.key}"]`);
+      if (!item) continue;
+      const avg = query<HTMLElement>('[data-field="avg"]', item);
+      if (avg) {
+        avg.textContent = formatScore(canal.avg);
+        avg.className = `font-mono text-lg font-bold tabular-nums ${scoreToneClass(canal.avg)}`;
+      }
+    }
+
+    const aprobados = query<HTMLElement>("[data-tv-aprobados]");
+    if (aprobados) {
+      aprobados.textContent = `${calidad.aprobados}/${calidad.aprobadosTotal}`;
+    }
+  };
+
+  /** Timer en vivo: "3m 12s" de cada llamada, segundo a segundo. */
+  const updateElapsed = (): void => {
+    const now = Date.now();
+    document
+      .querySelectorAll<HTMLElement>("[data-tv-card][data-created-at]")
+      .forEach((card) => {
+        const created = card.dataset.createdAt;
+        if (!created) return;
+        const started = new Date(created).getTime();
+        if (Number.isNaN(started)) return;
+        const seconds = Math.max(0, Math.floor((now - started) / 1000));
+        const el = query<HTMLElement>('[data-field="tiempo"]', card);
+        if (el) el.textContent = formatDuration(seconds);
+      });
+  };
+
+  const setLiveState = (ok: boolean, stale = false): void => {
+    const state = !ok ? "error" : stale ? "warning" : "success";
+    const tone = state === "success" ? "success" : state === "warning" ? "warning" : "error";
+
+    const badge = query<HTMLElement>("[data-tv-live]");
+    if (badge) {
+      badge.classList.toggle("badge-success", tone === "success");
+      badge.classList.toggle("badge-warning", tone === "warning");
+      badge.classList.toggle("badge-error", tone === "error");
+      badge.classList.toggle("dark:bg-error/80", tone === "error");
+    }
+
+    const label = query<HTMLElement>("[data-tv-live-label]");
+    if (label) {
+      label.textContent = !ok
+        ? "Sin datos"
+        : stale
+          ? "Datos demorados"
+          : "En vivo";
+    }
+  };
+
+  const updateFreshness = (): void => {
+    const root = getRoot();
+    if (!root) return;
+
+    const el = query<HTMLElement>("[data-tv-freshness]", root);
+    if (el) {
+      const fetchedAt = root.dataset.fetchedAt;
+      if (!fetchedAt) {
+        el.textContent = "--";
+      } else {
+        const seconds = Math.max(
+          0,
+          Math.floor((Date.now() - new Date(fetchedAt).getTime()) / 1000),
+        );
+        if (seconds < 5) {
+          el.textContent = "actualizado ahora";
+        } else if (seconds < 60) {
+          el.textContent = `actualizado hace ${seconds}s`;
+        } else {
+          el.textContent = `actualizado hace ${Math.floor(seconds / 60)} min`;
+        }
+      }
+    }
+
+  };
+
+  const applySnapshot = (data: TvApi): void => {
+    const root = getRoot();
+    if (!root) return;
+
+    root.dataset.fetchedAt = data.fetchedAt;
+    root.dataset.stale = data.stale ? "true" : "false";
+
+    setKpi("ivr", data.kpis.ivr);
+    setKpi("enqueued", data.kpis.enqueued);
+    setKpi("attended", data.kpis.attended);
+    setKpi("ringing", data.kpis.ringing);
+
+    renderCalls(data.calls ?? []);
+    renderCasos(data.casos);
+    renderCalidad(data.calidad);
+    setWarning("[data-tv-wise-warning]", data.warning);
+
+    setLiveState(true, data.stale);
+    updateFreshness();
+    updateElapsed();
+  };
+
+  const fetchSnapshot = async (): Promise<void> => {
+    if (requestInFlight) return;
+    requestInFlight = true;
+
+    try {
+      const url = `${getCleanBase()}api/tv/estado`;
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      applySnapshot((await response.json()) as TvApi);
+    } catch (error) {
+      console.warn("[TV] No se pudo refrescar el snapshot:", error);
+      setLiveState(false);
+      updateFreshness();
+    } finally {
+      requestInFlight = false;
+    }
+  };
+
+  const startPolling = (): void => {
+    if (pollTimer !== null) return;
+    pollTimer = window.setInterval(() => {
+      void fetchSnapshot();
+    }, POLL_INTERVAL_MS);
+  };
+
+  const initRankingModal = (): void => {
+    if (rankingModalInit) return;
+
+    const modal = query<HTMLDialogElement>("#tv-ranking-modal");
+    const open = query<HTMLButtonElement>("[data-tv-ranking-open]");
+    if (!modal || !open) return;
+    rankingModalInit = true;
+
+    open.addEventListener("click", () => {
+      if (open.disabled) return;
+      if (!modal.open) modal.showModal();
+      open.setAttribute("aria-expanded", "true");
+      modal.querySelector<HTMLElement>('[aria-label="Cerrar"]')?.focus();
+    });
+
+    modal.addEventListener("close", () => {
+      open.setAttribute("aria-expanded", "false");
+      open.focus();
+    });
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) modal.close();
+    });
+  };
+
+  const initTv = (): void => {
+    const root = getRoot();
+    if (!root) return;
+    if (root.dataset.tvInit === "true") return;
+    root.dataset.tvInit = "true";
+
+    initRankingModal();
+    updateFreshness();
+    startPolling();
+  };
+
+  document.addEventListener("astro:page-load", initTv);
+
+  initFullscreenToggle();
+
+  // El server island se resuelve de forma diferida: se espera a que aparezca.
+  const observer = new MutationObserver(() => {
+    initTv();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  initTv();
+
+  if (tickTimer === null) {
+    tickTimer = window.setInterval(() => {
+      updateFreshness();
+      updateElapsed();
+      updateCasoAges();
+    }, TICK_INTERVAL_MS);
+  }
+</script>

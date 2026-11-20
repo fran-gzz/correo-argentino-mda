@@ -1,0 +1,452 @@
+---
+import FullscreenButton from "@components/ui/FullscreenButton.astro";
+import TvKpiSegment from "./TvKpiSegment.astro";
+import LlamadaRow from "./LlamadaRow.astro";
+import CasoRow from "./CasoRow.astro";
+import TopOperadoresPodio from "./TopOperadoresPodio.astro";
+import RankingCompletoModal from "./RankingCompletoModal.astro";
+import PromediosCalidad from "./PromediosCalidad.astro";
+import { getWiseCallsSnapshot } from "@/lib/wise-cx-calls";
+import { getCasosAutogestion } from "@/lib/invgate/casosAutogestion";
+import { getCalidadResumenTv } from "@/lib/calidad/resumenTv";
+
+/**
+ * Wallboard de TV: llamadas en vivo (Wise CX), cola de la mesa de ayuda
+ * (InvGate, solo lectura) y calidad.
+ *
+ * Composición:
+ *  - header compacto con estado de conexión y pantalla completa;
+ *  - banda horizontal de 4 KPIs;
+ *  - columna izquierda con el Top 3 de operadores;
+ *  - columna derecha con llamadas activas y mesa de ayuda;
+ *  - pie de calidad;
+ *  - ranking completo en un modal.
+ *
+ * El server island resuelve los datos para que la página no bloquee el render
+ * esperando a las APIs externas.
+ */
+const [snapshot, casos, calidad] = await Promise.all([
+  getWiseCallsSnapshot(),
+  getCasosAutogestion(),
+  getCalidadResumenTv(),
+]);
+const { kpis, calls, fetchedAt, stale, warning } = snapshot;
+
+/** Los cuatro estados que la mesa necesita ver en vivo. */
+const kpiCards = [
+  {
+    key: "ringing",
+    label: "Sonando",
+    value: kpis.ringing,
+    hint: "Llamadas en el ring de un agente, esperando que atienda.",
+  },
+  {
+    key: "attended",
+    label: "Activas",
+    value: kpis.attended,
+    hint: "Llamadas que un agente está atendiendo en este momento.",
+  },
+  {
+    key: "enqueued",
+    label: "En cola",
+    value: kpis.enqueued,
+    hint: "Llamadas esperando a que se les asigne un agente.",
+  },
+  {
+    key: "ivr",
+    label: "En IVR",
+    value: kpis.ivr,
+    hint: "Llamadas recorriendo el menú de voz.",
+  },
+];
+---
+
+<div
+  id="tv-root"
+  class="tv-root flex min-h-0 flex-col gap-3 lg:h-full"
+  data-tv-root
+  data-fullscreen-root
+  data-fetched-at={fetchedAt}
+  data-stale={stale ? "true" : "false"}
+>
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-wrap items-center gap-3">
+      <span
+        class:list={[
+          "badge badge-lg",
+          stale ? "badge-warning" : "badge-success",
+        ]}
+        data-tv-live
+      >
+        <span data-tv-live-label>
+          {stale ? "Datos demorados" : "En vivo"}
+        </span>
+      </span>
+
+      <span
+        class="text-base-content/70 font-mono text-sm tabular-nums"
+        data-tv-freshness
+      >
+        --
+      </span>
+    </div>
+
+    <div class="ml-auto flex min-w-0 items-center gap-2">
+      <span
+        class:list={[
+          "badge badge-warning badge-sm max-w-md truncate",
+          !warning && "hidden",
+        ]}
+        title={warning}
+        data-tv-wise-warning
+      >
+        {warning}
+      </span>
+      <FullscreenButton
+        variant="outline"
+        size="sm"
+        label="Pantalla completa"
+        targetLabel="el tablero de la TV"
+        class="tv-fullscreen"
+      />
+    </div>
+  </header>
+
+  <section
+    class="bg-base-300 border-base-300 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border xl:grid-cols-4"
+    aria-label="Estado de las llamadas"
+  >
+    {
+      kpiCards.map((card) => (
+        <TvKpiSegment
+          kpiKey={card.key}
+          label={card.label}
+          value={card.value}
+          hint={card.hint}
+        />
+      ))
+    }
+  </section>
+
+  <div
+    class="tv-main-grid min-h-0 flex-1 overflow-y-auto"
+    data-tv-columns
+  >
+    <div class="flex min-h-0 flex-col" data-tv-left>
+      <TopOperadoresPodio resumen={calidad} />
+    </div>
+
+    <div
+      class="tv-ops-grid bg-base-100 border-base-300 min-h-0 overflow-hidden rounded-2xl border"
+      data-tv-ops
+    >
+      <section class="flex min-h-0 flex-col p-4" aria-label="Llamadas activas">
+        <div class="flex items-center gap-3 pb-1">
+          <h2 class="text-base-content text-lg font-bold tracking-tight">
+            Llamadas activas
+          </h2>
+          <span
+            class="badge badge-lg font-mono font-black tabular-nums"
+            data-tv-total
+          >
+            {calls.length}
+          </span>
+        </div>
+
+        <ul
+          class="min-h-0 flex-1 overflow-y-auto pr-1"
+          data-tv-cards
+          hidden={calls.length === 0}
+        >
+          {calls.map((call) => <LlamadaRow call={call} />)}
+        </ul>
+
+        <div
+          class="border-base-300 text-base-content/70 flex flex-1 items-center justify-center rounded-xl border border-dashed p-4 text-center"
+          data-tv-empty
+          hidden={calls.length > 0}
+        >
+          <span>Sin llamadas activas. La línea está libre.</span>
+        </div>
+      </section>
+
+      <section class="flex min-h-0 flex-col p-4" aria-label="Casos sin asignar">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-baseline gap-2">
+            <h2 class="text-base-content text-lg font-bold tracking-tight">
+              Casos sin asignar
+            </h2>
+            <span
+              class="badge badge-lg font-mono font-black tabular-nums"
+              data-tv-casos-total
+            >
+              {casos.total}
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-1.5" data-tv-casos-breakdown>
+            {
+              casos.porCategoria.map((categoria) => (
+                <span
+                  class="badge badge-xs badge-soft badge-ghost font-mono tabular-nums"
+                  data-tv-caso-categoria={categoria.categoryId}
+                  title={categoria.label}
+                >
+                  {categoria.label}: {categoria.count}
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        <ul
+          class="mt-2 min-h-0 flex-1 overflow-y-auto pr-1"
+          data-tv-casos-cards
+          hidden={casos.casos.length === 0}
+        >
+          {casos.casos.map((caso) => <CasoRow caso={caso} />)}
+        </ul>
+
+        <div
+          class="border-base-300 text-base-content/70 flex flex-1 items-center justify-center rounded-xl border border-dashed p-4 text-center"
+          data-tv-casos-empty
+          hidden={casos.casos.length > 0}
+        >
+          <span>Sin casos pendientes de asignación.</span>
+        </div>
+
+        <p
+          class:list={[
+            "alert alert-warning mt-2 text-xs",
+            !casos.warning && "hidden",
+          ]}
+          data-tv-casos-warning
+          role="status"
+        >
+          <span data-field="text">{casos.warning}</span>
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <PromediosCalidad resumen={calidad} />
+</div>
+
+<RankingCompletoModal resumen={calidad} />
+
+<template id="tv-tpl-card">
+  <li
+    class="border-base-300 flex items-center gap-3 border-b py-1.5 last:border-0"
+    data-tv-card
+  >
+    <span data-field="estado"></span>
+    <div class="min-w-0 flex-1">
+      <p
+        class="text-base-content truncate text-base font-semibold xl:text-lg"
+        data-field="agente"></p>
+      <p
+        class="text-base-content/70 truncate text-xs xl:text-sm"
+        data-field="grupo"></p>
+    </div>
+    <span
+      class="text-base-content/80 shrink-0 font-mono text-base font-bold tabular-nums xl:text-lg"
+      data-field="tiempo"
+    ></span>
+  </li>
+</template>
+
+<template id="tv-tpl-caso">
+  <li
+    class="border-base-300 flex items-center gap-3 border-b py-2 last:border-0"
+    data-tv-caso
+  >
+    <span
+      class="text-base-content shrink-0 font-mono text-xs font-bold"
+      data-field="numero"></span>
+    <div class="min-w-0 flex-1">
+      <p
+        class="text-base-content truncate text-sm font-semibold"
+        data-field="titulo"></p>
+      <p class="text-base-content/70 truncate text-xs" data-field="meta"></p>
+    </div>
+    <span
+      class="text-base-content/70 shrink-0 font-mono text-xs tabular-nums"
+      data-field="edad"
+    ></span>
+  </li>
+</template>
+
+<style is:global>
+  [data-fullscreen-root].is-fullscreen {
+    background-color: var(--color-base-100);
+    height: 100%;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+
+  .tv-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .tv-ops-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tv-ops-grid > section + section {
+    border-top: 1px solid var(--color-base-300);
+  }
+
+  .tv-podium {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: end;
+    gap: 0.5rem;
+  }
+
+  .tv-podium-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+  }
+
+  .tv-podium-card-1 {
+    grid-column: 2;
+    padding: 1.25rem 0.5rem 1rem;
+    border-radius: 0.75rem;
+    background: color-mix(in oklab, var(--color-secondary) 5%, transparent);
+  }
+
+  .tv-podium-card-2 {
+    grid-column: 1;
+  }
+
+  .tv-podium-card-3 {
+    grid-column: 3;
+  }
+
+  .tv-podium-card-2,
+  .tv-podium-card-3 {
+    border-top: 1px solid var(--color-base-300);
+  }
+
+  [data-theme="dark"] .tv-podium-card-1 {
+    background: color-mix(in oklab, var(--color-accent) 10%, transparent);
+  }
+
+  @media (max-width: 1023px) {
+    .tv-main-grid > [data-tv-ops] {
+      order: 1;
+    }
+
+    .tv-main-grid > [data-tv-left] {
+      order: 2;
+    }
+
+    .tv-podium {
+      gap: 0.25rem;
+    }
+
+    .tv-podium-card {
+      padding: 0.5rem 0.25rem;
+    }
+
+    .tv-podium-card-1 {
+      padding: 0.75rem 0.25rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tv-main-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    [data-tv-left] {
+      grid-column: span 1;
+    }
+
+    [data-tv-ops] {
+      grid-column: span 3;
+    }
+
+    .tv-ops-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tv-ops-grid > section + section {
+      border-top: 0;
+      border-left: 1px solid var(--color-base-300);
+    }
+  }
+
+  /* En pantallas de 768px de alto, casos necesita más espacio para mostrar
+     la lista; llamadas scrollea. */
+  @media (max-height: 820px) {
+    .tv-root {
+      gap: 0.5rem;
+    }
+
+    [data-tv-ops] > section {
+      padding: 0.625rem 0.75rem;
+    }
+
+    [data-tv-podio] {
+      padding: 0.75rem;
+    }
+
+    .tv-podium {
+      margin-top: 0.5rem;
+      gap: 0.25rem;
+    }
+
+    .tv-podium-card {
+      padding: 0.5rem 0.25rem;
+    }
+
+    .tv-podium-card-1 {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+
+
+
+  /* Medallas: activo visual local del podio, no parte de la paleta
+     institucional. Los tonos están medidos para 3:1 sobre base-100. */
+  .tv-medal-oro {
+    color: #a8841f;
+  }
+
+  .tv-medal-plata {
+    color: #6b7482;
+  }
+
+  .tv-medal-bronce {
+    color: #8a4f2a;
+  }
+
+  [data-theme="dark"] .tv-medal-oro {
+    color: #e3b341;
+  }
+
+  [data-theme="dark"] .tv-medal-plata {
+    color: #c3ccda;
+  }
+
+  [data-theme="dark"] .tv-medal-bronce {
+    color: #cf8752;
+  }
+
+  /* El botón de pantalla completa usa outline secondary; en dark el azul
+     institucional no alcanza contraste. Se cambia solo el color del borde y
+     del texto, sin tocar el resto de los botones del portal. */
+  [data-theme="dark"] .tv-fullscreen {
+    --btn-color: var(--color-accent);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+</style>

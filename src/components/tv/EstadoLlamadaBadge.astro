@@ -17,7 +17,14 @@ const tone = LLAMADA_ESTADO_TONES[estado] ?? "neutral";
 ---
 
 <span
-  class:list={["badge badge-sm badge-soft", `badge-${tone}`, className]}
+  class:list={[
+    "badge badge-sm",
+    `badge-${tone}`,
+    // En dark, error usa un fondo un poco más oscuro para que el texto blanco
+    // llegue a 4.5:1. El token global de error en dark queda en 3.75:1.
+    tone === "error" && "dark:bg-error/80",
+    className,
+  ]}
   data-estado-badge
 >
   {label ?? LLAMADA_ESTADO_LABELS[estado] ?? estado}

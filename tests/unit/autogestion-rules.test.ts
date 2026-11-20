@@ -37,6 +37,7 @@ import {
 } from "@/lib/autogestion/rulesEngine";
 import { reassignTicketToAgent, addTicketComment, invalidateUnassignedTicketsCache } from "@/lib/invgate/agsTickets";
 import { getDisponibilidadHoy } from "@lib/disponibilidad";
+import { AGS_HELPDESK_ID } from "@/lib/invgate/agsHelpdesk";
 import { db } from "@db/index";
 
 describe("Autogestión Automation Rules - Solicitud rechazada en revisión", () => {
@@ -161,7 +162,12 @@ describe("Autogestión Automation Rules - Solicitud rechazada en revisión", () 
 
     expect(execRes.success).toBe(true);
     // 1. Reasignación en InvGate
-    expect(reassignTicketToAgent).toHaveBeenCalledWith(9001, 501, 3950, expect.any(Number));
+    expect(reassignTicketToAgent).toHaveBeenCalledWith(
+      9001,
+      501,
+      AGS_HELPDESK_ID,
+      expect.any(Number),
+    );
     // 2. Comentario explicativo
     expect(addTicketComment).toHaveBeenCalledWith(
       9001,

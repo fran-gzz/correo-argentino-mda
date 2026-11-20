@@ -21,6 +21,11 @@ interface Props {
    * scroller, nunca se superpone al contenido).
    */
   fixedFooter?: boolean;
+  /**
+   * Agrega una X de cierre en la esquina superior derecha. Usa un form
+   * method="dialog", así que no necesita JavaScript.
+   */
+  closeButton?: boolean;
 }
 
 const {
@@ -34,6 +39,7 @@ const {
   class: className,
   actionsFooter = false,
   fixedFooter = false,
+  closeButton = false,
 } = Astro.props;
 
 const isSide = variant === "side";
@@ -52,6 +58,7 @@ const sizeClasses: Record<string, string> = {
 
 <dialog
   {id}
+  aria-labelledby={title ? `${id}-title` : undefined}
   class:list={[
     "modal",
     isSide
@@ -66,15 +73,30 @@ const sizeClasses: Record<string, string> = {
         ? "modal-box modal-side-box h-full max-h-none rounded-none sm:rounded-l-2xl sm:h-full w-full m-0"
         : "modal-box w-11/12 sm:w-full",
       fixedFooter ? "flex flex-col overflow-hidden p-0" : "scrollbar-hide",
+      closeButton && "relative",
       sizeClasses[size],
       className,
     ]}
   >
     {
+      closeButton && (
+        <form method="dialog" class="absolute top-3 right-3 z-20">
+          <button
+            type="submit"
+            class="btn btn-ghost btn-sm btn-circle"
+            aria-label="Cerrar"
+          >
+            <Icon name="boxicons:x" size={20} aria-hidden="true" is:inline />
+          </button>
+        </form>
+      )
+    }
+    {
       fixedFooter ? (
         <div class="scrollbar-hide min-h-0 flex-1 overflow-y-auto px-6 pt-6 pb-4">
           {title && (
             <h3
+              id={title ? `${id}-title` : undefined}
               class:list={[
                 "text-base-content mb-3 flex items-center gap-2 text-pretty",
                 titleClass || "text-lg font-bold",
@@ -92,6 +114,7 @@ const sizeClasses: Record<string, string> = {
         <>
           {title && (
             <h3
+              id={title ? `${id}-title` : undefined}
               class:list={[
                 "text-base-content mb-3 flex items-center gap-2 text-pretty",
                 titleClass || "text-lg font-bold",

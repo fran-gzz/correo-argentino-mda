@@ -1,0 +1,60 @@
+---
+import { formatScore, scoreToneClass } from "@/lib/tv/display";
+import type { CalidadResumenTv } from "@/lib/calidad/resumenTv";
+
+interface Props {
+  resumen: CalidadResumenTv;
+}
+
+const { resumen } = Astro.props;
+---
+
+<footer
+  class="border-base-300 flex shrink-0 flex-wrap items-center gap-x-6 gap-y-1 border-t pt-2"
+  data-tv-calidad
+  aria-label="Promedios de calidad del período"
+>
+  <span class="flex items-baseline gap-2">
+    <span class="text-base-content/70 text-sm">General</span>
+    <span
+      class:list={[
+        "font-mono text-lg font-bold tabular-nums",
+        scoreToneClass(resumen.promedioGeneral),
+      ]}
+      data-tv-calidad-general
+    >
+      {formatScore(resumen.promedioGeneral)}
+    </span>
+  </span>
+
+  {
+    resumen.porCanal.map((canal) => (
+      <span class="flex items-baseline gap-2" data-tv-calidad-canal={canal.key}>
+        <span class="text-base-content/70 text-sm">{canal.label}</span>
+        <span
+          class:list={[
+            "font-mono text-lg font-bold tabular-nums",
+            scoreToneClass(canal.avg),
+          ]}
+          data-field="avg"
+        >
+          {formatScore(canal.avg)}
+        </span>
+      </span>
+    ))
+  }
+
+  <span class="ml-auto flex items-baseline gap-2">
+    <span class="text-base-content/70 text-sm">Aprobados (≥75%)</span>
+    <span
+      class="text-base-content font-mono text-lg font-bold tabular-nums"
+      data-tv-aprobados
+    >
+      {resumen.aprobados}/{resumen.aprobadosTotal}
+    </span>
+  </span>
+
+  <span class="text-base-content/70 font-mono text-xs" data-tv-mes>
+    {resumen.monthLabel || "--"}
+  </span>
+</footer>

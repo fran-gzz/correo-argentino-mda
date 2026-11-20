@@ -1,0 +1,176 @@
+---
+import { Icon } from "astro-icon/components";
+import Medalla from "./Medalla.astro";
+import { formatScore, scoreToneClass } from "@/lib/tv/display";
+import type { CalidadResumenTv } from "@/lib/calidad/resumenTv";
+
+interface Props {
+  resumen: CalidadResumenTv;
+}
+
+const { resumen } = Astro.props;
+const podio = resumen.ranking.slice(0, 3);
+const resto = resumen.ranking.slice(3, 10);
+const vacio = podio.length === 0;
+const sinResto = resto.length === 0;
+
+// Orden visual del podio: 2º, 1º, 3º.
+const orden: { index: number; puesto: 1 | 2 | 3 }[] = [
+  { index: 1, puesto: 2 },
+  { index: 0, puesto: 1 },
+  { index: 2, puesto: 3 },
+];
+---
+
+<section
+  class="bg-base-100 border-base-300 hover:border-secondary/40 dark:hover:border-accent/40 focus-within:border-accent/60 focus-within:ring-accent/60 relative flex min-h-0 flex-1 flex-col rounded-2xl border p-4 transition-colors focus-within:ring-2"
+  aria-labelledby="tv-top-operadores-title"
+  data-tv-podio
+>
+  <button
+    type="button"
+    class="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none disabled:cursor-not-allowed"
+    data-tv-ranking-open
+    aria-haspopup="dialog"
+    aria-controls="tv-ranking-modal"
+    aria-expanded="false"
+    aria-label="Ver ranking completo de operadores"
+    disabled={vacio}
+  ></button>
+
+  <header class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+    <h2
+      id="tv-top-operadores-title"
+      class="text-base-content text-lg font-bold tracking-tight"
+    >
+      Top operadores
+    </h2>
+    <span class="text-base-content/70 font-mono text-sm" data-tv-podio-mes>
+      {resumen.monthLabel || "--"}
+    </span>
+    <span
+      class:list={[
+        "text-secondary dark:text-accent ml-auto inline-flex items-center gap-1 text-xs font-semibold",
+        vacio && "hidden",
+      ]}
+      data-tv-podio-cta
+    >
+      Ver ranking completo
+      <Icon name="boxicons:chevron-right" size={14} aria-hidden="true" />
+    </span>
+  </header>
+
+  <div class="tv-podium mt-3" data-tv-podio-rows hidden={vacio}>
+    {
+      orden.map(({ index, puesto }) => {
+        const operador = podio[index];
+        const primero = puesto === 1;
+
+        return (
+          <div
+            class:list={["tv-podium-card", `tv-podium-card-${puesto}`]}
+            data-tv-podio-row={puesto}
+            hidden={!operador}
+          >
+            <div class="flex flex-col items-center gap-0.5">
+              <Medalla puesto={puesto} size={primero ? 40 : 28} />
+              <span
+                class:list={[
+                  "font-mono font-bold tabular-nums",
+                  primero
+                    ? "text-secondary dark:text-accent text-xs"
+                    : "text-base-content/70 text-xxs",
+                ]}
+              >
+                {puesto}º
+              </span>
+            </div>
+
+            <span
+              class:list={[
+                "text-base-content mt-1.5 block w-full truncate text-center font-bold",
+                primero ? "text-sm 2xl:text-base" : "text-xs 2xl:text-sm",
+              ]}
+              data-field="nombre"
+            >
+              {operador?.name ?? ""}
+            </span>
+
+            <span
+              class:list={[
+                "mt-0.5 block text-center font-mono font-black tabular-nums",
+                primero ? "text-2xl 2xl:text-3xl" : "text-lg 2xl:text-xl",
+                operador ? scoreToneClass(operador.score) : "text-base-content",
+              ]}
+              data-field="score"
+            >
+              {operador ? formatScore(operador.score) : ""}
+            </span>
+          </div>
+        );
+      })
+    }
+  </div>
+
+  <ol
+    class="border-base-300 mt-2 min-h-0 flex-1 overflow-y-auto border-t"
+    data-tv-top10-list
+    hidden={vacio || sinResto}
+  >
+    {
+      resto.map((operador, index) => (
+        <li
+          class="border-base-300 flex items-center gap-2 border-b py-1.5 last:border-0"
+          data-tv-top10-row
+        >
+          <span
+            class="text-base-content/70 w-6 shrink-0 font-mono text-xs font-bold tabular-nums"
+            data-field="posicion"
+          >
+            {index + 4}º
+          </span>
+          <span
+            class="text-base-content min-w-0 flex-1 truncate text-sm font-semibold"
+            data-field="nombre"
+          >
+            {operador.name}
+          </span>
+          <span
+            class:list={[
+              "shrink-0 font-mono text-lg font-bold tabular-nums",
+              scoreToneClass(operador.score),
+            ]}
+            data-field="score"
+          >
+            {formatScore(operador.score)}
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+
+  <p
+    class="text-base-content/70 flex flex-1 items-center justify-center py-6 text-center text-sm"
+    data-tv-podio-empty
+    hidden={!vacio}
+  >
+    Todavía no hay auditorías suficientes para armar el ranking.
+  </p>
+</section>
+
+<template id="tv-tpl-top10-row">
+  <li
+    class="border-base-300 flex items-center gap-2 border-b py-1.5 last:border-0"
+    data-tv-top10-row
+  >
+    <span
+      class="text-base-content/70 w-6 shrink-0 font-mono text-xs font-bold tabular-nums"
+      data-field="posicion"></span>
+    <span
+      class="text-base-content min-w-0 flex-1 truncate text-sm font-semibold"
+      data-field="nombre"></span>
+    <span
+      class="shrink-0 font-mono text-lg font-bold tabular-nums"
+      data-field="score"></span>
+  </li>
+</template>

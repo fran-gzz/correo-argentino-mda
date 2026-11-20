@@ -1,13 +1,11 @@
 /**
- * Casos de autogestión de InvGate — SOLO LECTURA.
+ * Casos de la mesa de ayuda en InvGate — SOLO LECTURA.
  *
- * Lista todos los casos de la mesa AGS que están **abiertos y sin agente
- * asignado**: son los que la mesa todavía tiene que tomar. No filtra por
- * categoría (a la mesa llegan de cualquier tema) y no incluye los ya
- * resueltos/cerrados.
+ * Lista los casos abiertos de la mesa que todavía no tienen agente asignado y
+ * calcula las métricas de la cola (abiertos, asignados, por estado y
+ * antigüedad). Es la fuente del panel de la mesa en el wallboard `/tv`.
  *
- * No escribe nada: ni en InvGate ni en SQLite. Es un listado para el
- * wallboard `/broadcast`.
+ * No escribe nada: ni en InvGate ni en SQLite.
  *
  * Reusa la misma config de InvGate que el resto del portal (`invgateClient`:
  * `INVGATE_BASE_URL` + `INVGATE_API_KEY`), así que no hay integración nueva.
@@ -19,7 +17,7 @@ import { getIncidentStatuses } from "@/lib/invgate/automation/statuses";
 import { getCategoryMap, getLastCategoryName } from "@/lib/invgate/categoryCache";
 import { getFullUserMap } from "@/lib/invgate/userCache";
 import { getLocationsMap } from "@/lib/invgate/locationsMapCache";
-import { AGS_HELPDESK_ID } from "@/lib/invgate/agsHelpdesk";
+import { getAgsHelpdeskResolution } from "@/lib/invgate/agsHelpdesk";
 
 const CACHE_TTL_MS = 60_000;
 /** Tope de categorías distintas que se devuelven en el desglose. */
@@ -44,12 +42,34 @@ export interface CasoAutogestion {
   ageHours: number;
 }
 
+export interface MesaEstadoResumen {
+  statusId: number;
+  name: string;
+  count: number;
+}
+
+export interface CasosMetricas {
+  /** Casos abiertos de la cola (con o sin agente). */
+  abiertos: number;
+  sinAsignar: number;
+  asignados: number;
+  /** Desglose por estado, de mayor a menor cantidad. */
+  porEstado: MesaEstadoResumen[];
+  /** Mediana de antigüedad de los casos abiertos, en horas. */
+  antiguedadMedianaHoras: number;
+  /** Antigüedad del caso abierto más viejo, en horas. */
+  masAntiguoHoras: number;
+}
+
 export interface CasosAutogestionResumen {
   helpdeskId: number;
+  /** false cuando el ID se resolvió por default y no por variable de entorno. */
+  helpdeskExplicit: boolean;
   total: number;
   /** Desglose por categoría real, de mayor a menor cantidad. */
   porCategoria: { categoryId: number; label: string; count: number }[];
   casos: CasoAutogestion[];
+  metricas: CasosMetricas;
   actualizadoAt: string;
   warning?: string;
 }
@@ -74,26 +94,55 @@ function getEnv(key: string): string {
 }
 
 /**
- * Mesa a consultar. Por defecto la de autogestiones (`INVGATE_AGENTS_HELPDESK_ID`).
- * Se puede apuntar a otra sin tocar el resto del flujo con
- * `INVGATE_AUTOGESTION_HELPDESK_ID` (útil para probar contra producción desde
- * un entorno que cae al fallback de QA).
+ * Mesa a consultar. Por defecto la del flujo de asignación
+ * (`INVGATE_AGENTS_HELPDESK_ID`). Se puede apuntar a otra sin tocar el resto
+ * con `INVGATE_AUTOGESTION_HELPDESK_ID`.
+ *
+ * `explicit` distingue una mesa configurada a mano de un default: solo en el
+ * segundo caso un cero amerita un aviso, porque puede ser el ID equivocado.
  */
-export function getAutogestionHelpdeskId(): number {
+export function getAutogestionHelpdeskResolution(): {
+  id: number;
+  explicit: boolean;
+  source: "env" | "ags";
+} {
   const raw = getEnv("INVGATE_AUTOGESTION_HELPDESK_ID");
   const parsed = raw ? Number(raw) : NaN;
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : AGS_HELPDESK_ID;
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return { id: parsed, explicit: true, source: "env" };
+  }
+
+  const ags = getAgsHelpdeskResolution();
+  return { id: ags.id, explicit: ags.explicit, source: "ags" };
+}
+
+export function getAutogestionHelpdeskId(): number {
+  return getAutogestionHelpdeskResolution().id;
+}
+
+function emptyMetricas(): CasosMetricas {
+  return {
+    abiertos: 0,
+    sinAsignar: 0,
+    asignados: 0,
+    porEstado: [],
+    antiguedadMedianaHoras: 0,
+    masAntiguoHoras: 0,
+  };
 }
 
 function emptyResumen(
   helpdeskId: number,
+  helpdeskExplicit: boolean,
   warning?: string,
 ): CasosAutogestionResumen {
   return {
     helpdeskId,
+    helpdeskExplicit,
     total: 0,
     porCategoria: [],
     casos: [],
+    metricas: emptyMetricas(),
     actualizadoAt: new Date().toISOString(),
     warning,
   };
@@ -111,15 +160,34 @@ function displayName(
   );
 }
 
+/** Mediana de una lista de números; 0 si está vacía. */
+function median(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  const value =
+    sorted.length % 2 === 0
+      ? (sorted[middle - 1] + sorted[middle]) / 2
+      : sorted[middle];
+  return Math.round(value * 10) / 10;
+}
+
 async function buildResumen(): Promise<CasosAutogestionResumen> {
-  const helpdeskId = getAutogestionHelpdeskId();
+  const resolution = getAutogestionHelpdeskResolution();
+  const helpdeskId = resolution.id;
 
   const idsResult = await getIncidentIdsByHelpdesk(helpdeskId);
   if (!idsResult.ok) {
-    return emptyResumen(helpdeskId, idsResult.message);
+    return emptyResumen(helpdeskId, resolution.explicit, idsResult.message);
   }
   if (idsResult.data.length === 0) {
-    return emptyResumen(helpdeskId);
+    // Una cola vacía es válida si la mesa se configuró explícitamente. Si el
+    // ID salió de un default, un cero suele significar que apunta a otra mesa
+    // (o a QA) y el panel lo tiene que decir, no mostrar 0 como si fuera dato.
+    const warning = resolution.explicit
+      ? undefined
+      : `La mesa ${helpdeskId} no devolvió casos. Revisá INVGATE_AGENTS_HELPDESK_ID: el valor por default puede no ser el de esta instalación.`;
+    return emptyResumen(helpdeskId, resolution.explicit, warning);
   }
 
   const [incidentsResult, categoryMap, statuses, users, locations] =
@@ -132,7 +200,7 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
     ]);
 
   if (!incidentsResult.ok) {
-    return emptyResumen(helpdeskId, incidentsResult.message);
+    return emptyResumen(helpdeskId, resolution.explicit, incidentsResult.message);
   }
 
   const statusNameById = new Map<number, string>(
@@ -141,12 +209,22 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
 
   const now = Math.floor(Date.now() / 1000);
   const casos: CasoAutogestion[] = [];
+  const abiertos = Object.values(incidentsResult.data).filter(
+    (incident) => !incident.solved_at && !incident.closed_at,
+  );
 
-  for (const incident of Object.values(incidentsResult.data)) {
+  const statusCount = new Map<number, number>();
+  const ages: number[] = [];
+
+  for (const incident of abiertos) {
+    statusCount.set(
+      incident.status_id,
+      (statusCount.get(incident.status_id) ?? 0) + 1,
+    );
+    ages.push((now - incident.created_at) / 3600);
+
     // Solo los que todavía no tienen agente: son los que la mesa debe tomar.
     if (incident.assigned_id) continue;
-    // Y solo los abiertos: los resueltos/cerrados no son accionables.
-    if (incident.solved_at || incident.closed_at) continue;
 
     const categoryName = categoryMap.get(incident.category_id) ?? "";
 
@@ -196,19 +274,35 @@ async function buildResumen(): Promise<CasosAutogestionResumen> {
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "es"))
     .slice(0, MAX_CATEGORY_BREAKDOWN);
 
+  const porEstado: MesaEstadoResumen[] = Array.from(statusCount.entries())
+    .map(([statusId, count]) => ({
+      statusId,
+      name: statusNameById.get(statusId) ?? `Estado ${statusId}`,
+      count,
+    }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "es"));
+
   return {
     helpdeskId,
+    helpdeskExplicit: resolution.explicit,
     total: casos.length,
     porCategoria,
     casos,
+    metricas: {
+      abiertos: abiertos.length,
+      sinAsignar: casos.length,
+      asignados: Math.max(0, abiertos.length - casos.length),
+      porEstado,
+      antiguedadMedianaHoras: median(ages),
+      masAntiguoHoras: ages.length > 0 ? Math.round(Math.max(...ages) * 10) / 10 : 0,
+    },
     actualizadoAt: new Date().toISOString(),
   };
 }
 
 /**
- * Snapshot de los casos de autogestión sin asignar. Cache de 60 s +
- * single-flight: el wallboard refresca cada 10 s, así que InvGate se consulta
- * una vez por minuto.
+ * Snapshot de los casos de la mesa. Cache de 60 s + single-flight: el
+ * wallboard refresca cada 10 s, así que InvGate se consulta una vez por minuto.
  */
 export async function getCasosAutogestion(
   options: { forceRefresh?: boolean } = {},

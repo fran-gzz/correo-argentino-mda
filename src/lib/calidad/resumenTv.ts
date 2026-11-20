@@ -1,5 +1,5 @@
 /**
- * Resumen de calidad para el wallboard `/broadcast`.
+ * Resumen de calidad para el wallboard `/tv`.
  *
  * Solo lectura. Reusa las funciones de cálculo del módulo de calidad para que
  * la TV y la página `/supervision/calidad-operadores` no muestren números
@@ -20,17 +20,14 @@ import { activeAgentCondition } from "@/lib/activeUsers";
 import {
   calculateChannelAverages,
   calculateOperatorChannelStats,
+  QUALITY_APPROVAL_THRESHOLD,
 } from "@/lib/qualityCalculator";
 import { formatMonthLabel } from "@/lib/monthUtils";
 
 /** Debajo de esta cantidad de auditorías, el mes corriente no es representativo. */
 const MIN_AUDITS_FOR_CURRENT = 5;
 const CACHE_TTL_MS = 5 * 60_000;
-/** Umbral de aprobación, el mismo que usa el Excel de calidad. */
-const APPROVAL_THRESHOLD = 75;
-const TOP_SIZE = 3;
-
-export interface CalidadTopOperador {
+export interface CalidadOperadorRanking {
   agentId: number;
   name: string;
   /** Promedio de promedios de canal (0-100). */
@@ -48,7 +45,7 @@ export interface CalidadCanalPromedio {
   count: number;
 }
 
-export interface CalidadResumenBroadcast {
+export interface CalidadResumenTv {
   /** Mes usado en el resumen (`MM-YYYY`). */
   month: string;
   monthLabel: string;
@@ -64,17 +61,18 @@ export interface CalidadResumenBroadcast {
   aprobados: number;
   aprobadosTotal: number;
   porCanal: CalidadCanalPromedio[];
-  top: CalidadTopOperador[];
+  /** Todos los operadores auditados, de mejor a peor promedio. */
+  ranking: CalidadOperadorRanking[];
   actualizadoAt: string;
 }
 
 interface CacheEntry {
-  data: CalidadResumenBroadcast;
+  data: CalidadResumenTv;
   timestamp: number;
 }
 
 const cache = new Map<string, CacheEntry>();
-const inFlight = new Map<string, Promise<CalidadResumenBroadcast>>();
+const inFlight = new Map<string, Promise<CalidadResumenTv>>();
 
 function currentMonth(now: Date = new Date()): string {
   const mm = (now.getMonth() + 1).toString().padStart(2, "0");
@@ -137,7 +135,7 @@ function buildResumen(
   requestedMonth: string,
   usedFallback: boolean,
   aggregate: MonthAggregate,
-): CalidadResumenBroadcast {
+): CalidadResumenTv {
   const operadores = [...aggregate.byAgent.entries()].map(([agentId, entry]) => {
     const stats = calculateOperatorChannelStats(entry.audits);
     return {
@@ -146,25 +144,23 @@ function buildResumen(
       score: stats.globalAverage,
       audits: entry.audits.length,
       quotaFulfilled: stats.quotaFulfilled,
-    } satisfies CalidadTopOperador;
+    } satisfies CalidadOperadorRanking;
   });
 
-  const top = operadores
+  const ranking = operadores
     .filter((operador) => operador.audits > 0)
     .sort(
       (a, b) =>
         b.score - a.score ||
         b.audits - a.audits ||
         a.name.localeCompare(b.name, "es"),
-    )
-    .slice(0, TOP_SIZE);
+    );
 
-  const conAuditorias = operadores.filter((operador) => operador.audits > 0);
   const promedioGeneral =
-    conAuditorias.length > 0
+    ranking.length > 0
       ? Math.round(
-          conAuditorias.reduce((acc, operador) => acc + operador.score, 0) /
-            conAuditorias.length,
+          ranking.reduce((acc, operador) => acc + operador.score, 0) /
+            ranking.length,
         )
       : null;
 
@@ -190,8 +186,8 @@ function buildResumen(
     },
   ];
 
-  const aprobados = conAuditorias.filter(
-    (operador) => operador.score >= APPROVAL_THRESHOLD,
+  const aprobados = ranking.filter(
+    (operador) => operador.score >= QUALITY_APPROVAL_THRESHOLD,
   ).length;
 
   return {
@@ -200,19 +196,19 @@ function buildResumen(
     requestedMonth,
     usedFallback,
     totalAuditorias: aggregate.total,
-    operadoresAuditados: conAuditorias.length,
+    operadoresAuditados: ranking.length,
     promedioGeneral,
     aprobados,
-    aprobadosTotal: conAuditorias.length,
+    aprobadosTotal: ranking.length,
     porCanal,
-    top,
+    ranking,
     actualizadoAt: new Date().toISOString(),
   };
 }
 
 async function buildResumenWithFallback(
   now: Date = new Date(),
-): Promise<CalidadResumenBroadcast> {
+): Promise<CalidadResumenTv> {
   const requested = currentMonth(now);
   const actual = await loadMonth(requested);
 
@@ -235,9 +231,9 @@ async function buildResumenWithFallback(
  * Resumen de calidad del mes corriente (con fallback al anterior si no hay
  * auditorías suficientes). Cache de 5 min + single-flight.
  */
-export async function getCalidadResumenBroadcast(
+export async function getCalidadResumenTv(
   options: { forceRefresh?: boolean; now?: Date } = {},
-): Promise<CalidadResumenBroadcast> {
+): Promise<CalidadResumenTv> {
   const key = currentMonth(options.now);
   const now = Date.now();
 
